@@ -1,0 +1,124 @@
+package com.venyx.tiktokshop.entities;
+
+import com.venyx.tiktokshop.entities.enums.DashboardPeriodType;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Objects;
+
+/**
+ * Métricas manuais do dashboard, editadas pelo admin, por período.
+ */
+@Entity
+@Table(name = "dashboard_metrics",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"period_type", "period_ref"}))
+public class DashboardMetric {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "period_type", nullable = false)
+    private DashboardPeriodType periodType;
+
+    @Column(name = "period_ref", nullable = false)
+    private String periodRef;
+
+    @Column(precision = 14, scale = 2)
+    private BigDecimal revenue;
+
+    private Integer orders;
+
+    @Column(precision = 14, scale = 2)
+    private BigDecimal commission;
+
+    @Column(name = "avg_ticket", precision = 14, scale = 2)
+    private BigDecimal avgTicket;
+
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant updatedAt;
+
+    public DashboardMetric() {
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void touch() {
+        this.updatedAt = Instant.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public DashboardPeriodType getPeriodType() {
+        return periodType;
+    }
+
+    public void setPeriodType(DashboardPeriodType periodType) {
+        this.periodType = periodType;
+    }
+
+    public String getPeriodRef() {
+        return periodRef;
+    }
+
+    public void setPeriodRef(String periodRef) {
+        this.periodRef = periodRef;
+    }
+
+    public BigDecimal getRevenue() {
+        return revenue;
+    }
+
+    public void setRevenue(BigDecimal revenue) {
+        this.revenue = revenue;
+    }
+
+    public Integer getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Integer orders) {
+        this.orders = orders;
+    }
+
+    public BigDecimal getCommission() {
+        return commission;
+    }
+
+    public void setCommission(BigDecimal commission) {
+        this.commission = commission;
+    }
+
+    public BigDecimal getAvgTicket() {
+        return avgTicket;
+    }
+
+    public void setAvgTicket(BigDecimal avgTicket) {
+        this.avgTicket = avgTicket;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DashboardMetric that = (DashboardMetric) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+}

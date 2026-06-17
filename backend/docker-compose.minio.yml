@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: bar-gestao-minio
+    ports:
+      - "9000:9000" # API do S3
+      - "9001:9001" # Painel Admin/UI Web
+    environment:
+      MINIO_ROOT_USER: "admin"
+      MINIO_ROOT_PASSWORD: "admin123456"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  minio_data:
