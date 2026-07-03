@@ -5,5 +5,8 @@ package com.venyx.tiktokshop.entities.enums;
  */
 public enum PlanType {
     MONTHLY,
+    QUARTERLY,
+    SEMIANNUAL,
+    ANNUAL,
     LIFETIME
 }

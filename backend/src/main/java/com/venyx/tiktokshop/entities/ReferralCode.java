@@ -23,6 +23,12 @@ public class ReferralCode {
     @Column(nullable = false, unique = true)
     private String code;
 
+    @Column(name = "page_title")
+    private String pageTitle;
+
+    @Column(name = "page_message", columnDefinition = "TEXT")
+    private String pageMessage;
+
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
 
@@ -65,6 +71,22 @@ public class ReferralCode {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public String getPageTitle() {
+        return pageTitle;
+    }
+
+    public void setPageTitle(String pageTitle) {
+        this.pageTitle = pageTitle;
+    }
+
+    public String getPageMessage() {
+        return pageMessage;
+    }
+
+    public void setPageMessage(String pageMessage) {
+        this.pageMessage = pageMessage;
     }
 
     @Override

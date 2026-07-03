@@ -1,0 +1,207 @@
+{
+	"info": {
+		"_postman_id": "a4f2e9c1-3b7d-4a1e-9f6a-venyxcol0001",
+		"name": "Venyx (TikTokShop)",
+		"description": "Endpoints atualmente implementados no backend (Auth + Users). O restante da API está apenas documentado em docs/ARQUITETURA.md — ainda sem controller.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{ "key": "grant_type", "value": "authorization_code_with_pkce", "type": "string" },
+			{ "key": "authUrl", "value": "{{auth_url}}", "type": "string" },
+			{ "key": "accessTokenUrl", "value": "{{acess_token_url}}", "type": "string" },
+			{ "key": "clientId", "value": "{{client_id}}", "type": "string" },
+			{ "key": "clientSecret", "value": "{{client_secret}}", "type": "string" },
+			{ "key": "scope", "value": "{{scope}}", "type": "string" },
+			{ "key": "redirect_uri", "value": "{{callback_url}}", "type": "string" },
+			{ "key": "client_authentication", "value": "header", "type": "string" },
+			{ "key": "addTokenTo", "value": "header", "type": "string" },
+			{ "key": "tokenName", "value": "accessToken", "type": "string" },
+			{ "key": "accessToken", "value": "{{accessToken}}", "type": "string" },
+			{ "key": "useBrowser", "value": true, "type": "boolean" }
+		]
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nome Completo\",\n  \"email\": \"usuario@example.com\",\n  \"phone\": \"11999999999\",\n  \"cpf\": \"12345678900\",\n  \"password\": \"SenhaForte123\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/register",
+							"host": ["{{host}}"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "Auto-cadastro público. Body: RegisterDTO. Retorna 202 Accepted; usuário nasce PENDING_CONFIRMATION."
+					}
+				},
+				{
+					"name": "Confirm Email",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/auth/confirm?token={{confirmToken}}",
+							"host": ["{{host}}"],
+							"path": ["api", "auth", "confirm"],
+							"query": [{ "key": "token", "value": "{{confirmToken}}" }]
+						},
+						"description": "Confirma o e-mail via token recebido por e-mail no Register. Retorna 204 No Content."
+					}
+				},
+				{
+					"name": "Recover Token",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"usuario@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/auth/recover-token",
+							"host": ["{{host}}"],
+							"path": ["auth", "recover-token"]
+						},
+						"description": "Gera e envia por e-mail um token de recuperação de senha. Body: EmailDTO. Retorna 204 No Content."
+					}
+				},
+				{
+					"name": "New Password",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"{{recoverToken}}\",\n  \"password\": \"NovaSenhaForte123\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/auth/new-password",
+							"host": ["{{host}}"],
+							"path": ["auth", "new-password"]
+						},
+						"description": "Define nova senha usando o token gerado em Recover Token. Body: NewPasswordDTO. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "Users (Admin)",
+			"item": [
+				{
+					"name": "Find all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users?search=&page=0&size=20",
+							"host": ["{{host}}"],
+							"path": ["users"],
+							"query": [
+								{ "key": "search", "value": "" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" }
+							]
+						},
+						"description": "Busca paginada de usuários. Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "Find by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users/{{userId}}",
+							"host": ["{{host}}"],
+							"path": ["users", "{{userId}}"]
+						},
+						"description": "Busca um usuário pelo UUID. Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nome Completo\",\n  \"phoneNumber\": \"11999999999\",\n  \"cpf\": \"12345678900\",\n  \"email\": \"usuario@example.com\",\n  \"birthDate\": \"1995-05-20T00:00:00Z\",\n  \"userStatus\": \"ACTIVE\",\n  \"roles\": [\n    { \"id\": 1, \"authority\": \"ROLE_USER\" }\n  ],\n  \"password\": \"SenhaForte123\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/users",
+							"host": ["{{host}}"],
+							"path": ["users"]
+						},
+						"description": "Cria um usuário. Body: UserInsertDTO. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location header."
+					}
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nome Atualizado\",\n  \"phoneNumber\": \"11988888888\",\n  \"cpf\": \"12345678900\",\n  \"email\": \"usuario@example.com\",\n  \"birthDate\": \"1995-05-20T00:00:00Z\",\n  \"userStatus\": \"ACTIVE\",\n  \"roles\": [\n    { \"id\": 1, \"authority\": \"ROLE_USER\" }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{host}}/users/{{userId}}",
+							"host": ["{{host}}"],
+							"path": ["users", "{{userId}}"]
+						},
+						"description": "Atualiza um usuário existente. Body: UserUpdateDTO (password opcional). Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "Delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users/{{userId}}",
+							"host": ["{{host}}"],
+							"path": ["users", "{{userId}}"]
+						},
+						"description": "Remove (soft delete) um usuário. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "Users (Me)",
+			"item": [
+				{
+					"name": "Get me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users/me",
+							"host": ["{{host}}"],
+							"path": ["users", "me"]
+						},
+						"description": "Retorna os dados do usuário autenticado (dono do accessToken)."
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "confirmToken", "value": "" },
+		{ "key": "recoverToken", "value": "" },
+		{ "key": "userId", "value": "" }
+	]
+}
