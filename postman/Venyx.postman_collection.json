@@ -197,11 +197,668 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Credits",
+			"item": [
+				{
+					"name": "Get wallet",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users/me/wallet",
+							"host": ["{{host}}"],
+							"path": ["users", "me", "wallet"]
+						},
+						"description": "Saldo atual da carteira de créditos do usuário autenticado."
+					}
+				},
+				{
+					"name": "Get wallet transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users/me/wallet/transactions",
+							"host": ["{{host}}"],
+							"path": ["users", "me", "wallet", "transactions"]
+						},
+						"description": "Extrato de transações de crédito (débitos, créditos, estornos), mais recentes primeiro."
+					}
+				},
+				{
+					"name": "Get monthly usage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/users/me/usage",
+							"host": ["{{host}}"],
+							"path": ["users", "me", "usage"]
+						},
+						"description": "Créditos debitados em gerações no mês corrente (teto mensal = 400 gerações/mês, decidido em REQUISITOS.md)."
+					}
+				}
+			]
+		},
+		{
+			"name": "Generations",
+			"item": [
+				{
+					"name": "Get generation job",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/generations/{{jobId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "generations", "{{jobId}}"]
+						},
+						"description": "Re-consulta o status/resultado de um job de geração (Estúdio, Avatar, Trend Boost, Ferramentas, TokEditor). 404 se o job não pertencer ao usuário autenticado. Hoje o submit() roda síncrono e já retorna o job final no POST — este GET serve pra re-consultar depois (ex: refresh de página)."
+					}
+				},
+				{
+					"name": "WebSocket - status em tempo real (não é HTTP)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/ws",
+							"host": ["{{host}}"],
+							"path": ["ws"]
+						},
+						"description": "Não é uma request REST — documentação do canal STOMP/SockJS. Endpoint: {{host}}/ws (fallback SockJS). Após conectar, enviar frame STOMP CONNECT com header 'Authorization: Bearer {{accessToken}}' (a autenticação acontece no CONNECT, não no handshake HTTP). Depois, subscribe em '/user/queue/generations' para receber o GenerationJobDTO toda vez que um job mudar de status. Pré-requisito de infra: um broker STOMP em memória (enableSimpleBroker) — não escala para múltiplas instâncias sem trocar por Redis/RabbitMQ."
+					}
+				}
+			]
+		},
+		{
+			"name": "Credit Packages",
+			"item": [
+				{
+					"name": "List active packages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/credit-packages",
+							"host": ["{{host}}"],
+							"path": ["api", "credit-packages"]
+						},
+						"description": "Pacotes de créditos ativos disponíveis para compra. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "[Admin] List all packages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/credit-packages",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "credit-packages"]
+						},
+						"description": "Lista todos os pacotes (inclusive inativos). Requer SUPER_ADMIN (mexe com preço/monetização)."
+					}
+				},
+				{
+					"name": "[Admin] Create package",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Pacote 500\",\n  \"credits\": 500,\n  \"bonusPct\": 10,\n  \"price\": 49.90,\n  \"badge\": \"Popular\",\n  \"active\": true,\n  \"orderIndex\": 1\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/credit-packages",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "credit-packages"]
+						},
+						"description": "Cria um pacote de créditos. Requer SUPER_ADMIN. Retorna 201 + Location."
+					}
+				},
+				{
+					"name": "[Admin] Update package",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Pacote 500\",\n  \"credits\": 500,\n  \"bonusPct\": 15,\n  \"price\": 44.90,\n  \"badge\": \"Popular\",\n  \"active\": true,\n  \"orderIndex\": 1\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/credit-packages/{{creditPackageId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "credit-packages", "{{creditPackageId}}"]
+						},
+						"description": "Atualiza um pacote existente. Requer SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete package",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/credit-packages/{{creditPackageId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "credit-packages", "{{creditPackageId}}"]
+						},
+						"description": "Remove um pacote. Requer SUPER_ADMIN. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "Gallery Avatars",
+			"item": [
+				{
+					"name": "List gallery",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/avatars/gallery?gender=&type=",
+							"host": ["{{host}}"],
+							"path": ["api", "avatars", "gallery"],
+							"query": [
+								{ "key": "gender", "value": "" },
+								{ "key": "type", "value": "" }
+							]
+						},
+						"description": "Galeria de avatares prontos, filtrável por gênero/tipo. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "[Admin] List all avatars",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/avatars/gallery",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "avatars", "gallery"]
+						},
+						"description": "Lista completa da galeria. Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Create avatar",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Avatar Feminino 1\",\n  \"gender\": \"FEMALE\",\n  \"type\": \"REALISTIC\",\n  \"imageUrl\": \"https://cdn.example.com/avatars/f1.png\",\n  \"orderIndex\": 1\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/avatars/gallery",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "avatars", "gallery"]
+						},
+						"description": "Cria um avatar na galeria. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location."
+					}
+				},
+				{
+					"name": "[Admin] Update avatar",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Avatar Feminino 1\",\n  \"gender\": \"FEMALE\",\n  \"type\": \"REALISTIC\",\n  \"imageUrl\": \"https://cdn.example.com/avatars/f1-v2.png\",\n  \"orderIndex\": 1\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/avatars/gallery/{{avatarId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "avatars", "gallery", "{{avatarId}}"]
+						},
+						"description": "Atualiza um avatar existente. Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete avatar",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/avatars/gallery/{{avatarId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "avatars", "gallery", "{{avatarId}}"]
+						},
+						"description": "Remove um avatar da galeria. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "Dashboard Insights",
+			"item": [
+				{
+					"name": "List active insights",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/dashboard/insights?kind=",
+							"host": ["{{host}}"],
+							"path": ["api", "dashboard", "insights"],
+							"query": [{ "key": "kind", "value": "" }]
+						},
+						"description": "Cards/dicas ativos do dashboard, filtráveis por kind (CARD ou MOMENT_READ). Não confundir com o composto /api/dashboard?period= (métricas de faturamento), ainda não implementado."
+					}
+				},
+				{
+					"name": "[Admin] List all insights",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard/insights",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "dashboard", "insights"]
+						},
+						"description": "Lista completa de insights. Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Create insight",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"kind\": \"CARD\",\n  \"title\": \"Dica do dia\",\n  \"content\": \"Poste no horário de pico para mais alcance.\",\n  \"orderIndex\": 1,\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard/insights",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "dashboard", "insights"]
+						},
+						"description": "Cria um insight. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location."
+					}
+				},
+				{
+					"name": "[Admin] Update insight",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"kind\": \"CARD\",\n  \"title\": \"Dica do dia\",\n  \"content\": \"Texto atualizado.\",\n  \"orderIndex\": 1,\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard/insights/{{insightId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "dashboard", "insights", "{{insightId}}"]
+						},
+						"description": "Atualiza um insight existente. Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete insight",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard/insights/{{insightId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "dashboard", "insights", "{{insightId}}"]
+						},
+						"description": "Remove um insight. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "Storage",
+			"item": [
+				{
+					"name": "[Admin] Upload image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{ "key": "file", "type": "file", "src": [] },
+								{ "key": "folder", "value": "avatars", "type": "text" }
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/storage/upload?folder=avatars",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "storage", "upload"],
+							"query": [{ "key": "folder", "value": "avatars" }]
+						},
+						"description": "Sobe uma imagem pro bucket S3/MinIO e retorna { url }. Requer ADMIN ou SUPER_ADMIN. Aceita apenas image/*, limite de 5MB (spring.servlet.multipart.max-file-size). Use a URL retornada no campo imageUrl dos outros CRUDs (avatares, produtos). folder é livre, ex: avatars, products."
+					}
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "List products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products?category=",
+							"host": ["{{host}}"],
+							"path": ["api", "products"],
+							"query": [{ "key": "category", "value": "" }]
+						},
+						"description": "Vitrine de produtos minerados, filtrável por category (FAVORITOS, TOP_PRODUTOS, BELEZA_CUIDADOS, CASA_MAIS, SAUDE_FITNESS, MODA, TECNOLOGIA, ACESSORIOS). Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "Get product by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products/{{productId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "products", "{{productId}}"]
+						},
+						"description": "Detalhe de um produto da vitrine. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "[Admin] List all products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/products",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "products"]
+						},
+						"description": "Lista completa de produtos (sem filtro de categoria). Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Create product",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Fone Bluetooth XYZ\",\n  \"description\": \"Fone sem fio com cancelamento de ruído\",\n  \"imageUrl\": \"https://cdn.example.com/products/fone-xyz.png\",\n  \"category\": \"TECNOLOGIA\",\n  \"sales\": 1200,\n  \"views\": 45000,\n  \"affiliateLink\": \"https://shop.tiktok.com/product/xyz\",\n  \"price\": 89.90,\n  \"commissionPct\": 12.5,\n  \"estimatedRevenue\": 15000.00,\n  \"conversionRate\": 3.2,\n  \"salesPerDay\": 40.5,\n  \"delta7d\": 8.3,\n  \"history7d\": [10, 12, 15, 20, 18, 25, 30],\n  \"miningWindow\": \"7d\",\n  \"trendLabel\": \"Em alta\",\n  \"rankPosition\": 1,\n  \"images\": [\"https://cdn.example.com/products/fone-xyz-1.png\"],\n  \"createdByAdmin\": true\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/products",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "products"]
+						},
+						"description": "Cria um produto na vitrine. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location. Dica: suba a imagem primeiro em Storage > [Admin] Upload image e cole a URL retornada em imageUrl."
+					}
+				},
+				{
+					"name": "[Admin] Update product",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Fone Bluetooth XYZ\",\n  \"description\": \"Fone sem fio com cancelamento de ruído\",\n  \"imageUrl\": \"https://cdn.example.com/products/fone-xyz.png\",\n  \"category\": \"TECNOLOGIA\",\n  \"sales\": 1500,\n  \"views\": 52000,\n  \"affiliateLink\": \"https://shop.tiktok.com/product/xyz\",\n  \"price\": 79.90,\n  \"commissionPct\": 15,\n  \"estimatedRevenue\": 18000.00,\n  \"conversionRate\": 3.5,\n  \"salesPerDay\": 45.0,\n  \"delta7d\": 10.1,\n  \"history7d\": [12, 15, 20, 18, 25, 30, 33],\n  \"miningWindow\": \"7d\",\n  \"trendLabel\": \"Em alta\",\n  \"rankPosition\": 1,\n  \"images\": [\"https://cdn.example.com/products/fone-xyz-1.png\"],\n  \"createdByAdmin\": true\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/products/{{productId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "products", "{{productId}}"]
+						},
+						"description": "Atualiza um produto existente. Requer ADMIN ou SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/products/{{productId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "products", "{{productId}}"]
+						},
+						"description": "Remove um produto. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "User Products",
+			"item": [
+				{
+					"name": "List my products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/user-products",
+							"host": ["{{host}}"],
+							"path": ["api", "user-products"]
+						},
+						"description": "Produtos próprios cadastrados pelo usuário autenticado (\"Usar meu próprio produto\"), distintos da vitrine curada em Products."
+					}
+				},
+				{
+					"name": "Create my product",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Meu produto próprio\",\n  \"description\": \"Produto cadastrado manualmente pelo usuário\",\n  \"imageUrl\": \"https://cdn.example.com/user-products/meu-produto.png\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/user-products",
+							"host": ["{{host}}"],
+							"path": ["api", "user-products"]
+						},
+						"description": "Cria um produto próprio. Dono = usuário autenticado. Retorna 201 + Location. Dica: suba a imagem primeiro em Storage > [Admin] Upload image (se o usuário tiver permissão) ou informe uma URL já hospedada."
+					}
+				},
+				{
+					"name": "Update my product",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Meu produto próprio (atualizado)\",\n  \"description\": \"Descrição atualizada\",\n  \"imageUrl\": \"https://cdn.example.com/user-products/meu-produto-v2.png\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/user-products/{{userProductId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "user-products", "{{userProductId}}"]
+						},
+						"description": "Atualiza um produto próprio. 404 se o produto não pertencer ao usuário autenticado (proteção IDOR)."
+					}
+				},
+				{
+					"name": "Delete my product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/user-products/{{userProductId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "user-products", "{{userProductId}}"]
+						},
+						"description": "Remove um produto próprio. 404 se não pertencer ao usuário autenticado. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "Academy",
+			"item": [
+				{
+					"name": "List modules (with lessons)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/academy/modules",
+							"host": ["{{host}}"],
+							"path": ["api", "academy", "modules"]
+						},
+						"description": "Lista módulos ordenados com as aulas aninhadas (hierarquia Módulo → Aula). Aberto a qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "Get lesson by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/academy/lessons/{{lessonId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "academy", "lessons", "{{lessonId}}"]
+						},
+						"description": "Detalhe de uma aula (título, videoUrl, duração). videoUrl é um link externo (YouTube ou outro host gratuito) — não passa pelo Storage/S3."
+					}
+				},
+				{
+					"name": "[Admin] List all modules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/academy/modules",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "modules"]
+						},
+						"description": "Lista flat de módulos (sem aulas aninhadas) para o painel admin. Requer SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Create module",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Fundamentos que vendem\",\n  \"description\": \"Os pilares de um conteúdo que converte.\",\n  \"orderIndex\": 1\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/academy/modules",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "modules"]
+						},
+						"description": "Cria um módulo. Requer SUPER_ADMIN. Retorna 201 + Location."
+					}
+				},
+				{
+					"name": "[Admin] Update module",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Fundamentos que vendem (atualizado)\",\n  \"description\": \"Descrição atualizada.\",\n  \"orderIndex\": 1\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/academy/modules/{{moduleId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "modules", "{{moduleId}}"]
+						},
+						"description": "Atualiza um módulo. Requer SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete module",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/academy/modules/{{moduleId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "modules", "{{moduleId}}"]
+						},
+						"description": "Remove um módulo. Requer SUPER_ADMIN. Retorna 409 se houver aulas vinculadas (module_id é NOT NULL sem cascade). Retorna 204 No Content quando bem-sucedido."
+					}
+				},
+				{
+					"name": "[Admin] List lessons by module",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/academy/lessons?moduleId={{moduleId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "lessons"],
+							"query": [{ "key": "moduleId", "value": "{{moduleId}}" }]
+						},
+						"description": "Lista as aulas de um módulo para o painel admin. Requer SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Create lesson",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"moduleId\": {{moduleId}},\n  \"title\": \"Boas-vindas e método\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=exemplo\",\n  \"orderIndex\": 1,\n  \"duration\": 420\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/academy/lessons",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "lessons"]
+						},
+						"description": "Cria uma aula vinculada a um módulo. videoUrl é um link externo (YouTube ou outro host gratuito), gravado e hospedado fora do nosso storage. Requer SUPER_ADMIN. Retorna 201 + Location."
+					}
+				},
+				{
+					"name": "[Admin] Update lesson",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"moduleId\": {{moduleId}},\n  \"title\": \"Boas-vindas e método (atualizado)\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=exemplo-v2\",\n  \"orderIndex\": 1,\n  \"duration\": 450\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/academy/lessons/{{lessonId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "lessons", "{{lessonId}}"]
+						},
+						"description": "Atualiza uma aula. Requer SUPER_ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete lesson",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/academy/lessons/{{lessonId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "academy", "lessons", "{{lessonId}}"]
+						},
+						"description": "Remove uma aula. Requer SUPER_ADMIN. Retorna 204 No Content."
+					}
+				}
+			]
 		}
 	],
 	"variable": [
 		{ "key": "confirmToken", "value": "" },
 		{ "key": "recoverToken", "value": "" },
-		{ "key": "userId", "value": "" }
+		{ "key": "userId", "value": "" },
+		{ "key": "jobId", "value": "" },
+		{ "key": "creditPackageId", "value": "" },
+		{ "key": "avatarId", "value": "" },
+		{ "key": "insightId", "value": "" },
+		{ "key": "productId", "value": "" },
+		{ "key": "userProductId", "value": "" },
+		{ "key": "moduleId", "value": "" },
+		{ "key": "lessonId", "value": "" }
 	]
 }

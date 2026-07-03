@@ -12,6 +12,7 @@ import com.venyx.tiktokshop.services.generation.GenerationProvider;
 import com.venyx.tiktokshop.services.generation.GenerationRequest;
 import com.venyx.tiktokshop.services.generation.GenerationResult;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,13 +34,16 @@ public class GenerationJobService {
     private final GenerationJobRepository jobRepository;
     private final CreditService creditService;
     private final GenerationProvider provider;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public GenerationJobService(GenerationJobRepository jobRepository,
                                 CreditService creditService,
-                                GenerationProvider provider) {
+                                GenerationProvider provider,
+                                SimpMessagingTemplate messagingTemplate) {
         this.jobRepository = jobRepository;
         this.creditService = creditService;
         this.provider = provider;
+        this.messagingTemplate = messagingTemplate;
     }
 
     /**
@@ -77,7 +81,9 @@ public class GenerationJobService {
         }
 
         job = jobRepository.save(job);
-        return new GenerationJobDTO(job);
+        GenerationJobDTO dto = new GenerationJobDTO(job);
+        messagingTemplate.convertAndSendToUser(user.getId().toString(), "/queue/generations", dto);
+        return dto;
     }
 
     /**

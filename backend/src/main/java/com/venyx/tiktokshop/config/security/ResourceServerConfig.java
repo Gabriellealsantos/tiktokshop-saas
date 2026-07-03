@@ -71,7 +71,7 @@ public class ResourceServerConfig {
         boolean isTestProfile = Arrays.asList(env.getActiveProfiles()).contains("test");
 
         // Esta cadeia cuida APENAS da API
-        http.securityMatcher("/api/**", "/auth/**", "/users/**", "/mfa/**");
+        http.securityMatcher("/api/**", "/auth/**", "/users/**", "/mfa/**", "/ws/**");
 
         http.authorizeHttpRequests(authorize -> {
             authorize.requestMatchers(
@@ -79,7 +79,8 @@ public class ResourceServerConfig {
                     "/users/confirm",
                     "/api/auth/register",
                     "/api/auth/confirm",
-                    "/api/auth/resend-confirmation"
+                    "/api/auth/resend-confirmation",
+                    "/ws/**"
             ).permitAll();
 
             if (isTestProfile) {

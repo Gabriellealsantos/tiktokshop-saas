@@ -32,7 +32,7 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 
 ## 3. Arquitetura transversal
 
-- **Storage (`StorageService`, S3/MinIO):** upload de imagens (produto próprio, avatar, imagens geradas) e vídeos (TokEditor). URL assinada. MinIO em dev.
+- **Storage (`StorageService`, S3/MinIO) ✅:** endpoint genérico `POST /api/admin/storage/upload?folder=` (multipart, ADMIN+SUPER_ADMIN) — AWS SDK v2 (`S3Client` com `endpointOverride`+`forcePathStyle(true)` pra MinIO local; em prod sem override, o SDK resolve o S3 real pela região). Upload proxeado pelo backend (sem presigned URL — mais simples pro caso de uso atual, que é seed manual via admin), retorna `{ url }`, que é colado manualmente no campo `imageUrl` de qualquer DTO que precise (avatar da galeria, produto, produto próprio). Reaproveitado por todos os módulos com imagem — não há upload embutido em cada CRUD. Vídeo do TokEditor ainda não usa esse endpoint (fluxo de export ainda não implementado).
 - **Geração assíncrona (`generation_jobs`, V3):** `type` ∈ {`STUDIO_SESSION`, `AVATAR`, `TREND_BOOST`, `IMAGE_EDIT`, `TEXT_TO_IMAGE`, `VIDEO_EXPORT`}; `status` PENDING/RUNNING/COMPLETED/FAILED; `reference_id`, `credit_tx_id` (estorno), `result` JSONB (URLs + prompts), `error`. **`GenerationProvider`** (interface) abstrai a IA — provider **decidido: Google Gemini (Nano Banana / Gemini 2.5 Flash Image)**. Front faz polling.
 - **Pagamentos (`PaymentProvider`, V4):** compra de **pacotes de crédito** e **assinatura de plano** via checkout do provider + **webhook** de confirmação (credita carteira / ativa assinatura). Idempotente por `external_id`.
 - **Notificações:** **feed in-app** (`in_app_notifications`) + **web push** (VAPID, `nl.martijndwars:web-push`, envio em lote, limpeza de 410).
@@ -70,13 +70,13 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 ### 4.2 Pagamentos & Créditos
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| GET | `/api/credit-packages` | U | Pacotes à venda (Starter→Enterprise: créditos, preço, bônus%) ⬜ |
-| POST | `/api/credit-packages/{id}/checkout` | U | Inicia compra de pacote → URL/preferência do gateway ⬜ |
+| GET | `/api/credit-packages` | U | Pacotes à venda (Starter→Enterprise: créditos, preço, bônus%) ✅ |
+| POST | `/api/credit-packages/{id}/checkout` | U | Inicia compra de pacote → URL/preferência do gateway ⬜ (depende da decisão de gateway de pagamento) |
 | POST | `/api/plans/{id}/checkout` | U | Compra/upgrade de assinatura ("Mudar de plano") ⬜ |
 | POST | `/api/public/payments/webhook` | P (assinado) | Webhook do gateway → credita carteira / ativa assinatura ⬜ |
-| GET | `/api/admin/credit-packages` · POST/PUT/DELETE | A | CRUD dos pacotes |
-| GET | `/api/users/me/wallet` · `/wallet/transactions` | U | Saldo + extrato |
-| GET | `/api/users/me/usage` | U | Tentativas mensais usadas/restantes |
+| GET | `/api/admin/credit-packages` · POST/PUT/DELETE | **SUPER_ADMIN** | CRUD dos pacotes ✅ (restrito a SUPER_ADMIN, não ADMIN comum, por envolver preço/monetização) |
+| GET | `/users/me/wallet` · `/wallet/transactions` | U | Saldo + extrato ✅ (implementado sem prefixo `/api`, seguindo a convenção real do `UserController`) |
+| GET | `/users/me/usage` | U | Créditos debitados em gerações no mês corrente ✅ |
 | POST | `/api/admin/users/{id}/credits` | A | Conceder/ajustar créditos (ADMIN_CREDIT) |
 
 ### 4.3 Dashboard
@@ -84,30 +84,33 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 |---|---|---|---|
 | GET | `/api/dashboard?period=` | U | Por papel: **admin** Faturamento (cards + **série diária** vendas/pedidos); **user** Tendências |
 | GET/PUT/DELETE | `/api/admin/dashboard/metrics` | A | CRUD das métricas manuais por período |
-| GET/POST/PUT/DELETE | `/api/admin/dashboard/insights` | A | Conteúdo de "Tendências" exibido ao usuário ⬜ |
+| GET | `/api/dashboard/insights?kind=` | U | Cards/dicas ativos do dashboard ✅ (endpoint enxuto; o composto `/api/dashboard?period=` com métricas de faturamento/vendas depende de uma entidade `DashboardMetric` ainda não modelada e segue ⬜) |
+| GET/POST/PUT/DELETE | `/api/admin/dashboard/insights` | A | Conteúdo de "Tendências" exibido ao usuário ✅ |
 
 ### 4.4 Mineração de Produtos
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| GET | `/api/products?category=&search=&window=&page=` | U | Vitrine (categorias + **janela de horário**) |
-| GET | `/api/products/{id}` | U | Detalhe com **KPIs** (preço, vendas, receita est., views, conversão, comissão, vendas/dia, Δ7d, histórico 7d, janela, label, rank) |
-| GET | `/api/products/stats` | U | Agregados da vitrine (novos, receita detectada, próxima atualização) |
-| POST/DELETE | `/api/products/{id}/favorite` · GET `/api/users/me/favorites` | self | Favoritar |
-| GET/POST/PUT/DELETE | `/api/users/me/products` | self | "Meu produto" (upload de imagem) |
-| GET/POST/PUT/DELETE | `/api/admin/products` | A | CRUD da vitrine (todos os campos do modal admin + imagens[]) ⬜ campos |
+| GET | `/api/products?category=` | U | Vitrine, filtro por categoria ✅ (busca/janela de horário/paginação ainda ⬜) |
+| GET | `/api/products/{id}` | U | Detalhe com **KPIs** (preço, vendas, receita est., views, conversão, comissão, vendas/dia, Δ7d, histórico 7d, janela, label, rank) ✅ |
+| GET | `/api/products/stats` | U | Agregados da vitrine (novos, receita detectada, próxima atualização) ⬜ |
+| POST/DELETE | `/api/products/{id}/favorite` · GET `/api/users/me/favorites` | self | Favoritar ⬜ |
+| GET/POST/PUT/DELETE | `/api/user-products` | self | "Meu produto" ✅ — implementado em `/api/user-products` (não `/api/users/me/products`, seguindo o padrão REST simples já usado por `GenerationJob`); ownership via `findByIdAndUser_Uuid` (mesma proteção IDOR); upload de imagem via endpoint genérico de Storage, não embutido no CRUD |
+| GET/POST/PUT/DELETE | `/api/admin/products` | A | CRUD da vitrine ✅ (todos os campos do modal admin + `imagens[]`; restrito a ADMIN+SUPER_ADMIN — é catálogo de dado de terceiro, não preço da própria Venyx) |
 
 ### 4.5 Estúdio de Criação
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
 | POST | `/api/studio/sessions` · PUT `/{id}` · GET · DELETE | self | Sessão (formato UGC/POV/Cinema) + autosave de config JSONB |
 | POST | `/api/studio/sessions/{id}/generate` | U | Gera **imagens de referência + prompts** (job, debita crédito) |
-| GET | `/api/generations/{jobId}` | self | Polling do resultado |
+| GET | `/api/generations/{jobId}` | self | Re-consulta do resultado ✅ (falta o `POST` de submissão, que depende da sessão do Estúdio). Ver também o canal WebSocket abaixo para receber o status sem polling. |
+
+**Canal WebSocket (push de status) ✅**: `{host}/ws` (STOMP sobre SockJS). Após conectar, enviar frame STOMP `CONNECT` com header `Authorization: Bearer {accessToken}` — a autenticação acontece nesse frame (via `WebSocketAuthChannelInterceptor`), não no handshake HTTP, porque um client de browser não consegue customizar headers no handshake do WebSocket. Depois de conectado, `subscribe` em `/user/queue/generations` para receber um `GenerationJobDTO` toda vez que `GenerationJobService.submit()` finalizar um job (COMPLETED ou FAILED). Nota de arquitetura: hoje `submit()` roda 100% síncrono (a resposta do próprio `POST` de submissão já traz o job final), então o push do WebSocket dispara quase junto com a resposta HTTP — a infra foi montada agora para já estar pronta quando um provider de IA real e assíncrono (rodando em background) for plugado no lugar do `FakeGenerationProvider`. Broker STOMP em memória (`enableSimpleBroker`) — não escala para múltiplas instâncias sem trocar por Redis/RabbitMQ.
 
 ### 4.6 Avatares
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| GET | `/api/avatars/gallery?gender=&type=` | U | **Galeria pré-pronta** (Mulheres/Homens/Modelos IA) ⬜ |
-| GET/POST/PUT/DELETE | `/api/admin/avatars/gallery` | A | CRUD da galeria pré-pronta ⬜ |
+| GET | `/api/avatars/gallery?gender=&type=` | U | **Galeria pré-pronta** (Mulheres/Homens/Modelos IA) ✅ |
+| GET/POST/PUT/DELETE | `/api/admin/avatars/gallery` | A | CRUD da galeria pré-pronta ✅ |
 | POST | `/api/avatars/generate` | U | 4 passos → job → **2 variações** |
 | POST | `/api/avatars` · GET `?page=` · GET `/{id}` · PUT · DELETE | self | Salvar/listar "Meus Avatares" |
 
@@ -136,7 +139,17 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 `GET /api/prompts?category=&search=` (U) · CRUD `/api/admin/prompts` (A) — lista/copia prompts. (entidade ✅)
 
 ### 4.11 Creator Academy
-`GET /api/academy/modules` · `/api/academy/lessons/{id}` (U) · `POST /lessons/{id}/complete` · `GET /api/users/me/academy/progress` · CRUD `/api/admin/academy/**` (A) — player + progresso.
+Hierarquia **Módulo → Aula** (`academy_modules` 1—N `academy_lessons`, FK `module_id NOT NULL`, ambos com `order_index`). Vídeo de cada aula é um **link externo** (`video_url`, YouTube ou qualquer host gratuito) — o admin grava, sobe fora e cola a URL; **não passa pelo StorageService/S3**.
+
+**Leitura (U — qualquer autenticado):**
+- `GET /api/academy/modules` ✅ — módulos ordenados com as aulas aninhadas (hierarquia pronta pro front montar a tela).
+- `GET /api/academy/lessons/{id}` ✅ — detalhe de uma aula (título, `videoUrl`, `duration`).
+
+**CRUD administrativo (SUPER_ADMIN apenas — `hasRole('ROLE_SUPER_ADMIN')`, não ADMIN):** decisão explícita do dono — "essa parte de vídeo só vai ser pro super admin". Diverge do padrão ADMIN+SUPER_ADMIN de Product/GalleryAvatar/DashboardInsight.
+- `GET /api/admin/academy/modules` ✅ (lista flat) · `POST` ✅ (201+Location) · `PUT /{id}` ✅ · `DELETE /{id}` ✅ (409 se o módulo tiver aulas — `module_id` é NOT NULL sem cascade).
+- `GET /api/admin/academy/lessons?moduleId=` ✅ · `POST` ✅ (corpo com `moduleId`, 201+Location) · `PUT /{id}` ✅ · `DELETE /{id}` ✅.
+
+**Fora de escopo (⬜, deferido por decisão do dono):** `LessonProgress` / `POST /lessons/{id}/complete` / `GET /api/users/me/academy/progress` (marcar aula concluída + progresso) — entidade e tabela `lesson_progress` já existem no schema, mas a API não foi construída neste ciclo. Front (`AcademyScreen`) continua **mock** — ligação HTTP fica pra etapa futura, junto com os demais módulos ainda mock.
 
 ### 4.12 Notificações
 | Método | Rota | Acesso | Descrição |
@@ -165,16 +178,16 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 |---|---|---|
 | Login/Cadastro | OAuth2 + `/api/auth/register` | ✅ (front usa o `/login` do AS) |
 | Launchpad `/` | `/api/products` (top), `/api/academy/modules` | ✅ |
-| Dashboard | `/api/dashboard`, `/admin/dashboard/metrics`+`/insights`, `/public/live-sales` | 🟡 (série + insights ⬜) |
-| Produtos + modais | `/api/products*`, `/users/me/products`, `/admin/products`, favorites | 🟡 (campos ricos + stats ⬜) |
+| Dashboard | `/api/dashboard`, `/admin/dashboard/metrics`+`/insights`, `/public/live-sales` | 🟡 (insights ✅; série/métricas de faturamento ⬜, depende de `DashboardMetric`) |
+| Produtos + modais | `/api/products*`, `/api/user-products`, `/admin/products`, favorites | 🟡 (listagem+detalhe+CRUD admin+CRUD "meu produto" ✅; busca/janela/paginação/stats/favorites ⬜) |
 | Estúdio | `/api/studio/sessions*`, `/generations/{job}` | 🟡 |
-| Avatares | `/api/avatars*`, `/avatars/gallery` | 🟡 (galeria ⬜) |
+| Avatares | `/api/avatars*`, `/avatars/gallery` | 🟡 (galeria ✅; wizard de geração ⬜) |
 | Trend Boost | `/api/trend-boost/*` | ⬜ |
 | Ferramentas IA | `/api/tools/*` | ⬜ |
 | TokEditor | `/api/editor/exports` | ⬜ |
 | Prompts | `/api/prompts` | 🟡 |
-| Academy | `/api/academy/*` | 🟡 |
-| Créditos | `/api/credit-packages*`, checkout, webhook | ⬜ |
+| Academy | `/api/academy/*`, `/admin/academy/**` | 🟡 (CRUD módulos+aulas SUPER_ADMIN ✅, leitura pública c/ hierarquia ✅; progresso/marcar-concluída ⬜ deferido; front mock) |
+| Créditos | `/api/credit-packages*`, checkout, webhook | 🟡 (catálogo de pacotes ✅; checkout/webhook ⬜, depende da decisão de gateway) |
 | Indicação | `/api/users/me/referral/*`, `/admin/referrals` | 🟡 (página ⬜) |
 | Config/Perfil | `/api/users/me`, `/me/password`, `/me/subscription`, `/wallet`, `/usage` | 🟡 (trocar senha ⬜) |
 | Admin | `/api/admin/users*`, plans, metrics, referrals | 🟡 |

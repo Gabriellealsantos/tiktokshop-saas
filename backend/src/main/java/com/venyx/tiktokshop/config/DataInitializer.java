@@ -47,7 +47,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        seedUser("super_admin@venyx.com", "Super Admin",
+        seedUser("superadmin@venyx.com", "Super Admin",
                 List.of(RoleConstants.ROLE_SUPER_ADMIN, RoleConstants.ROLE_ADMIN), false);
         seedUser("admin@venyx.com", "Administrador",
                 List.of(RoleConstants.ROLE_ADMIN), false);
