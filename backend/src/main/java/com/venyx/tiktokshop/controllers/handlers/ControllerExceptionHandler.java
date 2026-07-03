@@ -55,6 +55,18 @@ public class ControllerExceptionHandler {
         return ResponseEntity.status(status).body(err);
     }
 
+    @ExceptionHandler(InsufficientCreditsException.class)
+    public ResponseEntity<StandardError> insufficientCredits(InsufficientCreditsException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.PAYMENT_REQUIRED;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("Créditos insuficientes");
+        err.setMessage(e.getMessage());
+        err.setPath(request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<StandardError> business(BusinessException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
