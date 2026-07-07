@@ -9,9 +9,10 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 
 **Decisões travadas:**
 - **Login:** mantém **OAuth2 `authorization_code` + PKCE** (o SPA usa o `/login` do Authorization Server). Sem endpoint de senha direto.
-- **Pagamentos:** **`PaymentProvider` abstrato + webhook**; provider concreto (Mercado Pago / Stripe / Asaas) = `[A DEFINIR]` — adiado por último, dono já tem um provedor em mente e vai confirmar.
+- **Pagamentos (decidido 2026-07-07):** **não há gateway integrado nem webhook**. Cada plano/pacote tem um **`paymentUrl` (link externo)** cadastrado pelo admin, com o valor já correspondido no provedor que o dono tem contrato. O botão "Comprar" só **redireciona**. Liberação de crédito/plano é **manual** pelo admin (`POST /api/admin/users/{id}/credits` e atribuição de assinatura). O stub `PaymentGateway`/`FakePaymentGateway` fica obsoleto.
 - **Geração de IA:** **assíncrona por `GenerationJob`** (debita crédito antes, estorna em falha, polling de status).
 - **Storage:** **S3/MinIO**. **Métricas do dashboard:** manuais (sem API do TikTok).
+- **Notificações (decidido 2026-07-07):** além do disparo imediato, o admin pode **agendar** notificações por timer (horário futuro).
 
 ---
 
@@ -34,7 +35,7 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 
 - **Storage (`StorageService`, S3/MinIO) ✅:** endpoint genérico `POST /api/admin/storage/upload?folder=` (multipart, ADMIN+SUPER_ADMIN) — AWS SDK v2 (`S3Client` com `endpointOverride`+`forcePathStyle(true)` pra MinIO local; em prod sem override, o SDK resolve o S3 real pela região). Upload proxeado pelo backend (sem presigned URL — mais simples pro caso de uso atual, que é seed manual via admin), retorna `{ url }`, que é colado manualmente no campo `imageUrl` de qualquer DTO que precise (avatar da galeria, produto, produto próprio). Reaproveitado por todos os módulos com imagem — não há upload embutido em cada CRUD. Vídeo do TokEditor ainda não usa esse endpoint (fluxo de export ainda não implementado).
 - **Geração assíncrona (`generation_jobs`, V3):** `type` ∈ {`STUDIO_SESSION`, `AVATAR`, `TREND_BOOST`, `IMAGE_EDIT`, `TEXT_TO_IMAGE`, `VIDEO_EXPORT`}; `status` PENDING/RUNNING/COMPLETED/FAILED; `reference_id`, `credit_tx_id` (estorno), `result` JSONB (URLs + prompts), `error`. **`GenerationProvider`** (interface) abstrai a IA — provider **decidido: Google Gemini (Nano Banana / Gemini 2.5 Flash Image)**. Front faz polling.
-- **Pagamentos (`PaymentProvider`, V4):** compra de **pacotes de crédito** e **assinatura de plano** via checkout do provider + **webhook** de confirmação (credita carteira / ativa assinatura). Idempotente por `external_id`.
+- **Pagamentos (link externo, decidido 2026-07-07):** **sem provider/SDK/webhook.** Plano e pacote de crédito guardam um campo `paymentUrl`; o front redireciona o usuário para lá. A carteira é creditada / a assinatura é ativada **manualmente pelo admin** após o pagamento (não há confirmação automática). Consequência: a comissão de indicação (50/50) também depende de confirmação manual do admin.
 - **Notificações:** **feed in-app** (`in_app_notifications`) + **web push** (VAPID, `nl.martijndwars:web-push`, envio em lote, limpeza de 410).
 - **Jobs agendados:** expirar assinaturas; limpar push inválido; (tentativas mensais são derivadas).
 
@@ -63,18 +64,16 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 | PATCH | `/api/admin/users/{id}/roles` | SUPER_ADMIN | Atribuir papéis (inclui **AFFILIATE**) |
 | PATCH | `/api/admin/users/{id}/plan` | A | Trocar plano do usuário (dropdown do front) |
 | GET | `/api/plans` | U | Planos disponíveis |
-| GET/POST/PUT/DELETE | `/api/admin/plans` | A | CRUD de planos. **`PlanType`: MONTHLY, QUARTERLY, SEMIANNUAL, ANNUAL, LIFETIME** ⬜ |
+| GET/POST/PUT/DELETE | `/api/admin/plans` | A | CRUD de planos (inclui preço + **`paymentUrl`** de redirect). **`PlanType`: MONTHLY, QUARTERLY, SEMIANNUAL, ANNUAL, LIFETIME** ⬜ |
 | POST | `/api/admin/users/{id}/subscription` | A | Atribuir/ativar assinatura (define `expiresAt`) |
 | GET | `/api/users/me/subscription` | U | Assinatura atual (Perfil) |
 
 ### 4.2 Pagamentos & Créditos
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| GET | `/api/credit-packages` | U | Pacotes à venda (Starter→Enterprise: créditos, preço, bônus%) ✅ |
-| POST | `/api/credit-packages/{id}/checkout` | U | Inicia compra de pacote → URL/preferência do gateway ⬜ (depende da decisão de gateway de pagamento) |
-| POST | `/api/plans/{id}/checkout` | U | Compra/upgrade de assinatura ("Mudar de plano") ⬜ |
-| POST | `/api/public/payments/webhook` | P (assinado) | Webhook do gateway → credita carteira / ativa assinatura ⬜ |
-| GET | `/api/admin/credit-packages` · POST/PUT/DELETE | **SUPER_ADMIN** | CRUD dos pacotes ✅ (restrito a SUPER_ADMIN, não ADMIN comum, por envolver preço/monetização) |
+| GET | `/api/credit-packages` | U | Pacotes à venda (Starter→Enterprise: créditos, preço, bônus%, **`paymentUrl`**) ✅/🟡 (falta expor `paymentUrl`) |
+| — | *(sem checkout/webhook)* | — | **Decidido 2026-07-07:** o botão "Comprar" só redireciona para o `paymentUrl` do pacote/plano. Sem endpoint de checkout, sem webhook. Crédito entra por `POST /api/admin/users/{id}/credits` (manual). |
+| GET | `/api/admin/credit-packages` · POST/PUT/DELETE | **SUPER_ADMIN** | CRUD dos pacotes ✅ — inclui `paymentUrl` (restrito a SUPER_ADMIN, por envolver preço/monetização) |
 | GET | `/users/me/wallet` · `/wallet/transactions` | U | Saldo + extrato ✅ (implementado sem prefixo `/api`, seguindo a convenção real do `UserController`) |
 | GET | `/users/me/usage` | U | Créditos debitados em gerações no mês corrente ✅ |
 | POST | `/api/admin/users/{id}/credits` | A | Conceder/ajustar créditos (ADMIN_CREDIT) |
@@ -82,9 +81,9 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 ### 4.3 Dashboard
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| GET | `/api/dashboard?period=` | U | Por papel: **admin** Faturamento (cards + **série diária** vendas/pedidos); **user** Tendências |
-| GET/PUT/DELETE | `/api/admin/dashboard/metrics` | A | CRUD das métricas manuais por período |
-| GET | `/api/dashboard/insights?kind=` | U | Cards/dicas ativos do dashboard ✅ (endpoint enxuto; o composto `/api/dashboard?period=` com métricas de faturamento/vendas depende de uma entidade `DashboardMetric` ainda não modelada e segue ⬜) |
+| GET | `/api/dashboard?period=` | U | Por papel: **admin** Faturamento (cards + **série diária** vendas/pedidos); **user** Tendências ⬜ |
+| GET/POST/PUT/DELETE | `/api/admin/dashboard/metrics` | A | CRUD das métricas **manuais** por período (SuperAdmin cadastra faturamento/pedidos/comissão/ticket + série do gráfico). Entidade `DashboardMetric` ✅ já existe; falta migration + controller ⬜ |
+| GET | `/api/dashboard/insights?kind=` | U | Cards/dicas ativos do dashboard ✅ (endpoint enxuto; o composto `/api/dashboard?period=` já pode usar a entidade `DashboardMetric` que **já existe** — falta só migration + controller) |
 | GET/POST/PUT/DELETE | `/api/admin/dashboard/insights` | A | Conteúdo de "Tendências" exibido ao usuário ✅ |
 
 ### 4.4 Mineração de Produtos
@@ -114,12 +113,14 @@ Backend Spring Boot 4.1 / Java 21 / Postgres 18 / Flyway / S3-MinIO. Auth OAuth2
 | POST | `/api/avatars/generate` | U | 4 passos → job → **2 variações** |
 | POST | `/api/avatars` · GET `?page=` · GET `/{id}` · PUT · DELETE | self | Salvar/listar "Meus Avatares" |
 
-### 4.7 Trend Boost (Modelos Virais)
+### 4.7 Trend Boost / Modelos Virais
 | Método | Rota | Acesso | Descrição |
 |---|---|---|---|
-| GET | `/api/trend-boost/templates` | U | Catálogo (Novelinha/Objetos/Polêmicas) |
+| GET | `/api/trend-boost/templates` | U | Catálogo do **Trend Boost** (Novelinha/Objetos/Polêmicas) |
 | POST | `/api/trend-boost/generate` | U | Wizard → **gera prompts** (job, debita crédito) ⬜ |
 | GET/POST/PUT/DELETE | `/api/admin/viral-templates` | A | CRUD do catálogo |
+
+> ⚠️ **Modelos Virais** virou tela própria no front (`/modelos`, `modelos-screen`/`model-assembly-screen`/`product-models-picker`), **separada** do Trend Boost. **Escopo REABERTO pelo dono (2026-07-07)**: se é só vitrine ou integra com o Estúdio **não está mais decidido**, e os templates ("Novela Viral"/"Objeto Falante"/3º + estilos POV/Imersivo/Cinematográfico) estão **congelados**. **Não construir o backend de Modelos Virais até o dono fechar o escopo.**
 
 ### 4.8 Ferramentas IA (créditos por uso)
 | Método | Rota | Acesso | Descrição |
@@ -149,7 +150,7 @@ Hierarquia **Módulo → Aula** (`academy_modules` 1—N `academy_lessons`, FK `
 - `GET /api/admin/academy/modules` ✅ (lista flat) · `POST` ✅ (201+Location) · `PUT /{id}` ✅ · `DELETE /{id}` ✅ (409 se o módulo tiver aulas — `module_id` é NOT NULL sem cascade).
 - `GET /api/admin/academy/lessons?moduleId=` ✅ · `POST` ✅ (corpo com `moduleId`, 201+Location) · `PUT /{id}` ✅ · `DELETE /{id}` ✅.
 
-**Fora de escopo (⬜, deferido por decisão do dono):** `LessonProgress` / `POST /lessons/{id}/complete` / `GET /api/users/me/academy/progress` (marcar aula concluída + progresso) — entidade e tabela `lesson_progress` já existem no schema, mas a API não foi construída neste ciclo. Front (`AcademyScreen`) continua **mock** — ligação HTTP fica pra etapa futura, junto com os demais módulos ainda mock.
+**Progresso do aluno (⬜ a fazer):** `LessonProgress` / `POST /api/academy/lessons/{id}/complete` / `GET /api/users/me/academy/progress` (marcar aula concluída + progresso). Entidade e tabela `lesson_progress` já existem no schema; falta a API. O dono considera a **tela pronta** — falta só essa parte no backend. Front (`AcademyScreen`) segue **mock** até a ligação HTTP.
 
 ### 4.12 Notificações
 | Método | Rota | Acesso | Descrição |
@@ -157,7 +158,9 @@ Hierarquia **Módulo → Aula** (`academy_modules` 1—N `academy_lessons`, FK `
 | GET | `/api/users/me/notifications?type=&page=` | U | **Feed in-app** (venda/sistema/indicação/info) ⬜ |
 | PATCH | `/api/users/me/notifications/{id}/read` · `/read-all` · DELETE `/{id}` | self | Marcar lida / dispensar ⬜ |
 | GET | `/api/public/push/vapid-public-key` · POST/DELETE `/api/push/subscribe` | P/U | Web Push |
-| POST | `/api/admin/notifications` · GET `/api/admin/notifications/{id}/deliveries` | A | Disparo + entregas |
+| POST | `/api/admin/notifications` · GET `/api/admin/notifications/{id}/deliveries` | A | Disparo (imediato **ou agendado**) + entregas |
+
+> **Agendamento (decidido 2026-07-07):** o `POST /api/admin/notifications` aceita um horário futuro (`scheduledAt`); um job `@Scheduled` varre e dispara as pendentes na hora marcada. Vale para o feed in-app e para o Web Push.
 
 ### 4.13 Vendas ao Vivo (prova social)
 `GET /api/public/live-sales` (P) · `PUT /api/admin/live-sales/config` · CRUD `/api/admin/live-sales/items` (A) — config + itens em rotação.
@@ -178,7 +181,7 @@ Hierarquia **Módulo → Aula** (`academy_modules` 1—N `academy_lessons`, FK `
 |---|---|---|
 | Login/Cadastro | OAuth2 + `/api/auth/register` | ✅ (front usa o `/login` do AS) |
 | Launchpad `/` | `/api/products` (top), `/api/academy/modules` | ✅ |
-| Dashboard | `/api/dashboard`, `/admin/dashboard/metrics`+`/insights`, `/public/live-sales` | 🟡 (insights ✅; série/métricas de faturamento ⬜, depende de `DashboardMetric`) |
+| Dashboard | `/api/dashboard`, `/admin/dashboard/metrics`+`/insights`, `/public/live-sales` | 🟡 (insights ✅; série/métricas de faturamento ⬜ — entidade `DashboardMetric` já existe, falta migration+controller+filtros) |
 | Produtos + modais | `/api/products*`, `/api/user-products`, `/admin/products`, favorites | 🟡 (listagem+detalhe+CRUD admin+CRUD "meu produto" ✅; busca/janela/paginação/stats/favorites ⬜) |
 | Estúdio | `/api/studio/sessions*`, `/generations/{job}` | 🟡 |
 | Avatares | `/api/avatars*`, `/avatars/gallery` | 🟡 (galeria ✅; wizard de geração ⬜) |
@@ -187,7 +190,7 @@ Hierarquia **Módulo → Aula** (`academy_modules` 1—N `academy_lessons`, FK `
 | TokEditor | `/api/editor/exports` | ⬜ |
 | Prompts | `/api/prompts` | 🟡 |
 | Academy | `/api/academy/*`, `/admin/academy/**` | 🟡 (CRUD módulos+aulas SUPER_ADMIN ✅, leitura pública c/ hierarquia ✅; progresso/marcar-concluída ⬜ deferido; front mock) |
-| Créditos | `/api/credit-packages*`, checkout, webhook | 🟡 (catálogo de pacotes ✅; checkout/webhook ⬜, depende da decisão de gateway) |
+| Créditos | `/api/credit-packages*` (+ `paymentUrl`) | 🟡 (catálogo de pacotes ✅; falta expor `paymentUrl` e o redirect no "Comprar" — **sem checkout/webhook**, decidido 2026-07-07) |
 | Indicação | `/api/users/me/referral/*`, `/admin/referrals` | 🟡 (página ⬜) |
 | Config/Perfil | `/api/users/me`, `/me/password`, `/me/subscription`, `/wallet`, `/usage` | 🟡 (trocar senha ⬜) |
 | Admin | `/api/admin/users*`, plans, metrics, referrals | 🟡 |
@@ -195,27 +198,28 @@ Hierarquia **Módulo → Aula** (`academy_modules` 1—N `academy_lessons`, FK `
 
 ## 6. Adições de schema (migrations)
 - **V3:** role `AFFILIATE` (seed); expandir `PlanType` (QUARTERLY/SEMIANNUAL/ANNUAL); **expandir `products`** (price, images[], revenue_estimate, conversion_rate, commission_rate, sales_per_day, sales_delta_7d, trend_label, rank_in_category, sales_history_7d JSONB, mining_window, viral, last_updated_at); `generation_jobs`.
-- **V4:** `credit_packages`, `credit_purchases`; `subscription_purchases` (pagamento); `in_app_notifications`; `avatar_gallery`; `dashboard_insights`; campos de página em `referral_codes` (ou `referral_pages`); `video_exports` (ou via generation_jobs).
-- Libs no `pom`: `web-push`, SDK S3/MinIO, SDK do gateway de pagamento (quando definido).
+- **V4:** `credit_packages` (+ `payment_url`); coluna `payment_url` em `plans`; `dashboard_metrics`; `in_app_notifications` (+ `scheduled_at` para agendamento); `avatar_gallery`; `dashboard_insights`; campos de página em `referral_codes` (ou `referral_pages`); `video_exports` (ou via generation_jobs). **Sem tabelas de compra/webhook** (`credit_purchases`/`subscription_purchases` desnecessárias — pagamento é link externo).
+- Libs no `pom`: `web-push`, SDK S3/MinIO. **Sem SDK de gateway de pagamento** (não há integração).
 
 ## 7. Ordem de implementação (dependência-first)
-1. Transversais: `CreditService`, `AccessGuard`, `StorageService`, `GenerationJob`+`GenerationProvider` (mock), `PaymentProvider` (mock).
+1. Transversais: `CreditService`, `AccessGuard`, `StorageService`, `GenerationJob`+`GenerationProvider` (mock). *(PaymentProvider não é mais necessário — pagamento é link externo.)*
 2. **Fase 1** (Admin: usuários/planos/assinaturas + papel AFFILIATE) → destrava acesso.
-3. **Pagamentos/Créditos** (pacotes + webhook) → destrava IA.
+3. **Créditos/Planos** (CRUD com `paymentUrl` + crédito manual do admin) → destrava monetização.
 4. **Produtos** (expandido) → **Estúdio/Avatares/Trend Boost/Ferramentas** (geração) → **TokEditor**.
 5. **Dashboard**, **Notificações** (in-app + push), **Academy/Prompts/Live Sales/Indicação**.
 Cada módulo: entidade(✅) → migration → repository → service → controller → testes.
 
-## 8. Decisões do dono (atualizado 2026-07-03)
+## 8. Decisões do dono (atualizado 2026-07-07)
 
 ### Decididas ✅
 - **Provider de IA**: Google Gemini (Nano Banana / Gemini 2.5 Flash Image). **Custo em créditos por função/formato**: Estúdio 15cr, Avatar 20cr, Trend Boost 15cr, Editar Imagem 10cr, Nano Banana Pro 20cr, Influencer Studio 30cr.
 - Valor do `SIGNUP_BONUS` = 60 créditos; teto de tentativas mensais = 400 gerações/mês (flat, não varia por plano).
 - Hospedagem dos vídeos da Academy: **Panda Video**. Chaves VAPID: lib `nl.martijndwars:web-push` + env var. Processamento do TokEditor: **client-side (ffmpeg.wasm)** — ⚠️ aviso: risco de performance em mobile/Safari, plano B é migrar pra server-side se necessário.
-- Modelo Viral integra com o Estúdio (pré-preenche sessão via `template_id`).
+- **Pagamento (2026-07-07): sem gateway — é só um `paymentUrl` de redirect** por plano/pacote, cadastrado pelo admin (valor já correspondido no provedor externo). Liberação de crédito/plano é manual pelo admin. O botão "Afiliar" dos produtos segue a mesma ideia (`affiliateUrl` → TikTok).
+- **Notificações agendadas (2026-07-07):** admin pode agendar disparo por timer (`scheduledAt` + job `@Scheduled`).
 
 ### Ainda pendentes ⛔ (adiadas pelo dono)
-- **Gateway de pagamento** concreto + se planos são auto-compra ou só liberação do admin + **preços de planos/pacotes**. Adiado por último — dono já tem um provedor em mente, só confirmar.
+- **Modelos Virais (2026-07-07 — REABERTO):** se é só vitrine ou integra com o Estúdio voltou a ficar indefinido; templates congelados. Não codar o backend até fechar.
 - O que é a **"Store"** das Ferramentas — adiado, fora do MVP por ora.
 - Fluxo de saque da indicação — **módulo de Indicação inteiro adiado**, dono quer revisar a lógica de negócio antes de destravar.
 

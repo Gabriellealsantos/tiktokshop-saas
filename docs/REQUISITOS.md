@@ -1,8 +1,8 @@
 # REQUISITOS — Plataforma SaaS TikTok Shop (Venyx)
 
 > **Propósito deste documento:** lista única de tudo que o sistema deve fazer e **por que** cada requisito existe,
-> para validação com o dono. Fontes: Proposta Comercial, `HANDOFF_SaaS_TikTok_Shop.md`, `HANDOFF_Modulos_Opcionais.md`
-> (módulos "opcionais" são **obrigatórios**), `docs/ARQUITETURA.md` e o frontend implementado (22 rotas).
+> para validação com o dono. Fontes: Proposta Comercial, `docs/ARQUITETURA.md`, `docs/PLANO_EXECUCAO.md`,
+> `docs/TELAS_PENDENTES.md` e o frontend implementado (22 rotas). Os módulos antes chamados "opcionais" são **obrigatórios**.
 >
 > **Status:** ✅ pronto na base · 🔨 a implementar · ⛔ bloqueado por decisão do dono (`[A DEFINIR]`)
 
@@ -45,11 +45,11 @@
 
 | ID | Requisito | Porquê | Status |
 |---|---|---|---|
-| RF-PLA-01 | Planos: mensal, trimestral, semestral, anual e vitalício, com preço editável pelo admin | O front (`/perfil`, `/admin`) usa os 6 estados (incl. "sem plano"); preços ainda `[A DEFINIR]` → CRUD resolve | ✅ (schema) / 🔨 (CRUD) |
+| RF-PLA-01 | Planos: mensal, trimestral, semestral, anual e vitalício, com preço e **link de pagamento** editáveis pelo admin | O front (`/perfil`, `/admin`) usa os 6 estados (incl. "sem plano"); o admin cadastra cada plano com preço + `paymentUrl` | ✅ (schema) / 🔨 (CRUD) |
 | RF-PLA-02 | Uma assinatura ativa por usuário; nova assinatura encerra a anterior | Evitar cobrança/acesso duplicado e simplificar o gating | 🔨 |
 | RF-PLA-03 | Expiração automática de assinatura vencida (exceto vitalício) | Sem isso o acesso "mensal" vira eterno | 🔨 |
 | RF-PLA-04 | Gating: usuário sem assinatura ativa não usa as features (só telas de conta/compra) | É o produto: acesso pago. Front já tem `AccessGuard` | 🔨 |
-| RF-PLA-05 | Compra de plano via checkout | Autosserviço; **gateway `[A DEFINIR]` — dono já tem provedor em mente, confirmar depois (pendência #2)** (hoje stub) | ⛔ |
+| RF-PLA-05 | Compra de plano via **link externo de pagamento** (redirect) | **Decidido (2026-07-07):** não há gateway integrado nem webhook — o admin cola a `paymentUrl` (provedor externo com contrato) no cadastro do plano; o botão "Comprar/Mudar de plano" só **redireciona**. Confirmação do pagamento e liberação do plano são **manuais** pelo admin (RF-ADM-03) | 🔨 |
 
 ## 5. RF-CRE — Créditos (Fase 0 — transversal)
 
@@ -59,10 +59,10 @@
 | RF-CRE-02 | **Débito atômico e seguro contra concorrência** (`UPDATE ... WHERE balance >= ?`) | Duas gerações simultâneas não podem furar o saldo — é dinheiro | ✅ |
 | RF-CRE-03 | Débito **antes** da geração; **estorno automático e idempotente** em falha | API de IA externa é instável e paga; usuário não pode pagar por falha, nem ser estornado 2× | ✅ |
 | RF-CRE-04 | Saldo insuficiente responde **HTTP 402** com mensagem clara | Front converte em modal "comprar créditos" — fluxo de venda | ✅ |
-| RF-CRE-05 | Pacotes de crédito (6 tiers com bônus % e badge) gerenciados pelo admin | Tela `/creditos` já vende os 6 pacotes; preços mudam sem deploy | ✅ (schema+seed) / 🔨 (CRUD) |
+| RF-CRE-05 | Pacotes de crédito (6 tiers com bônus % e badge) gerenciados pelo admin, cada um com **link de pagamento** | Tela `/creditos` já vende os 6 pacotes; o admin cadastra créditos/preço/bônus/badge + `paymentUrl`; preços mudam sem deploy | ✅ (schema+seed) / 🔨 (CRUD) |
 | RF-CRE-06 | Bônus de cadastro (`SIGNUP_BONUS`) | Deixar o usuário experimentar a IA antes de comprar; **decidido: 60 créditos** (dá pra 2-3 gerações) | 🔨 |
 | RF-CRE-07 | Teto mensal de tentativas de IA por plano | Proteger custo variável da API externa; **decidido: 400 gerações/mês por usuário**, teto flat de segurança técnica (não varia por plano), ajustável via config | 🔨 |
-| RF-CRE-08 | Compra de pacote via checkout + webhook de confirmação | Receita recorrente; **gateway `[A DEFINIR]` — dono já tem provedor em mente, confirmar depois (pendência #2)** | ⛔ |
+| RF-CRE-08 | Compra de pacote via **link externo de pagamento** (redirect) | **Decidido (2026-07-07):** sem gateway/webhook — o botão "Comprar" redireciona para a `paymentUrl` do pacote (valor já correspondido no provedor externo). Créditos entram na carteira via **crédito manual do admin** (RF-ADM-05) após o pagamento | 🔨 |
 
 ## 6. RF-DSH — Dashboard (Fase 2)
 
@@ -82,14 +82,14 @@
 | RF-PRO-03 | Agregados da vitrine (novos produtos, receita detectada, próxima atualização) | Header de stats da tela `/produtos` | 🔨 |
 | RF-PRO-04 | Favoritar/desfavoritar produto (idempotente) e listar favoritos | Fluxo do creator: separa produtos para criar conteúdo depois | 🔨 |
 | RF-PRO-05 | "Meu produto": usuário cadastra produto próprio com imagem (≤5MB) | Nem todo produto vem da vitrine; modal já existe no front | 🔨 |
-| RF-PRO-06 | URLs de imagem validadas por formato (nunca baixadas); produto removido do admin não quebra sessão de estúdio | Casos de borda do HANDOFF: link morto e curadoria dinâmica não podem quebrar o usuário | 🔨 |
+| RF-PRO-06 | URLs de imagem validadas por formato (nunca baixadas); produto removido do admin não quebra sessão de estúdio | Casos de borda de produto: link morto e curadoria dinâmica não podem quebrar o usuário | 🔨 |
 
 ## 8. RF-EST — Estúdio de Criação (Fase 4)
 
 | ID | Requisito | Porquê | Status |
 |---|---|---|---|
 | RF-EST-01 | 3 fluxos guiados: **UGC** (4 passos), **POV** (4), **Cinematográfico** (5) | Núcleo do produto — o front tem os 3 wizards completos | 🔨 |
-| RF-EST-02 | Config volátil da sessão em **JSONB** com autosave (status DRAFT retomável) | Os passos/opções mudam com frequência (HANDOFF: "cravar colunas = retrabalho garantido"); usuário que sai no meio não perde nada | ✅ (schema) / 🔨 (API) |
+| RF-EST-02 | Config volátil da sessão em **JSONB** com autosave (status DRAFT retomável) | Os passos/opções mudam com frequência (regra de projeto: "cravar colunas = retrabalho garantido"); usuário que sai no meio não perde nada | ✅ (schema) / 🔨 (API) |
 | RF-EST-03 | Geração produz **prompts + imagens de referência** para finalizar em Grok/VEO3 (não gera vídeo final) | Escopo da proposta §4.2: geração final de vídeo é externa; **provider decidido: Google Gemini (Nano Banana / Gemini 2.5 Flash Image)** — já era o nome usado no front | ✅ (job framework) / 🔨 (integração provider) |
 | RF-EST-04 | Geração = job assíncrono com polling e débito de crédito | UX do front (loading + resultado) e proteção de custo (RF-CRE-03) | ✅ |
 | RF-EST-05 | Custo em créditos por função/formato configurável | **Decidido: 15cr por geração/sessão do Estúdio** | 🔨 |
@@ -109,7 +109,7 @@
 |---|---|---|---|
 | RF-TRB-01 | 3 templates guiados: Novelinha Viral (3 passos), Objetos Falantes (5), Polêmicas/Curiosidades (5) | Formatos validados que viralizam; wizards completos no front `/trend-boost` | 🔨 |
 | RF-TRB-02 | Geração via job com crédito (idem estúdio) | Consistência de arquitetura e custo; **custo decidido: 15cr por geração** | ✅ (framework) / 🔨 |
-| RF-TRB-03 | Vitrine de modelos virais gerenciada pelo admin (CRUD) | Conteúdo de inspiração atualizado sem deploy; **decidido: integra com o Estúdio** — ao escolher um modelo, a sessão do Estúdio já nasce pré-preenchida com aquele template (`template_id` inicial) | 🔨 |
+| RF-TRB-03 | Vitrine de modelos virais gerenciada pelo admin (CRUD) | Conteúdo de inspiração atualizado sem deploy. ⚠️ **Escopo REABERTO (2026-07-07):** o dono voltou atrás — se "Modelos Virais" é só vitrine ou integra com o Estúdio **não está mais decidido**. Além disso, os templates "Novela Viral"/"Objeto Falante"/3º + estilos POV/Imersivo/Cinematográfico estão **congelados** pelos donos. **Não codar o backend de Modelos Virais até o dono fechar o escopo.** No front já existem telas novas (`modelos-screen`, `model-assembly-screen`, `product-models-picker`) separadas do Trend Boost | ⛔ |
 
 ## 11. RF-FER — Ferramentas IA
 
@@ -130,7 +130,7 @@
 |---|---|---|---|
 | RF-PRM-01 | Biblioteca de prompts por categoria (Vídeos, Imagens, Cenários) com busca e cópia em 1 clique | Acelera o uso das IAs externas; tela `/prompts` pronta | 🔨 |
 | RF-PRM-02 | Somente admin cria/edita; usuário só lê | Curadoria de qualidade é do dono | 🔨 |
-| RF-PRM-03 | Categoria vazia → lista vazia (não erro); limite de tamanho de prompt | Bordas do HANDOFF; **decidido: limite de 2.000 caracteres** | 🔨 |
+| RF-PRM-03 | Categoria vazia → lista vazia (não erro); limite de tamanho de prompt | Bordas de produto; **decidido: limite de 2.000 caracteres** | 🔨 |
 
 ## 14. RF-ACA — Creator Academy
 
@@ -148,6 +148,7 @@
 | RF-NOT-01 | Feed in-app (sino): tipos venda/sistema/indicação/info, marcar lida, ler todas, dispensar | Painel do sino completo no front | 🔨 |
 | RF-NOT-02 | **Web Push real** (aba fechada): admin dispara aviso de "produto em alta" com **imagem + som do sistema** | **Foco declarado do dono** (Fase 5); é o gatilho que traz o usuário de volta | 🔨 |
 | RF-NOT-03 | Audiência ALL ou SELECTED + histórico de entregas com status/erro | O dono precisa saber quem recebeu; reenvio informado | 🔨 |
+| RF-NOT-06 | **Agendamento de notificações** (timer): admin programa certas notificações para disparar em horário futuro | **Decidido (2026-07-07):** além do disparo imediato, o SuperAdmin agenda notificações para horário marcado (scheduler `@Scheduled`/fila). Aplica-se ao feed in-app e ao Web Push | 🔨 |
 | RF-NOT-04 | Payload ≤ 4KB → imagem vai por **URL**; envio assíncrono em lote; 410 Gone remove subscription; sem permissão → ignora | Limites técnicos do Web Push; broadcast síncrono estoura a request em volume | 🔨 |
 | RF-NOT-05 | Chaves VAPID e URL de imagem (HTTPS + CORS) | **Decidido:** lib `nl.martijndwars:web-push`; chaves VAPID geradas uma vez e guardadas em env var (nunca no repo, RNF-14); imagem reaproveita a `image_url` já existente do produto/avatar — sem campo novo | 🔨 |
 
@@ -157,7 +158,7 @@
 |---|---|---|---|
 | RF-LIV-01 | Pop-ups "fulano comprou X" em rotação **dentro do site**, com produtos e comissões cadastrados pelo admin | Sensação de movimento na plataforma (prova social manual — mesma filosofia das métricas). **Não confundir com Web Push** | 🔨 |
 | RF-LIV-02 | Liga/desliga global + intervalo configurável (mínimo ≥ 5s) | Controle do dono; intervalo baixo degrada UX | 🔨 |
-| RF-LIV-03 | Desligado ou sem itens ativos → front não mostra nada (sem erro) | Borda do HANDOFF | 🔨 |
+| RF-LIV-03 | Desligado ou sem itens ativos → front não mostra nada (sem erro) | Borda de produto | 🔨 |
 
 ## 17. RF-IND — Programa de Indicação ("Indique e Ganhe")
 
@@ -185,21 +186,21 @@
 
 | ID | Requisito | Porquê | Status |
 |---|---|---|---|
-| RNF-01 | Stack: Java 21 + Spring Boot 4.x + PostgreSQL 18 + Flyway; React 19 + TS; monolito modular em monorepo | Decisão travada no HANDOFF; time de 1 dev — monolito reduz custo operacional | ✅ |
+| RNF-01 | Stack: Java 21 + Spring Boot 4.x + PostgreSQL 18 + Flyway; React 19 + TS; monolito modular em monorepo | Decisão de arquitetura travada; time de 1 dev — monolito reduz custo operacional | ✅ |
 | RNF-02 | JWT RS256 + refresh; CORS restrito; headers de segurança (HSTS, CSP, X-Frame-Options) | Hardening já implementado — não regredir | ✅ |
 | RNF-03 | `@PreAuthorize` em tudo; **ownership em todo GET/PUT/DELETE por id (anti-IDOR, responde 404)** | Multi-tenant por usuário: um cliente jamais vê recurso de outro | ✅ (padrão) |
 | RNF-04 | Erros padronizados via handler global (`StandardError`): 402 créditos, 404, 403, 409, 422 validação | Front trata erro de um jeito só; 402 vira funil de venda de créditos | ✅ |
 | RNF-05 | Bean Validation em todos os DTOs de entrada | Nunca confiar no front | ✅ (padrão) / 🔨 (novos DTOs) |
-| RNF-06 | Native Query preferida; JPQL só em queries triviais | Decisão do HANDOFF: previsibilidade de SQL e performance | ✅ |
+| RNF-06 | Native Query preferida; JPQL só em queries triviais | Decisão de projeto: previsibilidade de SQL e performance | ✅ |
 | RNF-07 | Config volátil (estúdio, avatar, jobs) em **JSONB** | Fase 4 muda toda semana; schema rígido = retrabalho garantido | ✅ |
 | RNF-08 | Operações financeiras (créditos, comissões) atômicas e **idempotentes** | Concorrência não pode criar/queimar dinheiro | ✅ (créditos) / 🔨 (comissões) |
 | RNF-09 | Broadcast de push assíncrono/em lote | Milhares de usuários numa request síncrona = timeout | 🔨 |
 | RNF-10 | Rate limit nas funções de IA (teto mensal por plano) | Custo variável da API externa é o maior risco financeiro; **valor decidido: 400/mês** (RF-CRE-07) | ✅ (medição) / 🔨 (aplicar valor) |
 | RNF-11 | Soft delete de usuários com anonimização de e-mail/CPF/telefone | Histórico preservado + LGPD | ✅ |
 | RNF-12 | Migrations Flyway versionadas; app valida schema no boot | Banco reproduzível em qualquer ambiente | ✅ (V1–V3) |
-| RNF-13 | Código, comentários e commits em **pt-BR** | Decisão do HANDOFF (time e dono brasileiros) | ✅ |
+| RNF-13 | Código, comentários e commits em **pt-BR** | Decisão de projeto (time e dono brasileiros) | ✅ |
 | RNF-14 | Segredos via env vars (JWT keys, client secret, MFA salt, VAPID) — nunca no repo | Validador de segurança já alerta no boot | ✅ |
-| RNF-15 | Integrações externas atrás de interfaces (`GenerationProvider`, `PaymentGateway`) | Provider de IA **decidido (Google Gemini)**; gateway de pagamento ainda `[A DEFINIR]` (pendência #2) — a interface abstrata evita que o resto do sistema espere por ele | ✅ |
+| RNF-15 | Integrações externas atrás de interfaces (`GenerationProvider`) | Provider de IA **decidido (Google Gemini)**. Pagamento **não é integração** — é só um `paymentUrl` de redirect por plano/pacote (decisão 2026-07-07), então não precisa de gateway/SDK; o stub `PaymentGateway` pode ser removido | ✅ |
 
 ---
 
@@ -221,12 +222,13 @@
 | 4 | Hospedagem dos vídeos da Academy | **Panda Video** | RF-ACA-04 |
 | 5 | Chaves VAPID + URL de imagem do push (HTTPS/CORS) | Lib `nl.martijndwars:web-push`; chaves em env var; imagem reaproveita `image_url` do produto/avatar | RF-NOT-05 |
 | 6 | Valores: `SIGNUP_BONUS`, teto mensal, limite de prompt | `SIGNUP_BONUS` = 60 créditos; teto mensal = 400 gerações/mês (flat); limite de prompt = 2.000 caracteres | RF-CRE-06/07, RF-PRM-03 |
-| 9 | Modelo Viral integra com o Estúdio ou é só vitrine | **Integra** — pré-preenche a sessão do Estúdio | RF-TRB-03 |
+| 2 | Gateway de pagamento + preços | **Decidido (2026-07-07):** **não há gateway integrado** — é só um **link externo de pagamento** (`paymentUrl`) por plano/pacote, cadastrado pelo admin, com o valor já correspondido no provedor. Botão só redireciona; liberação de crédito/plano é **manual** pelo admin | RF-PLA-05, RF-CRE-08, RF-PLA-01 |
+| 10 | Agendamento de notificações | **Decidido (2026-07-07):** notificações podem ser **agendadas por timer** (horário futuro), além do disparo imediato | RF-NOT-06 |
 
 ### Ainda pendentes ⛔ (adiadas pelo dono)
 
 | # | Pendência | Nota |
 |---|---|---|
-| 2 | Gateway de pagamento (+ auto-compra ou liberação manual) + preços de planos/pacotes | **Adiado por último** — o dono já tem um provedor em mente, confirmar antes de codar RF-PLA-05/RF-CRE-08/RF-PLA-01 |
+| 9 | Modelos Virais: só vitrine ou integra com o Estúdio | **REABERTO (2026-07-07)** — o dono voltou atrás na decisão anterior; escopo indefinido + templates congelados. Não codar o backend até fechar (RF-TRB-03) |
 | 7 | Fluxo de saque da comissão + regra de conflito de indicação | **Adiado** — dono quer revisar a lógica de negócio do módulo de Indicação inteiro antes de destravar (RF-IND-06) |
 | 8 | O que é a "Store" das Ferramentas | **Adiado** — fora do MVP por ora, revisar depois (RF-FER-02) |

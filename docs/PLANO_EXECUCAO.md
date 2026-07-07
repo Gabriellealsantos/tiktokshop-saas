@@ -1,15 +1,19 @@
 # PLANO DE EXECUÇÃO — do backend base até o front conectado
 
-> Complementa o `docs/ARQUITETURA.md` (mapa de endpoints) e os HANDOFFs.
+> Complementa o `docs/ARQUITETURA.md` (mapa de endpoints), `docs/REQUISITOS.md` (o quê/porquê) e `docs/TELAS_PENDENTES.md` (pendências tela a tela).
 > **Estado atual (base pronta):** segurança OAuth2/JWT/MFA, entidades + repositories de todos os módulos,
 > migrations V1–V3, exception handler global, `CreditService` (débito atômico + estorno idempotente),
 > `GenerationJobService` + `GenerationProvider` (stub) e `PaymentGateway` (stub), com testes unitários.
-> Os módulos "opcionais" dos HANDOFFs são **obrigatórios**.
+> Os módulos antes chamados "opcionais" (Prompts, Modelos Virais, Academy, Vendas ao Vivo, Indicação) são **obrigatórios**.
 >
 > **Convenções (valem para tudo abaixo):** Controller → Service → Repository; DTOs `Create`/`Update`/`Response`
 > (records, padrão `UserDTO`); Native Query preferida; rotas `/api/**` autenticadas, `/api/admin/**` com
 > `hasRole('ADMIN')`, `/api/public/**` públicas; `@PreAuthorize` + ownership (IDOR → 404) em todo GET/PUT/DELETE
 > por id; erros pelo `ControllerExceptionHandler` (402 créditos, 404, 409, 422); pt-BR em código/commits.
+>
+> **⚠️ Atualização 2026-07-07:** pagamento **não é gateway** — é só um `paymentUrl` de redirect por plano/pacote
+> (crédito/plano liberado manualmente pelo admin). Notificações podem ser **agendadas por timer**. **Modelos Virais**
+> voltou a ficar **indefinido** (não codar). Ver `TELAS_PENDENTES.md` e §12 abaixo.
 
 ---
 
@@ -29,11 +33,12 @@
 | 10 | Notificações (in-app + Web Push) | 1,5 dia | — |
 | 11 | Indicação (código, ganhos, painel admin) | 1 dia | assinaturas |
 | 12 | Integração do front (troca dos mocks) | 3–4 dias | módulos acima |
-| — | Checkout real + webhook | bloqueado | gateway `[A DEFINIR]` (adiado — dono já tem provedor em mente) |
+| — | Pagamento (link `paymentUrl` + redirect) | **desbloqueado** | **sem gateway** — só um link externo por plano/pacote (decidido 2026-07-07) |
 | — | Provider de IA real | **desbloqueado** | **Google Gemini (Nano Banana / Gemini 2.5 Flash Image)** — decidido |
 | — | TokEditor (processamento de vídeo) | **desbloqueado** | **client-side (ffmpeg.wasm)** — decidido, ver §12 |
+| — | Modelos Virais | **bloqueado** | escopo REABERTO pelo dono (2026-07-07) + templates congelados |
 
-Total estimado do que não está bloqueado: **~13–14 dias úteis** (Provider de IA e TokEditor saem da lista de bloqueio agora que foram decididos — só falta o gateway de pagamento).
+Total estimado do que não está bloqueado: **~13–14 dias úteis**. O gateway saiu da lista de bloqueio (virou link de redirect); o único módulo travado agora é **Modelos Virais** (escopo reaberto).
 
 ---
 
@@ -45,25 +50,27 @@ Total estimado do que não está bloqueado: **~13–14 dias úteis** (Provider d
 | GET | `/api/users/me/wallet` | self — saldo (`CreditWalletDTO`) |
 | GET | `/api/users/me/wallet/transactions` | self — extrato paginado |
 | GET | `/api/users/me/usage` | self — consumo de geração no mês (`monthlyGenerationUsage`) |
-| GET | `/api/credit-packages` | U — pacotes ativos ordenados |
-| POST | `/api/credit-packages/{id}/checkout` | U — cria sessão via `PaymentGateway` (stub) |
-| GET/POST/PUT/DELETE | `/api/admin/credit-packages` | A — CRUD |
+| GET | `/api/credit-packages` | U — pacotes ativos ordenados (inclui `paymentUrl`) |
+| GET/POST/PUT/DELETE | `/api/admin/credit-packages` | A — CRUD (créditos, preço, bônus%, badge, ordem, **`paymentUrl`**) |
 | POST | `/api/admin/users/{id}/credits` | A — conceder/ajustar créditos (`CreditService.credit`, reason `ADMIN_CREDIT`) |
 
 **Regras/borda:** débito sempre via `CreditService` (nunca manipular saldo direto); `SIGNUP_BONUS` no registro
-**= 60 créditos** (decidido); pacote inativo não aparece nem aceita checkout; extrato ordenado desc.
-**Reuso:** `CreditService`, `CreditPackageRepository.findByActiveTrueOrderByOrderIndexAsc()`, DTOs já criados.
+**= 60 créditos** (decidido); pacote inativo não aparece; extrato ordenado desc. **Compra (decidido 2026-07-07):**
+sem endpoint de checkout — o botão "Comprar" redireciona para o `paymentUrl` do pacote; o crédito entra na carteira
+via `POST /api/admin/users/{id}/credits` (**manual**, após o pagamento). **Reuso:** `CreditService`,
+`CreditPackageRepository.findByActiveTrueOrderByOrderIndexAsc()`, DTOs já criados.
 
 ## 2. Planos & Assinaturas
 
-**Endpoints:** `GET /api/plans` (U) · `GET/POST/PUT/DELETE /api/admin/plans` (A) ·
+**Endpoints:** `GET /api/plans` (U) · `GET/POST/PUT/DELETE /api/admin/plans` (A — inclui preço + `paymentUrl`) ·
 `POST /api/admin/users/{id}/subscription` (A — atribui plano; `LIFETIME` sem `expiresAt`) ·
-`GET /api/users/me/subscription` (self) · `POST /api/plans/{id}/checkout` (U — stub).
+`GET /api/users/me/subscription` (self). **Sem endpoint de checkout** — o botão "Mudar de plano" redireciona
+para o `paymentUrl` do plano.
 
 **Regras/borda:** uma assinatura ATIVA por usuário (nova → encerra anterior); expiração = job diário
 (`@Scheduled`) marcando `EXPIRED`; usuário sem assinatura ativa = gating no front (`AccessGuard`);
-preços `[A DEFINIR]` — adiado junto com o gateway de pagamento (§12.2); CRUD admin resolve assim que os
-valores vierem.
+**preço + `paymentUrl` cadastrados pelo admin** (decidido 2026-07-07 — link externo, sem gateway); a
+ativação do plano após o pagamento é **manual** pelo admin.
 
 ## 3. Admin de Usuários
 
@@ -85,9 +92,10 @@ com paginação. **Reuso:** `UserRepository.searchUsers`, validações de role d
 
 - **Prompts:** `GET /api/prompts?category=&search=` (U) · `POST/PUT/DELETE /api/admin/prompts` (A).
   Borda: categoria vazia → lista vazia; `@Size` no conteúdo — **limite = 2.000 caracteres** (decidido).
-- **Modelos Virais:** `GET /api/viral-templates` (U) · CRUD admin. Borda: URL de thumbnail validada por formato.
-  **Decidido: integra com o Estúdio** — clicar num modelo cria uma sessão do Estúdio pré-preenchida
-  (`template_id` inicial), não é só vitrine.
+- **Modelos Virais:** ⛔ **BLOQUEADO (2026-07-07).** O dono reabriu o escopo — se é só vitrine ou integra com o
+  Estúdio **não está mais decidido**, e os templates ("Novela Viral"/"Objeto Falante"/3º + estilos
+  POV/Imersivo/Cinematográfico) estão **congelados**. Front já tem telas próprias (`/modelos`,
+  `model-assembly-screen`, `product-models-picker`). **Não codar o backend até o dono fechar.**
 - **Vendas ao Vivo:** `GET /api/public/live-sales` (config + itens ativos) · `PUT /api/admin/live-sales/config` ·
   CRUD `/api/admin/live-sales/items`. Borda: `enabled=false` → flag desligada + lista vazia; intervalo mínimo ≥ 5s.
 
@@ -145,8 +153,10 @@ teto mensal de tentativas **= 400 gerações/mês por usuário** (flat, não var
 - **Feed in-app:** `GET /api/users/me/notifications?type=&page=` · `PATCH .../{id}/read` · `PATCH .../read-all` ·
   `DELETE .../{id}`. Tipos: venda/sistema/indicação/info (sino do front).
 - **Web Push (Fase 5 — foco do dono):** `GET /api/public/push/vapid-public-key` · `POST/DELETE /api/push/subscribe` ·
-  `POST /api/admin/notifications` (disparo: título, corpo, imagem, audiência ALL/SELECTED) ·
+  `POST /api/admin/notifications` (disparo: título, corpo, imagem, audiência ALL/SELECTED, **`scheduledAt` opcional**) ·
   `GET /api/admin/notifications` + `/{id}/deliveries`.
+- **Agendamento (decidido 2026-07-07):** notificações com `scheduledAt` no futuro ficam pendentes; job `@Scheduled`
+  varre e dispara na hora marcada (in-app + push). Sem `scheduledAt` = disparo imediato.
 
 **Técnica:** lib `nl.martijndwars:web-push` (confirmada); payload ≤ 4KB → **imagem vai por URL**, reaproveitando a
 `image_url` já existente do produto/avatar (HTTPS + CORS — decidido); envio assíncrono em lote (`@Async`/fila
@@ -159,29 +169,32 @@ guardadas em env var, nunca no repo (decidido, RNF-14).
 `GET/PUT /api/users/me/referral/page` (campos `pageTitle`/`pageMessage` da V3) ·
 `GET /api/admin/referrals` · `PATCH /api/admin/referrals/commissions/{id}/pay`.
 
-**Regras/borda (dinheiro — cuidado):** comissão 50/50 só quando pagamento do indicado for **confirmado** (depende
-do webhook do gateway → até lá, confirmação manual do admin); auto-indicação proibida; idempotência por
+**Regras/borda (dinheiro — cuidado):** comissão 50/50 só quando pagamento do indicado for **confirmado** — como não
+há webhook (pagamento é link externo), a **confirmação é sempre manual do admin**; auto-indicação proibida; idempotência por
 `referral_id`; estorno do indicado → reverter comissão; dois códigos p/ mesmo indicado `[A DEFINIR]`;
 **fluxo de saque `[A DEFINIR]` — módulo inteiro adiado, dono quer revisar a lógica de negócio antes**.
 
-## 12. Status das decisões do dono (atualizado 2026-07-03)
+## 12. Status das decisões do dono (atualizado 2026-07-07)
 
 ### Desbloqueadas ✅ — pode codar
 
 1. **Provider de IA**: **Google Gemini (Nano Banana / Gemini 2.5 Flash Image)**. Custos: Estúdio 15cr, Avatar 20cr,
    Trend Boost 15cr, Editar Imagem 10cr, Nano Banana Pro 20cr, Influencer Studio 30cr → trocar `FakeGenerationProvider`.
+2. **Pagamento (2026-07-07)**: **sem gateway integrado** — cada plano/pacote guarda um **`paymentUrl` (link externo)**
+   cadastrado pelo admin; o botão "Comprar/Mudar de plano" só **redireciona**. Crédito/plano é liberado
+   **manualmente** pelo admin depois do pagamento. Sem checkout, sem webhook. O stub `FakePaymentGateway` pode sair.
 3. **TokEditor**: **client-side (ffmpeg.wasm)**. ⚠️ Se performance mobile/Safari for insuficiente, plano B é migrar
    pra server-side (ffmpeg no backend) — isolar bem a lógica de export pra não virar reescrita.
 4. **Hospedagem dos vídeos da Academy**: **Panda Video**.
 5. **Chaves VAPID + URL de imagem do push**: lib `nl.martijndwars:web-push`; chaves em env var; imagem reaproveita
    `image_url` do produto/avatar (HTTPS+CORS).
 6. **Valores**: `SIGNUP_BONUS` = 60 créditos; teto mensal = 400 gerações/mês (flat); limite de prompt = 2.000 caracteres.
-9. **Modelo Viral**: integra com o Estúdio (pré-preenche a sessão).
+10. **Notificações agendadas (2026-07-07)**: admin pode agendar disparo por timer (`scheduledAt` + job `@Scheduled`).
 
 ### Ainda bloqueadas ⛔ — não codar antes de resposta do dono
 
-2. **Gateway de pagamento** (+ auto-compra vs liberação manual) + **preços de planos/pacotes** → trocar
-   `FakePaymentGateway` + webhook assinado. **Adiado por último** — dono já tem um provedor em mente, só confirmar.
+9. **Modelos Virais (2026-07-07 — REABERTO)**: se é só vitrine ou integra com o Estúdio voltou a ficar indefinido;
+   templates congelados. **Não codar o backend até o dono fechar o escopo.**
 7. **Programa de Indicação**: saque da comissão + regra de conflito de indicação. **Módulo inteiro adiado** —
    dono vai revisar a lógica de negócio antes de destravar (rastreamento/comissão calculada pode seguir, só o
    pagamento automático fica bloqueado).
@@ -209,7 +222,7 @@ O front é 100% mock (`src/mock/data.ts`, `MockSessionProvider`). Trocar **módu
    | `/ferramentas` | `/api/tools/*`, `GET /api/users/me/wallet` |
    | `/prompts` | `GET /api/prompts` |
    | `/academy` | `/api/academy/*`, progresso |
-   | `/creditos` | `GET /api/credit-packages`, checkout (stub) |
+   | `/creditos` | `GET /api/credit-packages` (redirect p/ `paymentUrl`) |
    | `/indicacao` | `/api/users/me/referral/*` |
    | `/perfil` | `/users/me`, `/me/password`, `/me/subscription`, `/me/wallet` |
    | `/admin` | `/api/admin/users*`, metrics, insights, referrals |
@@ -224,5 +237,5 @@ O front é 100% mock (`src/mock/data.ts`, `MockSessionProvider`). Trocar **módu
 2. Smoke HTTP: login → token → happy path → ownership de outro usuário (espera 404) → sem role admin em
    `/api/admin/**` (espera 403).
 3. Flyway limpo em banco novo (`docker compose down -v && up`) e em banco existente.
-4. Critérios de aceite dos HANDOFFs por fase (ex.: Fase 4 — usuário percorre os 3 fluxos e recebe prompts + imagem
-   com débito de crédito).
+4. Critérios de aceite por módulo do `REQUISITOS.md` (ex.: Fase 4 — usuário percorre os 3 fluxos e recebe prompts +
+   imagem com débito de crédito).
