@@ -2,24 +2,39 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
+  Ban,
   Camera,
   Check,
   Copy,
+  Crown,
   Download,
   ExternalLink,
   Film,
   Flame,
+  Grid,
+  Hand,
   Hash,
   Image as ImageIcon,
+  Leaf,
+  Moon,
+  MousePointerClick,
   Move3d,
   Package,
+  Palette,
   Play,
   RefreshCw,
+  Shield,
+  Shirt,
+  Smile,
+  Smartphone,
   Sparkles,
+  Star,
   UserRound,
   Video,
   Volume2,
   VolumeX,
+  Wind,
+  Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
@@ -69,7 +84,19 @@ export const toSlug = (text: string) => {
     "Romance Proibido": "romance-proibido",
     "Vingança": "vinganca",
     "Superação": "superacao",
-    "Mistério": "misterio"
+    "Mistério": "misterio",
+    "Bancada de Mármore": "bancada-marmore",
+    "Setup Gamer": "setup-gamer",
+    "Mesa de Escritório": "mesa-escritorio",
+    "Closet Maquiagem": "closet-maquiagem",
+    "Unboxing Madeira": "umboxing-madeira",
+    "De Lado": "de-lado",
+    "Ângulo 3/4": "3-4",
+    "Sentado(a)": "sentado",
+    "Andando": "andando",
+    "Maçã": "maca",
+    "Tábua de Corte": "tabua-de-corte",
+    "Xícara": "xicara"
   };
   return map[text] || text.toLowerCase().replace(/ /g, '-');
 };
@@ -450,6 +477,75 @@ function Options({ title, items }: { title: string; items: string[] }) {
     </div>
   );
 }
+
+export function OptionTextCard({ 
+  title, 
+  description, 
+  icon: Icon, 
+  selected, 
+  onClick 
+}: { 
+  title: string; 
+  description: string; 
+  icon: any; 
+  selected: boolean; 
+  onClick: () => void; 
+}) {
+  return (
+    <div
+      onClick={onClick}
+      role="radio"
+      aria-checked={selected}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className={cn(
+        "glass-surface is-interactive group relative rounded-[14px] p-[15px] cursor-pointer text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-accent-500 hover:-translate-y-0.5 flex flex-col gap-3",
+        selected 
+          ? "border-accent-400/50 shadow-[0_0_0_2px_rgba(139,124,255,.12),0_0_20px_-4px_rgba(109,91,245,0.4)]" 
+          : "border-white/10 hover:border-white/20"
+      )}
+    >
+      <div className="flex size-8 items-center justify-center rounded-[8px] bg-accent-500/15 text-accent-300">
+        <Icon className="size-4" />
+      </div>
+      <div>
+        <div className="font-semibold text-text-1 text-[13.5px] tracking-tight mb-0.5">{title}</div>
+        <div className="text-[12.5px] text-white/55 line-clamp-1 leading-snug">{description}</div>
+      </div>
+      {selected && (
+        <span className="brand-gradient accent-glow absolute right-3 top-3 grid place-items-center rounded-full size-5">
+          <Check className="text-primary-foreground size-3" />
+        </span>
+      )}
+    </div>
+  );
+}
+
+function TextOptions({ title, items, columns = 4 }: { title: string; items: { title: string; description: string; icon: any }[], columns?: 3 | 4 }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  return (
+    <div>
+      <SectionTitle title={title} />
+      <div className={cn("grid gap-3 grid-cols-2", columns === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3")} role="radiogroup">
+        {items.map((item, i) => (
+          <OptionTextCard
+            key={item.title}
+            title={item.title}
+            description={item.description}
+            icon={item.icon}
+            selected={i === selectedIndex}
+            onClick={() => setSelectedIndex(i)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 function OriginalStep({
   step,
   takes,
@@ -471,11 +567,25 @@ function OriginalStep({
       />
       <AvatarGrid />
       <Options title="Cenário" items={scenarios} />
-      <Options
+      <TextOptions 
         title="Estilo do vídeo"
-        items={["UGC Natural", "Hook TikTok", "Mostrar o Produto", "Review"]}
+        columns={4}
+        items={[
+          { title: "UGC Natural", description: "Autêntico, como um usuário real gravaria.", icon: Smile },
+          { title: "Hook TikTok", description: "Abertura de impacto nos primeiros segundos.", icon: Zap },
+          { title: "Mostrar o Produto", description: "Foco na demonstração do produto.", icon: Package },
+          { title: "Review", description: "Avaliação honesta com experiência de uso.", icon: Star },
+        ]}
       />
-      <Options title="Energia" items={["Natural", "Mais Expressivo", "Mais Discreto"]} />
+      <TextOptions 
+        title="Energia"
+        columns={3}
+        items={[
+          { title: "Natural", description: "Tom equilibrado e espontâneo.", icon: Leaf },
+          { title: "Mais Expressivo", description: "Animado, gestual e energético.", icon: Flame },
+          { title: "Mais Discreto", description: "Calmo e sóbrio, sem exageros.", icon: Moon },
+        ]}
+      />
     </div>
   ) : (
     <AudioStep takes={takes} setTakes={setTakes} />
@@ -503,12 +613,35 @@ function PovStep({
           "Personalizado",
         ]}
       />
-      <Options
+      <TextOptions 
         title="Aparência das mãos"
-        items={["Natural Feminina", "Natural Masculina", "Luvas", "Sem Mãos"]}
+        columns={4}
+        items={[
+          { title: "Natural Feminina", description: "Mãos femininas, aparência natural.", icon: Hand },
+          { title: "Natural Masculina", description: "Mãos masculinas, aparência natural.", icon: Hand },
+          { title: "Luvas", description: "Mãos com luvas, visual limpo.", icon: Shield },
+          { title: "Sem Mãos", description: "Foco total no produto, sem mãos.", icon: Ban },
+        ]}
       />
-      <Options title="Cor da mão" items={["Clara", "Morena", "Escura"]} />
-      <Options title="Apresentação" items={["Textura", "Acabamento", "Premium", "Demonstração"]} />
+      <TextOptions 
+        title="Cor da mão"
+        columns={3}
+        items={[
+          { title: "Clara", description: "Tom de pele claro.", icon: Palette },
+          { title: "Morena", description: "Tom de pele intermediário.", icon: Palette },
+          { title: "Escura", description: "Tom de pele escuro.", icon: Palette },
+        ]}
+      />
+      <TextOptions 
+        title="Apresentação"
+        columns={4}
+        items={[
+          { title: "Textura", description: "Realça a textura do produto.", icon: Grid },
+          { title: "Acabamento", description: "Destaca o acabamento e detalhes.", icon: Sparkles },
+          { title: "Premium", description: "Visual sofisticado e premium.", icon: Crown },
+          { title: "Demonstração", description: "Mostra o produto em uso.", icon: Play },
+        ]}
+      />
     </div>
   ) : (
     <AudioStep takes={takes} setTakes={setTakes} />
@@ -528,13 +661,14 @@ function CinemaStep({ step }: { step: number }) {
   if (step === 2)
     return (
       <div className="space-y-7">
-        <Options
+        <TextOptions 
           title="Interação"
+          columns={4}
           items={[
-            "Vestindo o produto",
-            "Segurando o produto",
-            "Selfie no espelho",
-            "Selfie natural",
+            { title: "Vestindo o produto", description: "Creator usa o produto no corpo.", icon: Shirt },
+            { title: "Segurando o produto", description: "Produto em destaque nas mãos.", icon: Hand },
+            { title: "Selfie no espelho", description: "Gravação refletida no espelho.", icon: Smartphone },
+            { title: "Selfie natural", description: "Enquadramento próximo e espontâneo.", icon: Camera },
           ]}
         />
         <Options title="Cenário" items={scenarios.slice(0, 8)} />
@@ -545,9 +679,14 @@ function CinemaStep({ step }: { step: number }) {
       </div>
     );
   return (
-    <Options
+    <TextOptions
       title="Template de movimento"
-      items={["CTA", "Movimentos Naturais", "Exibição de Produto"]}
+      columns={3}
+      items={[
+        { title: "CTA", description: "Foco na chamada para ação final.", icon: MousePointerClick },
+        { title: "Movimentos Naturais", description: "Câmera fluida e orgânica.", icon: Wind },
+        { title: "Exibição de Produto", description: "Destaca o produto em rotação.", icon: RefreshCw },
+      ]}
     />
   );
 }
@@ -820,18 +959,12 @@ function CreationFinal({ takes = 1 }: { takes?: number }) {
 
       {/* MUDANÇA 3: Mover botões Abrir e Gerar Prompt */}
       <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <ActionCardButton 
             icon={Play} 
             title="Abrir Flow VEO3" 
             description="Vídeos profissionais"
             onClick={() => {/* TODO: definir destino do VEO3 */}} 
-          />
-          <ActionCardButton 
-            icon={ExternalLink} 
-            title="Abrir Nano Banana" 
-            description="Edição de imagem"
-            onClick={() => {/* TODO: definir destino do Nano Banana */}} 
           />
           <ActionCardButton 
             icon={ExternalLink} 
@@ -845,7 +978,6 @@ function CreationFinal({ takes = 1 }: { takes?: number }) {
           title={isGenerating ? "Gerando..." : hasGenerated ? "Regerar Prompt" : "Gerar Prompt"} 
           description="Storyboard técnico VEO 3.1 em segundos"
           actionIcon={ArrowRight}
-          primary 
           spinning={isGenerating}
           onClick={handleGeneratePrompt} 
           disabled={isGenerating}

@@ -20,6 +20,7 @@ import {
   User,
   WandSparkles,
   Zap,
+  Film,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
@@ -41,9 +42,10 @@ import {
 const toolbar = [
   ["/", Gauge, "Início"],
   ["/produtos", Boxes, "Produtos"],
+  ["/avatares", User, "Avatares"],
+  ["/modelos", Film, "Modelos"],
   ["/estudio", Clapperboard, "Estúdio"],
   ["/trend-boost", Zap, "Boost"],
-  ["/avatares", WandSparkles, "Avatares"],
   ["/ferramentas", Sparkles, "IA"],
   ["/academy", BookOpen, "Academy"],
 ] as const;

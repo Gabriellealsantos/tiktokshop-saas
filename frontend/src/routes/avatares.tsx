@@ -1,3 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AvatarStudio } from "@/features/avatars/avatar-studio";
-export const Route = createFileRoute("/avatares")({ component: AvatarStudio });
+import { AvatarsList } from "@/features/avatars/avatars-list";
+
+export const Route = createFileRoute("/avatares")({ component: AvatarsList });

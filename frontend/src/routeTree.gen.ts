@@ -14,12 +14,14 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PromptsRouteImport } from './routes/prompts'
 import { Route as ProdutosRouteImport } from './routes/produtos'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as ModelosRouteImport } from './routes/modelos'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndicacaoRouteImport } from './routes/indicacao'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as EstudioRouteImport } from './routes/estudio'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CriarAvatarRouteImport } from './routes/criar-avatar'
 import { Route as CreditosRouteImport } from './routes/creditos'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CadastroRouteImport } from './routes/cadastro'
@@ -28,8 +30,11 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TrendBoostIndexRouteImport } from './routes/trend-boost.index'
+import { Route as ModelosIndexRouteImport } from './routes/modelos.index'
 import { Route as EstudioIndexRouteImport } from './routes/estudio.index'
 import { Route as TrendBoostTemplateRouteImport } from './routes/trend-boost.$template'
+import { Route as ModelosUsarRouteImport } from './routes/modelos.usar'
+import { Route as GerarModeloViralRouteImport } from './routes/gerar.modelo-viral'
 import { Route as EstudioFormatRouteImport } from './routes/estudio.$format'
 
 const TrendBoostRoute = TrendBoostRouteImport.update({
@@ -55,6 +60,11 @@ const ProdutosRoute = ProdutosRouteImport.update({
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelosRoute = ModelosRouteImport.update({
+  id: '/modelos',
+  path: '/modelos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -85,6 +95,11 @@ const EditorRoute = EditorRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CriarAvatarRoute = CriarAvatarRouteImport.update({
+  id: '/criar-avatar',
+  path: '/criar-avatar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreditosRoute = CreditosRouteImport.update({
@@ -127,6 +142,11 @@ const TrendBoostIndexRoute = TrendBoostIndexRouteImport.update({
   path: '/',
   getParentRoute: () => TrendBoostRoute,
 } as any)
+const ModelosIndexRoute = ModelosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ModelosRoute,
+} as any)
 const EstudioIndexRoute = EstudioIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -136,6 +156,16 @@ const TrendBoostTemplateRoute = TrendBoostTemplateRouteImport.update({
   id: '/$template',
   path: '/$template',
   getParentRoute: () => TrendBoostRoute,
+} as any)
+const ModelosUsarRoute = ModelosUsarRouteImport.update({
+  id: '/usar',
+  path: '/usar',
+  getParentRoute: () => ModelosRoute,
+} as any)
+const GerarModeloViralRoute = GerarModeloViralRouteImport.update({
+  id: '/gerar/modelo-viral',
+  path: '/gerar/modelo-viral',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EstudioFormatRoute = EstudioFormatRouteImport.update({
   id: '/$format',
@@ -151,20 +181,25 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/creditos': typeof CreditosRoute
+  '/criar-avatar': typeof CriarAvatarRoute
   '/dashboard': typeof DashboardRoute
   '/editor': typeof EditorRoute
   '/estudio': typeof EstudioRouteWithChildren
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
   '/login': typeof LoginRoute
+  '/modelos': typeof ModelosRouteWithChildren
   '/perfil': typeof PerfilRoute
   '/produtos': typeof ProdutosRoute
   '/prompts': typeof PromptsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trend-boost': typeof TrendBoostRouteWithChildren
   '/estudio/$format': typeof EstudioFormatRoute
+  '/gerar/modelo-viral': typeof GerarModeloViralRoute
+  '/modelos/usar': typeof ModelosUsarRoute
   '/trend-boost/$template': typeof TrendBoostTemplateRoute
   '/estudio/': typeof EstudioIndexRoute
+  '/modelos/': typeof ModelosIndexRoute
   '/trend-boost/': typeof TrendBoostIndexRoute
 }
 export interface FileRoutesByTo {
@@ -175,6 +210,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/creditos': typeof CreditosRoute
+  '/criar-avatar': typeof CriarAvatarRoute
   '/dashboard': typeof DashboardRoute
   '/editor': typeof EditorRoute
   '/ferramentas': typeof FerramentasRoute
@@ -185,8 +221,11 @@ export interface FileRoutesByTo {
   '/prompts': typeof PromptsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/estudio/$format': typeof EstudioFormatRoute
+  '/gerar/modelo-viral': typeof GerarModeloViralRoute
+  '/modelos/usar': typeof ModelosUsarRoute
   '/trend-boost/$template': typeof TrendBoostTemplateRoute
   '/estudio': typeof EstudioIndexRoute
+  '/modelos': typeof ModelosIndexRoute
   '/trend-boost': typeof TrendBoostIndexRoute
 }
 export interface FileRoutesById {
@@ -198,20 +237,25 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/creditos': typeof CreditosRoute
+  '/criar-avatar': typeof CriarAvatarRoute
   '/dashboard': typeof DashboardRoute
   '/editor': typeof EditorRoute
   '/estudio': typeof EstudioRouteWithChildren
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
   '/login': typeof LoginRoute
+  '/modelos': typeof ModelosRouteWithChildren
   '/perfil': typeof PerfilRoute
   '/produtos': typeof ProdutosRoute
   '/prompts': typeof PromptsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trend-boost': typeof TrendBoostRouteWithChildren
   '/estudio/$format': typeof EstudioFormatRoute
+  '/gerar/modelo-viral': typeof GerarModeloViralRoute
+  '/modelos/usar': typeof ModelosUsarRoute
   '/trend-boost/$template': typeof TrendBoostTemplateRoute
   '/estudio/': typeof EstudioIndexRoute
+  '/modelos/': typeof ModelosIndexRoute
   '/trend-boost/': typeof TrendBoostIndexRoute
 }
 export interface FileRouteTypes {
@@ -224,20 +268,25 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/configuracoes'
     | '/creditos'
+    | '/criar-avatar'
     | '/dashboard'
     | '/editor'
     | '/estudio'
     | '/ferramentas'
     | '/indicacao'
     | '/login'
+    | '/modelos'
     | '/perfil'
     | '/produtos'
     | '/prompts'
     | '/sitemap.xml'
     | '/trend-boost'
     | '/estudio/$format'
+    | '/gerar/modelo-viral'
+    | '/modelos/usar'
     | '/trend-boost/$template'
     | '/estudio/'
+    | '/modelos/'
     | '/trend-boost/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -248,6 +297,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/configuracoes'
     | '/creditos'
+    | '/criar-avatar'
     | '/dashboard'
     | '/editor'
     | '/ferramentas'
@@ -258,8 +308,11 @@ export interface FileRouteTypes {
     | '/prompts'
     | '/sitemap.xml'
     | '/estudio/$format'
+    | '/gerar/modelo-viral'
+    | '/modelos/usar'
     | '/trend-boost/$template'
     | '/estudio'
+    | '/modelos'
     | '/trend-boost'
   id:
     | '__root__'
@@ -270,20 +323,25 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/configuracoes'
     | '/creditos'
+    | '/criar-avatar'
     | '/dashboard'
     | '/editor'
     | '/estudio'
     | '/ferramentas'
     | '/indicacao'
     | '/login'
+    | '/modelos'
     | '/perfil'
     | '/produtos'
     | '/prompts'
     | '/sitemap.xml'
     | '/trend-boost'
     | '/estudio/$format'
+    | '/gerar/modelo-viral'
+    | '/modelos/usar'
     | '/trend-boost/$template'
     | '/estudio/'
+    | '/modelos/'
     | '/trend-boost/'
   fileRoutesById: FileRoutesById
 }
@@ -295,17 +353,20 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   CreditosRoute: typeof CreditosRoute
+  CriarAvatarRoute: typeof CriarAvatarRoute
   DashboardRoute: typeof DashboardRoute
   EditorRoute: typeof EditorRoute
   EstudioRoute: typeof EstudioRouteWithChildren
   FerramentasRoute: typeof FerramentasRoute
   IndicacaoRoute: typeof IndicacaoRoute
   LoginRoute: typeof LoginRoute
+  ModelosRoute: typeof ModelosRouteWithChildren
   PerfilRoute: typeof PerfilRoute
   ProdutosRoute: typeof ProdutosRoute
   PromptsRoute: typeof PromptsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TrendBoostRoute: typeof TrendBoostRouteWithChildren
+  GerarModeloViralRoute: typeof GerarModeloViralRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -343,6 +404,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modelos': {
+      id: '/modelos'
+      path: '/modelos'
+      fullPath: '/modelos'
+      preLoaderRoute: typeof ModelosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -385,6 +453,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/criar-avatar': {
+      id: '/criar-avatar'
+      path: '/criar-avatar'
+      fullPath: '/criar-avatar'
+      preLoaderRoute: typeof CriarAvatarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/creditos': {
@@ -443,6 +518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrendBoostIndexRouteImport
       parentRoute: typeof TrendBoostRoute
     }
+    '/modelos/': {
+      id: '/modelos/'
+      path: '/'
+      fullPath: '/modelos/'
+      preLoaderRoute: typeof ModelosIndexRouteImport
+      parentRoute: typeof ModelosRoute
+    }
     '/estudio/': {
       id: '/estudio/'
       path: '/'
@@ -456,6 +538,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/trend-boost/$template'
       preLoaderRoute: typeof TrendBoostTemplateRouteImport
       parentRoute: typeof TrendBoostRoute
+    }
+    '/modelos/usar': {
+      id: '/modelos/usar'
+      path: '/usar'
+      fullPath: '/modelos/usar'
+      preLoaderRoute: typeof ModelosUsarRouteImport
+      parentRoute: typeof ModelosRoute
+    }
+    '/gerar/modelo-viral': {
+      id: '/gerar/modelo-viral'
+      path: '/gerar/modelo-viral'
+      fullPath: '/gerar/modelo-viral'
+      preLoaderRoute: typeof GerarModeloViralRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/estudio/$format': {
       id: '/estudio/$format'
@@ -480,6 +576,19 @@ const EstudioRouteChildren: EstudioRouteChildren = {
 const EstudioRouteWithChildren =
   EstudioRoute._addFileChildren(EstudioRouteChildren)
 
+interface ModelosRouteChildren {
+  ModelosUsarRoute: typeof ModelosUsarRoute
+  ModelosIndexRoute: typeof ModelosIndexRoute
+}
+
+const ModelosRouteChildren: ModelosRouteChildren = {
+  ModelosUsarRoute: ModelosUsarRoute,
+  ModelosIndexRoute: ModelosIndexRoute,
+}
+
+const ModelosRouteWithChildren =
+  ModelosRoute._addFileChildren(ModelosRouteChildren)
+
 interface TrendBoostRouteChildren {
   TrendBoostTemplateRoute: typeof TrendBoostTemplateRoute
   TrendBoostIndexRoute: typeof TrendBoostIndexRoute
@@ -502,17 +611,20 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   CreditosRoute: CreditosRoute,
+  CriarAvatarRoute: CriarAvatarRoute,
   DashboardRoute: DashboardRoute,
   EditorRoute: EditorRoute,
   EstudioRoute: EstudioRouteWithChildren,
   FerramentasRoute: FerramentasRoute,
   IndicacaoRoute: IndicacaoRoute,
   LoginRoute: LoginRoute,
+  ModelosRoute: ModelosRouteWithChildren,
   PerfilRoute: PerfilRoute,
   ProdutosRoute: ProdutosRoute,
   PromptsRoute: PromptsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TrendBoostRoute: TrendBoostRouteWithChildren,
+  GerarModeloViralRoute: GerarModeloViralRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,4 +1,4 @@
-import { Heart, ShoppingBag, Eye, TrendingUp, Target } from "lucide-react";
+import { Heart, ShoppingBag, Eye, TrendingUp, Target, Flame, ArrowRight, WandSparkles } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import type { Product } from "@/mock/data";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -121,16 +121,16 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange }: ProductDe
         </VisuallyHidden.Root>
 
         <div className="flex flex-col md:flex-row h-full max-h-[90dvh] md:max-h-[85vh]">
-          {/* LEFT: Media */}
-          <div className="relative w-full md:w-2/5 lg:w-[45%] bg-surface-3 md:border-r md:border-white/10 shrink-0">
-            <div className="relative w-full h-64 md:h-full min-h-[300px]">
+          {/* LEFT: Media & Main Actions */}
+          <div className="relative flex flex-col w-full md:w-[44%] bg-surface-3 md:border-r md:border-white/10 shrink-0 overflow-y-auto p-6 md:p-8 gap-6">
+            {/* Image Card */}
+            <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 shrink-0">
               <img
                 src={product.image}
                 alt={product.name}
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105"
               />
-              <div className="absolute inset-0 ring-1 ring-inset ring-white/10" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/30 pointer-events-none" />
 
               <span className="absolute left-4 top-4">
@@ -173,10 +173,41 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange }: ProductDe
                   </div>
                 )}
             </div>
+
+            {/* Actions Moved to Left */}
+            <div className="flex flex-col gap-3 mt-auto">
+              <div className="mb-1 text-center text-[11px] text-text-3 uppercase tracking-wider font-semibold">
+                Fluxo Recomendado: Descobrir &rarr; Afiliar &rarr; Criar
+              </div>
+
+              <button
+                onClick={() => {
+                  if (product.affiliateUrl) {
+                    window.open(product.affiliateUrl, "_blank");
+                  } else {
+                    toast.success("Link de afiliado será gerado em breve!"); // TODO
+                  }
+                }}
+                className="gradient-brand flex h-12 w-full items-center justify-center rounded-[14px] text-base font-bold text-white shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Afiliar no TikTok Shop
+              </button>
+
+              <button
+                onClick={() => {
+                  toast.success("Redirecionando para o estúdio com este produto...");
+                  onOpenChange(false);
+                  navigate({ to: "/estudio" });
+                }}
+                className="flex h-12 w-full items-center justify-center rounded-[14px] border border-border bg-surface-2 text-base font-semibold text-text-1 transition-colors hover:bg-surface-3 active:scale-[0.98]"
+              >
+                Criar conteúdo
+              </button>
+            </div>
           </div>
 
-          {/* RIGHT: Info + Actions */}
-          <div className="flex flex-col w-full md:w-3/5 lg:w-[55%] p-6 md:p-8 overflow-y-auto bg-surface-1">
+          {/* RIGHT: Info + New Actions */}
+          <div className="flex flex-col w-full md:w-[56%] p-6 md:p-8 overflow-y-auto bg-surface-1">
             {/* Header & Badges */}
             <div className="flex items-center gap-2 mb-3">
               <Pill className="border-white/10 bg-surface-2 text-text-2 text-xs">
@@ -323,34 +354,48 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange }: ProductDe
               <p className="mt-6 text-sm text-text-2 leading-relaxed">{product.description}</p>
             )}
 
-            {/* Actions */}
-            <div className="mt-8 flex flex-col gap-3">
-              <div className="mb-1 text-center text-[11px] text-text-3 uppercase tracking-wider font-semibold">
-                Fluxo Recomendado: Descobrir &rarr; Afiliar &rarr; Criar
+            {/* NEW Content Generation Actions */}
+            <div className="mt-8 flex flex-col gap-4">
+              <div>
+                <h3 className="text-base font-bold text-text-1">Gere conteúdo com este produto de duas formas</h3>
+                <p className="text-sm text-text-3 mt-0.5">Escolha o caminho ideal para criar seu vídeo</p>
               </div>
 
-              <button
+              <button 
+                className="group flex items-center gap-4 rounded-2xl border border-white/5 bg-surface-2 p-4 text-left transition-all hover:border-white/10 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(139,92,246,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
                 onClick={() => {
-                  if (product.affiliateUrl) {
-                    window.open(product.affiliateUrl, "_blank");
-                  } else {
-                    toast.success("Link de afiliado será gerado em breve!"); // TODO
-                  }
+                  onOpenChange(false);
+                  navigate({ 
+                    to: "/gerar/modelo-viral", 
+                    search: { productId: product.id } 
+                  });
                 }}
-                className="gradient-brand flex h-12 w-full items-center justify-center rounded-[14px] text-base font-bold text-white shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
               >
-                Afiliar no TikTok Shop
+                <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-orange-500/10 text-orange-500 transition-colors group-hover:bg-orange-500/20">
+                  <Flame className="size-6" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-bold text-text-1 transition-colors group-hover:text-white">Gerar conteúdo a partir de um modelo viral</h4>
+                  <p className="mt-1 text-xs text-text-3 leading-relaxed">Use um template testado e adapte ao seu produto.</p>
+                </div>
+                <ArrowRight className="size-5 text-text-3 transition-transform group-hover:translate-x-1 group-hover:text-white" />
               </button>
 
-              <button
+              <button 
+                className="group flex items-center gap-4 rounded-2xl border border-white/5 bg-surface-2 p-4 text-left transition-all hover:border-white/10 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(139,92,246,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
                 onClick={() => {
-                  toast.success("Redirecionando para o estúdio com este produto...");
-                  onOpenChange(false);
-                  navigate({ to: "/estudio" });
+                  // TODO: destino do botão "criação do zero"
+                  toast("Em breve: Criação do zero");
                 }}
-                className="flex h-12 w-full items-center justify-center rounded-[14px] border border-border bg-surface-2 text-base font-semibold text-text-1 transition-colors hover:bg-surface-3 active:scale-[0.98]"
               >
-                Criar conteúdo
+                <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-violet-500/10 text-violet-400 transition-colors group-hover:bg-violet-500/20">
+                  <WandSparkles className="size-6" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-bold text-text-1 transition-colors group-hover:text-white">Gerar conteúdo com criação do zero</h4>
+                  <p className="mt-1 text-xs text-text-3 leading-relaxed">Monte cada conteúdo manualmente para máximo controle.</p>
+                </div>
+                <ArrowRight className="size-5 text-text-3 transition-transform group-hover:translate-x-1 group-hover:text-white" />
               </button>
             </div>
           </div>
