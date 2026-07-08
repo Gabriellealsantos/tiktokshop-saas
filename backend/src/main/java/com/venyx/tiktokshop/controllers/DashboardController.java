@@ -28,8 +28,10 @@ public class DashboardController {
     @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/dashboard")
     public ResponseEntity<DashboardSummaryDTO> getSummary(
-            @RequestParam(value = "period", required = false) String period) {
-        return ResponseEntity.ok(service.getSummary(period));
+            @RequestParam(value = "period", required = false) String period,
+            @RequestParam(value = "from", required = false) String from,
+            @RequestParam(value = "to", required = false) String to) {
+        return ResponseEntity.ok(service.getSummary(period, from, to));
     }
 
     @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
