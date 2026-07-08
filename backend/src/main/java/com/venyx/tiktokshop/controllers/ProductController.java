@@ -1,5 +1,6 @@
 package com.venyx.tiktokshop.controllers;
 
+import com.venyx.tiktokshop.dtos.MiningStatusDTO;
 import com.venyx.tiktokshop.dtos.ProductDTO;
 import com.venyx.tiktokshop.entities.RoleConstants;
 import com.venyx.tiktokshop.services.AuthService;
@@ -42,6 +43,11 @@ public class ProductController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "20") int size) {
         return ResponseEntity.ok(service.search(search, category, miningWindow, sort, page, size));
+    }
+
+    @GetMapping("/api/products/mining-status")
+    public ResponseEntity<MiningStatusDTO> miningStatus() {
+        return ResponseEntity.ok(service.miningStatus());
     }
 
     @GetMapping("/api/products/{id}")

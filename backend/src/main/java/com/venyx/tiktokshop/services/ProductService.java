@@ -1,5 +1,6 @@
 package com.venyx.tiktokshop.services;
 
+import com.venyx.tiktokshop.dtos.MiningStatusDTO;
 import com.venyx.tiktokshop.dtos.ProductDTO;
 import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.enums.ProductCategory;
@@ -14,6 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,10 +25,32 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class ProductService {
 
+    /**
+     * Cadência fixa da mineração. Enquanto não existe mineração real do TikTok, o refresh é
+     * simulado por boundaries determinísticos ancorados no epoch (a cada 6h). Quando a mineração
+     * real existir, ela passa a alimentar newProductsCount/detectedRevenue e a definir o boundary.
+     */
+    private static final Duration MINING_REFRESH_INTERVAL = Duration.ofHours(6);
+
     private final ProductRepository repository;
 
     public ProductService(ProductRepository repository) {
         this.repository = repository;
+    }
+
+    @Transactional(readOnly = true)
+    public MiningStatusDTO miningStatus() {
+        Instant now = Instant.now();
+        long stepSec = MINING_REFRESH_INTERVAL.getSeconds();
+        long nowEpoch = now.getEpochSecond();
+        // Boundary anterior/próximo ancorados no epoch: independem de estado em memória, então o
+        // countdown é idêntico em reloads e sobrevive a reinícios do servidor.
+        long lastBoundary = nowEpoch - (nowEpoch % stepSec);
+        long nextBoundary = lastBoundary + stepSec;
+
+        long newCount = repository.countByCreatedAtAfter(Instant.ofEpochSecond(lastBoundary));
+        BigDecimal detected = repository.sumEstimatedRevenue();
+        return new MiningStatusDTO(newCount, detected, nextBoundary - nowEpoch, true);
     }
 
     @Transactional(readOnly = true)
