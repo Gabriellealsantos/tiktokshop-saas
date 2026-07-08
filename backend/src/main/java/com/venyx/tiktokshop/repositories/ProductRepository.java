@@ -1,6 +1,7 @@
 package com.venyx.tiktokshop.repositories;
 
 import com.venyx.tiktokshop.entities.Product;
+import com.venyx.tiktokshop.entities.enums.MiningWindow;
 import com.venyx.tiktokshop.entities.enums.ProductCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             """)
     Page<Product> search(@Param("searchPattern") String searchPattern,
                           @Param("category") ProductCategory category,
-                          @Param("miningWindow") String miningWindow,
+                          @Param("miningWindow") MiningWindow miningWindow,
                           Pageable pageable);
 }

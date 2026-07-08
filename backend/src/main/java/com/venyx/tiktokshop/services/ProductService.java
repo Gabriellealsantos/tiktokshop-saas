@@ -3,6 +3,7 @@ package com.venyx.tiktokshop.services;
 import com.venyx.tiktokshop.dtos.MiningStatusDTO;
 import com.venyx.tiktokshop.dtos.ProductDTO;
 import com.venyx.tiktokshop.entities.Product;
+import com.venyx.tiktokshop.entities.enums.MiningWindow;
 import com.venyx.tiktokshop.entities.enums.ProductCategory;
 import com.venyx.tiktokshop.repositories.ProductRepository;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
@@ -66,8 +67,12 @@ public class ProductService {
         ProductCategory categoryEnum = (category == null || category.isBlank())
                 ? null
                 : ProductCategory.valueOf(category.toUpperCase());
+        // window inválida -> IllegalArgumentException -> HTTP 400 (mesmo tratamento da categoria).
+        MiningWindow windowEnum = (miningWindow == null || miningWindow.isBlank())
+                ? null
+                : MiningWindow.valueOf(miningWindow.trim().toUpperCase());
         Pageable pageable = PageRequest.of(page, size, resolveSort(sort));
-        return repository.search(likePattern(search), categoryEnum, blankToNull(miningWindow), pageable)
+        return repository.search(likePattern(search), categoryEnum, windowEnum, pageable)
                 .map(ProductDTO::new);
     }
 

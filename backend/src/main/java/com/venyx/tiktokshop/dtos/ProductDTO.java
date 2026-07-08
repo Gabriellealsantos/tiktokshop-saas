@@ -1,6 +1,7 @@
 package com.venyx.tiktokshop.dtos;
 
 import com.venyx.tiktokshop.entities.Product;
+import com.venyx.tiktokshop.entities.enums.MiningWindow;
 import com.venyx.tiktokshop.entities.enums.ProductCategory;
 
 import java.math.BigDecimal;
@@ -23,7 +24,7 @@ public record ProductDTO(
     BigDecimal salesPerDay,
     BigDecimal delta7d,
     List<Integer> history7d,
-    String miningWindow,
+    MiningWindow miningWindow,
     String trendLabel,
     Integer rankPosition,
     List<String> images,

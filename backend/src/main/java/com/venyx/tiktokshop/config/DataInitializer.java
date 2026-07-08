@@ -5,6 +5,7 @@ import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.Role;
 import com.venyx.tiktokshop.entities.RoleConstants;
 import com.venyx.tiktokshop.entities.User;
+import com.venyx.tiktokshop.entities.enums.MiningWindow;
 import com.venyx.tiktokshop.entities.enums.ProductCategory;
 import com.venyx.tiktokshop.entities.enums.UserStatus;
 import com.venyx.tiktokshop.repositories.CreditWalletRepository;
@@ -109,7 +110,8 @@ public class DataInitializer implements CommandLineRunner {
         product.setSalesPerDay(new BigDecimal("12"));
         product.setDelta7d(new BigDecimal("8.2"));
         product.setHistory7d(List.of(10, 12, 9, 14, 18, 15, 20));
-        product.setMiningWindow("7d");
+        // Varia a janela entre as 4 faixas para a demo do filtro por horário ter resultados distintos.
+        product.setMiningWindow(MiningWindow.values()[(rankPosition - 1) % MiningWindow.values().length]);
         product.setTrendLabel("Em alta");
         product.setRankPosition(rankPosition);
         product.setSales(rankPosition * 37);
