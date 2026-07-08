@@ -4,7 +4,7 @@
 -- =====================================================================
 
 -- =====================================================================
--- Geração assíncrona (Estúdio, Avatares, Trend Boost, Ferramentas, TokEditor)
+-- Geração assíncrona (Estúdio, Avatares, Trend Boost, Ferramentas)
 -- Débito de crédito ANTES da geração; estorno em falha via credit_tx_id.
 -- =====================================================================
 CREATE TABLE generation_jobs (
@@ -22,30 +22,6 @@ CREATE TABLE generation_jobs (
 );
 CREATE INDEX idx_generation_jobs_user ON generation_jobs(user_id);
 CREATE INDEX idx_generation_jobs_status ON generation_jobs(status);
-
--- =====================================================================
--- Pacotes de crédito (tela /creditos — preços [A DEFINIR] pelo dono,
--- seed com os valores exibidos no front)
--- =====================================================================
-CREATE TABLE credit_packages (
-    id          BIGSERIAL PRIMARY KEY,
-    name        VARCHAR(100) NOT NULL,
-    credits     INTEGER NOT NULL,
-    bonus_pct   INTEGER DEFAULT 0,
-    price       NUMERIC(12, 2) NOT NULL,
-    badge       VARCHAR(60),
-    active      BOOLEAN NOT NULL DEFAULT TRUE,
-    order_index INTEGER,
-    created_at  TIMESTAMP WITHOUT TIME ZONE
-);
-
-INSERT INTO credit_packages (name, credits, bonus_pct, price, badge, active, order_index, created_at) VALUES
-    ('Starter',    100,  0,  29.90, NULL,                       TRUE, 1, NOW()),
-    ('Essencial',  300,  10, 79.90, NULL,                       TRUE, 2, NOW()),
-    ('Pro',        600,  0,  149.90, 'Mais popular',            TRUE, 3, NOW()),
-    ('Premium',    1200, 20, 279.90, NULL,                      TRUE, 4, NOW()),
-    ('Business',   3000, 25, 649.90, NULL,                      TRUE, 5, NOW()),
-    ('Enterprise', 6000, 0,  1199.90, 'Melhor custo-benefício', TRUE, 6, NOW());
 
 -- =====================================================================
 -- Planos: front usa mensal/trimestral/semestral/anual/vitalício

@@ -31,9 +31,9 @@ public class UserController {
     }
 
     /**
-     * Busca paginada de usuários. Requer ADMIN ou SUPER_ADMIN.
+     * Busca paginada de usuários. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @GetMapping
     public ResponseEntity<Page<UserDTO>> findAllPaged(
             @RequestParam(value = "search", defaultValue = "") String search,
@@ -50,18 +50,18 @@ public class UserController {
     }
 
     /**
-     * Busca um usuário específico pelo seu UUID. Requer ADMIN ou SUPER_ADMIN.
+     * Busca um usuário específico pelo seu UUID. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<UserDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.findById(id));
     }
 
     /**
-     * Cria um novo usuário no sistema. Requer ADMIN ou SUPER_ADMIN.
+     * Cria um novo usuário no sistema. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @PostMapping
     public ResponseEntity<UserDTO> insert(@RequestBody @Valid UserInsertDTO dto) {
         UserDTO newDto = userService.insert(dto);
@@ -71,18 +71,18 @@ public class UserController {
     }
 
     /**
-     * Atualiza os dados de um usuário existente. Requer ADMIN ou SUPER_ADMIN.
+     * Atualiza os dados de um usuário existente. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<UserDTO> update(@PathVariable UUID id, @RequestBody @Valid UserUpdateDTO dto) {
         return ResponseEntity.ok(userService.update(id, dto));
     }
 
     /**
-     * Remove um usuário do sistema (soft delete). Requer ADMIN ou SUPER_ADMIN.
+     * Remove um usuário do sistema (soft delete). Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         userService.delete(id);

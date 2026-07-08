@@ -15,7 +15,7 @@ import java.util.UUID;
 /**
  * Produtos próprios cadastrados pelo usuário ("Usar meu próprio produto"),
  * distintos da vitrine curada em ProductService. Ownership sempre validado
- * via User.uuid (proteção contra IDOR, mesmo padrão de GenerationJobService).
+ * via User.uuid (proteção contra IDOR).
  */
 @Service
 public class UserProductService {

@@ -182,15 +182,10 @@ public class AuthService implements UserDetailsService {
 	}
 
 	/**
-	 * Valida: self OU admin OU SUPER_ADMIN.
+	 * Valida: self OU admin (ADM).
 	 */
 	public void validateSelfOrAdmin(UUID targetUserId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authentication.getAuthorities().stream()
-				.anyMatch(a -> a.getAuthority().equals(RoleConstants.ROLE_SUPER_ADMIN))) {
-			return;
-		}
 
 		Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
 		String userIdClaim = jwtPrincipal.getClaimAsString("uid");

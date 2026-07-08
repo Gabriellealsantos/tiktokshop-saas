@@ -2,9 +2,6 @@
 -- V2 — Base de entidades de domínio (Fases 2–5 + módulos opcionais)
 -- =====================================================================
 
--- ---------- Roles: remover OPERATOR (mantém SUPER_ADMIN / ADMIN / CLIENT) ----------
-DELETE FROM tb_role WHERE authority = 'ROLE_OPERATOR';
-
 -- =====================================================================
 -- FASE 2 — Dashboard
 -- =====================================================================
@@ -146,36 +143,6 @@ CREATE TABLE viral_templates (
     tags             JSONB,
     created_by_admin BOOLEAN DEFAULT TRUE,
     created_at       TIMESTAMP WITHOUT TIME ZONE
-);
-
--- =====================================================================
--- OPC-3 — Creator Academy
--- =====================================================================
-CREATE TABLE academy_modules (
-    id          BIGSERIAL PRIMARY KEY,
-    title       VARCHAR(255) NOT NULL,
-    description TEXT,
-    order_index INTEGER,
-    created_at  TIMESTAMP WITHOUT TIME ZONE
-);
-
-CREATE TABLE academy_lessons (
-    id          BIGSERIAL PRIMARY KEY,
-    module_id   BIGINT NOT NULL REFERENCES academy_modules(id),
-    title       VARCHAR(255) NOT NULL,
-    video_url   VARCHAR(1024),
-    order_index INTEGER,
-    duration    INTEGER,
-    created_at  TIMESTAMP WITHOUT TIME ZONE
-);
-CREATE INDEX idx_academy_lessons_module ON academy_lessons(module_id);
-
-CREATE TABLE lesson_progress (
-    id           BIGSERIAL PRIMARY KEY,
-    user_id      UUID NOT NULL REFERENCES tb_user(uuid),
-    lesson_id    BIGINT NOT NULL REFERENCES academy_lessons(id),
-    completed_at TIMESTAMP WITHOUT TIME ZONE,
-    CONSTRAINT uq_lesson_progress UNIQUE (user_id, lesson_id)
 );
 
 -- =====================================================================

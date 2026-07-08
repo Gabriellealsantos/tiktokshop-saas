@@ -7,6 +7,5 @@ public enum CreditTransactionReason {
     GENERATION_DEBIT,
     REFUND,
     ADMIN_CREDIT,
-    SIGNUP_BONUS,
-    PACKAGE_PURCHASE
+    SIGNUP_BONUS
 }

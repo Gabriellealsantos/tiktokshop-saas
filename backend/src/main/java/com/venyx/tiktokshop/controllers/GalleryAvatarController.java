@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Galeria de avatares prontos usados no módulo de Avatar.
- * CRUD administrativo aberto a ADMIN ou SUPER_ADMIN.
+ * CRUD administrativo aberto ao ADM (ROLE_ADMIN).
  */
 @RestController
 public class GalleryAvatarController {
@@ -31,13 +31,13 @@ public class GalleryAvatarController {
         return ResponseEntity.ok(service.findGallery(gender, type));
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @GetMapping("/api/admin/avatars/gallery")
     public ResponseEntity<List<GalleryAvatarDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @PostMapping("/api/admin/avatars/gallery")
     public ResponseEntity<GalleryAvatarDTO> insert(@RequestBody GalleryAvatarDTO dto) {
         GalleryAvatarDTO newDto = service.insert(dto);
@@ -46,13 +46,13 @@ public class GalleryAvatarController {
         return ResponseEntity.created(uri).body(newDto);
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @PutMapping("/api/admin/avatars/gallery/{id}")
     public ResponseEntity<GalleryAvatarDTO> update(@PathVariable Long id, @RequestBody GalleryAvatarDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @DeleteMapping("/api/admin/avatars/gallery/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

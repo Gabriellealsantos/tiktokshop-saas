@@ -19,15 +19,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndicacaoRouteImport } from './routes/indicacao'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as EstudioRouteImport } from './routes/estudio'
-import { Route as EditorRouteImport } from './routes/editor'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CriarAvatarRouteImport } from './routes/criar-avatar'
-import { Route as CreditosRouteImport } from './routes/creditos'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AvataresRouteImport } from './routes/avatares'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TrendBoostIndexRouteImport } from './routes/trend-boost.index'
 import { Route as ModelosIndexRouteImport } from './routes/modelos.index'
@@ -87,11 +84,6 @@ const EstudioRoute = EstudioRouteImport.update({
   path: '/estudio',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EditorRoute = EditorRouteImport.update({
-  id: '/editor',
-  path: '/editor',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -100,11 +92,6 @@ const DashboardRoute = DashboardRouteImport.update({
 const CriarAvatarRoute = CriarAvatarRouteImport.update({
   id: '/criar-avatar',
   path: '/criar-avatar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CreditosRoute = CreditosRouteImport.update({
-  id: '/creditos',
-  path: '/creditos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
@@ -125,11 +112,6 @@ const AvataresRoute = AvataresRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AcademyRoute = AcademyRouteImport.update({
-  id: '/academy',
-  path: '/academy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -175,15 +157,12 @@ const EstudioFormatRoute = EstudioFormatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
   '/avatares': typeof AvataresRoute
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
-  '/creditos': typeof CreditosRoute
   '/criar-avatar': typeof CriarAvatarRoute
   '/dashboard': typeof DashboardRoute
-  '/editor': typeof EditorRoute
   '/estudio': typeof EstudioRouteWithChildren
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
@@ -204,15 +183,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
   '/avatares': typeof AvataresRoute
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
-  '/creditos': typeof CreditosRoute
   '/criar-avatar': typeof CriarAvatarRoute
   '/dashboard': typeof DashboardRoute
-  '/editor': typeof EditorRoute
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
   '/login': typeof LoginRoute
@@ -231,15 +207,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
   '/avatares': typeof AvataresRoute
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
-  '/creditos': typeof CreditosRoute
   '/criar-avatar': typeof CriarAvatarRoute
   '/dashboard': typeof DashboardRoute
-  '/editor': typeof EditorRoute
   '/estudio': typeof EstudioRouteWithChildren
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
@@ -262,15 +235,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/academy'
     | '/admin'
     | '/avatares'
     | '/cadastro'
     | '/configuracoes'
-    | '/creditos'
     | '/criar-avatar'
     | '/dashboard'
-    | '/editor'
     | '/estudio'
     | '/ferramentas'
     | '/indicacao'
@@ -291,15 +261,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/academy'
     | '/admin'
     | '/avatares'
     | '/cadastro'
     | '/configuracoes'
-    | '/creditos'
     | '/criar-avatar'
     | '/dashboard'
-    | '/editor'
     | '/ferramentas'
     | '/indicacao'
     | '/login'
@@ -317,15 +284,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/academy'
     | '/admin'
     | '/avatares'
     | '/cadastro'
     | '/configuracoes'
-    | '/creditos'
     | '/criar-avatar'
     | '/dashboard'
-    | '/editor'
     | '/estudio'
     | '/ferramentas'
     | '/indicacao'
@@ -347,15 +311,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AcademyRoute: typeof AcademyRoute
   AdminRoute: typeof AdminRoute
   AvataresRoute: typeof AvataresRoute
   CadastroRoute: typeof CadastroRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
-  CreditosRoute: typeof CreditosRoute
   CriarAvatarRoute: typeof CriarAvatarRoute
   DashboardRoute: typeof DashboardRoute
-  EditorRoute: typeof EditorRoute
   EstudioRoute: typeof EstudioRouteWithChildren
   FerramentasRoute: typeof FerramentasRoute
   IndicacaoRoute: typeof IndicacaoRoute
@@ -441,13 +402,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EstudioRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/editor': {
-      id: '/editor'
-      path: '/editor'
-      fullPath: '/editor'
-      preLoaderRoute: typeof EditorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -460,13 +414,6 @@ declare module '@tanstack/react-router' {
       path: '/criar-avatar'
       fullPath: '/criar-avatar'
       preLoaderRoute: typeof CriarAvatarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/creditos': {
-      id: '/creditos'
-      path: '/creditos'
-      fullPath: '/creditos'
-      preLoaderRoute: typeof CreditosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracoes': {
@@ -495,13 +442,6 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/academy': {
-      id: '/academy'
-      path: '/academy'
-      fullPath: '/academy'
-      preLoaderRoute: typeof AcademyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -605,15 +545,12 @@ const TrendBoostRouteWithChildren = TrendBoostRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AcademyRoute: AcademyRoute,
   AdminRoute: AdminRoute,
   AvataresRoute: AvataresRoute,
   CadastroRoute: CadastroRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
-  CreditosRoute: CreditosRoute,
   CriarAvatarRoute: CriarAvatarRoute,
   DashboardRoute: DashboardRoute,
-  EditorRoute: EditorRoute,
   EstudioRoute: EstudioRouteWithChildren,
   FerramentasRoute: FerramentasRoute,
   IndicacaoRoute: IndicacaoRoute,
