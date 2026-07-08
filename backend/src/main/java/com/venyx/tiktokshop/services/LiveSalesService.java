@@ -34,17 +34,20 @@ public class LiveSalesService {
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationService notificationService;
 
     public LiveSalesService(LiveSalesConfigRepository configRepository,
                              LiveSaleEventRepository eventRepository,
                              ProductRepository productRepository,
                              ProductService productService,
-                             SimpMessagingTemplate messagingTemplate) {
+                             SimpMessagingTemplate messagingTemplate,
+                             NotificationService notificationService) {
         this.configRepository = configRepository;
         this.eventRepository = eventRepository;
         this.productRepository = productRepository;
         this.productService = productService;
         this.messagingTemplate = messagingTemplate;
+        this.notificationService = notificationService;
     }
 
     @Transactional(readOnly = true)
@@ -95,6 +98,8 @@ public class LiveSalesService {
 
         LiveSaleEventDTO dto = new LiveSaleEventDTO(event);
         messagingTemplate.convertAndSend("/topic/live-sales", dto);
+        // Prova social: espelha a venda como toast efêmero no sino (STOMP, não persiste).
+        notificationService.broadcastSaleToast(dto);
         return dto;
     }
 

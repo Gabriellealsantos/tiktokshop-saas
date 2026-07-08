@@ -1,14 +1,18 @@
 package com.venyx.tiktokshop.config;
 
 import com.venyx.tiktokshop.entities.CreditWallet;
+import com.venyx.tiktokshop.entities.Notification;
 import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.Role;
 import com.venyx.tiktokshop.entities.RoleConstants;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.entities.enums.MiningWindow;
+import com.venyx.tiktokshop.entities.enums.NotificationAudience;
+import com.venyx.tiktokshop.entities.enums.NotificationType;
 import com.venyx.tiktokshop.entities.enums.ProductCategory;
 import com.venyx.tiktokshop.entities.enums.UserStatus;
 import com.venyx.tiktokshop.repositories.CreditWalletRepository;
+import com.venyx.tiktokshop.repositories.NotificationRepository;
 import com.venyx.tiktokshop.repositories.ProductRepository;
 import com.venyx.tiktokshop.repositories.RoleRepository;
 import com.venyx.tiktokshop.repositories.UserRepository;
@@ -38,17 +42,20 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final CreditWalletRepository creditWalletRepository;
     private final ProductRepository productRepository;
+    private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(UserRepository userRepository,
                            RoleRepository roleRepository,
                            CreditWalletRepository creditWalletRepository,
                            ProductRepository productRepository,
+                           NotificationRepository notificationRepository,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.creditWalletRepository = creditWalletRepository;
         this.productRepository = productRepository;
+        this.notificationRepository = notificationRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -62,6 +69,24 @@ public class DataInitializer implements CommandLineRunner {
         seedUser("client@venyx.com", "Cliente Teste",
                 List.of(RoleConstants.ROLE_CLIENT), true);
         seedProducts();
+        seedWelcomeNotification();
+    }
+
+    /**
+     * Aviso ANNOUNCEMENT/ALL de boas-vindas (idempotente) para o sino não nascer vazio.
+     * audience=ALL não faz fan-out: uma linha só, vista por todos os usuários.
+     */
+    private void seedWelcomeNotification() {
+        if (notificationRepository.count() > 0) {
+            return;
+        }
+        Notification welcome = new Notification();
+        welcome.setType(NotificationType.ANNOUNCEMENT);
+        welcome.setAudience(NotificationAudience.ALL);
+        welcome.setTitle("Bem-vindo à Venyx 🎉");
+        welcome.setBody("Explore os produtos virais e acompanhe as vendas ao vivo em tempo real.");
+        notificationRepository.save(welcome);
+        logger.info("✅ Notificação de boas-vindas semeada (dev).");
     }
 
     /**

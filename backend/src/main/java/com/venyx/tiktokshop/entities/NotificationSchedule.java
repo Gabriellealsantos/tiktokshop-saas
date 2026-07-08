@@ -8,11 +8,12 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * Notificação web push composta e disparada manualmente pelo admin.
+ * Campanha recorrente de notificação agendada pelo admin. O {@code NotificationScheduler}
+ * dispara uma notificação real a cada vez que {@code intervalSeconds} vence desde lastFiredAt.
  */
 @Entity
-@Table(name = "notifications")
-public class Notification {
+@Table(name = "notification_schedules")
+public class NotificationSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,16 +37,25 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private NotificationType type = NotificationType.ANNOUNCEMENT;
+    private NotificationType type;
+
+    @Column(name = "interval_seconds", nullable = false)
+    private Integer intervalSeconds;
+
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @Column(name = "last_fired_at", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant lastFiredAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private User createdBy;
 
-    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
 
-    public Notification() {
+    public NotificationSchedule() {
     }
 
     @PrePersist
@@ -55,10 +65,6 @@ public class Notification {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getTitle() {
@@ -109,6 +115,30 @@ public class Notification {
         this.type = type;
     }
 
+    public Integer getIntervalSeconds() {
+        return intervalSeconds;
+    }
+
+    public void setIntervalSeconds(Integer intervalSeconds) {
+        this.intervalSeconds = intervalSeconds;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Instant getLastFiredAt() {
+        return lastFiredAt;
+    }
+
+    public void setLastFiredAt(Instant lastFiredAt) {
+        this.lastFiredAt = lastFiredAt;
+    }
+
     public User getCreatedBy() {
         return createdBy;
     }
@@ -125,7 +155,7 @@ public class Notification {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Notification that = (Notification) o;
+        NotificationSchedule that = (NotificationSchedule) o;
         return Objects.equals(id, that.id);
     }
 
