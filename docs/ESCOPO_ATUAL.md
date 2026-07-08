@@ -165,3 +165,40 @@ pode **liberar/bloquear** acesso (o áudio diz que sim).
 
 Geração final de vídeo (é no Flow), API automática do TikTok Shop, infra/domínio recorrentes, TokEditor,
 Academy, compra de crédito avulso.
+
+---
+
+## 10. Frentes concluídas (2026-07-08) — só backend, front pendente
+
+Fechadas 5 pontas soltas identificadas olhando as telas (front continua mock). 1 commit por frente.
+
+- **Períodos do dashboard.** `GET /api/dashboard` agora aceita `?period=` em `today | week | 7d | 15d | month
+  | 30d | custom` (+ `from`/`to` ISO para custom). Rolling = "agora − N dias"; calendário (`week`/`month`) =
+  início da semana/mês corrente em UTC; `custom` = intervalo `[from, to]` inclusivo. Período desconhecido ou
+  `custom` sem datas → **400**. Sem `period` → default `7d`.
+- **Cards de mineração.** `GET /api/products/mining-status` (qualquer autenticado) → `MiningStatusDTO`:
+  `newProductsCount` (criados desde o último boundary de 6h), `detectedRevenue` (`SUM(estimatedRevenue)` do
+  catálogo = **oportunidade de mercado, ≠ faturamento**), `secondsUntilNextRefresh` (countdown determinístico
+  ancorado no epoch — estável em reloads/reinícios) e `online`. Substitui os cards hardcoded do front.
+- **`mining_window` virou enum** `MiningWindow` (`W_00_06 | W_06_12 | W_12_18 | W_18_24`, faixas de 6h). Coluna
+  segue `VARCHAR` (`@Enumerated STRING`, sem DDL de tipo); `@PrePersist` deriva da hora de `created_at` quando
+  nula; filtro `?window=` parseia p/ enum (inválido → 400). **V6** faz backfill dos valores de texto antigos.
+- **Notificações in-app (sino).** Runtime completo: envio manual do admin, caixa/leitura do usuário, campanhas
+  recorrentes (scheduler) e prova social de venda. Modelo eficiente: `audience=ALL` **não faz fan-out** (uma
+  linha; não-lido = ausência em `notification_reads`); `SELECTED` usa `notification_targets`. `type=SALE` é
+  **efêmera** (broadcast STOMP `/topic/notifications`, não persiste nem entra na caixa). Rotas: usuário logado
+  (`GET /api/notifications`, `/unread-count`, `POST /{id}/read`, `/read-all`) + admin (`POST/GET
+  /api/admin/notifications`, CRUD `/api/admin/notifications/schedules`). **V7**: coluna `type` +
+  `notification_reads` + `notification_schedules`.
+  - **Divergência vs. §4.1/§8:** implementado via `notification_schedules` (campanhas recorrentes por
+    `intervalSeconds`, `lastFiredAt` persistido) em vez da coluna `scheduled_at` prevista — modelo mais rico.
+    **Web Push VAPID fica para fase 2** (entidades `notification_deliveries`/`push_subscriptions` intocadas,
+    já preparadas); canal atual é sino in-app + STOMP.
+- **"Tendências" = Dashboard Insights (já pronto, zero código novo).** O toggle "Tendências" do front consome
+  os insights existentes: `GET /api/dashboard/insights` (leitura) + CRUD admin em `/api/admin/dashboard/insights`.
+  `kind` ∈ `CARD` (cards de insight) | `MOMENT_READ` ("leitura do momento"). **Não confundir** com o endpoint
+  composto `/api/dashboard?period=` (métricas). Backend pronto — **falta só o front consumir**. Opcional (não
+  incluso): campo `icon` em `DashboardInsight` para ícone por card.
+
+> **Migrations:** `V6__backfill_mining_window.sql`, `V7__notifications_runtime.sql`. Numeradas na **ordem de
+> execução** (mining_window antes de notificações) para evitar migration out-of-order do Flyway.

@@ -417,7 +417,39 @@
 							"path": ["api", "dashboard"],
 							"query": [{ "key": "period", "value": "7d" }]
 						},
-						"description": "Faturamento/pedidos/comissão/ticket médio + série diária, combinando a métrica base cadastrada pelo admin com as vendas ao vivo estouradas no período. period: today, 7d ou 30d. Requer ADMIN ou AFFILIATE."
+						"description": "Faturamento/pedidos/comissão/ticket médio + série diária, combinando a métrica base cadastrada pelo admin com as vendas ao vivo estouradas no período. period: today, week, 7d, 15d, month, 30d ou custom (exige from/to ISO). period desconhecido ou custom sem from/to -> 400. Requer ADMIN ou AFFILIATE."
+					}
+				},
+				{
+					"name": "Get summary (month)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/dashboard?period=month",
+							"host": ["{{host}}"],
+							"path": ["api", "dashboard"],
+							"query": [{ "key": "period", "value": "month" }]
+						},
+						"description": "Período de calendário: do dia 1 do mês corrente até agora (UTC). Requer ADMIN ou AFFILIATE."
+					}
+				},
+				{
+					"name": "Get summary (custom range)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/dashboard?period=custom&from=2026-07-01&to=2026-07-07",
+							"host": ["{{host}}"],
+							"path": ["api", "dashboard"],
+							"query": [
+								{ "key": "period", "value": "custom" },
+								{ "key": "from", "value": "2026-07-01" },
+								{ "key": "to", "value": "2026-07-07" }
+							]
+						},
+						"description": "Intervalo [from, to] inclusivo (datas ISO yyyy-MM-dd). Sem from/to -> 400. Requer ADMIN ou AFFILIATE."
 					}
 				},
 				{
@@ -578,7 +610,20 @@
 								{ "key": "size", "value": "20" }
 							]
 						},
-						"description": "Vitrine de produtos minerados, paginada. search: busca por nome. category: FAVORITOS, TOP_PRODUTOS, BELEZA_CUIDADOS, CASA_MAIS, SAUDE_FITNESS, MODA, TECNOLOGIA, ACESSORIOS. window: janela de mineração (ex: 7d, 30d). sort: top (mais vendas/dia), recent (mais recentes) ou vazio (ranking padrão). Qualquer usuário autenticado."
+						"description": "Vitrine de produtos minerados, paginada. search: busca por nome. category: FAVORITOS, TOP_PRODUTOS, BELEZA_CUIDADOS, CASA_MAIS, SAUDE_FITNESS, MODA, TECNOLOGIA, ACESSORIOS. window: janela de horário (W_00_06, W_06_12, W_12_18, W_18_24); valor inválido -> 400. sort: top (mais vendas/dia), recent (mais recentes) ou vazio (ranking padrão). Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "Mining status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products/mining-status",
+							"host": ["{{host}}"],
+							"path": ["api", "products", "mining-status"]
+						},
+						"description": "Cards do topo de Produtos Virais, derivados do catálogo real: newProductsCount (criados desde o último boundary de 6h), detectedRevenue (SUM estimatedRevenue = oportunidade de mercado, não faturamento da plataforma), secondsUntilNextRefresh (countdown determinístico ancorado no epoch) e online. Qualquer usuário autenticado."
 					}
 				},
 				{
@@ -759,6 +804,161 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "List notifications (inbox)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/notifications?page=0&size=20",
+							"host": ["{{host}}"],
+							"path": ["api", "notifications"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" }
+							]
+						},
+						"description": "Caixa do sino do usuário logado, paginada. Exclui vendas (SALE, efêmeras) e avisos anteriores ao cadastro. Cada item traz a flag read. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "Unread count",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/notifications/unread-count",
+							"host": ["{{host}}"],
+							"path": ["api", "notifications", "unread-count"]
+						},
+						"description": "Número de notificações não-lidas do usuário logado (badge do sino). Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "Mark read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/notifications/{{notificationId}}/read",
+							"host": ["{{host}}"],
+							"path": ["api", "notifications", "{{notificationId}}", "read"]
+						},
+						"description": "Marca uma notificação como lida (idempotente). Retorna 204. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "Mark all read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/notifications/read-all",
+							"host": ["{{host}}"],
+							"path": ["api", "notifications", "read-all"]
+						},
+						"description": "Marca toda a caixa como lida (bulk). Retorna 204. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "[Admin] Send notification",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"type\": \"ANNOUNCEMENT\",\n  \"title\": \"Aviso importante\",\n  \"body\": \"Nova leva de produtos minerados disponível.\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"targetUserIds\": []\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/notifications",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "notifications"]
+						},
+						"description": "Cria e dispara uma notificação. audience=ALL faz broadcast em /topic/notifications; audience=SELECTED exige targetUserIds e entrega em /user/queue/notifications a cada alvo. Retorna 201 + DTO. Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Sent history",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/notifications?page=0&size=20",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "notifications"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" }
+							]
+						},
+						"description": "Histórico de tudo que o admin enviou (todas as audiences/tipos), paginado. Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] List schedules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/notifications/schedules",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "notifications", "schedules"]
+						},
+						"description": "Lista as campanhas recorrentes agendadas. Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Create schedule",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Campanha recorrente\",\n  \"body\": \"Confira os produtos em alta agora!\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"type\": \"ANNOUNCEMENT\",\n  \"intervalSeconds\": 30,\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/notifications/schedules",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "notifications", "schedules"]
+						},
+						"description": "Agenda uma campanha recorrente: o scheduler dispara a cada intervalSeconds (> 0). Retorna 201 + DTO. Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Update schedule",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Campanha recorrente (pausada)\",\n  \"body\": \"Confira os produtos em alta agora!\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"type\": \"ANNOUNCEMENT\",\n  \"intervalSeconds\": 60,\n  \"active\": false\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/notifications/schedules/{{scheduleId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "notifications", "schedules", "{{scheduleId}}"]
+						},
+						"description": "Atualiza uma campanha (ex: pausar via active=false ou trocar o intervalo). Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete schedule",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/notifications/schedules/{{scheduleId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "notifications", "schedules", "{{scheduleId}}"]
+						},
+						"description": "Remove uma campanha recorrente. Retorna 204. Requer ADMIN."
+					}
+				}
+			]
 		}
 	],
 	"variable": [
@@ -769,6 +969,8 @@
 		{ "key": "insightId", "value": "" },
 		{ "key": "productId", "value": "" },
 		{ "key": "userProductId", "value": "" },
-		{ "key": "dashboardMetricId", "value": "" }
+		{ "key": "dashboardMetricId", "value": "" },
+		{ "key": "notificationId", "value": "" },
+		{ "key": "scheduleId", "value": "" }
 	]
 }
