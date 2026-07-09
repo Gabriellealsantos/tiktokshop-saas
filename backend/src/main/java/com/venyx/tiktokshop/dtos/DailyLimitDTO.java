@@ -1,0 +1,36 @@
+package com.venyx.tiktokshop.dtos;
+
+import com.venyx.tiktokshop.entities.DailyLimit;
+import com.venyx.tiktokshop.entities.enums.FlowType;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.Instant;
+
+public record DailyLimitDTO(
+        FlowType flowType,
+
+        @NotNull(message = "Limite diário é obrigatório")
+        @Min(value = 0, message = "Limite diário não pode ser negativo")
+        @Max(value = 100, message = "Limite diário não pode passar de 100")
+        Integer maxPerDay,
+
+        @NotNull(message = "Limite de correções é obrigatório")
+        @Min(value = 0, message = "Limite de correções não pode ser negativo")
+        @Max(value = 20, message = "Limite de correções não pode passar de 20")
+        Integer maxRegenerations,
+
+        Instant updatedAt,
+        String updatedBy
+) {
+    public DailyLimitDTO(DailyLimit entity) {
+        this(
+                entity.getFlowType(),
+                entity.getMaxPerDay(),
+                entity.getMaxRegenerations(),
+                entity.getUpdatedAt(),
+                entity.getUpdatedBy() != null ? entity.getUpdatedBy().getName() : null
+        );
+    }
+}

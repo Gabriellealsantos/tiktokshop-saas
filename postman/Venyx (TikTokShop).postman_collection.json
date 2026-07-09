@@ -1,0 +1,1870 @@
+{
+  "info": {
+    "_postman_id": "096db92d-e71f-423a-9cc2-ca58661da3c3",
+    "name": "Venyx (TikTokShop)",
+    "description": "Endpoints atualmente implementados no backend (Auth + Users). O restante da API está apenas documentado em docs/ARQUITETURA.md — ainda sem controller.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33720768"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nome Completo\",\n  \"email\": \"usuario@example.com\",\n  \"phone\": \"11999999999\",\n  \"cpf\": \"12345678900\",\n  \"password\": \"SenhaForte123\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/register",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Auto-cadastro público. Body: RegisterDTO. Retorna 202 Accepted; usuário nasce PENDING_CONFIRMATION."
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Email",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/auth/confirm?token={{confirmToken}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "confirm"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{confirmToken}}"
+                }
+              ]
+            },
+            "description": "Confirma o e-mail via token recebido por e-mail no Register. Retorna 204 No Content."
+          },
+          "response": []
+        },
+        {
+          "name": "Recover Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/auth/recover-token",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "auth",
+                "recover-token"
+              ]
+            },
+            "description": "Gera e envia por e-mail um token de recuperação de senha. Body: EmailDTO. Retorna 204 No Content."
+          },
+          "response": []
+        },
+        {
+          "name": "New Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{recoverToken}}\",\n  \"password\": \"NovaSenhaForte123\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/auth/new-password",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "auth",
+                "new-password"
+              ]
+            },
+            "description": "Define nova senha usando o token gerado em Recover Token. Body: NewPasswordDTO. Retorna 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users (Admin)",
+      "item": [
+        {
+          "name": "Find all users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users?search=&page=0&size=20",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Busca paginada de usuários. Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Find by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/{{userId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Busca um usuário pelo UUID. Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nome Completo\",\n  \"phoneNumber\": \"11999999999\",\n  \"cpf\": \"12345678900\",\n  \"email\": \"usuario@example.com\",\n  \"birthDate\": \"1995-05-20T00:00:00Z\",\n  \"userStatus\": \"ACTIVE\",\n  \"roles\": [\n    { \"id\": 1, \"authority\": \"ROLE_USER\" }\n  ],\n  \"password\": \"SenhaForte123\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/users",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "Cria um usuário. Body: UserInsertDTO. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location header."
+          },
+          "response": []
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nome Atualizado\",\n  \"phoneNumber\": \"11988888888\",\n  \"cpf\": \"12345678900\",\n  \"email\": \"usuario@example.com\",\n  \"birthDate\": \"1995-05-20T00:00:00Z\",\n  \"userStatus\": \"ACTIVE\",\n  \"roles\": [\n    { \"id\": 1, \"authority\": \"ROLE_USER\" }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{host}}/users/{{userId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Atualiza um usuário existente. Body: UserUpdateDTO (password opcional). Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/{{userId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}"
+              ]
+            },
+            "description": "Remove (soft delete) um usuário. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users (Me)",
+      "item": [
+        {
+          "name": "Get me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/me",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "description": "Retorna os dados do usuário autenticado (dono do accessToken)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Credits",
+      "item": [
+        {
+          "name": "Get wallet",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/me/wallet",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "wallet"
+              ]
+            },
+            "description": "Saldo atual da carteira de créditos do usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Get wallet transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/me/wallet/transactions",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "wallet",
+                "transactions"
+              ]
+            },
+            "description": "Extrato de transações de crédito (débitos, créditos, estornos), mais recentes primeiro."
+          },
+          "response": []
+        },
+        {
+          "name": "Get monthly usage",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/users/me/usage",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "usage"
+              ]
+            },
+            "description": "Créditos debitados em gerações no mês corrente (teto mensal = 400 gerações/mês, decidido em REQUISITOS.md)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Gallery Avatars",
+      "item": [
+        {
+          "name": "List gallery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/avatars/gallery?gender=&type=",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "gallery"
+              ],
+              "query": [
+                {
+                  "key": "gender",
+                  "value": ""
+                },
+                {
+                  "key": "type",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Galeria de avatares prontos, filtrável por gênero/tipo. Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] List all avatars",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/avatars/gallery",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "avatars",
+                "gallery"
+              ]
+            },
+            "description": "Lista completa da galeria. Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Create avatar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Avatar Feminino 1\",\n  \"gender\": \"FEMALE\",\n  \"type\": \"REALISTIC\",\n  \"imageUrl\": \"https://cdn.example.com/avatars/f1.png\",\n  \"orderIndex\": 1\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/avatars/gallery",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "avatars",
+                "gallery"
+              ]
+            },
+            "description": "Cria um avatar na galeria. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update avatar",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Avatar Feminino 1\",\n  \"gender\": \"FEMALE\",\n  \"type\": \"REALISTIC\",\n  \"imageUrl\": \"https://cdn.example.com/avatars/f1-v2.png\",\n  \"orderIndex\": 1\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/avatars/gallery/{{avatarId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "avatars",
+                "gallery",
+                "{{avatarId}}"
+              ]
+            },
+            "description": "Atualiza um avatar existente. Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Delete avatar",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/avatars/gallery/{{avatarId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "avatars",
+                "gallery",
+                "{{avatarId}}"
+              ]
+            },
+            "description": "Remove um avatar da galeria. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard Insights",
+      "item": [
+        {
+          "name": "List active insights",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/dashboard/insights?kind=",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "dashboard",
+                "insights"
+              ],
+              "query": [
+                {
+                  "key": "kind",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Cards/dicas ativos do dashboard, filtráveis por kind (CARD ou MOMENT_READ). Não confundir com o composto /api/dashboard?period= (métricas de faturamento), ainda não implementado."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] List all insights",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/dashboard/insights",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "insights"
+              ]
+            },
+            "description": "Lista completa de insights. Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Create insight",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"CARD\",\n  \"title\": \"Dica do dia\",\n  \"content\": \"Poste no horário de pico para mais alcance.\",\n  \"orderIndex\": 1,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/dashboard/insights",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "insights"
+              ]
+            },
+            "description": "Cria um insight. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update insight",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"CARD\",\n  \"title\": \"Dica do dia\",\n  \"content\": \"Texto atualizado.\",\n  \"orderIndex\": 1,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/dashboard/insights/{{insightId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "insights",
+                "{{insightId}}"
+              ]
+            },
+            "description": "Atualiza um insight existente. Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Delete insight",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/dashboard/insights/{{insightId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "insights",
+                "{{insightId}}"
+              ]
+            },
+            "description": "Remove um insight. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/dashboard?period=7d",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "7d"
+                }
+              ]
+            },
+            "description": "Faturamento/pedidos/comissão/ticket médio + série diária, combinando a métrica base cadastrada pelo admin com as vendas ao vivo estouradas no período. period: today, week, 7d, 15d, month, 30d ou custom (exige from/to ISO). period desconhecido ou custom sem from/to -> 400. Requer ADMIN ou AFFILIATE."
+          },
+          "response": []
+        },
+        {
+          "name": "Get summary (month)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/dashboard?period=month",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "month"
+                }
+              ]
+            },
+            "description": "Período de calendário: do dia 1 do mês corrente até agora (UTC). Requer ADMIN ou AFFILIATE."
+          },
+          "response": []
+        },
+        {
+          "name": "Get summary (custom range)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/dashboard?period=custom&from=2026-07-01&to=2026-07-07",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "dashboard"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "custom"
+                },
+                {
+                  "key": "from",
+                  "value": "2026-07-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-07-07"
+                }
+              ]
+            },
+            "description": "Intervalo [from, to] inclusivo (datas ISO yyyy-MM-dd). Sem from/to -> 400. Requer ADMIN ou AFFILIATE."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] List metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/dashboard/metrics?periodType=",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "metrics"
+              ],
+              "query": [
+                {
+                  "key": "periodType",
+                  "value": ""
+                }
+              ]
+            },
+            "description": "Lista as métricas base cadastradas, filtrável por periodType (DAY, WEEK, MONTH, RANGE). Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Upsert metric",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"periodType\": \"DAY\",\n  \"periodRef\": \"2026-07-08\",\n  \"revenue\": 12500.00,\n  \"orders\": 340,\n  \"commission\": 1875.00,\n  \"avgTicket\": 36.76\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/dashboard/metrics",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "metrics"
+              ]
+            },
+            "description": "Cria ou atualiza a métrica base de um período (find-or-create por periodType+periodRef). Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Delete metric",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/dashboard/metrics/{{dashboardMetricId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "metrics",
+                "{{dashboardMetricId}}"
+              ]
+            },
+            "description": "Remove uma métrica base. Requer ADMIN. Retorna 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Live Sales",
+      "item": [
+        {
+          "name": "Get feed",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/live-sales",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "live-sales"
+              ]
+            },
+            "description": "Total/contagem de vendas de hoje + últimas 10 vendas ao vivo (prova social). Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Get config",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/live-sales/config",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "live-sales",
+                "config"
+              ]
+            },
+            "description": "Configuração atual de modo (DISABLED, MANUAL, AUTOMATIC) e intervalo em segundos. Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update config",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mode\": \"AUTOMATIC\",\n  \"intervalSeconds\": 45\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/live-sales/config",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "live-sales",
+                "config"
+              ]
+            },
+            "description": "Atualiza modo/intervalo. Em AUTOMATIC, o scheduler dispara vendas sozinho a cada intervalSeconds. Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Fire sale",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": null\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/live-sales/fire",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "live-sales",
+                "fire"
+              ]
+            },
+            "description": "Dispara uma venda manualmente e publica no tópico STOMP /topic/live-sales. Sem productId (ou null), sorteia um produto ativo aleatório. Requer ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Storage",
+      "item": [
+        {
+          "name": "[Admin] Upload image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "value": null
+                },
+                {
+                  "key": "folder",
+                  "value": "avatars",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/storage/upload?folder=avatars",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "storage",
+                "upload"
+              ],
+              "query": [
+                {
+                  "key": "folder",
+                  "value": "avatars"
+                }
+              ]
+            },
+            "description": "Sobe uma imagem pro bucket S3/MinIO e retorna { url }. Requer ADMIN ou SUPER_ADMIN. Aceita apenas image/*, limite de 5MB (spring.servlet.multipart.max-file-size). Use a URL retornada no campo imageUrl dos outros CRUDs (avatares, produtos). folder é livre, ex: avatars, products."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List products (search)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/products?search=&category=&window=&sort=&page=0&size=20",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "category",
+                  "value": ""
+                },
+                {
+                  "key": "window",
+                  "value": ""
+                },
+                {
+                  "key": "sort",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Vitrine de produtos minerados, paginada. search: busca por nome. category: FAVORITOS, TOP_PRODUTOS, BELEZA_CUIDADOS, CASA_MAIS, SAUDE_FITNESS, MODA, TECNOLOGIA, ACESSORIOS. window: janela de horário (W_00_06, W_06_12, W_12_18, W_18_24); valor inválido -> 400. sort: top (mais vendas/dia), recent (mais recentes) ou vazio (ranking padrão). Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Mining status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/products/mining-status",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "mining-status"
+              ]
+            },
+            "description": "Cards do topo de Produtos Virais, derivados do catálogo real: newProductsCount (criados desde o último boundary de 6h), detectedRevenue (SUM estimatedRevenue = oportunidade de mercado, não faturamento da plataforma), secondsUntilNextRefresh (countdown determinístico ancorado no epoch) e online. Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Get product by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/products/{{productId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Detalhe de um produto da vitrine. Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "List my favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/products/me/favorites",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "me",
+                "favorites"
+              ]
+            },
+            "description": "Lista os produtos favoritados pelo usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Favorite product",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/products/{{productId}}/favorite",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}",
+                "favorite"
+              ]
+            },
+            "description": "Marca um produto como favorito para o usuário autenticado. Idempotente. Retorna 204 No Content."
+          },
+          "response": []
+        },
+        {
+          "name": "Unfavorite product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/products/{{productId}}/favorite",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}",
+                "favorite"
+              ]
+            },
+            "description": "Remove um produto dos favoritos do usuário autenticado. Retorna 204 No Content."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] List all products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/products",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ]
+            },
+            "description": "Lista completa de produtos (sem filtro de categoria). Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Create product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fone Bluetooth XYZ\",\n  \"description\": \"Fone sem fio com cancelamento de ruído\",\n  \"imageUrl\": \"https://cdn.example.com/products/fone-xyz.png\",\n  \"category\": \"TECNOLOGIA\",\n  \"sales\": 1200,\n  \"views\": 45000,\n  \"affiliateLink\": \"https://shop.tiktok.com/product/xyz\",\n  \"price\": 89.90,\n  \"commissionPct\": 12.5,\n  \"estimatedRevenue\": 15000.00,\n  \"conversionRate\": 3.2,\n  \"salesPerDay\": 40.5,\n  \"delta7d\": 8.3,\n  \"history7d\": [10, 12, 15, 20, 18, 25, 30],\n  \"miningWindow\": \"7d\",\n  \"trendLabel\": \"Em alta\",\n  \"rankPosition\": 1,\n  \"images\": [\"https://cdn.example.com/products/fone-xyz-1.png\"],\n  \"createdByAdmin\": true\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/products",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ]
+            },
+            "description": "Cria um produto na vitrine. Requer ADMIN ou SUPER_ADMIN. Retorna 201 + Location. Dica: suba a imagem primeiro em Storage > [Admin] Upload image e cole a URL retornada em imageUrl."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fone Bluetooth XYZ\",\n  \"description\": \"Fone sem fio com cancelamento de ruído\",\n  \"imageUrl\": \"https://cdn.example.com/products/fone-xyz.png\",\n  \"category\": \"TECNOLOGIA\",\n  \"sales\": 1500,\n  \"views\": 52000,\n  \"affiliateLink\": \"https://shop.tiktok.com/product/xyz\",\n  \"price\": 79.90,\n  \"commissionPct\": 15,\n  \"estimatedRevenue\": 18000.00,\n  \"conversionRate\": 3.5,\n  \"salesPerDay\": 45.0,\n  \"delta7d\": 10.1,\n  \"history7d\": [12, 15, 20, 18, 25, 30, 33],\n  \"miningWindow\": \"7d\",\n  \"trendLabel\": \"Em alta\",\n  \"rankPosition\": 1,\n  \"images\": [\"https://cdn.example.com/products/fone-xyz-1.png\"],\n  \"createdByAdmin\": true\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/products/{{productId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Atualiza um produto existente. Requer ADMIN ou SUPER_ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Delete product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/products/{{productId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Remove um produto. Requer ADMIN ou SUPER_ADMIN. Retorna 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Products",
+      "item": [
+        {
+          "name": "List my products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/user-products",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "user-products"
+              ]
+            },
+            "description": "Produtos próprios cadastrados pelo usuário autenticado (\"Usar meu próprio produto\"), distintos da vitrine curada em Products."
+          },
+          "response": []
+        },
+        {
+          "name": "Create my product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Meu produto próprio\",\n  \"description\": \"Produto cadastrado manualmente pelo usuário\",\n  \"imageUrl\": \"https://cdn.example.com/user-products/meu-produto.png\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/user-products",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "user-products"
+              ]
+            },
+            "description": "Cria um produto próprio. Dono = usuário autenticado. Retorna 201 + Location. Dica: suba a imagem primeiro em Storage > [Admin] Upload image (se o usuário tiver permissão) ou informe uma URL já hospedada."
+          },
+          "response": []
+        },
+        {
+          "name": "Update my product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Meu produto próprio (atualizado)\",\n  \"description\": \"Descrição atualizada\",\n  \"imageUrl\": \"https://cdn.example.com/user-products/meu-produto-v2.png\"\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/user-products/{{userProductId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "user-products",
+                "{{userProductId}}"
+              ]
+            },
+            "description": "Atualiza um produto próprio. 404 se o produto não pertencer ao usuário autenticado (proteção IDOR)."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete my product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/user-products/{{userProductId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "user-products",
+                "{{userProductId}}"
+              ]
+            },
+            "description": "Remove um produto próprio. 404 se não pertencer ao usuário autenticado. Retorna 204 No Content."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List notifications (inbox)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/notifications?page=0&size=20",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Caixa do sino do usuário logado, paginada. Exclui vendas (SALE, efêmeras) e avisos anteriores ao cadastro. Cada item traz a flag read. Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Unread count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/notifications/unread-count",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "unread-count"
+              ]
+            },
+            "description": "Número de notificações não-lidas do usuário logado (badge do sino). Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/notifications/{{notificationId}}/read",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "{{notificationId}}",
+                "read"
+              ]
+            },
+            "description": "Marca uma notificação como lida (idempotente). Retorna 204. Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark all read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/notifications/read-all",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Marca toda a caixa como lida (bulk). Retorna 204. Qualquer usuário autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Send notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"ANNOUNCEMENT\",\n  \"title\": \"Aviso importante\",\n  \"body\": \"Nova leva de produtos minerados disponível.\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"targetUserIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/notifications",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notifications"
+              ]
+            },
+            "description": "Cria e dispara uma notificação. audience=ALL faz broadcast em /topic/notifications; audience=SELECTED exige targetUserIds e entrega em /user/queue/notifications a cada alvo. Retorna 201 + DTO. Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Sent history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/notifications?page=0&size=20",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Histórico de tudo que o admin enviou (todas as audiences/tipos), paginado. Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] List schedules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/notifications/schedules",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notifications",
+                "schedules"
+              ]
+            },
+            "description": "Lista as campanhas recorrentes agendadas. Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Create schedule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Campanha recorrente\",\n  \"body\": \"Confira os produtos em alta agora!\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"type\": \"ANNOUNCEMENT\",\n  \"intervalSeconds\": 30,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/notifications/schedules",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notifications",
+                "schedules"
+              ]
+            },
+            "description": "Agenda uma campanha recorrente: o scheduler dispara a cada intervalSeconds (> 0). Retorna 201 + DTO. Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update schedule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Campanha recorrente (pausada)\",\n  \"body\": \"Confira os produtos em alta agora!\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"type\": \"ANNOUNCEMENT\",\n  \"intervalSeconds\": 60,\n  \"active\": false\n}"
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/notifications/schedules/{{scheduleId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notifications",
+                "schedules",
+                "{{scheduleId}}"
+              ]
+            },
+            "description": "Atualiza uma campanha (ex: pausar via active=false ou trocar o intervalo). Requer ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Delete schedule",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/notifications/schedules/{{scheduleId}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "notifications",
+                "schedules",
+                "{{scheduleId}}"
+              ]
+            },
+            "description": "Remove uma campanha recorrente. Retorna 204. Requer ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Avatar",
+      "item": [
+        {
+          "name": "Generation Avatar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"config\": {\r\n    \"gender\": \"Feminino\",\r\n    \"age\": \"Jovem 18-24\",\r\n    \"bodyType\": \"Magro(a)\",\r\n    \"skinTone\": \"Clara\",\r\n    \"hairStyle\": \"Curto\",\r\n    \"hairColor\": \"Preto\",\r\n    \"shotType\": \"Selfie / Rosto\",\r\n    \"outfit\": \"Casual\",\r\n    \"background\": \"Estúdio\"\r\n  },\r\n  \"referenceImageUrl\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars/generation",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "generation"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Regenerate Avatar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"referenceImageUrl\": null }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars/generation/9/regenerate",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "generation",
+                "9",
+                "regenerate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Used Avatar",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars/generation/usage",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "generation",
+                "usage"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Avatar by id",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"config\": {\r\n    \"gender\": \"Feminino\",\r\n    \"age\": \"Jovem 18-24\",\r\n    \"bodyType\": \"Magro(a)\",\r\n    \"skinTone\": \"Clara\",\r\n    \"hairStyle\": \"Curto\",\r\n    \"hairColor\": \"Preto\",\r\n    \"shotType\": \"Selfie / Rosto\",\r\n    \"outfit\": \"Casual\",\r\n    \"background\": \"Estúdio\"\r\n  },\r\n  \"referenceImageUrl\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars/generation/6",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "generation",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Daily limits",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/daily-limits",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "daily-limits"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Daily limits updated",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"maxPerDay\": 3, \"maxRegenerations\": 2 }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/daily-limits/AVATAR",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "daily-limits",
+                "AVATAR"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "oauth2",
+    "oauth2": [
+      {
+        "key": "useBrowser",
+        "value": false,
+        "type": "boolean"
+      },
+      {
+        "key": "grant_type",
+        "value": "authorization_code_with_pkce",
+        "type": "string"
+      },
+      {
+        "key": "authUrl",
+        "value": "{{auth_url}}",
+        "type": "string"
+      },
+      {
+        "key": "accessTokenUrl",
+        "value": "{{acess_token_url}}",
+        "type": "string"
+      },
+      {
+        "key": "clientId",
+        "value": "{{client_id}}",
+        "type": "string"
+      },
+      {
+        "key": "clientSecret",
+        "value": "{{client_secret}}",
+        "type": "string"
+      },
+      {
+        "key": "scope",
+        "value": "{{scope}}",
+        "type": "string"
+      },
+      {
+        "key": "redirect_uri",
+        "value": "{{callback_url}}",
+        "type": "string"
+      },
+      {
+        "key": "client_authentication",
+        "value": "header",
+        "type": "string"
+      },
+      {
+        "key": "addTokenTo",
+        "value": "header",
+        "type": "string"
+      },
+      {
+        "key": "tokenName",
+        "value": "accessToken",
+        "type": "string"
+      },
+      {
+        "key": "accessToken",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "confirmToken",
+      "value": ""
+    },
+    {
+      "key": "recoverToken",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "avatarId",
+      "value": ""
+    },
+    {
+      "key": "insightId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "userProductId",
+      "value": ""
+    },
+    {
+      "key": "dashboardMetricId",
+      "value": ""
+    },
+    {
+      "key": "notificationId",
+      "value": ""
+    },
+    {
+      "key": "scheduleId",
+      "value": ""
+    }
+  ]
+}

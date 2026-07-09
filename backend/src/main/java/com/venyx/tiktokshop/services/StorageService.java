@@ -9,6 +9,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -18,6 +20,14 @@ import java.util.UUID;
  */
 @Service
 public class StorageService {
+
+    private static final Map<String, byte[]> MAGIC_BYTES = Map.of(
+            "image/png",  new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47},
+            "image/jpeg", new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF});
+
+    private static final Map<String, String> EXTENSIONS = Map.of(
+            "image/png",  ".png",
+            "image/jpeg", ".jpg");
 
     private final S3Client s3Client;
 
@@ -35,39 +45,68 @@ public class StorageService {
         if (file == null || file.isEmpty()) {
             throw new BusinessException("Arquivo de imagem é obrigatório.");
         }
+
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new BusinessException("Apenas arquivos de imagem são aceitos.");
         }
 
-        String key = folder + "/" + UUID.randomUUID() + extensionOf(file.getOriginalFilename());
-
         try {
-            s3Client.putObject(
-                    PutObjectRequest.builder()
-                            .bucket(bucket)
-                            .key(key)
-                            .contentType(contentType)
-                            .build(),
-                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            return upload(file.getBytes(), contentType, folder);
         } catch (IOException e) {
             throw new BusinessException("Falha ao ler o arquivo enviado.");
         }
+    }
+
+    public String upload(byte[] content, String contentType, String folder) {
+        if (content == null || content.length == 0) {
+            throw new BusinessException("Conteúdo da imagem está vazio.");
+        }
+        if (folder == null || !folder.matches("[a-zA-Z0-9/_-]+")) {
+            throw new BusinessException("Pasta de destino inválida.");
+        }
+
+        String normalizedType = contentType == null ? "" : contentType.toLowerCase();
+        assertRealImage(content, normalizedType);
+
+        String key = folder + "/" + UUID.randomUUID() + EXTENSIONS.get(normalizedType);
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(key)
+                        .contentType(normalizedType)
+                        .build(),
+                RequestBody.fromBytes(content));
 
         return buildUrl(key);
     }
 
-    private String extensionOf(String originalName) {
-        if (originalName == null || !originalName.contains(".")) {
-            return "";
+    public String publicBaseUrl() {
+        if (endpoint != null && !endpoint.isBlank()) {
+            return endpoint + "/" + bucket;
         }
-        return originalName.substring(originalName.lastIndexOf('.'));
+        return "https://" + bucket + ".s3.amazonaws.com";
+    }
+
+    private void assertRealImage(byte[] content, String contentType) {
+        byte[] expected = MAGIC_BYTES.get(contentType);
+        if (expected == null) {
+            throw new BusinessException("Formato de imagem não suportado: " + contentType);
+        }
+        if (!startsWith(content, expected)) {
+            throw new BusinessException("O arquivo enviado não é uma imagem válida.");
+        }
+    }
+
+    private boolean startsWith(byte[] content, byte[] prefix) {
+        if (content.length < prefix.length) {
+            return false;
+        }
+        return Arrays.equals(content, 0, prefix.length, prefix, 0, prefix.length);
     }
 
     private String buildUrl(String key) {
-        if (endpoint != null && !endpoint.isBlank()) {
-            return endpoint + "/" + bucket + "/" + key;
-        }
-        return "https://" + bucket + ".s3.amazonaws.com/" + key;
+        return publicBaseUrl() + "/" + key;
     }
 }

@@ -254,12 +254,12 @@ public class UserService {
                 currentUser.getRoles().stream()
                         .anyMatch(r -> r.getAuthority().equals(RoleConstants.ROLE_ADMIN));
 
-        boolean targetHasAdmin = targetRoles.stream()
-                .anyMatch(r -> RoleConstants.ROLE_ADMIN.equals(r.authority()));
+        boolean targetHasPrivileged = targetRoles.stream()
+                .anyMatch(r -> RoleConstants.ROLE_ADMIN.equals(r.authority()) ||
+                        RoleConstants.ROLE_AFFILIATE.equals(r.authority()));
 
-        if (targetHasAdmin && !isAdmin) {
-            throw new ForbiddenException(
-                    "Apenas um Administrador (ADM) pode conceder privilégios de Administrador.");
+        if (targetHasPrivileged && !isAdmin) {
+            throw new ForbiddenException("Apenas um Administrador pode conceder papéis privilegiados.");
         }
     }
 
