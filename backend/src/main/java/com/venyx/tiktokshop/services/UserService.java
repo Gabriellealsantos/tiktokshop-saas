@@ -1,5 +1,7 @@
 package com.venyx.tiktokshop.services;
 
+import com.venyx.tiktokshop.dtos.ChangePasswordDTO;
+import com.venyx.tiktokshop.dtos.ProfileUpdateDTO;
 import com.venyx.tiktokshop.dtos.RoleDTO;
 import com.venyx.tiktokshop.dtos.UserDTO;
 import com.venyx.tiktokshop.dtos.UserInsertDTO;
@@ -168,6 +170,11 @@ public class UserService {
         try {
             User entity = repository.getReferenceById(id);
 
+            // colunas UNIQUE: valida antes p/ mensagem de campo (evita 409/500 genérico do banco)
+            ensureEmailAvailable(dto.email(), id);
+            ensureCpfAvailable(dto.cpf(), id);
+            ensurePhoneAvailable(dto.phoneNumber(), id);
+
             copyDtoToEntity(dto, entity);
 
             if (dto.password() != null && !dto.password().isBlank()) {
@@ -194,6 +201,84 @@ public class UserService {
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id not found " + id);
         }
+    }
+
+    /**
+     * Atualiza o perfil do próprio usuário autenticado. Diferente de {@link #update},
+     * NÃO aceita {@code userStatus}/{@code roles}/{@code password} (o {@link ProfileUpdateDTO}
+     * sequer os expõe), evitando escalonamento de privilégio na rota self.
+     */
+    @Transactional
+    public UserDTO updateMe(ProfileUpdateDTO dto) {
+        User entity = repository.findById(authService.authenticated().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        // colunas UNIQUE (cpf/phone): valida antes p/ devolver 400 em vez de 500 do banco
+        ensureCpfAvailable(dto.cpf(), entity.getId());
+        ensurePhoneAvailable(dto.phoneNumber(), entity.getId());
+
+        copyDtoToEntity(dto, entity);
+        enforcePhoneForClientOrAdmin(entity);
+        entity = repository.save(entity);
+        return new UserDTO(entity);
+    }
+
+    /**
+     * Troca a senha do próprio usuário autenticado. Exige a senha atual (prova de posse)
+     * e rejeita nova senha igual à anterior. Contas OAuth-only (senha aleatória) não casam
+     * a senha atual e, portanto, não trocam senha por aqui.
+     */
+    @Transactional
+    public void changeMyPassword(ChangePasswordDTO dto) {
+        User entity = repository.findById(authService.authenticated().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(dto.currentPassword(), entity.getPassword())) {
+            throw new BusinessException("Senha atual incorreta.");
+        }
+        if (passwordEncoder.matches(dto.newPassword(), entity.getPassword())) {
+            throw new BusinessException("A nova senha não pode ser igual à senha anterior.");
+        }
+
+        entity.setPassword(passwordEncoder.encode(dto.newPassword()));
+        repository.save(entity);
+    }
+
+    private void ensureEmailAvailable(String rawEmail, UUID selfId) {
+        if (rawEmail == null || rawEmail.isBlank()) {
+            return;
+        }
+        repository.findByEmail(rawEmail.trim().toLowerCase()).ifPresent(other -> {
+            if (!other.getId().equals(selfId)) {
+                throw new BusinessException("E-mail já cadastrado.");
+            }
+        });
+    }
+
+    private void ensureCpfAvailable(String rawCpf, UUID selfId) {
+        if (rawCpf == null) {
+            return;
+        }
+        String digitsOnly = rawCpf.replaceAll("[^0-9]", "");
+        if (digitsOnly.isEmpty()) {
+            return;
+        }
+        repository.findByCpf(digitsOnly).ifPresent(other -> {
+            if (!other.getId().equals(selfId)) {
+                throw new BusinessException("CPF já cadastrado.");
+            }
+        });
+    }
+
+    private void ensurePhoneAvailable(String rawPhone, UUID selfId) {
+        if (rawPhone == null || rawPhone.isBlank()) {
+            return;
+        }
+        repository.findByPhone(rawPhone.trim()).ifPresent(other -> {
+            if (!other.getId().equals(selfId)) {
+                throw new BusinessException("Telefone já cadastrado.");
+            }
+        });
     }
 
     @Transactional

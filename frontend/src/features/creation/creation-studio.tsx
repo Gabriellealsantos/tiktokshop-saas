@@ -101,10 +101,14 @@ export const toSlug = (text: string) => {
   return map[text] || text.toLowerCase().replace(/ /g, '-');
 };
 
-export function OptionImageCard({ title, selected, onClick, compact }: { title: string; selected: boolean; onClick: () => void; compact?: boolean }) {
+export function OptionImageCard({ title, imageSlug, selected, onClick, compact, fallbackColor, showFallbackIcon }: { title: string; imageSlug?: string; selected: boolean; onClick: () => void; compact?: boolean; fallbackColor?: string; showFallbackIcon?: boolean }) {
   const [imgError, setImgError] = useState(false);
-  const slug = toSlug(title);
+  const slug = imageSlug || toSlug(title);
   const imageSrc = `/${slug}.png`;
+
+  useEffect(() => {
+    setImgError(false);
+  }, [imageSrc]);
 
   return (
     <div
@@ -132,6 +136,10 @@ export function OptionImageCard({ title, selected, onClick, compact }: { title: 
             onError={() => setImgError(true)}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
+        ) : fallbackColor ? (
+          <div className="h-full w-full flex items-center justify-center transition-transform duration-500 group-hover:scale-105" style={{ background: fallbackColor }}>
+            {showFallbackIcon && <ImageIcon className="mb-2 size-6 text-white/50" />}
+          </div>
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-surface-2 to-surface-3">
             <ImageIcon className="mb-2 size-6 text-text-3" />

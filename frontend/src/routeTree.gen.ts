@@ -19,20 +19,27 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndicacaoRouteImport } from './routes/indicacao'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as EstudioRouteImport } from './routes/estudio'
+import { Route as EditorRouteImport } from './routes/editor'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CriarDoZeroRouteImport } from './routes/criar-do-zero'
 import { Route as CriarAvatarRouteImport } from './routes/criar-avatar'
+import { Route as CreditosRouteImport } from './routes/creditos'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AvataresRouteImport } from './routes/avatares'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TrendBoostIndexRouteImport } from './routes/trend-boost.index'
 import { Route as ModelosIndexRouteImport } from './routes/modelos.index'
 import { Route as EstudioIndexRouteImport } from './routes/estudio.index'
+import { Route as CriarDoZeroIndexRouteImport } from './routes/criar-do-zero.index'
 import { Route as TrendBoostTemplateRouteImport } from './routes/trend-boost.$template'
 import { Route as ModelosUsarRouteImport } from './routes/modelos.usar'
 import { Route as GerarModeloViralRouteImport } from './routes/gerar.modelo-viral'
 import { Route as EstudioFormatRouteImport } from './routes/estudio.$format'
+import { Route as CriarDoZeroPoseRouteImport } from './routes/criar-do-zero.pose'
+import { Route as CriarDoZeroCenarioRouteImport } from './routes/criar-do-zero.cenario'
 
 const TrendBoostRoute = TrendBoostRouteImport.update({
   id: '/trend-boost',
@@ -84,14 +91,29 @@ const EstudioRoute = EstudioRouteImport.update({
   path: '/estudio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorRoute = EditorRouteImport.update({
+  id: '/editor',
+  path: '/editor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CriarDoZeroRoute = CriarDoZeroRouteImport.update({
+  id: '/criar-do-zero',
+  path: '/criar-do-zero',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CriarAvatarRoute = CriarAvatarRouteImport.update({
   id: '/criar-avatar',
   path: '/criar-avatar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreditosRoute = CreditosRouteImport.update({
+  id: '/creditos',
+  path: '/creditos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
@@ -114,6 +136,11 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AcademyRoute = AcademyRouteImport.update({
+  id: '/academy',
+  path: '/academy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -133,6 +160,11 @@ const EstudioIndexRoute = EstudioIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => EstudioRoute,
+} as any)
+const CriarDoZeroIndexRoute = CriarDoZeroIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CriarDoZeroRoute,
 } as any)
 const TrendBoostTemplateRoute = TrendBoostTemplateRouteImport.update({
   id: '/$template',
@@ -154,15 +186,29 @@ const EstudioFormatRoute = EstudioFormatRouteImport.update({
   path: '/$format',
   getParentRoute: () => EstudioRoute,
 } as any)
+const CriarDoZeroPoseRoute = CriarDoZeroPoseRouteImport.update({
+  id: '/pose',
+  path: '/pose',
+  getParentRoute: () => CriarDoZeroRoute,
+} as any)
+const CriarDoZeroCenarioRoute = CriarDoZeroCenarioRouteImport.update({
+  id: '/cenario',
+  path: '/cenario',
+  getParentRoute: () => CriarDoZeroRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
   '/avatares': typeof AvataresRoute
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/creditos': typeof CreditosRoute
   '/criar-avatar': typeof CriarAvatarRoute
+  '/criar-do-zero': typeof CriarDoZeroRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/editor': typeof EditorRoute
   '/estudio': typeof EstudioRouteWithChildren
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
@@ -173,22 +219,28 @@ export interface FileRoutesByFullPath {
   '/prompts': typeof PromptsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trend-boost': typeof TrendBoostRouteWithChildren
+  '/criar-do-zero/cenario': typeof CriarDoZeroCenarioRoute
+  '/criar-do-zero/pose': typeof CriarDoZeroPoseRoute
   '/estudio/$format': typeof EstudioFormatRoute
   '/gerar/modelo-viral': typeof GerarModeloViralRoute
   '/modelos/usar': typeof ModelosUsarRoute
   '/trend-boost/$template': typeof TrendBoostTemplateRoute
+  '/criar-do-zero/': typeof CriarDoZeroIndexRoute
   '/estudio/': typeof EstudioIndexRoute
   '/modelos/': typeof ModelosIndexRoute
   '/trend-boost/': typeof TrendBoostIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
   '/avatares': typeof AvataresRoute
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/creditos': typeof CreditosRoute
   '/criar-avatar': typeof CriarAvatarRoute
   '/dashboard': typeof DashboardRoute
+  '/editor': typeof EditorRoute
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
   '/login': typeof LoginRoute
@@ -196,10 +248,13 @@ export interface FileRoutesByTo {
   '/produtos': typeof ProdutosRoute
   '/prompts': typeof PromptsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/criar-do-zero/cenario': typeof CriarDoZeroCenarioRoute
+  '/criar-do-zero/pose': typeof CriarDoZeroPoseRoute
   '/estudio/$format': typeof EstudioFormatRoute
   '/gerar/modelo-viral': typeof GerarModeloViralRoute
   '/modelos/usar': typeof ModelosUsarRoute
   '/trend-boost/$template': typeof TrendBoostTemplateRoute
+  '/criar-do-zero': typeof CriarDoZeroIndexRoute
   '/estudio': typeof EstudioIndexRoute
   '/modelos': typeof ModelosIndexRoute
   '/trend-boost': typeof TrendBoostIndexRoute
@@ -207,12 +262,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
   '/avatares': typeof AvataresRoute
   '/cadastro': typeof CadastroRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/creditos': typeof CreditosRoute
   '/criar-avatar': typeof CriarAvatarRoute
+  '/criar-do-zero': typeof CriarDoZeroRouteWithChildren
   '/dashboard': typeof DashboardRoute
+  '/editor': typeof EditorRoute
   '/estudio': typeof EstudioRouteWithChildren
   '/ferramentas': typeof FerramentasRoute
   '/indicacao': typeof IndicacaoRoute
@@ -223,10 +282,13 @@ export interface FileRoutesById {
   '/prompts': typeof PromptsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/trend-boost': typeof TrendBoostRouteWithChildren
+  '/criar-do-zero/cenario': typeof CriarDoZeroCenarioRoute
+  '/criar-do-zero/pose': typeof CriarDoZeroPoseRoute
   '/estudio/$format': typeof EstudioFormatRoute
   '/gerar/modelo-viral': typeof GerarModeloViralRoute
   '/modelos/usar': typeof ModelosUsarRoute
   '/trend-boost/$template': typeof TrendBoostTemplateRoute
+  '/criar-do-zero/': typeof CriarDoZeroIndexRoute
   '/estudio/': typeof EstudioIndexRoute
   '/modelos/': typeof ModelosIndexRoute
   '/trend-boost/': typeof TrendBoostIndexRoute
@@ -235,12 +297,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/academy'
     | '/admin'
     | '/avatares'
     | '/cadastro'
     | '/configuracoes'
+    | '/creditos'
     | '/criar-avatar'
+    | '/criar-do-zero'
     | '/dashboard'
+    | '/editor'
     | '/estudio'
     | '/ferramentas'
     | '/indicacao'
@@ -251,22 +317,28 @@ export interface FileRouteTypes {
     | '/prompts'
     | '/sitemap.xml'
     | '/trend-boost'
+    | '/criar-do-zero/cenario'
+    | '/criar-do-zero/pose'
     | '/estudio/$format'
     | '/gerar/modelo-viral'
     | '/modelos/usar'
     | '/trend-boost/$template'
+    | '/criar-do-zero/'
     | '/estudio/'
     | '/modelos/'
     | '/trend-boost/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/academy'
     | '/admin'
     | '/avatares'
     | '/cadastro'
     | '/configuracoes'
+    | '/creditos'
     | '/criar-avatar'
     | '/dashboard'
+    | '/editor'
     | '/ferramentas'
     | '/indicacao'
     | '/login'
@@ -274,22 +346,29 @@ export interface FileRouteTypes {
     | '/produtos'
     | '/prompts'
     | '/sitemap.xml'
+    | '/criar-do-zero/cenario'
+    | '/criar-do-zero/pose'
     | '/estudio/$format'
     | '/gerar/modelo-viral'
     | '/modelos/usar'
     | '/trend-boost/$template'
+    | '/criar-do-zero'
     | '/estudio'
     | '/modelos'
     | '/trend-boost'
   id:
     | '__root__'
     | '/'
+    | '/academy'
     | '/admin'
     | '/avatares'
     | '/cadastro'
     | '/configuracoes'
+    | '/creditos'
     | '/criar-avatar'
+    | '/criar-do-zero'
     | '/dashboard'
+    | '/editor'
     | '/estudio'
     | '/ferramentas'
     | '/indicacao'
@@ -300,10 +379,13 @@ export interface FileRouteTypes {
     | '/prompts'
     | '/sitemap.xml'
     | '/trend-boost'
+    | '/criar-do-zero/cenario'
+    | '/criar-do-zero/pose'
     | '/estudio/$format'
     | '/gerar/modelo-viral'
     | '/modelos/usar'
     | '/trend-boost/$template'
+    | '/criar-do-zero/'
     | '/estudio/'
     | '/modelos/'
     | '/trend-boost/'
@@ -311,12 +393,16 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcademyRoute: typeof AcademyRoute
   AdminRoute: typeof AdminRoute
   AvataresRoute: typeof AvataresRoute
   CadastroRoute: typeof CadastroRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  CreditosRoute: typeof CreditosRoute
   CriarAvatarRoute: typeof CriarAvatarRoute
+  CriarDoZeroRoute: typeof CriarDoZeroRouteWithChildren
   DashboardRoute: typeof DashboardRoute
+  EditorRoute: typeof EditorRoute
   EstudioRoute: typeof EstudioRouteWithChildren
   FerramentasRoute: typeof FerramentasRoute
   IndicacaoRoute: typeof IndicacaoRoute
@@ -402,6 +488,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EstudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor': {
+      id: '/editor'
+      path: '/editor'
+      fullPath: '/editor'
+      preLoaderRoute: typeof EditorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -409,11 +502,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/criar-do-zero': {
+      id: '/criar-do-zero'
+      path: '/criar-do-zero'
+      fullPath: '/criar-do-zero'
+      preLoaderRoute: typeof CriarDoZeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/criar-avatar': {
       id: '/criar-avatar'
       path: '/criar-avatar'
       fullPath: '/criar-avatar'
       preLoaderRoute: typeof CriarAvatarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creditos': {
+      id: '/creditos'
+      path: '/creditos'
+      fullPath: '/creditos'
+      preLoaderRoute: typeof CreditosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracoes': {
@@ -444,6 +551,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/academy': {
+      id: '/academy'
+      path: '/academy'
+      fullPath: '/academy'
+      preLoaderRoute: typeof AcademyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -471,6 +585,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/estudio/'
       preLoaderRoute: typeof EstudioIndexRouteImport
       parentRoute: typeof EstudioRoute
+    }
+    '/criar-do-zero/': {
+      id: '/criar-do-zero/'
+      path: '/'
+      fullPath: '/criar-do-zero/'
+      preLoaderRoute: typeof CriarDoZeroIndexRouteImport
+      parentRoute: typeof CriarDoZeroRoute
     }
     '/trend-boost/$template': {
       id: '/trend-boost/$template'
@@ -500,8 +621,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EstudioFormatRouteImport
       parentRoute: typeof EstudioRoute
     }
+    '/criar-do-zero/pose': {
+      id: '/criar-do-zero/pose'
+      path: '/pose'
+      fullPath: '/criar-do-zero/pose'
+      preLoaderRoute: typeof CriarDoZeroPoseRouteImport
+      parentRoute: typeof CriarDoZeroRoute
+    }
+    '/criar-do-zero/cenario': {
+      id: '/criar-do-zero/cenario'
+      path: '/cenario'
+      fullPath: '/criar-do-zero/cenario'
+      preLoaderRoute: typeof CriarDoZeroCenarioRouteImport
+      parentRoute: typeof CriarDoZeroRoute
+    }
   }
 }
+
+interface CriarDoZeroRouteChildren {
+  CriarDoZeroCenarioRoute: typeof CriarDoZeroCenarioRoute
+  CriarDoZeroPoseRoute: typeof CriarDoZeroPoseRoute
+  CriarDoZeroIndexRoute: typeof CriarDoZeroIndexRoute
+}
+
+const CriarDoZeroRouteChildren: CriarDoZeroRouteChildren = {
+  CriarDoZeroCenarioRoute: CriarDoZeroCenarioRoute,
+  CriarDoZeroPoseRoute: CriarDoZeroPoseRoute,
+  CriarDoZeroIndexRoute: CriarDoZeroIndexRoute,
+}
+
+const CriarDoZeroRouteWithChildren = CriarDoZeroRoute._addFileChildren(
+  CriarDoZeroRouteChildren,
+)
 
 interface EstudioRouteChildren {
   EstudioFormatRoute: typeof EstudioFormatRoute
@@ -545,12 +696,16 @@ const TrendBoostRouteWithChildren = TrendBoostRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcademyRoute: AcademyRoute,
   AdminRoute: AdminRoute,
   AvataresRoute: AvataresRoute,
   CadastroRoute: CadastroRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  CreditosRoute: CreditosRoute,
   CriarAvatarRoute: CriarAvatarRoute,
+  CriarDoZeroRoute: CriarDoZeroRouteWithChildren,
   DashboardRoute: DashboardRoute,
+  EditorRoute: EditorRoute,
   EstudioRoute: EstudioRouteWithChildren,
   FerramentasRoute: FerramentasRoute,
   IndicacaoRoute: IndicacaoRoute,
