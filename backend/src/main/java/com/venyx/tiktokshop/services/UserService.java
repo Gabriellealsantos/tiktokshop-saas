@@ -35,7 +35,7 @@ public class UserService {
 
     // Roles que exigem telefone. AFFILIATE fica de fora.
     private static final Set<String> PHONE_REQUIRED_ROLES =
-            Set.of(RoleConstants.ROLE_CLIENT, RoleConstants.ROLE_ADMIN);
+            Set.of(RoleConstants.ROLE_CLIENT, RoleConstants.ROLE_ADMIN, RoleConstants.ROLE_AFFILIATE);
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
