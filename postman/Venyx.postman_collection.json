@@ -195,6 +195,61 @@
 						},
 						"description": "Retorna os dados do usuário autenticado (dono do accessToken)."
 					}
+				},
+				{
+					"name": "Update me",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Meu Nome Novo\",\n  \"phoneNumber\": \"11988888888\",\n  \"cpf\": \"12345678900\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/users/me",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"me"
+							]
+						},
+						"description": "Perfil self-service: usuário edita os PRÓPRIOS dados (nome/telefone/CPF). Body ProfileUpdateDTO. NÃO aceita userStatus/roles/senha/e-mail (sem escalonamento de privilégio). Id vem do token."
+					}
+				},
+				{
+					"name": "Change my password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPassword\": \"SenhaAtual123\",\n  \"newPassword\": \"SenhaNova456\"\n}"
+						},
+						"url": {
+							"raw": "{{host}}/users/me/password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"users",
+								"me",
+								"password"
+							]
+						},
+						"description": "Troca a própria senha. Exige a senha atual (prova de posse) e rejeita nova igual à anterior. 204 No Content. Contas OAuth-only não trocam por aqui."
+					}
 				}
 			]
 		},
@@ -676,6 +731,36 @@
 							"path": ["api", "products", "{{productId}}", "favorite"]
 						},
 						"description": "Remove um produto dos favoritos do usuário autenticado. Retorna 204 No Content."
+					}
+				},
+				{
+					"name": "Upload custom product image (ephemeral)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/products/custom/image",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"custom",
+								"image"
+							]
+						},
+						"description": "Upload EFÊMERO da imagem de um produto próprio do usuário pagante (token CLIENT, não admin). Devolve { url } pra usar no passo de criação. NÃO persiste produto no banco. Pasta fixa no servidor (custom-products)."
 					}
 				},
 				{

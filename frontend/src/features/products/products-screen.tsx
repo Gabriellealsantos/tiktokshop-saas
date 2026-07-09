@@ -67,20 +67,20 @@ export function ProductsScreen() {
           actions={<Pill tone="success">Sistema online · minerando</Pill>}
         />
         <div className="grid gap-3 sm:grid-cols-3">
-          <div className="panel p-5">
+          <div className="glass-surface is-data p-5">
             <p className="text-xs text-text-2">Novos produtos</p>
-            <strong className="mt-2 block text-3xl tabular-nums">91</strong>
+            <strong className="mt-2 block text-3xl tabular-nums text-text-1">91</strong>
           </div>
-          <div className="panel p-5">
+          <div className="glass-surface is-data p-5">
             <p className="text-xs text-text-2">Receita detectada</p>
             <strong className="mt-2 block text-3xl text-success">R$ 4,5M</strong>
           </div>
-          <div className="panel p-5">
+          <div className="glass-surface is-data p-5">
             <p className="flex items-center gap-2 text-xs text-text-2">
               <Clock3 className="size-3" />
               Próxima atualização
             </p>
-            <strong className="mt-2 block text-3xl tabular-nums">04:38</strong>
+            <strong className="mt-2 block text-3xl tabular-nums text-text-1">04:38</strong>
           </div>
         </div>
         <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
@@ -91,13 +91,13 @@ export function ProductsScreen() {
           ))}
         </div>
         <div className="mt-6 flex flex-col gap-3 lg:flex-row">
-          <div className="flex h-11 flex-1 items-center gap-3 rounded-[12px] border border-border bg-surface-1 px-4">
+          <div className="glass-surface is-interactive flex h-11 flex-1 items-center gap-3 rounded-[12px] px-4">
             <Search className="size-4 text-text-3" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar produto..."
-              className="w-full bg-transparent text-sm placeholder:text-text-3"
+              className="w-full bg-transparent text-sm text-text-1 placeholder:text-text-3 outline-none"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1">

@@ -384,8 +384,11 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange }: ProductDe
               <button 
                 className="group flex items-center gap-4 rounded-2xl border border-white/5 bg-surface-2 p-4 text-left transition-all hover:border-white/10 hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-12px_rgba(139,92,246,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
                 onClick={() => {
-                  // TODO: destino do botão "criação do zero"
-                  toast("Em breve: Criação do zero");
+                  onOpenChange(false);
+                  navigate({ 
+                    to: "/criar-do-zero", 
+                    search: { productId: product.id } 
+                  });
                 }}
               >
                 <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-violet-500/10 text-violet-400 transition-colors group-hover:bg-violet-500/20">

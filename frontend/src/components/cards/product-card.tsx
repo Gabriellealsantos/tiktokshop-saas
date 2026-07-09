@@ -22,9 +22,9 @@ export function ProductCard({
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-[20px] border bg-surface-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
-        "transition-colors duration-300 hover:border-violet-500/50 hover:shadow-[0_0_20px_rgba(139,92,246,0.15)]",
-        selected ? "border-accent-400/50" : "border-border",
+        "glass-surface is-interactive group relative flex flex-col overflow-hidden rounded-[20px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500",
+        "transition-all duration-300",
+        selected && "border-accent-400/50 shadow-[0_0_20px_rgba(139,92,246,0.15)]",
       )}
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-surface-3">
@@ -38,9 +38,9 @@ export function ProductCard({
         <div className="absolute inset-0 rounded-t-[20px] ring-1 ring-inset ring-white/10" />
 
         <span className="absolute left-3 top-3">
-          <Pill className="border-white/10 bg-black/40 text-white shadow-sm backdrop-blur-md">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1.5 text-xs font-medium text-white shadow-sm backdrop-blur-md">
             {product.category.split(" & ")[0]}
-          </Pill>
+          </span>
         </span>
 
         {/* Optional viral badge support, driven by data flag */}
@@ -97,7 +97,7 @@ export function ProductCard({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-4 pt-0 transition-all duration-300 md:absolute md:-bottom-28 md:left-0 md:right-0 md:bg-surface-1/95 md:p-4 md:opacity-0 md:backdrop-blur-md md:group-hover:bottom-0 md:group-hover:opacity-100">
+      <div className="flex flex-col gap-2 p-4 pt-0 transition-all duration-300 md:absolute md:-bottom-28 md:left-0 md:right-0 md:bg-surface-1/95 md:p-4 md:opacity-0 md:group-hover:bottom-0 md:group-hover:opacity-100">
         <button
           onClick={(e) => {
             e.preventDefault();

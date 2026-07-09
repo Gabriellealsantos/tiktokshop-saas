@@ -16,18 +16,22 @@ export function PageHeader({
   description,
   actions,
 }: {
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   title: ReactNode;
-  description?: string;
+  description?: ReactNode;
   actions?: ReactNode;
 }) {
   return (
     <header className="entrance mb-8 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
       <div>
         {eyebrow && (
-          <p className="mb-3 text-[11px] font-bold uppercase tracking-[.2em] text-accent-300">
-            {eyebrow}
-          </p>
+          typeof eyebrow === 'string' ? (
+            <p className="mb-3 text-[11px] font-bold uppercase tracking-[.2em] text-accent-300">
+              {eyebrow}
+            </p>
+          ) : (
+            <div className="mb-3">{eyebrow}</div>
+          )
         )}
         <h1 className="text-3xl font-extrabold tracking-[-.035em] text-text-1 md:text-4xl">
           {title}

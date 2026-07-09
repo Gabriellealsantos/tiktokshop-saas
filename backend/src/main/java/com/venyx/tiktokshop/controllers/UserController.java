@@ -1,5 +1,7 @@
 package com.venyx.tiktokshop.controllers;
 
+import com.venyx.tiktokshop.dtos.ChangePasswordDTO;
+import com.venyx.tiktokshop.dtos.ProfileUpdateDTO;
 import com.venyx.tiktokshop.dtos.UserDTO;
 import com.venyx.tiktokshop.dtos.UserInsertDTO;
 import com.venyx.tiktokshop.dtos.UserUpdateDTO;
@@ -47,6 +49,25 @@ public class UserController {
     @GetMapping(value = "/me")
     public ResponseEntity<UserDTO> findMe() {
         return ResponseEntity.ok(userService.findMe());
+    }
+
+    /**
+     * Atualiza o perfil do próprio usuário autenticado (nome, telefone, CPF).
+     * Recurso self: sem @PreAuthorize (o Resource Server já exige autenticação).
+     * Não permite alterar status/roles/senha/e-mail.
+     */
+    @PutMapping(value = "/me")
+    public ResponseEntity<UserDTO> updateMe(@RequestBody @Valid ProfileUpdateDTO dto) {
+        return ResponseEntity.ok(userService.updateMe(dto));
+    }
+
+    /**
+     * Troca a senha do próprio usuário autenticado. Exige a senha atual.
+     */
+    @PutMapping(value = "/me/password")
+    public ResponseEntity<Void> changeMyPassword(@RequestBody @Valid ChangePasswordDTO dto) {
+        userService.changeMyPassword(dto);
+        return ResponseEntity.noContent().build();
     }
 
     /**

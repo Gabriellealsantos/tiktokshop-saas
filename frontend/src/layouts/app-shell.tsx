@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
+  BookOpen,
   Boxes,
   BadgeDollarSign,
   ChartNoAxesCombined,
@@ -46,6 +47,7 @@ const toolbar = [
   ["/estudio", Clapperboard, "Estúdio"],
   ["/trend-boost", Zap, "Boost"],
   ["/ferramentas", Sparkles, "IA"],
+  ["/academy", BookOpen, "Academy"],
 ] as const;
 
 const MotionLink = motion.create(Link);
@@ -103,17 +105,29 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 Prompts
               </Link>
+              <Link
+                to="/editor"
+                className={cn(
+                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                  path.startsWith("/editor")
+                    ? "bg-white/10 text-white"
+                    : "text-zinc-400 hover:bg-white/5 hover:text-white",
+                )}
+              >
+                TokEditor
+              </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
-            <div
-              aria-label="Seus créditos"
-              className="flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-white shadow-sm"
+            <Link
+              to="/creditos"
+              aria-label="Comprar créditos"
+              className="flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-white shadow-sm transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 cursor-pointer"
             >
               <Sparkles className="size-3.5 text-violet-400" />
               <span>{credits} cred</span>
-            </div>
+            </Link>
 
             <MotionLink
               to="/indicacao"

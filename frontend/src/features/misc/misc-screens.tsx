@@ -221,6 +221,123 @@ export function PromptsScreen() {
     </AppShell>
   );
 }
+export function EditorScreen() {
+  const [step, setStep] = useState(0);
+  const steps = ["Upload", "Enquadramento", "Texto", "Processar", "Download"];
+  return (
+    <AppShell>
+      <Page>
+        <PageHeader
+          eyebrow="Lab Studio"
+          title="TokEditor"
+          description="Editor rápido para preparar vídeos verticais em cinco passos."
+        />
+        <Stepper steps={steps} current={step} />
+        <div className="panel min-h-[380px] p-6">
+          {step === 0 && (
+            <button className="grid h-72 w-full place-items-center rounded-[18px] border border-dashed border-border bg-deep text-text-2">
+              <span className="grid place-items-center gap-3">
+                <Upload className="size-8" />
+                <b>Enviar vídeos .mp4</b>
+                <small>Máximo de 24s no total</small>
+              </span>
+            </button>
+          )}
+          {step === 1 && (
+            <div className="grid gap-3 md:grid-cols-3">
+              {["9:16 Vertical", "1:1 Quadrado", "4:5 Feed"].map((x, i) => (
+                <SelectableCard title={x} selected={i === 0} key={x} />
+              ))}
+            </div>
+          )}
+          {step === 2 && (
+            <div className="space-y-4">
+              <Field label="Texto principal" placeholder="Digite o texto na tela" />
+              <TextArea label="Legenda" placeholder="Escreva sua legenda..." />
+            </div>
+          )}
+          {step === 3 && (
+            <div className="grid min-h-72 place-items-center text-center">
+              <div>
+                <Sparkles className="mx-auto size-10 text-accent-300" />
+                <h2 className="mt-4 text-xl font-bold">Pronto para processar</h2>
+              </div>
+            </div>
+          )}
+          {step === 4 && (
+            <div className="grid min-h-72 place-items-center">
+              <Button size="lg">
+                <Download />
+                Baixar vídeo
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="mt-6 flex justify-between">
+          <Button variant="ghost" onClick={() => setStep((v) => Math.max(0, v - 1))}>
+            Voltar
+          </Button>
+          <Button onClick={() => setStep((v) => Math.min(4, v + 1))}>Continuar</Button>
+        </div>
+      </Page>
+    </AppShell>
+  );
+}
+export function AcademyScreen() {
+  return (
+    <AppShell>
+      <Page>
+        <PageHeader
+          eyebrow="Creator Academy"
+          title="Domine o método completo"
+          description="18 aulas · 6 módulos"
+          actions={<Pill active>PREMIUM</Pill>}
+        />
+        <div className="grid gap-5 xl:grid-cols-[1fr_390px]">
+          <div className="panel overflow-hidden">
+            <div className="grid aspect-video place-items-center bg-deep">
+              <button className="grid size-16 place-items-center rounded-full brand-gradient accent-glow">
+                <Play fill="currentColor" />
+              </button>
+            </div>
+            <div className="p-5">
+              <h2 className="font-bold">Anatomia de um viral</h2>
+              <p className="mt-1 text-xs text-text-2">Módulo 1 · Aula 2</p>
+            </div>
+          </div>
+          <div className="panel p-4">
+            <Accordion type="single" defaultValue="0" collapsible>
+              {academyModules.map((m, i) => (
+                <AccordionItem value={String(i)} key={m.title} className="border-border">
+                  <AccordionTrigger className="text-sm">{m.title}</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-1">
+                      {m.lessons.map((lesson, x) => (
+                        <button
+                          className={`flex w-full items-center gap-3 rounded-xl p-3 text-left text-xs ${i === 0 && x === 1 ? "bg-surface-3 text-text-1" : "text-text-2 hover:bg-surface-2"}`}
+                          key={lesson}
+                        >
+                          <span className="grid size-6 place-items-center rounded-full border border-border">
+                            {i === 0 && x === 0 ? (
+                              <Check className="size-3 text-success" />
+                            ) : (
+                              <Play className="size-3" />
+                            )}
+                          </span>
+                          {lesson}
+                        </button>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
+      </Page>
+    </AppShell>
+  );
+}
 export function ReferralScreen() {
   return (
     <AppShell>
