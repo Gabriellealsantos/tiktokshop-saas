@@ -33,7 +33,7 @@ public class UserService {
 
     // Roles que exigem telefone. OPERATOR e SUPER_ADMIN ficam de fora.
     private static final Set<String> PHONE_REQUIRED_ROLES =
-            Set.of(RoleConstants.ROLE_CLIENT, RoleConstants.ROLE_ADMIN);
+            Set.of(RoleConstants.ROLE_CLIENT, RoleConstants.ROLE_ADMIN, RoleConstants.ROLE_AFFILIATE);
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
@@ -278,13 +278,14 @@ public class UserService {
                 currentUser.getRoles().stream()
                         .anyMatch(r -> r.getAuthority().equals(RoleConstants.ROLE_SUPER_ADMIN));
 
-        boolean targetHasAdminOrSuper = targetRoles.stream()
-                .anyMatch(r -> RoleConstants.ROLE_ADMIN.equals(r.authority()) ||
-                        RoleConstants.ROLE_SUPER_ADMIN.equals(r.authority()));
+        boolean targetHasPrivileged = targetRoles.stream()
+                .anyMatch(r -> RoleConstants.ROLE_ADMIN.equals(r.authority())
+                        || RoleConstants.ROLE_SUPER_ADMIN.equals(r.authority())
+                        || RoleConstants.ROLE_AFFILIATE.equals(r.authority()));
 
-        if (targetHasAdminOrSuper && !isSuperAdmin) {
+        if (targetHasPrivileged && !isSuperAdmin) {
             throw new ForbiddenException(
-                    "Apenas o Super Administrador pode conceder privilégios de Administrador ou Super Administrador.");
+                    "Apenas o Super Administrador pode conceder papéis privilegiados.");
         }
     }
 
