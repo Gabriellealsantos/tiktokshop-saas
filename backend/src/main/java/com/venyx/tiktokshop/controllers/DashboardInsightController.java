@@ -32,13 +32,13 @@ public class DashboardInsightController {
         return ResponseEntity.ok(service.findActive(kind));
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @GetMapping("/api/admin/dashboard/insights")
     public ResponseEntity<List<DashboardInsightDTO>> findAll() {
         return ResponseEntity.ok(service.findAll());
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @PostMapping("/api/admin/dashboard/insights")
     public ResponseEntity<DashboardInsightDTO> insert(@RequestBody DashboardInsightDTO dto) {
         DashboardInsightDTO newDto = service.insert(dto);
@@ -47,13 +47,13 @@ public class DashboardInsightController {
         return ResponseEntity.created(uri).body(newDto);
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @PutMapping("/api/admin/dashboard/insights/{id}")
     public ResponseEntity<DashboardInsightDTO> update(@PathVariable Long id, @RequestBody DashboardInsightDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @DeleteMapping("/api/admin/dashboard/insights/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);

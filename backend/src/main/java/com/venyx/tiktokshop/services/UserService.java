@@ -31,7 +31,7 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    // Roles que exigem telefone. OPERATOR e SUPER_ADMIN ficam de fora.
+    // Roles que exigem telefone. AFFILIATE fica de fora.
     private static final Set<String> PHONE_REQUIRED_ROLES =
             Set.of(RoleConstants.ROLE_CLIENT, RoleConstants.ROLE_ADMIN, RoleConstants.ROLE_AFFILIATE);
 
@@ -114,10 +114,7 @@ public class UserService {
     private UserStatus resolveUserStatusForInsert(UserStatus requested) {
         User current = safeCurrentUser();
 
-        boolean isPrivileged = current != null && (
-                current.hasRole(RoleConstants.ROLE_SUPER_ADMIN) ||
-                current.hasRole(RoleConstants.ROLE_ADMIN)
-        );
+        boolean isPrivileged = current != null && current.hasRole(RoleConstants.ROLE_ADMIN);
 
         if (!isPrivileged) {
             return UserStatus.PENDING_CONFIRMATION;
@@ -171,16 +168,6 @@ public class UserService {
         try {
             User entity = repository.getReferenceById(id);
 
-            User currentUser = safeCurrentUser();
-            boolean currentIsSuperAdmin = currentUser != null
-                    && currentUser.hasRole(RoleConstants.ROLE_SUPER_ADMIN);
-            boolean targetIsSuperAdmin = entity.hasRole(RoleConstants.ROLE_SUPER_ADMIN);
-
-            if (targetIsSuperAdmin && !currentIsSuperAdmin) {
-                throw new ForbiddenException(
-                        "Apenas o Super Administrador pode editar um Super Administrador.");
-            }
-
             copyDtoToEntity(dto, entity);
 
             if (dto.password() != null && !dto.password().isBlank()) {
@@ -215,19 +202,8 @@ public class UserService {
             User entity = repository.getReferenceById(id);
             User currentUser = authService.authenticated();
 
-            boolean currentIsSuperAdmin = currentUser.hasRole(RoleConstants.ROLE_SUPER_ADMIN);
-            boolean targetIsSuperAdmin = entity.hasRole(RoleConstants.ROLE_SUPER_ADMIN);
-            boolean targetIsAdmin = entity.hasRole(RoleConstants.ROLE_ADMIN);
-
             if (currentUser.getId().equals(id)) {
                 throw new ForbiddenException("Você não pode excluir a si mesmo.");
-            }
-            if (targetIsSuperAdmin) {
-                throw new ForbiddenException("Não é permitido excluir um Super Administrador.");
-            }
-            if (targetIsAdmin && !currentIsSuperAdmin) {
-                throw new ForbiddenException(
-                        "Apenas o Super Administrador pode excluir um Administrador.");
             }
 
             entity.setDeletedAt(Instant.now());
@@ -274,18 +250,16 @@ public class UserService {
         }
 
         User currentUser = safeCurrentUser();
-        boolean isSuperAdmin = currentUser != null &&
+        boolean isAdmin = currentUser != null &&
                 currentUser.getRoles().stream()
-                        .anyMatch(r -> r.getAuthority().equals(RoleConstants.ROLE_SUPER_ADMIN));
+                        .anyMatch(r -> r.getAuthority().equals(RoleConstants.ROLE_ADMIN));
 
-        boolean targetHasPrivileged = targetRoles.stream()
-                .anyMatch(r -> RoleConstants.ROLE_ADMIN.equals(r.authority())
-                        || RoleConstants.ROLE_SUPER_ADMIN.equals(r.authority())
-                        || RoleConstants.ROLE_AFFILIATE.equals(r.authority()));
+        boolean targetHasAdmin = targetRoles.stream()
+                .anyMatch(r -> RoleConstants.ROLE_ADMIN.equals(r.authority()));
 
-        if (targetHasPrivileged && !isSuperAdmin) {
+        if (targetHasAdmin && !isAdmin) {
             throw new ForbiddenException(
-                    "Apenas o Super Administrador pode conceder papéis privilegiados.");
+                    "Apenas um Administrador (ADM) pode conceder privilégios de Administrador.");
         }
     }
 

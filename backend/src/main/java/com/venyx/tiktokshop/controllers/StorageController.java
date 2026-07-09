@@ -25,7 +25,7 @@ public class StorageController {
         this.storageService = storageService;
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_SUPER_ADMIN + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
     @PostMapping(value = "/api/admin/storage/upload", consumes = "multipart/form-data")
     public ResponseEntity<UploadResponseDTO> upload(
             @RequestParam("file") MultipartFile file,

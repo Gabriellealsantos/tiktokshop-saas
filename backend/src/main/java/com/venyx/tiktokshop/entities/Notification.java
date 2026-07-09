@@ -1,6 +1,7 @@
 package com.venyx.tiktokshop.entities;
 
 import com.venyx.tiktokshop.entities.enums.NotificationAudience;
+import com.venyx.tiktokshop.entities.enums.NotificationType;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -32,6 +33,10 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private NotificationAudience audience;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationType type = NotificationType.ANNOUNCEMENT;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
@@ -94,6 +99,14 @@ public class Notification {
 
     public void setAudience(NotificationAudience audience) {
         this.audience = audience;
+    }
+
+    public NotificationType getType() {
+        return type;
+    }
+
+    public void setType(NotificationType type) {
+        this.type = type;
     }
 
     public User getCreatedBy() {

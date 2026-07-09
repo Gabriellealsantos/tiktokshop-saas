@@ -1,5 +1,6 @@
 package com.venyx.tiktokshop.entities;
 
+import com.venyx.tiktokshop.entities.enums.MiningWindow;
 import com.venyx.tiktokshop.entities.enums.ProductCategory;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -63,8 +64,9 @@ public class Product {
     @Column(name = "history_7d", columnDefinition = "jsonb")
     private List<Integer> history7d;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "mining_window")
-    private String miningWindow;
+    private MiningWindow miningWindow;
 
     @Column(name = "trend_label")
     private String trendLabel;
@@ -88,6 +90,10 @@ public class Product {
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now();
+        // createdAt já setado acima: se ninguém definiu a janela, deriva da hora de criação.
+        if (this.miningWindow == null) {
+            this.miningWindow = MiningWindow.fromInstant(this.createdAt);
+        }
     }
 
     public Long getId() {
@@ -222,11 +228,11 @@ public class Product {
         this.history7d = history7d;
     }
 
-    public String getMiningWindow() {
+    public MiningWindow getMiningWindow() {
         return miningWindow;
     }
 
-    public void setMiningWindow(String miningWindow) {
+    public void setMiningWindow(MiningWindow miningWindow) {
         this.miningWindow = miningWindow;
     }
 

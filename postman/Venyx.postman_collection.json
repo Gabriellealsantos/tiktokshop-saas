@@ -243,115 +243,6 @@
 			]
 		},
 		{
-			"name": "Generations",
-			"item": [
-				{
-					"name": "Get generation job",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/generations/{{jobId}}",
-							"host": ["{{host}}"],
-							"path": ["api", "generations", "{{jobId}}"]
-						},
-						"description": "Re-consulta o status/resultado de um job de geração (Estúdio, Avatar, Trend Boost, Ferramentas, TokEditor). 404 se o job não pertencer ao usuário autenticado. Hoje o submit() roda síncrono e já retorna o job final no POST — este GET serve pra re-consultar depois (ex: refresh de página)."
-					}
-				},
-				{
-					"name": "WebSocket - status em tempo real (não é HTTP)",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/ws",
-							"host": ["{{host}}"],
-							"path": ["ws"]
-						},
-						"description": "Não é uma request REST — documentação do canal STOMP/SockJS. Endpoint: {{host}}/ws (fallback SockJS). Após conectar, enviar frame STOMP CONNECT com header 'Authorization: Bearer {{accessToken}}' (a autenticação acontece no CONNECT, não no handshake HTTP). Depois, subscribe em '/user/queue/generations' para receber o GenerationJobDTO toda vez que um job mudar de status. Pré-requisito de infra: um broker STOMP em memória (enableSimpleBroker) — não escala para múltiplas instâncias sem trocar por Redis/RabbitMQ."
-					}
-				}
-			]
-		},
-		{
-			"name": "Credit Packages",
-			"item": [
-				{
-					"name": "List active packages",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/credit-packages",
-							"host": ["{{host}}"],
-							"path": ["api", "credit-packages"]
-						},
-						"description": "Pacotes de créditos ativos disponíveis para compra. Qualquer usuário autenticado."
-					}
-				},
-				{
-					"name": "[Admin] List all packages",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/admin/credit-packages",
-							"host": ["{{host}}"],
-							"path": ["api", "admin", "credit-packages"]
-						},
-						"description": "Lista todos os pacotes (inclusive inativos). Requer SUPER_ADMIN (mexe com preço/monetização)."
-					}
-				},
-				{
-					"name": "[Admin] Create package",
-					"request": {
-						"method": "POST",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Pacote 500\",\n  \"credits\": 500,\n  \"bonusPct\": 10,\n  \"price\": 49.90,\n  \"badge\": \"Popular\",\n  \"active\": true,\n  \"orderIndex\": 1\n}"
-						},
-						"url": {
-							"raw": "{{host}}/api/admin/credit-packages",
-							"host": ["{{host}}"],
-							"path": ["api", "admin", "credit-packages"]
-						},
-						"description": "Cria um pacote de créditos. Requer SUPER_ADMIN. Retorna 201 + Location."
-					}
-				},
-				{
-					"name": "[Admin] Update package",
-					"request": {
-						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"name\": \"Pacote 500\",\n  \"credits\": 500,\n  \"bonusPct\": 15,\n  \"price\": 44.90,\n  \"badge\": \"Popular\",\n  \"active\": true,\n  \"orderIndex\": 1\n}"
-						},
-						"url": {
-							"raw": "{{host}}/api/admin/credit-packages/{{creditPackageId}}",
-							"host": ["{{host}}"],
-							"path": ["api", "admin", "credit-packages", "{{creditPackageId}}"]
-						},
-						"description": "Atualiza um pacote existente. Requer SUPER_ADMIN."
-					}
-				},
-				{
-					"name": "[Admin] Delete package",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/admin/credit-packages/{{creditPackageId}}",
-							"host": ["{{host}}"],
-							"path": ["api", "admin", "credit-packages", "{{creditPackageId}}"]
-						},
-						"description": "Remove um pacote. Requer SUPER_ADMIN. Retorna 204 No Content."
-					}
-				}
-			]
-		},
-		{
 			"name": "Gallery Avatars",
 			"item": [
 				{
@@ -513,6 +404,166 @@
 			]
 		},
 		{
+			"name": "Dashboard",
+			"item": [
+				{
+					"name": "Get summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/dashboard?period=7d",
+							"host": ["{{host}}"],
+							"path": ["api", "dashboard"],
+							"query": [{ "key": "period", "value": "7d" }]
+						},
+						"description": "Faturamento/pedidos/comissão/ticket médio + série diária, combinando a métrica base cadastrada pelo admin com as vendas ao vivo estouradas no período. period: today, week, 7d, 15d, month, 30d ou custom (exige from/to ISO). period desconhecido ou custom sem from/to -> 400. Requer ADMIN ou AFFILIATE."
+					}
+				},
+				{
+					"name": "Get summary (month)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/dashboard?period=month",
+							"host": ["{{host}}"],
+							"path": ["api", "dashboard"],
+							"query": [{ "key": "period", "value": "month" }]
+						},
+						"description": "Período de calendário: do dia 1 do mês corrente até agora (UTC). Requer ADMIN ou AFFILIATE."
+					}
+				},
+				{
+					"name": "Get summary (custom range)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/dashboard?period=custom&from=2026-07-01&to=2026-07-07",
+							"host": ["{{host}}"],
+							"path": ["api", "dashboard"],
+							"query": [
+								{ "key": "period", "value": "custom" },
+								{ "key": "from", "value": "2026-07-01" },
+								{ "key": "to", "value": "2026-07-07" }
+							]
+						},
+						"description": "Intervalo [from, to] inclusivo (datas ISO yyyy-MM-dd). Sem from/to -> 400. Requer ADMIN ou AFFILIATE."
+					}
+				},
+				{
+					"name": "[Admin] List metrics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard/metrics?periodType=",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "dashboard", "metrics"],
+							"query": [{ "key": "periodType", "value": "" }]
+						},
+						"description": "Lista as métricas base cadastradas, filtrável por periodType (DAY, WEEK, MONTH, RANGE). Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Upsert metric",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"periodType\": \"DAY\",\n  \"periodRef\": \"2026-07-08\",\n  \"revenue\": 12500.00,\n  \"orders\": 340,\n  \"commission\": 1875.00,\n  \"avgTicket\": 36.76\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard/metrics",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "dashboard", "metrics"]
+						},
+						"description": "Cria ou atualiza a métrica base de um período (find-or-create por periodType+periodRef). Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Delete metric",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard/metrics/{{dashboardMetricId}}",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "dashboard", "metrics", "{{dashboardMetricId}}"]
+						},
+						"description": "Remove uma métrica base. Requer ADMIN. Retorna 204 No Content."
+					}
+				}
+			]
+		},
+		{
+			"name": "Live Sales",
+			"item": [
+				{
+					"name": "Get feed",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/live-sales",
+							"host": ["{{host}}"],
+							"path": ["api", "live-sales"]
+						},
+						"description": "Total/contagem de vendas de hoje + últimas 10 vendas ao vivo (prova social). Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "[Admin] Get config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/live-sales/config",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "live-sales", "config"]
+						},
+						"description": "Configuração atual de modo (DISABLED, MANUAL, AUTOMATIC) e intervalo em segundos. Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Update config",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mode\": \"AUTOMATIC\",\n  \"intervalSeconds\": 45\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/live-sales/config",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "live-sales", "config"]
+						},
+						"description": "Atualiza modo/intervalo. Em AUTOMATIC, o scheduler dispara vendas sozinho a cada intervalSeconds. Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Fire sale",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": null\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/live-sales/fire",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "live-sales", "fire"]
+						},
+						"description": "Dispara uma venda manualmente e publica no tópico STOMP /topic/live-sales. Sem productId (ou null), sorteia um produto ativo aleatório. Requer ADMIN."
+					}
+				}
+			]
+		},
+		{
 			"name": "Storage",
 			"item": [
 				{
@@ -542,17 +593,37 @@
 			"name": "Products",
 			"item": [
 				{
-					"name": "List products",
+					"name": "List products (search)",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/products?category=",
+							"raw": "{{host}}/api/products?search=&category=&window=&sort=&page=0&size=20",
 							"host": ["{{host}}"],
 							"path": ["api", "products"],
-							"query": [{ "key": "category", "value": "" }]
+							"query": [
+								{ "key": "search", "value": "" },
+								{ "key": "category", "value": "" },
+								{ "key": "window", "value": "" },
+								{ "key": "sort", "value": "" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" }
+							]
 						},
-						"description": "Vitrine de produtos minerados, filtrável por category (FAVORITOS, TOP_PRODUTOS, BELEZA_CUIDADOS, CASA_MAIS, SAUDE_FITNESS, MODA, TECNOLOGIA, ACESSORIOS). Qualquer usuário autenticado."
+						"description": "Vitrine de produtos minerados, paginada. search: busca por nome. category: FAVORITOS, TOP_PRODUTOS, BELEZA_CUIDADOS, CASA_MAIS, SAUDE_FITNESS, MODA, TECNOLOGIA, ACESSORIOS. window: janela de horário (W_00_06, W_06_12, W_12_18, W_18_24); valor inválido -> 400. sort: top (mais vendas/dia), recent (mais recentes) ou vazio (ranking padrão). Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "Mining status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products/mining-status",
+							"host": ["{{host}}"],
+							"path": ["api", "products", "mining-status"]
+						},
+						"description": "Cards do topo de Produtos Virais, derivados do catálogo real: newProductsCount (criados desde o último boundary de 6h), detectedRevenue (SUM estimatedRevenue = oportunidade de mercado, não faturamento da plataforma), secondsUntilNextRefresh (countdown determinístico ancorado no epoch) e online. Qualquer usuário autenticado."
 					}
 				},
 				{
@@ -566,6 +637,45 @@
 							"path": ["api", "products", "{{productId}}"]
 						},
 						"description": "Detalhe de um produto da vitrine. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "List my favorites",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products/me/favorites",
+							"host": ["{{host}}"],
+							"path": ["api", "products", "me", "favorites"]
+						},
+						"description": "Lista os produtos favoritados pelo usuário autenticado."
+					}
+				},
+				{
+					"name": "Favorite product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products/{{productId}}/favorite",
+							"host": ["{{host}}"],
+							"path": ["api", "products", "{{productId}}", "favorite"]
+						},
+						"description": "Marca um produto como favorito para o usuário autenticado. Idempotente. Retorna 204 No Content."
+					}
+				},
+				{
+					"name": "Unfavorite product",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/products/{{productId}}/favorite",
+							"host": ["{{host}}"],
+							"path": ["api", "products", "{{productId}}", "favorite"]
+						},
+						"description": "Remove um produto dos favoritos do usuário autenticado. Retorna 204 No Content."
 					}
 				},
 				{
@@ -696,153 +806,156 @@
 			]
 		},
 		{
-			"name": "Academy",
+			"name": "Notifications",
 			"item": [
 				{
-					"name": "List modules (with lessons)",
+					"name": "List notifications (inbox)",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/academy/modules",
+							"raw": "{{host}}/api/notifications?page=0&size=20",
 							"host": ["{{host}}"],
-							"path": ["api", "academy", "modules"]
+							"path": ["api", "notifications"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" }
+							]
 						},
-						"description": "Lista módulos ordenados com as aulas aninhadas (hierarquia Módulo → Aula). Aberto a qualquer usuário autenticado."
+						"description": "Caixa do sino do usuário logado, paginada. Exclui vendas (SALE, efêmeras) e avisos anteriores ao cadastro. Cada item traz a flag read. Qualquer usuário autenticado."
 					}
 				},
 				{
-					"name": "Get lesson by id",
+					"name": "Unread count",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/academy/lessons/{{lessonId}}",
+							"raw": "{{host}}/api/notifications/unread-count",
 							"host": ["{{host}}"],
-							"path": ["api", "academy", "lessons", "{{lessonId}}"]
+							"path": ["api", "notifications", "unread-count"]
 						},
-						"description": "Detalhe de uma aula (título, videoUrl, duração). videoUrl é um link externo (YouTube ou outro host gratuito) — não passa pelo Storage/S3."
+						"description": "Número de notificações não-lidas do usuário logado (badge do sino). Qualquer usuário autenticado."
 					}
 				},
 				{
-					"name": "[Admin] List all modules",
+					"name": "Mark read",
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/admin/academy/modules",
+							"raw": "{{host}}/api/notifications/{{notificationId}}/read",
 							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "modules"]
+							"path": ["api", "notifications", "{{notificationId}}", "read"]
 						},
-						"description": "Lista flat de módulos (sem aulas aninhadas) para o painel admin. Requer SUPER_ADMIN."
+						"description": "Marca uma notificação como lida (idempotente). Retorna 204. Qualquer usuário autenticado."
 					}
 				},
 				{
-					"name": "[Admin] Create module",
+					"name": "Mark all read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/notifications/read-all",
+							"host": ["{{host}}"],
+							"path": ["api", "notifications", "read-all"]
+						},
+						"description": "Marca toda a caixa como lida (bulk). Retorna 204. Qualquer usuário autenticado."
+					}
+				},
+				{
+					"name": "[Admin] Send notification",
 					"request": {
 						"method": "POST",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"title\": \"Fundamentos que vendem\",\n  \"description\": \"Os pilares de um conteúdo que converte.\",\n  \"orderIndex\": 1\n}"
+							"raw": "{\n  \"type\": \"ANNOUNCEMENT\",\n  \"title\": \"Aviso importante\",\n  \"body\": \"Nova leva de produtos minerados disponível.\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"targetUserIds\": []\n}"
 						},
 						"url": {
-							"raw": "{{host}}/api/admin/academy/modules",
+							"raw": "{{host}}/api/admin/notifications",
 							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "modules"]
+							"path": ["api", "admin", "notifications"]
 						},
-						"description": "Cria um módulo. Requer SUPER_ADMIN. Retorna 201 + Location."
+						"description": "Cria e dispara uma notificação. audience=ALL faz broadcast em /topic/notifications; audience=SELECTED exige targetUserIds e entrega em /user/queue/notifications a cada alvo. Retorna 201 + DTO. Requer ADMIN."
 					}
 				},
 				{
-					"name": "[Admin] Update module",
-					"request": {
-						"method": "PUT",
-						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Fundamentos que vendem (atualizado)\",\n  \"description\": \"Descrição atualizada.\",\n  \"orderIndex\": 1\n}"
-						},
-						"url": {
-							"raw": "{{host}}/api/admin/academy/modules/{{moduleId}}",
-							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "modules", "{{moduleId}}"]
-						},
-						"description": "Atualiza um módulo. Requer SUPER_ADMIN."
-					}
-				},
-				{
-					"name": "[Admin] Delete module",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/admin/academy/modules/{{moduleId}}",
-							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "modules", "{{moduleId}}"]
-						},
-						"description": "Remove um módulo. Requer SUPER_ADMIN. Retorna 409 se houver aulas vinculadas (module_id é NOT NULL sem cascade). Retorna 204 No Content quando bem-sucedido."
-					}
-				},
-				{
-					"name": "[Admin] List lessons by module",
+					"name": "[Admin] Sent history",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/admin/academy/lessons?moduleId={{moduleId}}",
+							"raw": "{{host}}/api/admin/notifications?page=0&size=20",
 							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "lessons"],
-							"query": [{ "key": "moduleId", "value": "{{moduleId}}" }]
+							"path": ["api", "admin", "notifications"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" }
+							]
 						},
-						"description": "Lista as aulas de um módulo para o painel admin. Requer SUPER_ADMIN."
+						"description": "Histórico de tudo que o admin enviou (todas as audiences/tipos), paginado. Requer ADMIN."
 					}
 				},
 				{
-					"name": "[Admin] Create lesson",
+					"name": "[Admin] List schedules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/notifications/schedules",
+							"host": ["{{host}}"],
+							"path": ["api", "admin", "notifications", "schedules"]
+						},
+						"description": "Lista as campanhas recorrentes agendadas. Requer ADMIN."
+					}
+				},
+				{
+					"name": "[Admin] Create schedule",
 					"request": {
 						"method": "POST",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"moduleId\": {{moduleId}},\n  \"title\": \"Boas-vindas e método\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=exemplo\",\n  \"orderIndex\": 1,\n  \"duration\": 420\n}"
+							"raw": "{\n  \"title\": \"Campanha recorrente\",\n  \"body\": \"Confira os produtos em alta agora!\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"type\": \"ANNOUNCEMENT\",\n  \"intervalSeconds\": 30,\n  \"active\": true\n}"
 						},
 						"url": {
-							"raw": "{{host}}/api/admin/academy/lessons",
+							"raw": "{{host}}/api/admin/notifications/schedules",
 							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "lessons"]
+							"path": ["api", "admin", "notifications", "schedules"]
 						},
-						"description": "Cria uma aula vinculada a um módulo. videoUrl é um link externo (YouTube ou outro host gratuito), gravado e hospedado fora do nosso storage. Requer SUPER_ADMIN. Retorna 201 + Location."
+						"description": "Agenda uma campanha recorrente: o scheduler dispara a cada intervalSeconds (> 0). Retorna 201 + DTO. Requer ADMIN."
 					}
 				},
 				{
-					"name": "[Admin] Update lesson",
+					"name": "[Admin] Update schedule",
 					"request": {
 						"method": "PUT",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"moduleId\": {{moduleId}},\n  \"title\": \"Boas-vindas e método (atualizado)\",\n  \"videoUrl\": \"https://www.youtube.com/watch?v=exemplo-v2\",\n  \"orderIndex\": 1,\n  \"duration\": 450\n}"
+							"raw": "{\n  \"title\": \"Campanha recorrente (pausada)\",\n  \"body\": \"Confira os produtos em alta agora!\",\n  \"imageUrl\": null,\n  \"clickUrl\": null,\n  \"audience\": \"ALL\",\n  \"type\": \"ANNOUNCEMENT\",\n  \"intervalSeconds\": 60,\n  \"active\": false\n}"
 						},
 						"url": {
-							"raw": "{{host}}/api/admin/academy/lessons/{{lessonId}}",
+							"raw": "{{host}}/api/admin/notifications/schedules/{{scheduleId}}",
 							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "lessons", "{{lessonId}}"]
+							"path": ["api", "admin", "notifications", "schedules", "{{scheduleId}}"]
 						},
-						"description": "Atualiza uma aula. Requer SUPER_ADMIN."
+						"description": "Atualiza uma campanha (ex: pausar via active=false ou trocar o intervalo). Requer ADMIN."
 					}
 				},
 				{
-					"name": "[Admin] Delete lesson",
+					"name": "[Admin] Delete schedule",
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/admin/academy/lessons/{{lessonId}}",
+							"raw": "{{host}}/api/admin/notifications/schedules/{{scheduleId}}",
 							"host": ["{{host}}"],
-							"path": ["api", "admin", "academy", "lessons", "{{lessonId}}"]
+							"path": ["api", "admin", "notifications", "schedules", "{{scheduleId}}"]
 						},
-						"description": "Remove uma aula. Requer SUPER_ADMIN. Retorna 204 No Content."
+						"description": "Remove uma campanha recorrente. Retorna 204. Requer ADMIN."
 					}
 				}
 			]
@@ -852,13 +965,12 @@
 		{ "key": "confirmToken", "value": "" },
 		{ "key": "recoverToken", "value": "" },
 		{ "key": "userId", "value": "" },
-		{ "key": "jobId", "value": "" },
-		{ "key": "creditPackageId", "value": "" },
 		{ "key": "avatarId", "value": "" },
 		{ "key": "insightId", "value": "" },
 		{ "key": "productId", "value": "" },
 		{ "key": "userProductId", "value": "" },
-		{ "key": "moduleId", "value": "" },
-		{ "key": "lessonId", "value": "" }
+		{ "key": "dashboardMetricId", "value": "" },
+		{ "key": "notificationId", "value": "" },
+		{ "key": "scheduleId", "value": "" }
 	]
 }

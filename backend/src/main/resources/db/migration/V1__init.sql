@@ -105,9 +105,8 @@ CREATE TABLE credit_transactions (
     wallet_id    BIGINT NOT NULL REFERENCES credit_wallets(id)
 );
 
--- ---------- Seed de roles ----------
+-- ---------- Seed de roles (3 níveis: ADM / Afiliado / Usuário) ----------
 INSERT INTO tb_role (authority, description) VALUES
-    ('ROLE_SUPER_ADMIN', 'Administrador máximo da plataforma'),
-    ('ROLE_ADMIN',       'Administrador'),
-    ('ROLE_OPERATOR',    'Operador'),
-    ('ROLE_CLIENT',      'Usuário cliente da plataforma');
+    ('ROLE_ADMIN',     'ADM — dono/sócios: faturamento, aprovação, marca afiliado, gerencia catálogo'),
+    ('ROLE_AFFILIATE', 'Afiliado — também vende: vê faturamento e libera acesso, sem gerenciar catálogo'),
+    ('ROLE_CLIENT',    'Usuário cliente da plataforma');

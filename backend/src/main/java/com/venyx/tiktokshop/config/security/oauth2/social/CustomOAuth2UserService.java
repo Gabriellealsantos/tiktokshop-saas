@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * Fluxo:
  * 1. Google retorna os dados do usuário (e-mail, nome, foto).
  * 2. Buscamos no banco pelo e-mail.
- *    - Se existir → usa o User com as roles existentes (SUPER_ADMIN continua SUPER_ADMIN).
+ *    - Se existir → usa o User com as roles existentes (ADM/Afiliado continuam iguais).
  *    - Se não existir → cria um novo User com ROLE_CLIENT e UserStatus.ACTIVE.
  * 3. Retorna um OidcUser com as authorities do nosso sistema.
  */

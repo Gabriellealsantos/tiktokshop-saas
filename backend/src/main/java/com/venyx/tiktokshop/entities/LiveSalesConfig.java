@@ -1,5 +1,6 @@
 package com.venyx.tiktokshop.entities;
 
+import com.venyx.tiktokshop.entities.enums.LiveSalesMode;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -7,6 +8,8 @@ import java.util.Objects;
 
 /**
  * Configuração global dos pop-ups de "vendas ao vivo" (prova social) (OPC-4).
+ * {@code mode} controla o disparo: DISABLED (parado), MANUAL (só via
+ * {@code POST /api/admin/live-sales/fire}) ou AUTOMATIC (job em {@code intervalSeconds}).
  */
 @Entity
 @Table(name = "live_sales_config")
@@ -16,8 +19,9 @@ public class LiveSalesConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private boolean enabled = false;
+    private LiveSalesMode mode = LiveSalesMode.DISABLED;
 
     @Column(name = "interval_seconds")
     private Integer intervalSeconds;
@@ -42,12 +46,12 @@ public class LiveSalesConfig {
         this.id = id;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public LiveSalesMode getMode() {
+        return mode;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setMode(LiveSalesMode mode) {
+        this.mode = mode;
     }
 
     public Integer getIntervalSeconds() {
