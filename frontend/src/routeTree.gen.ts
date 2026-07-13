@@ -10,31 +10,56 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrendBoostRouteImport } from './routes/trend-boost'
+import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as TemplatesRouteImport } from './routes/templates'
+import { Route as StudioRouteImport } from './routes/studio'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ReferralRouteImport } from './routes/referral'
 import { Route as PromptsRouteImport } from './routes/prompts'
-import { Route as ProdutosRouteImport } from './routes/produtos'
-import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as IndicacaoRouteImport } from './routes/indicacao'
-import { Route as FerramentasRouteImport } from './routes/ferramentas'
-import { Route as EstudioRouteImport } from './routes/estudio'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as CreditosRouteImport } from './routes/creditos'
-import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
-import { Route as CadastroRouteImport } from './routes/cadastro'
-import { Route as AvataresRouteImport } from './routes/avatares'
+import { Route as CreditsRouteImport } from './routes/credits'
+import { Route as CreateFromScratchRouteImport } from './routes/create-from-scratch'
+import { Route as CreateAvatarRouteImport } from './routes/create-avatar'
+import { Route as AvatarsRouteImport } from './routes/avatars'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as AcademyRouteImport } from './routes/academy'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TrendBoostIndexRouteImport } from './routes/trend-boost.index'
-import { Route as EstudioIndexRouteImport } from './routes/estudio.index'
+import { Route as TemplatesIndexRouteImport } from './routes/templates.index'
+import { Route as StudioIndexRouteImport } from './routes/studio.index'
+import { Route as CreateFromScratchIndexRouteImport } from './routes/create-from-scratch.index'
 import { Route as TrendBoostTemplateRouteImport } from './routes/trend-boost.$template'
-import { Route as EstudioFormatRouteImport } from './routes/estudio.$format'
+import { Route as TemplatesUseRouteImport } from './routes/templates.use'
+import { Route as StudioFormatRouteImport } from './routes/studio.$format'
+import { Route as GenerateViralTemplateRouteImport } from './routes/generate.viral-template'
+import { Route as CreateFromScratchScenarioRouteImport } from './routes/create-from-scratch.scenario'
+import { Route as CreateFromScratchPoseRouteImport } from './routes/create-from-scratch.pose'
+import { Route as TrendBoostTemplateIndexRouteImport } from './routes/trend-boost.$template.index'
+import { Route as TrendBoostTemplateCharacterIdRouteImport } from './routes/trend-boost.$template.$characterId'
 
 const TrendBoostRoute = TrendBoostRouteImport.update({
   id: '/trend-boost',
   path: '/trend-boost',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsRoute = ToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TemplatesRoute = TemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudioRoute = StudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -42,39 +67,39 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralRoute = ReferralRouteImport.update({
+  id: '/referral',
+  path: '/referral',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PromptsRoute = PromptsRouteImport.update({
   id: '/prompts',
   path: '/prompts',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProdutosRoute = ProdutosRouteImport.update({
-  id: '/produtos',
-  path: '/produtos',
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PerfilRoute = PerfilRouteImport.update({
-  id: '/perfil',
-  path: '/perfil',
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndicacaoRoute = IndicacaoRouteImport.update({
-  id: '/indicacao',
-  path: '/indicacao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FerramentasRoute = FerramentasRouteImport.update({
-  id: '/ferramentas',
-  path: '/ferramentas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EstudioRoute = EstudioRouteImport.update({
-  id: '/estudio',
-  path: '/estudio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorRoute = EditorRouteImport.update({
@@ -87,34 +112,29 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CreditosRoute = CreditosRouteImport.update({
-  id: '/creditos',
-  path: '/creditos',
+const CreditsRoute = CreditsRouteImport.update({
+  id: '/credits',
+  path: '/credits',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
+const CreateFromScratchRoute = CreateFromScratchRouteImport.update({
+  id: '/create-from-scratch',
+  path: '/create-from-scratch',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CadastroRoute = CadastroRouteImport.update({
-  id: '/cadastro',
-  path: '/cadastro',
+const CreateAvatarRoute = CreateAvatarRouteImport.update({
+  id: '/create-avatar',
+  path: '/create-avatar',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AvataresRoute = AvataresRouteImport.update({
-  id: '/avatares',
-  path: '/avatares',
+const AvatarsRoute = AvatarsRouteImport.update({
+  id: '/avatars',
+  path: '/avatars',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AcademyRoute = AcademyRouteImport.update({
-  id: '/academy',
-  path: '/academy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -127,185 +147,284 @@ const TrendBoostIndexRoute = TrendBoostIndexRouteImport.update({
   path: '/',
   getParentRoute: () => TrendBoostRoute,
 } as any)
-const EstudioIndexRoute = EstudioIndexRouteImport.update({
+const TemplatesIndexRoute = TemplatesIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => EstudioRoute,
+  getParentRoute: () => TemplatesRoute,
+} as any)
+const StudioIndexRoute = StudioIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudioRoute,
+} as any)
+const CreateFromScratchIndexRoute = CreateFromScratchIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CreateFromScratchRoute,
 } as any)
 const TrendBoostTemplateRoute = TrendBoostTemplateRouteImport.update({
   id: '/$template',
   path: '/$template',
   getParentRoute: () => TrendBoostRoute,
 } as any)
-const EstudioFormatRoute = EstudioFormatRouteImport.update({
+const TemplatesUseRoute = TemplatesUseRouteImport.update({
+  id: '/use',
+  path: '/use',
+  getParentRoute: () => TemplatesRoute,
+} as any)
+const StudioFormatRoute = StudioFormatRouteImport.update({
   id: '/$format',
   path: '/$format',
-  getParentRoute: () => EstudioRoute,
+  getParentRoute: () => StudioRoute,
 } as any)
+const GenerateViralTemplateRoute = GenerateViralTemplateRouteImport.update({
+  id: '/generate/viral-template',
+  path: '/generate/viral-template',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateFromScratchScenarioRoute =
+  CreateFromScratchScenarioRouteImport.update({
+    id: '/scenario',
+    path: '/scenario',
+    getParentRoute: () => CreateFromScratchRoute,
+  } as any)
+const CreateFromScratchPoseRoute = CreateFromScratchPoseRouteImport.update({
+  id: '/pose',
+  path: '/pose',
+  getParentRoute: () => CreateFromScratchRoute,
+} as any)
+const TrendBoostTemplateIndexRoute = TrendBoostTemplateIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TrendBoostTemplateRoute,
+} as any)
+const TrendBoostTemplateCharacterIdRoute =
+  TrendBoostTemplateCharacterIdRouteImport.update({
+    id: '/$characterId',
+    path: '/$characterId',
+    getParentRoute: () => TrendBoostTemplateRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
-  '/avatares': typeof AvataresRoute
-  '/cadastro': typeof CadastroRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/creditos': typeof CreditosRoute
+  '/avatars': typeof AvatarsRoute
+  '/create-avatar': typeof CreateAvatarRoute
+  '/create-from-scratch': typeof CreateFromScratchRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/dashboard': typeof DashboardRoute
   '/editor': typeof EditorRoute
-  '/estudio': typeof EstudioRouteWithChildren
-  '/ferramentas': typeof FerramentasRoute
-  '/indicacao': typeof IndicacaoRoute
   '/login': typeof LoginRoute
-  '/perfil': typeof PerfilRoute
-  '/produtos': typeof ProdutosRoute
+  '/products': typeof ProductsRoute
+  '/profile': typeof ProfileRoute
   '/prompts': typeof PromptsRoute
+  '/referral': typeof ReferralRoute
+  '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/studio': typeof StudioRouteWithChildren
+  '/templates': typeof TemplatesRouteWithChildren
+  '/tools': typeof ToolsRoute
   '/trend-boost': typeof TrendBoostRouteWithChildren
-  '/estudio/$format': typeof EstudioFormatRoute
-  '/trend-boost/$template': typeof TrendBoostTemplateRoute
-  '/estudio/': typeof EstudioIndexRoute
+  '/create-from-scratch/pose': typeof CreateFromScratchPoseRoute
+  '/create-from-scratch/scenario': typeof CreateFromScratchScenarioRoute
+  '/generate/viral-template': typeof GenerateViralTemplateRoute
+  '/studio/$format': typeof StudioFormatRoute
+  '/templates/use': typeof TemplatesUseRoute
+  '/trend-boost/$template': typeof TrendBoostTemplateRouteWithChildren
+  '/create-from-scratch/': typeof CreateFromScratchIndexRoute
+  '/studio/': typeof StudioIndexRoute
+  '/templates/': typeof TemplatesIndexRoute
   '/trend-boost/': typeof TrendBoostIndexRoute
+  '/trend-boost/$template/$characterId': typeof TrendBoostTemplateCharacterIdRoute
+  '/trend-boost/$template/': typeof TrendBoostTemplateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
-  '/avatares': typeof AvataresRoute
-  '/cadastro': typeof CadastroRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/creditos': typeof CreditosRoute
+  '/avatars': typeof AvatarsRoute
+  '/create-avatar': typeof CreateAvatarRoute
+  '/credits': typeof CreditsRoute
   '/dashboard': typeof DashboardRoute
   '/editor': typeof EditorRoute
-  '/ferramentas': typeof FerramentasRoute
-  '/indicacao': typeof IndicacaoRoute
   '/login': typeof LoginRoute
-  '/perfil': typeof PerfilRoute
-  '/produtos': typeof ProdutosRoute
+  '/products': typeof ProductsRoute
+  '/profile': typeof ProfileRoute
   '/prompts': typeof PromptsRoute
+  '/referral': typeof ReferralRoute
+  '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/estudio/$format': typeof EstudioFormatRoute
-  '/trend-boost/$template': typeof TrendBoostTemplateRoute
-  '/estudio': typeof EstudioIndexRoute
+  '/tools': typeof ToolsRoute
+  '/create-from-scratch/pose': typeof CreateFromScratchPoseRoute
+  '/create-from-scratch/scenario': typeof CreateFromScratchScenarioRoute
+  '/generate/viral-template': typeof GenerateViralTemplateRoute
+  '/studio/$format': typeof StudioFormatRoute
+  '/templates/use': typeof TemplatesUseRoute
+  '/create-from-scratch': typeof CreateFromScratchIndexRoute
+  '/studio': typeof StudioIndexRoute
+  '/templates': typeof TemplatesIndexRoute
   '/trend-boost': typeof TrendBoostIndexRoute
+  '/trend-boost/$template/$characterId': typeof TrendBoostTemplateCharacterIdRoute
+  '/trend-boost/$template': typeof TrendBoostTemplateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/academy': typeof AcademyRoute
   '/admin': typeof AdminRoute
-  '/avatares': typeof AvataresRoute
-  '/cadastro': typeof CadastroRoute
-  '/configuracoes': typeof ConfiguracoesRoute
-  '/creditos': typeof CreditosRoute
+  '/avatars': typeof AvatarsRoute
+  '/create-avatar': typeof CreateAvatarRoute
+  '/create-from-scratch': typeof CreateFromScratchRouteWithChildren
+  '/credits': typeof CreditsRoute
   '/dashboard': typeof DashboardRoute
   '/editor': typeof EditorRoute
-  '/estudio': typeof EstudioRouteWithChildren
-  '/ferramentas': typeof FerramentasRoute
-  '/indicacao': typeof IndicacaoRoute
   '/login': typeof LoginRoute
-  '/perfil': typeof PerfilRoute
-  '/produtos': typeof ProdutosRoute
+  '/products': typeof ProductsRoute
+  '/profile': typeof ProfileRoute
   '/prompts': typeof PromptsRoute
+  '/referral': typeof ReferralRoute
+  '/register': typeof RegisterRoute
+  '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/studio': typeof StudioRouteWithChildren
+  '/templates': typeof TemplatesRouteWithChildren
+  '/tools': typeof ToolsRoute
   '/trend-boost': typeof TrendBoostRouteWithChildren
-  '/estudio/$format': typeof EstudioFormatRoute
-  '/trend-boost/$template': typeof TrendBoostTemplateRoute
-  '/estudio/': typeof EstudioIndexRoute
+  '/create-from-scratch/pose': typeof CreateFromScratchPoseRoute
+  '/create-from-scratch/scenario': typeof CreateFromScratchScenarioRoute
+  '/generate/viral-template': typeof GenerateViralTemplateRoute
+  '/studio/$format': typeof StudioFormatRoute
+  '/templates/use': typeof TemplatesUseRoute
+  '/trend-boost/$template': typeof TrendBoostTemplateRouteWithChildren
+  '/create-from-scratch/': typeof CreateFromScratchIndexRoute
+  '/studio/': typeof StudioIndexRoute
+  '/templates/': typeof TemplatesIndexRoute
   '/trend-boost/': typeof TrendBoostIndexRoute
+  '/trend-boost/$template/$characterId': typeof TrendBoostTemplateCharacterIdRoute
+  '/trend-boost/$template/': typeof TrendBoostTemplateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/academy'
     | '/admin'
-    | '/avatares'
-    | '/cadastro'
-    | '/configuracoes'
-    | '/creditos'
+    | '/avatars'
+    | '/create-avatar'
+    | '/create-from-scratch'
+    | '/credits'
     | '/dashboard'
     | '/editor'
-    | '/estudio'
-    | '/ferramentas'
-    | '/indicacao'
     | '/login'
-    | '/perfil'
-    | '/produtos'
+    | '/products'
+    | '/profile'
     | '/prompts'
+    | '/referral'
+    | '/register'
+    | '/settings'
     | '/sitemap.xml'
+    | '/studio'
+    | '/templates'
+    | '/tools'
     | '/trend-boost'
-    | '/estudio/$format'
+    | '/create-from-scratch/pose'
+    | '/create-from-scratch/scenario'
+    | '/generate/viral-template'
+    | '/studio/$format'
+    | '/templates/use'
     | '/trend-boost/$template'
-    | '/estudio/'
+    | '/create-from-scratch/'
+    | '/studio/'
+    | '/templates/'
     | '/trend-boost/'
+    | '/trend-boost/$template/$characterId'
+    | '/trend-boost/$template/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/academy'
     | '/admin'
-    | '/avatares'
-    | '/cadastro'
-    | '/configuracoes'
-    | '/creditos'
+    | '/avatars'
+    | '/create-avatar'
+    | '/credits'
     | '/dashboard'
     | '/editor'
-    | '/ferramentas'
-    | '/indicacao'
     | '/login'
-    | '/perfil'
-    | '/produtos'
+    | '/products'
+    | '/profile'
     | '/prompts'
+    | '/referral'
+    | '/register'
+    | '/settings'
     | '/sitemap.xml'
-    | '/estudio/$format'
-    | '/trend-boost/$template'
-    | '/estudio'
+    | '/tools'
+    | '/create-from-scratch/pose'
+    | '/create-from-scratch/scenario'
+    | '/generate/viral-template'
+    | '/studio/$format'
+    | '/templates/use'
+    | '/create-from-scratch'
+    | '/studio'
+    | '/templates'
     | '/trend-boost'
+    | '/trend-boost/$template/$characterId'
+    | '/trend-boost/$template'
   id:
     | '__root__'
     | '/'
-    | '/academy'
     | '/admin'
-    | '/avatares'
-    | '/cadastro'
-    | '/configuracoes'
-    | '/creditos'
+    | '/avatars'
+    | '/create-avatar'
+    | '/create-from-scratch'
+    | '/credits'
     | '/dashboard'
     | '/editor'
-    | '/estudio'
-    | '/ferramentas'
-    | '/indicacao'
     | '/login'
-    | '/perfil'
-    | '/produtos'
+    | '/products'
+    | '/profile'
     | '/prompts'
+    | '/referral'
+    | '/register'
+    | '/settings'
     | '/sitemap.xml'
+    | '/studio'
+    | '/templates'
+    | '/tools'
     | '/trend-boost'
-    | '/estudio/$format'
+    | '/create-from-scratch/pose'
+    | '/create-from-scratch/scenario'
+    | '/generate/viral-template'
+    | '/studio/$format'
+    | '/templates/use'
     | '/trend-boost/$template'
-    | '/estudio/'
+    | '/create-from-scratch/'
+    | '/studio/'
+    | '/templates/'
     | '/trend-boost/'
+    | '/trend-boost/$template/$characterId'
+    | '/trend-boost/$template/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AcademyRoute: typeof AcademyRoute
   AdminRoute: typeof AdminRoute
-  AvataresRoute: typeof AvataresRoute
-  CadastroRoute: typeof CadastroRoute
-  ConfiguracoesRoute: typeof ConfiguracoesRoute
-  CreditosRoute: typeof CreditosRoute
+  AvatarsRoute: typeof AvatarsRoute
+  CreateAvatarRoute: typeof CreateAvatarRoute
+  CreateFromScratchRoute: typeof CreateFromScratchRouteWithChildren
+  CreditsRoute: typeof CreditsRoute
   DashboardRoute: typeof DashboardRoute
   EditorRoute: typeof EditorRoute
-  EstudioRoute: typeof EstudioRouteWithChildren
-  FerramentasRoute: typeof FerramentasRoute
-  IndicacaoRoute: typeof IndicacaoRoute
   LoginRoute: typeof LoginRoute
-  PerfilRoute: typeof PerfilRoute
-  ProdutosRoute: typeof ProdutosRoute
+  ProductsRoute: typeof ProductsRoute
+  ProfileRoute: typeof ProfileRoute
   PromptsRoute: typeof PromptsRoute
+  ReferralRoute: typeof ReferralRoute
+  RegisterRoute: typeof RegisterRoute
+  SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StudioRoute: typeof StudioRouteWithChildren
+  TemplatesRoute: typeof TemplatesRouteWithChildren
+  ToolsRoute: typeof ToolsRoute
   TrendBoostRoute: typeof TrendBoostRouteWithChildren
+  GenerateViralTemplateRoute: typeof GenerateViralTemplateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -317,11 +436,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrendBoostRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tools': {
+      id: '/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/templates': {
+      id: '/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof TemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/studio': {
+      id: '/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof StudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referral': {
+      id: '/referral'
+      path: '/referral'
+      fullPath: '/referral'
+      preLoaderRoute: typeof ReferralRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prompts': {
@@ -331,18 +492,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PromptsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/produtos': {
-      id: '/produtos'
-      path: '/produtos'
-      fullPath: '/produtos'
-      preLoaderRoute: typeof ProdutosRouteImport
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/perfil': {
-      id: '/perfil'
-      path: '/perfil'
-      fullPath: '/perfil'
-      preLoaderRoute: typeof PerfilRouteImport
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -350,27 +511,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/indicacao': {
-      id: '/indicacao'
-      path: '/indicacao'
-      fullPath: '/indicacao'
-      preLoaderRoute: typeof IndicacaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ferramentas': {
-      id: '/ferramentas'
-      path: '/ferramentas'
-      fullPath: '/ferramentas'
-      preLoaderRoute: typeof FerramentasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/estudio': {
-      id: '/estudio'
-      path: '/estudio'
-      fullPath: '/estudio'
-      preLoaderRoute: typeof EstudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor': {
@@ -387,32 +527,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/creditos': {
-      id: '/creditos'
-      path: '/creditos'
-      fullPath: '/creditos'
-      preLoaderRoute: typeof CreditosRouteImport
+    '/credits': {
+      id: '/credits'
+      path: '/credits'
+      fullPath: '/credits'
+      preLoaderRoute: typeof CreditsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/configuracoes': {
-      id: '/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof ConfiguracoesRouteImport
+    '/create-from-scratch': {
+      id: '/create-from-scratch'
+      path: '/create-from-scratch'
+      fullPath: '/create-from-scratch'
+      preLoaderRoute: typeof CreateFromScratchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/cadastro': {
-      id: '/cadastro'
-      path: '/cadastro'
-      fullPath: '/cadastro'
-      preLoaderRoute: typeof CadastroRouteImport
+    '/create-avatar': {
+      id: '/create-avatar'
+      path: '/create-avatar'
+      fullPath: '/create-avatar'
+      preLoaderRoute: typeof CreateAvatarRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/avatares': {
-      id: '/avatares'
-      path: '/avatares'
-      fullPath: '/avatares'
-      preLoaderRoute: typeof AvataresRouteImport
+    '/avatars': {
+      id: '/avatars'
+      path: '/avatars'
+      fullPath: '/avatars'
+      preLoaderRoute: typeof AvatarsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -420,13 +560,6 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/academy': {
-      id: '/academy'
-      path: '/academy'
-      fullPath: '/academy'
-      preLoaderRoute: typeof AcademyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -443,12 +576,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrendBoostIndexRouteImport
       parentRoute: typeof TrendBoostRoute
     }
-    '/estudio/': {
-      id: '/estudio/'
+    '/templates/': {
+      id: '/templates/'
       path: '/'
-      fullPath: '/estudio/'
-      preLoaderRoute: typeof EstudioIndexRouteImport
-      parentRoute: typeof EstudioRoute
+      fullPath: '/templates/'
+      preLoaderRoute: typeof TemplatesIndexRouteImport
+      parentRoute: typeof TemplatesRoute
+    }
+    '/studio/': {
+      id: '/studio/'
+      path: '/'
+      fullPath: '/studio/'
+      preLoaderRoute: typeof StudioIndexRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/create-from-scratch/': {
+      id: '/create-from-scratch/'
+      path: '/'
+      fullPath: '/create-from-scratch/'
+      preLoaderRoute: typeof CreateFromScratchIndexRouteImport
+      parentRoute: typeof CreateFromScratchRoute
     }
     '/trend-boost/$template': {
       id: '/trend-boost/$template'
@@ -457,36 +604,120 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrendBoostTemplateRouteImport
       parentRoute: typeof TrendBoostRoute
     }
-    '/estudio/$format': {
-      id: '/estudio/$format'
+    '/templates/use': {
+      id: '/templates/use'
+      path: '/use'
+      fullPath: '/templates/use'
+      preLoaderRoute: typeof TemplatesUseRouteImport
+      parentRoute: typeof TemplatesRoute
+    }
+    '/studio/$format': {
+      id: '/studio/$format'
       path: '/$format'
-      fullPath: '/estudio/$format'
-      preLoaderRoute: typeof EstudioFormatRouteImport
-      parentRoute: typeof EstudioRoute
+      fullPath: '/studio/$format'
+      preLoaderRoute: typeof StudioFormatRouteImport
+      parentRoute: typeof StudioRoute
+    }
+    '/generate/viral-template': {
+      id: '/generate/viral-template'
+      path: '/generate/viral-template'
+      fullPath: '/generate/viral-template'
+      preLoaderRoute: typeof GenerateViralTemplateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create-from-scratch/scenario': {
+      id: '/create-from-scratch/scenario'
+      path: '/scenario'
+      fullPath: '/create-from-scratch/scenario'
+      preLoaderRoute: typeof CreateFromScratchScenarioRouteImport
+      parentRoute: typeof CreateFromScratchRoute
+    }
+    '/create-from-scratch/pose': {
+      id: '/create-from-scratch/pose'
+      path: '/pose'
+      fullPath: '/create-from-scratch/pose'
+      preLoaderRoute: typeof CreateFromScratchPoseRouteImport
+      parentRoute: typeof CreateFromScratchRoute
+    }
+    '/trend-boost/$template/': {
+      id: '/trend-boost/$template/'
+      path: '/'
+      fullPath: '/trend-boost/$template/'
+      preLoaderRoute: typeof TrendBoostTemplateIndexRouteImport
+      parentRoute: typeof TrendBoostTemplateRoute
+    }
+    '/trend-boost/$template/$characterId': {
+      id: '/trend-boost/$template/$characterId'
+      path: '/$characterId'
+      fullPath: '/trend-boost/$template/$characterId'
+      preLoaderRoute: typeof TrendBoostTemplateCharacterIdRouteImport
+      parentRoute: typeof TrendBoostTemplateRoute
     }
   }
 }
 
-interface EstudioRouteChildren {
-  EstudioFormatRoute: typeof EstudioFormatRoute
-  EstudioIndexRoute: typeof EstudioIndexRoute
+interface CreateFromScratchRouteChildren {
+  CreateFromScratchPoseRoute: typeof CreateFromScratchPoseRoute
+  CreateFromScratchScenarioRoute: typeof CreateFromScratchScenarioRoute
+  CreateFromScratchIndexRoute: typeof CreateFromScratchIndexRoute
 }
 
-const EstudioRouteChildren: EstudioRouteChildren = {
-  EstudioFormatRoute: EstudioFormatRoute,
-  EstudioIndexRoute: EstudioIndexRoute,
+const CreateFromScratchRouteChildren: CreateFromScratchRouteChildren = {
+  CreateFromScratchPoseRoute: CreateFromScratchPoseRoute,
+  CreateFromScratchScenarioRoute: CreateFromScratchScenarioRoute,
+  CreateFromScratchIndexRoute: CreateFromScratchIndexRoute,
 }
 
-const EstudioRouteWithChildren =
-  EstudioRoute._addFileChildren(EstudioRouteChildren)
+const CreateFromScratchRouteWithChildren =
+  CreateFromScratchRoute._addFileChildren(CreateFromScratchRouteChildren)
+
+interface StudioRouteChildren {
+  StudioFormatRoute: typeof StudioFormatRoute
+  StudioIndexRoute: typeof StudioIndexRoute
+}
+
+const StudioRouteChildren: StudioRouteChildren = {
+  StudioFormatRoute: StudioFormatRoute,
+  StudioIndexRoute: StudioIndexRoute,
+}
+
+const StudioRouteWithChildren =
+  StudioRoute._addFileChildren(StudioRouteChildren)
+
+interface TemplatesRouteChildren {
+  TemplatesUseRoute: typeof TemplatesUseRoute
+  TemplatesIndexRoute: typeof TemplatesIndexRoute
+}
+
+const TemplatesRouteChildren: TemplatesRouteChildren = {
+  TemplatesUseRoute: TemplatesUseRoute,
+  TemplatesIndexRoute: TemplatesIndexRoute,
+}
+
+const TemplatesRouteWithChildren = TemplatesRoute._addFileChildren(
+  TemplatesRouteChildren,
+)
+
+interface TrendBoostTemplateRouteChildren {
+  TrendBoostTemplateCharacterIdRoute: typeof TrendBoostTemplateCharacterIdRoute
+  TrendBoostTemplateIndexRoute: typeof TrendBoostTemplateIndexRoute
+}
+
+const TrendBoostTemplateRouteChildren: TrendBoostTemplateRouteChildren = {
+  TrendBoostTemplateCharacterIdRoute: TrendBoostTemplateCharacterIdRoute,
+  TrendBoostTemplateIndexRoute: TrendBoostTemplateIndexRoute,
+}
+
+const TrendBoostTemplateRouteWithChildren =
+  TrendBoostTemplateRoute._addFileChildren(TrendBoostTemplateRouteChildren)
 
 interface TrendBoostRouteChildren {
-  TrendBoostTemplateRoute: typeof TrendBoostTemplateRoute
+  TrendBoostTemplateRoute: typeof TrendBoostTemplateRouteWithChildren
   TrendBoostIndexRoute: typeof TrendBoostIndexRoute
 }
 
 const TrendBoostRouteChildren: TrendBoostRouteChildren = {
-  TrendBoostTemplateRoute: TrendBoostTemplateRoute,
+  TrendBoostTemplateRoute: TrendBoostTemplateRouteWithChildren,
   TrendBoostIndexRoute: TrendBoostIndexRoute,
 }
 
@@ -496,23 +727,26 @@ const TrendBoostRouteWithChildren = TrendBoostRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AcademyRoute: AcademyRoute,
   AdminRoute: AdminRoute,
-  AvataresRoute: AvataresRoute,
-  CadastroRoute: CadastroRoute,
-  ConfiguracoesRoute: ConfiguracoesRoute,
-  CreditosRoute: CreditosRoute,
+  AvatarsRoute: AvatarsRoute,
+  CreateAvatarRoute: CreateAvatarRoute,
+  CreateFromScratchRoute: CreateFromScratchRouteWithChildren,
+  CreditsRoute: CreditsRoute,
   DashboardRoute: DashboardRoute,
   EditorRoute: EditorRoute,
-  EstudioRoute: EstudioRouteWithChildren,
-  FerramentasRoute: FerramentasRoute,
-  IndicacaoRoute: IndicacaoRoute,
   LoginRoute: LoginRoute,
-  PerfilRoute: PerfilRoute,
-  ProdutosRoute: ProdutosRoute,
+  ProductsRoute: ProductsRoute,
+  ProfileRoute: ProfileRoute,
   PromptsRoute: PromptsRoute,
+  ReferralRoute: ReferralRoute,
+  RegisterRoute: RegisterRoute,
+  SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StudioRoute: StudioRouteWithChildren,
+  TemplatesRoute: TemplatesRouteWithChildren,
+  ToolsRoute: ToolsRoute,
   TrendBoostRoute: TrendBoostRouteWithChildren,
+  GenerateViralTemplateRoute: GenerateViralTemplateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

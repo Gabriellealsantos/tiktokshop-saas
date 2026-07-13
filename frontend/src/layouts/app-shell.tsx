@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
-  BookOpen,
   Boxes,
   BadgeDollarSign,
   ChartNoAxesCombined,
@@ -20,39 +19,30 @@ import {
   User,
   WandSparkles,
   Zap,
+  Film,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
 
-import { BrandMark } from "@/components/base/brand-mark";
+import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components";
 import { SignatureBackground } from "@/layouts/signature-background";
 import { NotificationsBell, useNotifications } from "@/layouts/notifications-panel";
-import { useMockSession } from "@/lib/mock-session";
-import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { useMockSession } from "@/context/mock-session";
+import { cn } from "@/utils/utils";
 
 const toolbar = [
   ["/", Gauge, "Início"],
-  ["/produtos", Boxes, "Produtos"],
-  ["/estudio", Clapperboard, "Estúdio"],
+  ["/products", Boxes, "Produtos"],
+  ["/avatars", User, "Avatares"],
+  ["/templates", Film, "Modelos"],
   ["/trend-boost", Zap, "Boost"],
-  ["/avatares", WandSparkles, "Avatares"],
-  ["/ferramentas", Sparkles, "IA"],
-  ["/academy", BookOpen, "Academy"],
 ] as const;
 
 const MotionLink = motion.create(Link);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (state) => state.location.pathname });
-  const { role, toggleRole, credits } = useMockSession();
+  const { role, toggleRole } = useMockSession();
   const [isDark, setIsDark] = useState(true);
   const { notifications } = useNotifications();
   // We filtered 'venda' in the hook, so we just take the first
@@ -70,17 +60,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <nav className="hidden items-center gap-1 lg:flex">
               <Link
-                to="/dashboard"
-                className={cn(
-                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                  path.startsWith("/dashboard")
-                    ? "bg-white/10 text-white"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white",
-                )}
-              >
-                Painel
-              </Link>
-              <Link
                 to="/admin"
                 className={cn(
                   "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
@@ -92,50 +71,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 Admin
               </Link>
-              <Link
-                to="/prompts"
-                className={cn(
-                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                  path.startsWith("/prompts")
-                    ? "bg-white/10 text-white"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white",
-                )}
-              >
-                Prompts
-              </Link>
-              <Link
-                to="/editor"
-                className={cn(
-                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                  path.startsWith("/editor")
-                    ? "bg-white/10 text-white"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white",
-                )}
-              >
-                TokEditor
-              </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
-            <Link
-              to="/creditos"
-              aria-label="Comprar créditos"
-              className="flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-white shadow-sm transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 cursor-pointer"
-            >
-              <Sparkles className="size-3.5 text-violet-400" />
-              <span>{credits} cred</span>
-            </Link>
-
             <MotionLink
-              to="/indicacao"
+              to="/referral"
               className="hidden sm:block"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               transition={{ duration: 0.15 }}
             >
               <div className="flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-white shadow-sm hover:bg-white/10 transition-colors">
-                <Gift className="size-3.5 text-violet-400" />
+                <Gift className="size-3.5 text-brand-400" />
                 Indique e Ganhe
               </div>
             </MotionLink>
@@ -146,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className={cn(
                   "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
                   role === "admin"
-                    ? "bg-violet-600 text-white shadow-md"
+                    ? "btn-brand"
                     : "text-zinc-500 hover:text-zinc-300",
                 )}
               >
@@ -157,7 +105,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 className={cn(
                   "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
                   role === "creator"
-                    ? "bg-violet-600 text-white shadow-md"
+                    ? "btn-brand"
                     : "text-zinc-500 hover:text-zinc-300",
                 )}
               >
@@ -183,7 +131,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.15 }}
-                  className="flex size-9 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white shadow-md hover:bg-violet-500 transition-colors"
+                  className="flex size-9 items-center justify-center rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
                 >
                   {role === "admin" ? "A" : "C"}
                 </motion.button>
@@ -196,7 +144,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   asChild
                   className="focus:bg-white/10 focus:text-white cursor-pointer"
                 >
-                  <Link to="/perfil" className="flex w-full items-center gap-2">
+                  <Link to="/profile" className="flex w-full items-center gap-2">
                     <User className="size-4" />
                     Perfil
                   </Link>
@@ -207,7 +155,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     asChild
                     className="focus:bg-white/10 focus:text-white cursor-pointer"
                   >
-                    <Link to="/admin" className="flex w-full items-center gap-2 text-violet-400 focus:text-violet-300">
+                    <Link to="/admin" className="flex w-full items-center gap-2 text-brand-400 focus:text-brand-300">
                       <ShieldCheck className="size-4" />
                       Painel Admin
                     </Link>
@@ -220,7 +168,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   asChild
                   className="focus:bg-white/10 focus:text-white cursor-pointer"
                 >
-                  <Link to="/configuracoes" className="flex w-full items-center gap-2">
+                  <Link to="/settings" className="flex w-full items-center gap-2">
                     <Settings className="size-4" />
                     Configurações
                   </Link>
@@ -235,7 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="pt-24">{children}</main>
+      <main className="pt-28">{children}</main>
 
       <nav className="glass-surface glass-surface--floating fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full p-2" style={{ backdropFilter: 'blur(24px) saturate(140%)' }}>
         <TooltipProvider delayDuration={100}>
@@ -252,7 +200,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     {active && (
                       <motion.div
                         layoutId="dock-indicator"
-                        className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600"
+                        className="absolute inset-0 rounded-full btn-brand"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                       />
                     )}
