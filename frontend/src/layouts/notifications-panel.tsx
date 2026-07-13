@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import { Bell, Gift, Info, Settings, ShoppingBag, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 // --- STORE LOGIC (TODO: Connect to real backend) ---
 export type NotificationType = "venda" | "sistema" | "indicacao" | "info";
@@ -51,7 +50,7 @@ class NotificationsStore {
       type: "info",
       read: false,
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-      link: "/produtos",
+      link: "/products",
     },
     {
       id: "3",
@@ -129,7 +128,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
         <div className="flex items-center gap-2">
           <h2 className="font-semibold text-text-1">Notificações</h2>
           {unreadCount > 0 && (
-            <span className="grid place-items-center rounded-full bg-violet-500/20 px-2 py-0.5 text-xs font-medium text-violet-300">
+            <span className="grid place-items-center rounded-full bg-brand-500/20 px-2 py-0.5 text-xs font-medium text-brand-300">
               {unreadCount}
             </span>
           )}
@@ -137,7 +136,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
-            className="text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors"
+            className="text-xs font-medium text-brand-400 hover:text-brand-300 transition-colors"
           >
             Marcar todas como lidas
           </button>
@@ -170,12 +169,12 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
                   "group relative flex items-start gap-3 rounded-[16px] border p-3 transition-colors",
                   n.read
                     ? "border-white/5 bg-surface-2/30 hover:bg-surface-2"
-                    : "border-violet-500/20 bg-violet-500/10 hover:bg-violet-500/20"
+                    : "border-brand-500/20 bg-brand-500/10 hover:bg-brand-500/20"
                 )}
               >
                 {/* Unread indicator dot */}
                 {!n.read && (
-                  <span className="absolute -left-1 -top-1 size-2.5 rounded-full bg-violet-500 ring-2 ring-surface-1" />
+                  <span className="absolute -left-1 -top-1 size-2.5 rounded-full bg-brand-500 ring-2 ring-surface-1" />
                 )}
 
                 {/* Icon or Thumbnail */}
@@ -196,7 +195,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
                           ? "bg-orange-500/20 text-orange-500"
                           : n.type === "sistema"
                             ? "bg-blue-500/20 text-blue-500"
-                            : "bg-violet-500/20 text-violet-400"
+                            : "bg-brand-500/20 text-brand-400"
                     )}
                   >
                     {n.type === "venda" ? (
@@ -286,7 +285,7 @@ export function NotificationsBell() {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ duration: 0.15 }}
-      className="relative grid size-9 place-items-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+      className="relative grid size-9 place-items-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label="Notificações"
       aria-haspopup="dialog"
       aria-expanded={open}
@@ -296,7 +295,7 @@ export function NotificationsBell() {
         <motion.span
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute right-2 top-2 size-2 rounded-full bg-violet-500 ring-2 ring-zinc-950"
+          className="absolute right-2 top-2 size-2 rounded-full bg-brand-500 ring-2 ring-zinc-950"
         />
       )}
     </motion.button>
