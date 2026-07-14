@@ -1,23 +1,17 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Bell,
   Boxes,
   BadgeDollarSign,
   ChartNoAxesCombined,
-  ChevronDown,
-  Clapperboard,
-  Coins,
   Gauge,
   Gift,
   Menu,
   Moon,
   Settings,
   ShieldCheck,
-  Sparkles,
   Sun,
   User,
-  WandSparkles,
   Zap,
   Film,
 } from "lucide-react";
@@ -101,10 +95,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 Admin
               </button>
               <button
-                onClick={() => role !== "creator" && toggleRole()}
+                onClick={() => role !== "user" && toggleRole()}
                 className={cn(
                   "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
-                  role === "creator"
+                  role === "user"
                     ? "btn-brand"
                     : "text-zinc-500 hover:text-zinc-300",
                 )}

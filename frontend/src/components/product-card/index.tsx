@@ -1,4 +1,4 @@
-import { Eye, Heart, ShoppingBag } from "lucide-react";
+import { Heart } from "lucide-react";
 import type { Product } from "@/services/data";
 import { Pill } from "@/components/primitives";
 import { cn } from "@/utils/utils";
