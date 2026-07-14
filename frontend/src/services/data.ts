@@ -35,7 +35,14 @@ export const products: Product[] = Array.from({ length: 91 }, (_, index) => ({
   favorite: index % 11 === 0,
 }));
 
-export const avatars = [
+export type Avatar = {
+  id: number;
+  name: string;
+  gender: string;
+  image: string;
+};
+
+export const avatars: Avatar[] = [
   {
     id: 1,
     name: "Camila Rocha",
