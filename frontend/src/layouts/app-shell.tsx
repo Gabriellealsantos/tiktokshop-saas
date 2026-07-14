@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useLocation } from "react-router-dom";
 import {
   Bell,
   Boxes,
@@ -41,7 +41,7 @@ const toolbar = [
 const MotionLink = motion.create(Link);
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const path = useRouterState({ select: (state) => state.location.pathname });
+  const path = useLocation().pathname;
   const { role, toggleRole } = useMockSession();
   const [isDark, setIsDark] = useState(true);
   const { notifications } = useNotifications();

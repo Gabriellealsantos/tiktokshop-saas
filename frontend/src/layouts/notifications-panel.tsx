@@ -3,7 +3,7 @@ import { Bell, Gift, Info, Settings, ShoppingBag, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Popover, PopoverContent, PopoverTrigger, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components";
 import { motion, AnimatePresence } from "motion/react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/utils/utils";
@@ -217,7 +217,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
                     markAsRead(n.id);
                     if (n.link) {
                       closePanel();
-                      navigate({ to: n.link });
+                      navigate(n.link);
                     }
                   }}
                 >
@@ -264,7 +264,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
         <button
           onClick={() => {
             closePanel();
-            navigate({ to: "/dashboard" }); // No notifications route explicitly, fallback
+            navigate("/dashboard"); // No notifications route explicitly, fallback
           }}
           className="w-full rounded-lg py-2 text-center text-xs font-medium text-text-3 hover:bg-white/5 hover:text-text-1 transition-colors"
         >

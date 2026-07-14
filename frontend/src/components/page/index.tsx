@@ -47,16 +47,21 @@ export function PageHeader({
 export function SectionTitle({
   title,
   description,
+  icon,
   action,
 }: {
   title: string;
   description?: string;
+  icon?: ReactNode;
   action?: ReactNode;
 }) {
   return (
     <div className="mb-4 flex items-end justify-between gap-4">
       <div>
-        <h2 className="text-lg font-bold text-text-1">{title}</h2>
+        <div className="flex items-center gap-2">
+          {icon}
+          <h2 className="text-lg font-bold text-text-1">{title}</h2>
+        </div>
         {description && <p className="mt-1 text-xs text-text-2">{description}</p>}
       </div>
       {action}

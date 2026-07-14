@@ -41,6 +41,7 @@ export * from "./resizable";
 export * from "./scroll-area";
 export * from "./select";
 export * from "./separator";
+export * from "./shared-models-view";
 export * from "./sheet";
 export * from "./sidebar";
 export * from "./skeleton";
