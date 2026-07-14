@@ -1,0 +1,69 @@
+import { Routes, Route } from "react-router-dom";
+import { PrivateRoute } from "@/components/private-route";
+
+import IndexRoute from "@/routes/home";
+import LoginRoute from "@/routes/login";
+import RegisterRoute from "@/routes/register";
+import DashboardRoute from "@/routes/dashboard";
+import AdminScreen from "@/routes/admin";
+import AvatarsList from "@/routes/avatars";
+import AvatarStudio from "@/routes/create-avatar";
+import CreditsScreen from "@/routes/credits";
+import EditorScreen from "@/routes/editor";
+import ProductTemplatesPicker from "@/routes/generate/viral-template";
+import ProductsScreen from "@/routes/products";
+import ProfileScreen from "@/routes/profile";
+import PromptsScreen from "@/routes/prompts";
+import ReferralScreen from "@/routes/referral";
+import SettingsScreen from "@/routes/settings";
+import StudioLanding from "@/routes/studio";
+import StudioRoute from "@/routes/studio/creation-wizard";
+import TemplatesScreen from "@/routes/templates";
+import TemplateAssemblyScreen from "@/routes/templates/use-template";
+import ToolsScreen from "@/routes/tools";
+import TrendLanding from "@/routes/trend-boost";
+import TrendTemplateDetail from "@/routes/trend-boost/template-detail";
+import TrendCharacterFlow from "@/routes/trend-boost/character-flow";
+import CreateFromScratchScreen from "@/routes/create-from-scratch";
+import PoseScreen from "@/routes/create-from-scratch/pose";
+import ScenarioScreen from "@/routes/create-from-scratch/scenario";
+import SpeechScreen from "@/routes/create-from-scratch/speech";
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginRoute />} />
+      <Route path="/register" element={<RegisterRoute />} />
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/" element={<IndexRoute />} />
+        <Route path="/dashboard" element={<DashboardRoute />} />
+        <Route path="/admin" element={<AdminScreen />} />
+        <Route path="/avatars" element={<AvatarsList />} />
+        <Route path="/create-avatar" element={<AvatarStudio />} />
+        <Route path="/credits" element={<CreditsScreen />} />
+        <Route path="/editor" element={<EditorScreen />} />
+        <Route path="/generate/viral-template" element={<ProductTemplatesPicker />} />
+        <Route path="/products" element={<ProductsScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/prompts" element={<PromptsScreen />} />
+        <Route path="/referral" element={<ReferralScreen />} />
+        <Route path="/settings" element={<SettingsScreen />} />
+        <Route path="/studio" element={<StudioLanding />} />
+        <Route path="/studio/:format" element={<StudioRoute />} />
+        <Route path="/templates" element={<TemplatesScreen />} />
+        <Route path="/templates/use" element={<TemplateAssemblyScreen />} />
+        <Route path="/tools" element={<ToolsScreen />} />
+        <Route path="/trend-boost" element={<TrendLanding />} />
+        <Route path="/trend-boost/:template" element={<TrendTemplateDetail />} />
+        <Route path="/trend-boost/:template/:characterId" element={<TrendCharacterFlow />} />
+        <Route path="/create-from-scratch" element={<CreateFromScratchScreen />} />
+        <Route path="/create-from-scratch/pose" element={<PoseScreen />} />
+        <Route path="/create-from-scratch/scenario" element={<ScenarioScreen />} />
+        <Route path="/create-from-scratch/speech" element={<SpeechScreen />} />
+      </Route>
+    </Routes>
+  );
+}
+
+export default App;

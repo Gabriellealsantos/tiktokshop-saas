@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Check, Image as ImageIcon, Bot, Copy, Download, ExternalLink, Sparkles } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/utils/utils";
 import { Pill, SelectableCard } from "@/components/primitives";
 import { Button } from "@/components/button";
@@ -120,7 +121,7 @@ export function OptionTextCard({
 }: {
   title: string;
   description: string;
-  icon: any;
+  icon: LucideIcon;
   selected: boolean;
   onClick: () => void;
 }) {
