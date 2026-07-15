@@ -2,7 +2,7 @@ const meteors = Array.from({ length: 16 }, (_, i) => ({
   left: `${(i * 13) % 100}%`,
   delay: `${-(i * 2.3) % 15}s`,
   duration: `${14 + (i % 6) * 2}s`,
-  opacity: `${0.15 + (i % 5) * 0.05}`,
+  opacity: `${0.28 + (i % 5) * 0.08}`,
   length: `${120 + (i % 4) * 50}px`,
   width: `${1 + (i % 2)}px`,
   angle: `${12 + (i % 7) * 2}deg`,
@@ -14,7 +14,7 @@ export function SignatureBackground() {
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-deep"
       aria-hidden="true"
     >
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.025)_1px,transparent_1px)] bg-[size:58px_58px] [mask-image:radial-gradient(ellipse_at_top,black_18%,transparent_78%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.045)_1px,transparent_1px)] bg-[size:58px_58px] [mask-image:radial-gradient(ellipse_at_top,black_18%,transparent_78%)]" />
       <div className="app-ambient" />
 
       {meteors.map((meteor, index) => (
@@ -28,7 +28,7 @@ export function SignatureBackground() {
           }}
         >
           <span
-            className="relative block rounded-full bg-gradient-to-b from-transparent to-accent-400 motion-reduce:[animation-play-state:paused]"
+            className="relative block rounded-full bg-gradient-to-b from-transparent to-[#5327C9]/50 motion-reduce:[animation-play-state:paused]"
             style={
               {
                 width: meteor.width,
@@ -39,7 +39,7 @@ export function SignatureBackground() {
             }
           >
             {/* Meteor Head */}
-            <div className="absolute bottom-0 left-1/2 h-2 w-[2px] -translate-x-1/2 rounded-full bg-accent-400 drop-shadow-[0_0_4px_var(--accent-400)]" />
+            <div className="absolute bottom-0 left-1/2 h-2 w-[2px] -translate-x-1/2 rounded-full bg-[#6D3EE0] drop-shadow-[0_0_6px_#6D3EE0]" />
           </span>
         </div>
       ))}

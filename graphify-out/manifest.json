@@ -1,0 +1,1632 @@
+{
+  "C:\\Projetos\\tiktokshop-saas\\backend\\mvnw": {
+    "mtime": 1781699678.9783862,
+    "ast_hash": "ab50dd89da7da2346b28003352eeeeeb",
+    "semantic_hash": "ab50dd89da7da2346b28003352eeeeeb"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\pom.xml": {
+    "mtime": 1783085489.2591815,
+    "ast_hash": "d42ec554737e7cd455ff3a23b692f952",
+    "semantic_hash": "d42ec554737e7cd455ff3a23b692f952"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\TiktokshopSaasApplication.java": {
+    "mtime": 1781701211.0055692,
+    "ast_hash": "51c554e75addca77310c1e71ed81b02f",
+    "semantic_hash": "51c554e75addca77310c1e71ed81b02f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\AppConfig.java": {
+    "mtime": 1781701210.905894,
+    "ast_hash": "9e44be6f5636e08aa5c29396fe212da8",
+    "semantic_hash": "9e44be6f5636e08aa5c29396fe212da8"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\DataInitializer.java": {
+    "mtime": 1783084182.9367115,
+    "ast_hash": "0aecb7730450200551d5b52e4102f7c2",
+    "semantic_hash": "0aecb7730450200551d5b52e4102f7c2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\ResourceServerConfig.java": {
+    "mtime": 1783083566.2006214,
+    "ast_hash": "c5f8819b3b64cf73216a63861a3420ca",
+    "semantic_hash": "c5f8819b3b64cf73216a63861a3420ca"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\events\\AuthenticationEventsListener.java": {
+    "mtime": 1781701210.9068985,
+    "ast_hash": "bc2a293f9b18ea53a7fcca891ad820b2",
+    "semantic_hash": "bc2a293f9b18ea53a7fcca891ad820b2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\handler\\ContextAwareAuthenticationEntryPoint.java": {
+    "mtime": 1781701210.9108956,
+    "ast_hash": "5af5f58b0210dd498d6312e558fbd1fc",
+    "semantic_hash": "5af5f58b0210dd498d6312e558fbd1fc"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\handler\\ContextAwareAuthenticationFailureHandler.java": {
+    "mtime": 1781701210.9118967,
+    "ast_hash": "2eca1a0ddafc0baad357c247bf04dc19",
+    "semantic_hash": "2eca1a0ddafc0baad357c247bf04dc19"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\handler\\FederatedIdentitySuccessHandler.java": {
+    "mtime": 1781701249.0612621,
+    "ast_hash": "2e1e235abfb59f4367d6a6605466a0c0",
+    "semantic_hash": "2e1e235abfb59f4367d6a6605466a0c0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\handler\\MfaAuthenticationSuccessHandler.java": {
+    "mtime": 1781701210.9152548,
+    "ast_hash": "246fee529fb9bc7acc8cdec2edcd7dfc",
+    "semantic_hash": "246fee529fb9bc7acc8cdec2edcd7dfc"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\jwt\\JwtKeyConfig.java": {
+    "mtime": 1781701210.917256,
+    "ast_hash": "d6137ae4e72cc9f1502dc4a7f8842d2c",
+    "semantic_hash": "d6137ae4e72cc9f1502dc4a7f8842d2c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\mfa\\MfaConfig.java": {
+    "mtime": 1781701210.919254,
+    "ast_hash": "e721ea15473b5c1ab52e28b10dd7b534",
+    "semantic_hash": "e721ea15473b5c1ab52e28b10dd7b534"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\ExpiredTokenCleaner.java": {
+    "mtime": 1781701210.923253,
+    "ast_hash": "cffbb883defbb506c7059ead52c06f4c",
+    "semantic_hash": "cffbb883defbb506c7059ead52c06f4c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\OAuth2SchemaInitializer.java": {
+    "mtime": 1781701210.9262562,
+    "ast_hash": "708a3c8c2d45e69de144b4c87a0e2d1e",
+    "semantic_hash": "708a3c8c2d45e69de144b4c87a0e2d1e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\authorization\\AuthorizationServerConfig.java": {
+    "mtime": 1781701717.5501611,
+    "ast_hash": "cc343b73ccd568593e50a0864bbedd41",
+    "semantic_hash": "cc343b73ccd568593e50a0864bbedd41"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\handler\\OAuth2LoginSuccessHandler.java": {
+    "mtime": 1781701210.9242537,
+    "ast_hash": "257a4ad43e10cae19c237cf6f8ecd374",
+    "semantic_hash": "257a4ad43e10cae19c237cf6f8ecd374"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\pkce\\OAuth2PublicClientRefreshTokenGenerator.java": {
+    "mtime": 1781701210.9282558,
+    "ast_hash": "e05dc023c031eb3c66bdf41f0199a470",
+    "semantic_hash": "e05dc023c031eb3c66bdf41f0199a470"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\pkce\\PublicClientRefreshTokenAuthenticationConverter.java": {
+    "mtime": 1781701210.929256,
+    "ast_hash": "5f2cee058f419d550ced58a1a719403a",
+    "semantic_hash": "5f2cee058f419d550ced58a1a719403a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\pkce\\PublicClientRefreshTokenAuthenticationProvider.java": {
+    "mtime": 1781701210.9312868,
+    "ast_hash": "716e0db77dcea21b628dd791f676fa89",
+    "semantic_hash": "716e0db77dcea21b628dd791f676fa89"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\oauth2\\social\\CustomOAuth2UserService.java": {
+    "mtime": 1781701249.0642605,
+    "ast_hash": "6b4560da19016f544b13bccba80d4cb5",
+    "semantic_hash": "6b4560da19016f544b13bccba80d4cb5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\security\\validation\\SecurityPropertiesValidator.java": {
+    "mtime": 1781701210.9362862,
+    "ast_hash": "c8fe242a79d59f6fa27a20c1e7d0d5a3",
+    "semantic_hash": "c8fe242a79d59f6fa27a20c1e7d0d5a3"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\storage\\StorageConfig.java": {
+    "mtime": 1783090455.8070107,
+    "ast_hash": "cbb44000cd8e1380dd68281f1971ebed",
+    "semantic_hash": "cbb44000cd8e1380dd68281f1971ebed"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\websocket\\WebSocketAuthChannelInterceptor.java": {
+    "mtime": 1783083549.875779,
+    "ast_hash": "78eb91127d6a0a4cd5ef3c8dd2b0f61c",
+    "semantic_hash": "78eb91127d6a0a4cd5ef3c8dd2b0f61c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\config\\websocket\\WebSocketConfig.java": {
+    "mtime": 1783083521.5146947,
+    "ast_hash": "45128ceac98c0b24b336571b5415dd64",
+    "semantic_hash": "45128ceac98c0b24b336571b5415dd64"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\AcademyLessonController.java": {
+    "mtime": 1783086985.0031714,
+    "ast_hash": "9be23ffb1e803a1c49afbb2b6c5e4ca6",
+    "semantic_hash": "9be23ffb1e803a1c49afbb2b6c5e4ca6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\AcademyModuleController.java": {
+    "mtime": 1783086971.4502916,
+    "ast_hash": "e99f8881c4dae2bae9c2cfd3d0989179",
+    "semantic_hash": "e99f8881c4dae2bae9c2cfd3d0989179"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\AuthController.java": {
+    "mtime": 1781701210.9372861,
+    "ast_hash": "c20b09d1b83d0b07d2e9b993ec234665",
+    "semantic_hash": "c20b09d1b83d0b07d2e9b993ec234665"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\CreditController.java": {
+    "mtime": 1783081640.0796728,
+    "ast_hash": "b2eda303fee5310833d13abe852106dd",
+    "semantic_hash": "b2eda303fee5310833d13abe852106dd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\CreditPackageController.java": {
+    "mtime": 1783083443.7467124,
+    "ast_hash": "c2306a11984014f69c3a607c7e46210d",
+    "semantic_hash": "c2306a11984014f69c3a607c7e46210d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\DashboardInsightController.java": {
+    "mtime": 1783083469.734602,
+    "ast_hash": "531d13d181a2f9db4aa175680fd03139",
+    "semantic_hash": "531d13d181a2f9db4aa175680fd03139"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\GalleryAvatarController.java": {
+    "mtime": 1783083456.593189,
+    "ast_hash": "03e33652d29469c678178f220b799264",
+    "semantic_hash": "03e33652d29469c678178f220b799264"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\GenerationController.java": {
+    "mtime": 1783081668.0182474,
+    "ast_hash": "5b98d75a028e4ec755bfbce50d456ae0",
+    "semantic_hash": "5b98d75a028e4ec755bfbce50d456ae0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\LoginController.java": {
+    "mtime": 1781701732.880741,
+    "ast_hash": "2bb769f8491d8d2cb272dae7fb67f6b3",
+    "semantic_hash": "2bb769f8491d8d2cb272dae7fb67f6b3"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\ProductController.java": {
+    "mtime": 1783085697.6053288,
+    "ast_hash": "317b546fc76768e28fff7890f211bc60",
+    "semantic_hash": "317b546fc76768e28fff7890f211bc60"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\RegistrationController.java": {
+    "mtime": 1781702163.1841247,
+    "ast_hash": "020dd7b224ff18dd8256ac50de83d02a",
+    "semantic_hash": "020dd7b224ff18dd8256ac50de83d02a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\StorageController.java": {
+    "mtime": 1783085641.912445,
+    "ast_hash": "9f7a44c6d44764c42826f50a53ed2fdb",
+    "semantic_hash": "9f7a44c6d44764c42826f50a53ed2fdb"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\UserController.java": {
+    "mtime": 1781701655.1131747,
+    "ast_hash": "a41aa288dae4a4a3a12bc32d2ffcc273",
+    "semantic_hash": "a41aa288dae4a4a3a12bc32d2ffcc273"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\UserProductController.java": {
+    "mtime": 1783085741.9499621,
+    "ast_hash": "27932325c370b1a3cd223cc05d341e85",
+    "semantic_hash": "27932325c370b1a3cd223cc05d341e85"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\exceptions\\FieldMessage.java": {
+    "mtime": 1781701210.9392858,
+    "ast_hash": "154c29986a3b18e759abed856968858d",
+    "semantic_hash": "154c29986a3b18e759abed856968858d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\exceptions\\ValidationError.java": {
+    "mtime": 1781701210.9402912,
+    "ast_hash": "21048208eb38f28ebf4f72ee2e930b13",
+    "semantic_hash": "21048208eb38f28ebf4f72ee2e930b13"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\handlers\\ControllerExceptionHandler.java": {
+    "mtime": 1782945932.0177233,
+    "ast_hash": "f208f89ab132a59892fa852f42a4a5e5",
+    "semantic_hash": "f208f89ab132a59892fa852f42a4a5e5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\controllers\\handlers\\StandardError.java": {
+    "mtime": 1781701210.9442902,
+    "ast_hash": "e54f40b58eaa75540bfd5d98e43ab6b7",
+    "semantic_hash": "e54f40b58eaa75540bfd5d98e43ab6b7"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\AcademyLessonDTO.java": {
+    "mtime": 1783086905.4039707,
+    "ast_hash": "e899c45cc894cefb0ae418de7df13254",
+    "semantic_hash": "e899c45cc894cefb0ae418de7df13254"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\AcademyModuleDTO.java": {
+    "mtime": 1783086920.3358223,
+    "ast_hash": "0b6893ba8353e749ccb3ccd7910af0e6",
+    "semantic_hash": "0b6893ba8353e749ccb3ccd7910af0e6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\AuthCodeExchangeDTO.java": {
+    "mtime": 1781701210.9489803,
+    "ast_hash": "9e5a6451184f6260d30cf92afe9191ee",
+    "semantic_hash": "9e5a6451184f6260d30cf92afe9191ee"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\CreditPackageDTO.java": {
+    "mtime": 1782945900.6832452,
+    "ast_hash": "f7e57da5d424c91b56f20bb144a7918a",
+    "semantic_hash": "f7e57da5d424c91b56f20bb144a7918a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\CreditTransactionDTO.java": {
+    "mtime": 1782945898.1671598,
+    "ast_hash": "d1bb4d7d96070452424b5c072cce6eb0",
+    "semantic_hash": "d1bb4d7d96070452424b5c072cce6eb0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\CreditWalletDTO.java": {
+    "mtime": 1782945895.0712318,
+    "ast_hash": "42990be0d6577b83a55cfb8f8d6d6c0d",
+    "semantic_hash": "42990be0d6577b83a55cfb8f8d6d6c0d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\DashboardInsightDTO.java": {
+    "mtime": 1782945907.004784,
+    "ast_hash": "efe5736f0bb073c028453ca43b2e45f5",
+    "semantic_hash": "efe5736f0bb073c028453ca43b2e45f5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\EmailDTO.java": {
+    "mtime": 1781701210.9499807,
+    "ast_hash": "de672175fdab409dd156f7d9c2fb9311",
+    "semantic_hash": "de672175fdab409dd156f7d9c2fb9311"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\GalleryAvatarDTO.java": {
+    "mtime": 1782945908.6103165,
+    "ast_hash": "5cac702c974d048243e6d2cd03dcc21b",
+    "semantic_hash": "5cac702c974d048243e6d2cd03dcc21b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\GenerationJobDTO.java": {
+    "mtime": 1782945903.962307,
+    "ast_hash": "85fec6e5e639b71dbb3076871ab8d451",
+    "semantic_hash": "85fec6e5e639b71dbb3076871ab8d451"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\MfaActivationDTO.java": {
+    "mtime": 1781701210.950981,
+    "ast_hash": "7632056c7442c67bb539dbda3abd3945",
+    "semantic_hash": "7632056c7442c67bb539dbda3abd3945"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\MfaLoginVerifyDTO.java": {
+    "mtime": 1781701210.9519806,
+    "ast_hash": "80de76b492b81702d12280d1fc571645",
+    "semantic_hash": "80de76b492b81702d12280d1fc571645"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\MfaSetupDTO.java": {
+    "mtime": 1781701210.9529831,
+    "ast_hash": "a75ee835a96ae1d7aa01e13341483009",
+    "semantic_hash": "a75ee835a96ae1d7aa01e13341483009"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\MfaVerifyDTO.java": {
+    "mtime": 1781701210.9549797,
+    "ast_hash": "f3f8fa0fd2f8e96e5da5cb6cc60975de",
+    "semantic_hash": "f3f8fa0fd2f8e96e5da5cb6cc60975de"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\NewPasswordDTO.java": {
+    "mtime": 1781701210.9562476,
+    "ast_hash": "f2566068bde89868a55cdccbe01e9c9f",
+    "semantic_hash": "f2566068bde89868a55cdccbe01e9c9f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\ProductDTO.java": {
+    "mtime": 1783085664.371993,
+    "ast_hash": "fb301c8e3382a55717694066f715bef8",
+    "semantic_hash": "fb301c8e3382a55717694066f715bef8"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\RegisterDTO.java": {
+    "mtime": 1781702132.0388794,
+    "ast_hash": "e8e81fd5e04fff91cc31e6c2d4739fe7",
+    "semantic_hash": "e8e81fd5e04fff91cc31e6c2d4739fe7"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\RoleDTO.java": {
+    "mtime": 1781701210.9572494,
+    "ast_hash": "cef9d03f0bde038cdd823e6b4977120e",
+    "semantic_hash": "cef9d03f0bde038cdd823e6b4977120e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\UploadResponseDTO.java": {
+    "mtime": 1783085633.0892706,
+    "ast_hash": "9b5c4c76fe0e40ab1fcc917c382c3dc3",
+    "semantic_hash": "9b5c4c76fe0e40ab1fcc917c382c3dc3"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\UserDTO.java": {
+    "mtime": 1781701210.9582465,
+    "ast_hash": "bc3c6634c79be52b7ff4e358759271e6",
+    "semantic_hash": "bc3c6634c79be52b7ff4e358759271e6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\UserInsertDTO.java": {
+    "mtime": 1781701210.9605591,
+    "ast_hash": "2909ca8a921fda86ab82761863514653",
+    "semantic_hash": "2909ca8a921fda86ab82761863514653"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\UserProductDTO.java": {
+    "mtime": 1783085714.607966,
+    "ast_hash": "75616195f463b19d9de65f78926faff8",
+    "semantic_hash": "75616195f463b19d9de65f78926faff8"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\dtos\\UserUpdateDTO.java": {
+    "mtime": 1781701210.9619846,
+    "ast_hash": "e2fc4fae995e65213ce8700732a3d96d",
+    "semantic_hash": "e2fc4fae995e65213ce8700732a3d96d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\AcademyLesson.java": {
+    "mtime": 1781703560.3260725,
+    "ast_hash": "85df2c0a723b3856b6d65771c7525804",
+    "semantic_hash": "85df2c0a723b3856b6d65771c7525804"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\AcademyModule.java": {
+    "mtime": 1781703547.2453687,
+    "ast_hash": "6369e2f46c156b9ce38ccb96f6956841",
+    "semantic_hash": "6369e2f46c156b9ce38ccb96f6956841"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\AuthCode.java": {
+    "mtime": 1781701210.963677,
+    "ast_hash": "d6afe7a1b1476caa4f1d0bc65a4c4207",
+    "semantic_hash": "d6afe7a1b1476caa4f1d0bc65a4c4207"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Avatar.java": {
+    "mtime": 1781703425.5350018,
+    "ast_hash": "532d47154b8ed745cf04de9110be92d4",
+    "semantic_hash": "532d47154b8ed745cf04de9110be92d4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\CreationSession.java": {
+    "mtime": 1781703412.2914655,
+    "ast_hash": "8ed6355c1cddca154ca19cdb31615b47",
+    "semantic_hash": "8ed6355c1cddca154ca19cdb31615b47"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\CreditPackage.java": {
+    "mtime": 1782945765.3337312,
+    "ast_hash": "4c655292739889e82ec2428d23c19754",
+    "semantic_hash": "4c655292739889e82ec2428d23c19754"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\CreditTransaction.java": {
+    "mtime": 1781701360.1449907,
+    "ast_hash": "c001f1e7d319439dbef82719733b2b5b",
+    "semantic_hash": "c001f1e7d319439dbef82719733b2b5b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\CreditWallet.java": {
+    "mtime": 1781701346.4316993,
+    "ast_hash": "7b03b53dfc58dc2afacb36dcb1b5f122",
+    "semantic_hash": "7b03b53dfc58dc2afacb36dcb1b5f122"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\DashboardInsight.java": {
+    "mtime": 1782945781.6354244,
+    "ast_hash": "e810a81201d04bca86964e63c94b4a28",
+    "semantic_hash": "e810a81201d04bca86964e63c94b4a28"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\DashboardMetric.java": {
+    "mtime": 1781703356.3951497,
+    "ast_hash": "13bd0e42a29f325c722af916124398aa",
+    "semantic_hash": "13bd0e42a29f325c722af916124398aa"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\EmailConfirmation.java": {
+    "mtime": 1781701210.965171,
+    "ast_hash": "d25ac90f25c2f009a7cddab53cb882df",
+    "semantic_hash": "d25ac90f25c2f009a7cddab53cb882df"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Favorite.java": {
+    "mtime": 1781703396.1234248,
+    "ast_hash": "e9c488fb8e34208366a5ffe3422ab03d",
+    "semantic_hash": "e9c488fb8e34208366a5ffe3422ab03d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\GalleryAvatar.java": {
+    "mtime": 1782945774.8959744,
+    "ast_hash": "970adf901e5369a786ce69cc154c2cd8",
+    "semantic_hash": "970adf901e5369a786ce69cc154c2cd8"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\GenerationJob.java": {
+    "mtime": 1782945747.8184505,
+    "ast_hash": "ff4a9c298195c08cd559682337ccb542",
+    "semantic_hash": "ff4a9c298195c08cd559682337ccb542"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\LessonProgress.java": {
+    "mtime": 1781703572.5555222,
+    "ast_hash": "a8c139307225bc9d92a3db6a431d653a",
+    "semantic_hash": "a8c139307225bc9d92a3db6a431d653a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\LiveSalesConfig.java": {
+    "mtime": 1781703583.9603136,
+    "ast_hash": "99e62eb641dabf0c8e9bb2eb62f44df5",
+    "semantic_hash": "99e62eb641dabf0c8e9bb2eb62f44df5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\LiveSalesItem.java": {
+    "mtime": 1781703597.2423384,
+    "ast_hash": "3cd035099ccf199b9ecfd0f4f4b03f87",
+    "semantic_hash": "3cd035099ccf199b9ecfd0f4f4b03f87"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Notification.java": {
+    "mtime": 1781703453.1616223,
+    "ast_hash": "100be2bb08b2db08c13c352472d7384d",
+    "semantic_hash": "100be2bb08b2db08c13c352472d7384d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\NotificationDelivery.java": {
+    "mtime": 1781703479.24185,
+    "ast_hash": "3661ac002c9c2f87849645360d08347b",
+    "semantic_hash": "3661ac002c9c2f87849645360d08347b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\NotificationTarget.java": {
+    "mtime": 1781703465.7059386,
+    "ast_hash": "e0826595bc9946d3a264748d707da3c1",
+    "semantic_hash": "e0826595bc9946d3a264748d707da3c1"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\PasswordRecover.java": {
+    "mtime": 1781701210.9681716,
+    "ast_hash": "8895778dbadaa7fa31d3a9ac2ff62ef0",
+    "semantic_hash": "8895778dbadaa7fa31d3a9ac2ff62ef0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Plan.java": {
+    "mtime": 1781701370.9846625,
+    "ast_hash": "d96f5031472f8ea96bfcb9b6fea6d2e5",
+    "semantic_hash": "d96f5031472f8ea96bfcb9b6fea6d2e5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Product.java": {
+    "mtime": 1782945831.7966714,
+    "ast_hash": "b6a5e5827284dfb61a7cce1b5a522617",
+    "semantic_hash": "b6a5e5827284dfb61a7cce1b5a522617"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Prompt.java": {
+    "mtime": 1781703520.456286,
+    "ast_hash": "0519f53eb6f3e509907de6932e9d4a50",
+    "semantic_hash": "0519f53eb6f3e509907de6932e9d4a50"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\PushSubscription.java": {
+    "mtime": 1781703438.8341622,
+    "ast_hash": "5d374e27e937c9fe73b6d924dc638475",
+    "semantic_hash": "5d374e27e937c9fe73b6d924dc638475"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Referral.java": {
+    "mtime": 1781703621.5105724,
+    "ast_hash": "e89af0c0af422f683c3a8672ab49982d",
+    "semantic_hash": "e89af0c0af422f683c3a8672ab49982d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\ReferralCode.java": {
+    "mtime": 1782945835.0502198,
+    "ast_hash": "7de53c39426ed1d5d8841e98a3f800c0",
+    "semantic_hash": "7de53c39426ed1d5d8841e98a3f800c0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\ReferralCommission.java": {
+    "mtime": 1781703636.5406528,
+    "ast_hash": "180196e0863f56bca8a92c47cba99dab",
+    "semantic_hash": "180196e0863f56bca8a92c47cba99dab"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\Role.java": {
+    "mtime": 1781701210.9691713,
+    "ast_hash": "162599c668219e204a303f07392ab1bc",
+    "semantic_hash": "162599c668219e204a303f07392ab1bc"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\RoleConstants.java": {
+    "mtime": 1781703261.8496761,
+    "ast_hash": "b38f315f416cc864ef948a0352a27316",
+    "semantic_hash": "b38f315f416cc864ef948a0352a27316"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\User.java": {
+    "mtime": 1781701308.7314422,
+    "ast_hash": "0cce242b1611eb12c7284ee265299a46",
+    "semantic_hash": "0cce242b1611eb12c7284ee265299a46"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\UserProduct.java": {
+    "mtime": 1781703383.8252919,
+    "ast_hash": "0d0d9e2c305502fa03eea02d84ad6d8e",
+    "semantic_hash": "0d0d9e2c305502fa03eea02d84ad6d8e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\UserRecoveryCode.java": {
+    "mtime": 1781701210.973171,
+    "ast_hash": "0bb0809fb41987bf9593d98cf7b55339",
+    "semantic_hash": "0bb0809fb41987bf9593d98cf7b55339"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\UserSubscription.java": {
+    "mtime": 1781701385.509735,
+    "ast_hash": "fb6d7fc11230c3bdbb00c3e3492f59c5",
+    "semantic_hash": "fb6d7fc11230c3bdbb00c3e3492f59c5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\ViralTemplate.java": {
+    "mtime": 1781703535.1245441,
+    "ast_hash": "aeee7716958b50afeda6cf93867e4bc4",
+    "semantic_hash": "aeee7716958b50afeda6cf93867e4bc4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\CommissionStatus.java": {
+    "mtime": 1781703340.4100683,
+    "ast_hash": "085937d43cb29afbd94f78d45bce58bf",
+    "semantic_hash": "085937d43cb29afbd94f78d45bce58bf"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\CreationFormat.java": {
+    "mtime": 1781703292.4565957,
+    "ast_hash": "421653eff694fd4c6a9f784cccef6150",
+    "semantic_hash": "421653eff694fd4c6a9f784cccef6150"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\CreationStatus.java": {
+    "mtime": 1781703299.9782474,
+    "ast_hash": "ac8d675e88a818eb8e88d9c17acffbfe",
+    "semantic_hash": "ac8d675e88a818eb8e88d9c17acffbfe"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\CreditTransactionReason.java": {
+    "mtime": 1782945664.9676888,
+    "ast_hash": "512ff2ac25fbb02ce7dd84c39761758c",
+    "semantic_hash": "512ff2ac25fbb02ce7dd84c39761758c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\DashboardPeriodType.java": {
+    "mtime": 1781703278.2055523,
+    "ast_hash": "896f75296cbdac588a2a5a09e879921b",
+    "semantic_hash": "896f75296cbdac588a2a5a09e879921b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\DeliveryStatus.java": {
+    "mtime": 1781703318.8956716,
+    "ast_hash": "3215503d1a8ccd7cad8928f5f703d9f4",
+    "semantic_hash": "3215503d1a8ccd7cad8928f5f703d9f4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\GenerationJobType.java": {
+    "mtime": 1782945719.8576536,
+    "ast_hash": "1aad015bd28adb7667db496c60ae5a09",
+    "semantic_hash": "1aad015bd28adb7667db496c60ae5a09"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\GenerationStatus.java": {
+    "mtime": 1782945660.91332,
+    "ast_hash": "f52d3d41fdc96a7443dc3503035341e5",
+    "semantic_hash": "f52d3d41fdc96a7443dc3503035341e5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\NotificationAudience.java": {
+    "mtime": 1781703310.9772823,
+    "ast_hash": "aca573c78985fd7f37616faa6a60b64d",
+    "semantic_hash": "aca573c78985fd7f37616faa6a60b64d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\PlanType.java": {
+    "mtime": 1782945663.1118722,
+    "ast_hash": "e6b959fa2a672aad7f35d79f8d8f47e1",
+    "semantic_hash": "e6b959fa2a672aad7f35d79f8d8f47e1"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\ProductCategory.java": {
+    "mtime": 1781703285.4580078,
+    "ast_hash": "2bf00dc5189f8c6f6d5a539376f994ed",
+    "semantic_hash": "2bf00dc5189f8c6f6d5a539376f994ed"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\PromptCategory.java": {
+    "mtime": 1781703326.3512633,
+    "ast_hash": "e9bcb4f1fad0f57deabdb1686c6b62b5",
+    "semantic_hash": "e9bcb4f1fad0f57deabdb1686c6b62b5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\ReferralStatus.java": {
+    "mtime": 1781703333.644866,
+    "ast_hash": "688170ed3d5b4ba2265088421a011a31",
+    "semantic_hash": "688170ed3d5b4ba2265088421a011a31"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\SubscriptionStatus.java": {
+    "mtime": 1781701328.2417367,
+    "ast_hash": "5c44010d1cf0f67d200b85bde039c780",
+    "semantic_hash": "5c44010d1cf0f67d200b85bde039c780"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\entities\\enums\\UserStatus.java": {
+    "mtime": 1781701210.9661708,
+    "ast_hash": "b918fb865c1d7e32c4f56116af10a758",
+    "semantic_hash": "b918fb865c1d7e32c4f56116af10a758"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\interfaces\\UserData.java": {
+    "mtime": 1781701256.5540006,
+    "ast_hash": "26a27b7a5729770ee7025bb05fecfd76",
+    "semantic_hash": "26a27b7a5729770ee7025bb05fecfd76"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\AcademyLessonRepository.java": {
+    "mtime": 1783086897.9998403,
+    "ast_hash": "540ec1870af770e26901aafcca142350",
+    "semantic_hash": "540ec1870af770e26901aafcca142350"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\AcademyModuleRepository.java": {
+    "mtime": 1783086890.3655355,
+    "ast_hash": "07f0d8e292d246213b2700e76a0e44eb",
+    "semantic_hash": "07f0d8e292d246213b2700e76a0e44eb"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\AuthCodeRepository.java": {
+    "mtime": 1781701210.9751713,
+    "ast_hash": "b44dd4c96f28e4292eb858bc3af68ef2",
+    "semantic_hash": "b44dd4c96f28e4292eb858bc3af68ef2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\AvatarRepository.java": {
+    "mtime": 1781703650.8139305,
+    "ast_hash": "41a892d8e71028f5827adec538b17b72",
+    "semantic_hash": "41a892d8e71028f5827adec538b17b72"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\CreationSessionRepository.java": {
+    "mtime": 1781703650.7913432,
+    "ast_hash": "145626731c77196f6440ab0560d13298",
+    "semantic_hash": "145626731c77196f6440ab0560d13298"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\CreditPackageRepository.java": {
+    "mtime": 1782945853.0294108,
+    "ast_hash": "b525646a6b4802ba647a22d2b610df1e",
+    "semantic_hash": "b525646a6b4802ba647a22d2b610df1e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\CreditTransactionRepository.java": {
+    "mtime": 1782945885.8561883,
+    "ast_hash": "24c0461731b5cb34dd6b5b113bc10fc2",
+    "semantic_hash": "24c0461731b5cb34dd6b5b113bc10fc2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\CreditWalletRepository.java": {
+    "mtime": 1782945881.1855276,
+    "ast_hash": "a4999f8e4f6f15de2e7c381f80a3e2e1",
+    "semantic_hash": "a4999f8e4f6f15de2e7c381f80a3e2e1"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\DashboardInsightRepository.java": {
+    "mtime": 1782945855.783099,
+    "ast_hash": "b1931fadf9feb44d8f4c5370d1ac8316",
+    "semantic_hash": "b1931fadf9feb44d8f4c5370d1ac8316"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\DashboardMetricRepository.java": {
+    "mtime": 1781703650.7052648,
+    "ast_hash": "5de880f50e89d364dd28a6069f42c59c",
+    "semantic_hash": "5de880f50e89d364dd28a6069f42c59c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\EmailConfirmationRepository.java": {
+    "mtime": 1781701210.9761715,
+    "ast_hash": "15d2e99263fa6f21e59d00ed182a5d81",
+    "semantic_hash": "15d2e99263fa6f21e59d00ed182a5d81"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\FavoriteRepository.java": {
+    "mtime": 1781703683.296501,
+    "ast_hash": "b06f45151e43063defdc9f9e7a76d603",
+    "semantic_hash": "b06f45151e43063defdc9f9e7a76d603"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\GalleryAvatarRepository.java": {
+    "mtime": 1782945858.3729205,
+    "ast_hash": "0b08e766004c3b7a82a66979160d5ddd",
+    "semantic_hash": "0b08e766004c3b7a82a66979160d5ddd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\GenerationJobRepository.java": {
+    "mtime": 1782945850.7828624,
+    "ast_hash": "475b7ba8521be211718284c765e1715b",
+    "semantic_hash": "475b7ba8521be211718284c765e1715b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\LessonProgressRepository.java": {
+    "mtime": 1781703651.0101526,
+    "ast_hash": "96cb38b45f9d707ed20a22296933e684",
+    "semantic_hash": "96cb38b45f9d707ed20a22296933e684"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\LiveSalesConfigRepository.java": {
+    "mtime": 1781703651.0349486,
+    "ast_hash": "59c521420de25a86f343e79a5ce2ae83",
+    "semantic_hash": "59c521420de25a86f343e79a5ce2ae83"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\LiveSalesItemRepository.java": {
+    "mtime": 1781703651.0865185,
+    "ast_hash": "c4e5751493333f5947163c8b31672668",
+    "semantic_hash": "c4e5751493333f5947163c8b31672668"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\NotificationDeliveryRepository.java": {
+    "mtime": 1781703650.9019854,
+    "ast_hash": "c01e299be47e062e36a66af9bcdc4ca2",
+    "semantic_hash": "c01e299be47e062e36a66af9bcdc4ca2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\NotificationRepository.java": {
+    "mtime": 1781703650.8585012,
+    "ast_hash": "51b2f10fae8300dda02e2206934737f7",
+    "semantic_hash": "51b2f10fae8300dda02e2206934737f7"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\NotificationTargetRepository.java": {
+    "mtime": 1781703650.8800485,
+    "ast_hash": "60f66c2a11ebb53a3c4c4ccc3126e20a",
+    "semantic_hash": "60f66c2a11ebb53a3c4c4ccc3126e20a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\PasswordRecoverRepository.java": {
+    "mtime": 1781701210.9771707,
+    "ast_hash": "95b5628558ce0d1fb242ee1947215e09",
+    "semantic_hash": "95b5628558ce0d1fb242ee1947215e09"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\PlanRepository.java": {
+    "mtime": 1781701412.8382053,
+    "ast_hash": "e1b6e66610ee304d8c05236011d9ad73",
+    "semantic_hash": "e1b6e66610ee304d8c05236011d9ad73"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\ProductRepository.java": {
+    "mtime": 1783085673.473366,
+    "ast_hash": "de49fbabf7cb077088c9bbc05df89e53",
+    "semantic_hash": "de49fbabf7cb077088c9bbc05df89e53"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\PromptRepository.java": {
+    "mtime": 1781703650.9236548,
+    "ast_hash": "3ccaa9272f32b9664099ad5b4af89c02",
+    "semantic_hash": "3ccaa9272f32b9664099ad5b4af89c02"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\PushSubscriptionRepository.java": {
+    "mtime": 1781703650.8354404,
+    "ast_hash": "e2cde16c40c653a558e2423b7065744a",
+    "semantic_hash": "e2cde16c40c653a558e2423b7065744a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\ReferralCodeRepository.java": {
+    "mtime": 1781703662.0433161,
+    "ast_hash": "b85bc4c2fba5ac49517919a322f8fd2a",
+    "semantic_hash": "b85bc4c2fba5ac49517919a322f8fd2a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\ReferralCommissionRepository.java": {
+    "mtime": 1781703651.2093997,
+    "ast_hash": "236aa52def355abb2e24bad7da7250f6",
+    "semantic_hash": "236aa52def355abb2e24bad7da7250f6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\ReferralRepository.java": {
+    "mtime": 1781703651.1333365,
+    "ast_hash": "62c4d72cd6cd294765c9ab3bd5f96e14",
+    "semantic_hash": "62c4d72cd6cd294765c9ab3bd5f96e14"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\RoleRepository.java": {
+    "mtime": 1781701210.9791713,
+    "ast_hash": "cd424ff1383e50a5c649520bd8209c3e",
+    "semantic_hash": "cd424ff1383e50a5c649520bd8209c3e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\UserProductRepository.java": {
+    "mtime": 1783085720.5136137,
+    "ast_hash": "fe15f1d4a7956f3be5f6feba2fa698ab",
+    "semantic_hash": "fe15f1d4a7956f3be5f6feba2fa698ab"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\UserRecoveryCodeRepository.java": {
+    "mtime": 1781701210.9800265,
+    "ast_hash": "056b2d417fa5ead06605fa43a24381dc",
+    "semantic_hash": "056b2d417fa5ead06605fa43a24381dc"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\UserRepository.java": {
+    "mtime": 1781701450.1581984,
+    "ast_hash": "5cdfcc5705eed0a192f7ba9716363650",
+    "semantic_hash": "5cdfcc5705eed0a192f7ba9716363650"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\UserSubscriptionRepository.java": {
+    "mtime": 1781701422.854202,
+    "ast_hash": "862cdafc45d9cf2bdfbf32cdfdeca97e",
+    "semantic_hash": "862cdafc45d9cf2bdfbf32cdfdeca97e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\repositories\\ViralTemplateRepository.java": {
+    "mtime": 1781703650.9447217,
+    "ast_hash": "2ec17c98bbf89e0b6bcb6494c17ebd3e",
+    "semantic_hash": "2ec17c98bbf89e0b6bcb6494c17ebd3e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\AcademyLessonService.java": {
+    "mtime": 1783086953.6616304,
+    "ast_hash": "9b58a118941eeb3651befc83cbdc93e0",
+    "semantic_hash": "9b58a118941eeb3651befc83cbdc93e0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\AcademyModuleService.java": {
+    "mtime": 1783086936.4896448,
+    "ast_hash": "34207df0cd9929decc11ca70e460a0cd",
+    "semantic_hash": "34207df0cd9929decc11ca70e460a0cd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\AuthService.java": {
+    "mtime": 1781701510.4568362,
+    "ast_hash": "44707e690e9ed9879924dbd56a958518",
+    "semantic_hash": "44707e690e9ed9879924dbd56a958518"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\CreditPackageService.java": {
+    "mtime": 1783082327.7353554,
+    "ast_hash": "c7a3a1e09476e72c6646385624198876",
+    "semantic_hash": "c7a3a1e09476e72c6646385624198876"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\CreditService.java": {
+    "mtime": 1782998051.0029862,
+    "ast_hash": "3fc7922a2f34652049e82f664117ce2e",
+    "semantic_hash": "3fc7922a2f34652049e82f664117ce2e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\DashboardInsightService.java": {
+    "mtime": 1783082384.5892117,
+    "ast_hash": "9c5819a439c86729e46a5eae75b53e7d",
+    "semantic_hash": "9c5819a439c86729e46a5eae75b53e7d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\EmailService.java": {
+    "mtime": 1781701210.9856956,
+    "ast_hash": "6abdaa0b6b4271c927cd9f8de2560385",
+    "semantic_hash": "6abdaa0b6b4271c927cd9f8de2560385"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\GalleryAvatarService.java": {
+    "mtime": 1783082345.0087383,
+    "ast_hash": "904fe2972e0fe3d5c099cc288e086cd4",
+    "semantic_hash": "904fe2972e0fe3d5c099cc288e086cd4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\GenerationJobService.java": {
+    "mtime": 1783083601.5505655,
+    "ast_hash": "54b81d03598350807d922039ed9a0f92",
+    "semantic_hash": "54b81d03598350807d922039ed9a0f92"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\JwtTokenService.java": {
+    "mtime": 1781701210.994308,
+    "ast_hash": "3bb251178af3e08342b2bef0480e7a70",
+    "semantic_hash": "3bb251178af3e08342b2bef0480e7a70"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\MfaService.java": {
+    "mtime": 1781701210.9967449,
+    "ast_hash": "64764b36cf4585b87b5a43d57d539d60",
+    "semantic_hash": "64764b36cf4585b87b5a43d57d539d60"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\ProductService.java": {
+    "mtime": 1783085686.1333957,
+    "ast_hash": "8ea777460c6ecb69d6a2931a6ae9bb9a",
+    "semantic_hash": "8ea777460c6ecb69d6a2931a6ae9bb9a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\RegistrationService.java": {
+    "mtime": 1781702154.1612585,
+    "ast_hash": "ca248357796dd0217c45d72950b750fd",
+    "semantic_hash": "ca248357796dd0217c45d72950b750fd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\StorageService.java": {
+    "mtime": 1783085629.428755,
+    "ast_hash": "f8479aeb7deb53285c486e80d31ef3de",
+    "semantic_hash": "f8479aeb7deb53285c486e80d31ef3de"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\UserProductService.java": {
+    "mtime": 1783085730.6070447,
+    "ast_hash": "0fe3d49b1be335311fe4ffe0230a16b9",
+    "semantic_hash": "0fe3d49b1be335311fe4ffe0230a16b9"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\UserService.java": {
+    "mtime": 1781701599.9691908,
+    "ast_hash": "e83a1a374e6520cd1233425c4d8a6791",
+    "semantic_hash": "e83a1a374e6520cd1233425c4d8a6791"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\exceptions\\BusinessException.java": {
+    "mtime": 1781701210.9873085,
+    "ast_hash": "3af4a7279d68501fe0e577a856e49a07",
+    "semantic_hash": "3af4a7279d68501fe0e577a856e49a07"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\exceptions\\DatabaseException.java": {
+    "mtime": 1781701210.9883099,
+    "ast_hash": "ba39b765ee1be2ed0473a454e0c63ff4",
+    "semantic_hash": "ba39b765ee1be2ed0473a454e0c63ff4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\exceptions\\DuplicateResourceException.java": {
+    "mtime": 1781701210.9893079,
+    "ast_hash": "9f0a4fe2fe34362b06367e20bbdfc18e",
+    "semantic_hash": "9f0a4fe2fe34362b06367e20bbdfc18e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\exceptions\\EmailException.java": {
+    "mtime": 1781701210.9903083,
+    "ast_hash": "4b7bd9146d839e0d42f5b911ebb850c2",
+    "semantic_hash": "4b7bd9146d839e0d42f5b911ebb850c2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\exceptions\\ForbiddenException.java": {
+    "mtime": 1781701210.9923077,
+    "ast_hash": "d5a4146a577402ea8d54f1149c843d7c",
+    "semantic_hash": "d5a4146a577402ea8d54f1149c843d7c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\exceptions\\InsufficientCreditsException.java": {
+    "mtime": 1782945919.6784658,
+    "ast_hash": "06b6eaf39364f89acad3623539ad5714",
+    "semantic_hash": "06b6eaf39364f89acad3623539ad5714"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\exceptions\\ResourceNotFoundException.java": {
+    "mtime": 1781701210.99331,
+    "ast_hash": "6a7a4d6f96c7d2ca23906f52ba09ec02",
+    "semantic_hash": "6a7a4d6f96c7d2ca23906f52ba09ec02"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\generation\\FakeGenerationProvider.java": {
+    "mtime": 1782998085.2414155,
+    "ast_hash": "19ef2a6f32c24e57cdac992f65ea07dd",
+    "semantic_hash": "19ef2a6f32c24e57cdac992f65ea07dd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\generation\\GenerationProvider.java": {
+    "mtime": 1782998083.9291444,
+    "ast_hash": "8f4f625755613a91edccb8bde4548715",
+    "semantic_hash": "8f4f625755613a91edccb8bde4548715"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\generation\\GenerationRequest.java": {
+    "mtime": 1782998076.931789,
+    "ast_hash": "2ef0a2b650937babf2f4c25589376101",
+    "semantic_hash": "2ef0a2b650937babf2f4c25589376101"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\generation\\GenerationResult.java": {
+    "mtime": 1782998078.3148832,
+    "ast_hash": "8028fe07cd81e17a56656ccc2e592d04",
+    "semantic_hash": "8028fe07cd81e17a56656ccc2e592d04"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\payment\\CheckoutRequest.java": {
+    "mtime": 1782998125.5615718,
+    "ast_hash": "08e33da1e67ed776f35fd11866024505",
+    "semantic_hash": "08e33da1e67ed776f35fd11866024505"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\payment\\CheckoutSession.java": {
+    "mtime": 1782998127.7650886,
+    "ast_hash": "7be135a459c00b2d70bdc076facd2337",
+    "semantic_hash": "7be135a459c00b2d70bdc076facd2337"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\payment\\FakePaymentGateway.java": {
+    "mtime": 1782998132.4118762,
+    "ast_hash": "1d3c3e5d0846dcfa4d14e103637ef63f",
+    "semantic_hash": "1d3c3e5d0846dcfa4d14e103637ef63f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\payment\\PaymentGateway.java": {
+    "mtime": 1782998129.64168,
+    "ast_hash": "17306ad15810e89ac23c7a0d534967a4",
+    "semantic_hash": "17306ad15810e89ac23c7a0d534967a4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\validation\\Password.java": {
+    "mtime": 1781701210.9980829,
+    "ast_hash": "4cba434d904e74755a91e730b37da3aa",
+    "semantic_hash": "4cba434d904e74755a91e730b37da3aa"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\validation\\PasswordValidator.java": {
+    "mtime": 1781701210.9980829,
+    "ast_hash": "6fca11ed0da35c7d792dfd21a3b8e5a0",
+    "semantic_hash": "6fca11ed0da35c7d792dfd21a3b8e5a0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\validation\\UserInsertValid.java": {
+    "mtime": 1781701210.9980829,
+    "ast_hash": "ef0828119b2edcdd78929fd85d9343f7",
+    "semantic_hash": "ef0828119b2edcdd78929fd85d9343f7"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\validation\\UserInsertValidator.java": {
+    "mtime": 1781701211.0042093,
+    "ast_hash": "3af34fd275f666d927ac575e7049d0b6",
+    "semantic_hash": "3af34fd275f666d927ac575e7049d0b6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\validation\\UserUpdateValid.java": {
+    "mtime": 1781701211.0055692,
+    "ast_hash": "41ebf075c47677b845c2a245ac7ee996",
+    "semantic_hash": "41ebf075c47677b845c2a245ac7ee996"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\java\\com\\venyx\\tiktokshop\\services\\validation\\UserUpdateValidator.java": {
+    "mtime": 1781701211.0055692,
+    "ast_hash": "42b5c63ecf24322c41185ee03ff86c61",
+    "semantic_hash": "42b5c63ecf24322c41185ee03ff86c61"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\resources\\db\\migration\\V1__init.sql": {
+    "mtime": 1781701922.145728,
+    "ast_hash": "c90f2b3f2100b275a6cae3dddc744d1b",
+    "semantic_hash": "c90f2b3f2100b275a6cae3dddc744d1b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\resources\\db\\migration\\V2__domain_entities.sql": {
+    "mtime": 1781703721.7742074,
+    "ast_hash": "fc043a53ecda87c6eb83d97430e048c1",
+    "semantic_hash": "fc043a53ecda87c6eb83d97430e048c1"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\resources\\db\\migration\\V3__base_transversal.sql": {
+    "mtime": 1782945645.565654,
+    "ast_hash": "22060ea5bf15ee58d83d4364615738cd",
+    "semantic_hash": "22060ea5bf15ee58d83d4364615738cd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\resources\\import.sql": {
+    "mtime": 1781703270.0656054,
+    "ast_hash": "77c0126eeef7a87ae7da021b1f3c6cd4",
+    "semantic_hash": "77c0126eeef7a87ae7da021b1f3c6cd4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\.lovable\\project.json": {
+    "mtime": 1783424904.7890508,
+    "ast_hash": "1a465d2fa66c18eaaa884bcde4d21b88",
+    "semantic_hash": "1a465d2fa66c18eaaa884bcde4d21b88"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\components.json": {
+    "mtime": 1783424904.77299,
+    "ast_hash": "30d3d035361ce807021f5c54620962e9",
+    "semantic_hash": "30d3d035361ce807021f5c54620962e9"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\eslint.config.js": {
+    "mtime": 1783424904.77299,
+    "ast_hash": "345bdd57e188e0e4525edcd00e5003f5",
+    "semantic_hash": "345bdd57e188e0e4525edcd00e5003f5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\package.json": {
+    "mtime": 1783424904.77299,
+    "ast_hash": "3312d70c64b6b7e8490b78b2cd2c0b9f",
+    "semantic_hash": "3312d70c64b6b7e8490b78b2cd2c0b9f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\CustomCursor.tsx": {
+    "mtime": 1783424898.6007826,
+    "ast_hash": "98b2c37dcd3ff8ba13a794c39345b892",
+    "semantic_hash": "98b2c37dcd3ff8ba13a794c39345b892"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\base\\brand-mark.tsx": {
+    "mtime": 1783424904.3476882,
+    "ast_hash": "6c81bdd8b299f0707e2b49eae1a6a7ea",
+    "semantic_hash": "6c81bdd8b299f0707e2b49eae1a6a7ea"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\base\\form-controls.tsx": {
+    "mtime": 1783424904.3630166,
+    "ast_hash": "c29427f6327c60298476bd60a7f18066",
+    "semantic_hash": "c29427f6327c60298476bd60a7f18066"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\base\\page.tsx": {
+    "mtime": 1783424904.3630166,
+    "ast_hash": "150b2edeb4ce957e0ecb5ebad1459497",
+    "semantic_hash": "150b2edeb4ce957e0ecb5ebad1459497"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\base\\primitives.tsx": {
+    "mtime": 1783424904.3630166,
+    "ast_hash": "34d61e41c14d97b078f8bd6e064d30b0",
+    "semantic_hash": "34d61e41c14d97b078f8bd6e064d30b0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\cards\\product-card.tsx": {
+    "mtime": 1783424904.3630166,
+    "ast_hash": "cbc87a5229e554c8527804abd0a373b9",
+    "semantic_hash": "cbc87a5229e554c8527804abd0a373b9"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\navigation\\stepper.tsx": {
+    "mtime": 1783424904.3787866,
+    "ast_hash": "5374c7913050e1f4a2c71d7485afd2fa",
+    "semantic_hash": "5374c7913050e1f4a2c71d7485afd2fa"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\studio\\studio-components.tsx": {
+    "mtime": 1783424904.3787866,
+    "ast_hash": "8cdd3e9afec22e27eaf518cec250025d",
+    "semantic_hash": "8cdd3e9afec22e27eaf518cec250025d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\accordion.tsx": {
+    "mtime": 1783424904.3787866,
+    "ast_hash": "55f9dda62b4e3913c9b23e5015a86aef",
+    "semantic_hash": "55f9dda62b4e3913c9b23e5015a86aef"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\alert-dialog.tsx": {
+    "mtime": 1783424904.3787866,
+    "ast_hash": "96350e949e9b7b674545430a410ab89c",
+    "semantic_hash": "96350e949e9b7b674545430a410ab89c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\alert.tsx": {
+    "mtime": 1783424904.3944576,
+    "ast_hash": "f993d7e96b1e25ce50e68ed97e11d2a8",
+    "semantic_hash": "f993d7e96b1e25ce50e68ed97e11d2a8"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\aspect-ratio.tsx": {
+    "mtime": 1783424904.3944576,
+    "ast_hash": "f993d7e96b1e25ce50e68ed97e11d2a8",
+    "semantic_hash": "f993d7e96b1e25ce50e68ed97e11d2a8"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\avatar.tsx": {
+    "mtime": 1783424904.3944576,
+    "ast_hash": "72989cd32f72c4122802540ef32525a5",
+    "semantic_hash": "72989cd32f72c4122802540ef32525a5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\badge.tsx": {
+    "mtime": 1783424904.3944576,
+    "ast_hash": "81cade001fc4260f9943e18dcd79449b",
+    "semantic_hash": "81cade001fc4260f9943e18dcd79449b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\breadcrumb.tsx": {
+    "mtime": 1783424904.4103582,
+    "ast_hash": "bb9ac254f12662b20d5d50b84308bf3a",
+    "semantic_hash": "bb9ac254f12662b20d5d50b84308bf3a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\button.tsx": {
+    "mtime": 1783424904.4103582,
+    "ast_hash": "98ac77ae2845683607f5aabd52133483",
+    "semantic_hash": "98ac77ae2845683607f5aabd52133483"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\calendar.tsx": {
+    "mtime": 1783424904.4103582,
+    "ast_hash": "415d91d7006d4cc654e27620fca340f6",
+    "semantic_hash": "415d91d7006d4cc654e27620fca340f6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\card.tsx": {
+    "mtime": 1783424904.4103582,
+    "ast_hash": "c087d8208b4631c33498bc5db41a77bc",
+    "semantic_hash": "c087d8208b4631c33498bc5db41a77bc"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\carousel.tsx": {
+    "mtime": 1783424904.426017,
+    "ast_hash": "e324c68ae00cd5aed49317638abd429a",
+    "semantic_hash": "e324c68ae00cd5aed49317638abd429a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\chart.tsx": {
+    "mtime": 1783424904.4311733,
+    "ast_hash": "6a3baf94f2e89f1f97d4d7a28f3622d2",
+    "semantic_hash": "6a3baf94f2e89f1f97d4d7a28f3622d2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\checkbox.tsx": {
+    "mtime": 1783424904.4355538,
+    "ast_hash": "f78aac270ca482c8c2cb907ef6260462",
+    "semantic_hash": "f78aac270ca482c8c2cb907ef6260462"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\collapsible.tsx": {
+    "mtime": 1783424904.4417472,
+    "ast_hash": "767631bbc344945c236f185f4078d71d",
+    "semantic_hash": "767631bbc344945c236f185f4078d71d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\command.tsx": {
+    "mtime": 1783424904.4417472,
+    "ast_hash": "014782599cc838b021ec68b07ad4ea02",
+    "semantic_hash": "014782599cc838b021ec68b07ad4ea02"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\context-menu.tsx": {
+    "mtime": 1783424904.4506843,
+    "ast_hash": "e9d689beb53d9adb63165bfe64838bf6",
+    "semantic_hash": "e9d689beb53d9adb63165bfe64838bf6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\dialog.tsx": {
+    "mtime": 1783424904.45261,
+    "ast_hash": "ef4fe8e7de8675730afe3d633b260e09",
+    "semantic_hash": "ef4fe8e7de8675730afe3d633b260e09"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\drawer.tsx": {
+    "mtime": 1783424904.4574678,
+    "ast_hash": "8be333e8fd8e42576b1b5f72f07f4337",
+    "semantic_hash": "8be333e8fd8e42576b1b5f72f07f4337"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\dropdown-menu.tsx": {
+    "mtime": 1783424904.4574678,
+    "ast_hash": "32156e221f3473280114c80fdb818829",
+    "semantic_hash": "32156e221f3473280114c80fdb818829"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\form.tsx": {
+    "mtime": 1783424904.4574678,
+    "ast_hash": "1b0aa6302b9017ea2a1307c22a1d2983",
+    "semantic_hash": "1b0aa6302b9017ea2a1307c22a1d2983"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\hover-card.tsx": {
+    "mtime": 1783424904.4574678,
+    "ast_hash": "1442794c5ca2a78d69e4e613b315ed3d",
+    "semantic_hash": "1442794c5ca2a78d69e4e613b315ed3d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\input-otp.tsx": {
+    "mtime": 1783424904.47349,
+    "ast_hash": "58cff10c8942cac8483c0bcd65d39d3c",
+    "semantic_hash": "58cff10c8942cac8483c0bcd65d39d3c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\input.tsx": {
+    "mtime": 1783424904.47349,
+    "ast_hash": "1d4cc52a4cd8afb3e18e45bda942bb8a",
+    "semantic_hash": "1d4cc52a4cd8afb3e18e45bda942bb8a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\label.tsx": {
+    "mtime": 1783424904.47349,
+    "ast_hash": "7e35df4ca8edd0835efd97ca7937ef92",
+    "semantic_hash": "7e35df4ca8edd0835efd97ca7937ef92"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\menubar.tsx": {
+    "mtime": 1783424904.47349,
+    "ast_hash": "5870465653e12c3d0e35a2fad6f9faa9",
+    "semantic_hash": "5870465653e12c3d0e35a2fad6f9faa9"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\navigation-menu.tsx": {
+    "mtime": 1783424904.4913013,
+    "ast_hash": "e85351147a02b29577ff83d188b63c24",
+    "semantic_hash": "e85351147a02b29577ff83d188b63c24"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\pagination.tsx": {
+    "mtime": 1783424904.4913013,
+    "ast_hash": "fac6cdbb4bbf78b273d85cd36d6cbb49",
+    "semantic_hash": "fac6cdbb4bbf78b273d85cd36d6cbb49"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\popover.tsx": {
+    "mtime": 1783424904.5020072,
+    "ast_hash": "f18aa1da2144f25ee60795c539c51bcd",
+    "semantic_hash": "f18aa1da2144f25ee60795c539c51bcd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\progress.tsx": {
+    "mtime": 1783424904.5053473,
+    "ast_hash": "55c462e5c9dd678dcf2c0c510b014ac4",
+    "semantic_hash": "55c462e5c9dd678dcf2c0c510b014ac4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\radio-group.tsx": {
+    "mtime": 1783424904.5095756,
+    "ast_hash": "0e1ace237a5da3197e3eb1e6683faba9",
+    "semantic_hash": "0e1ace237a5da3197e3eb1e6683faba9"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\resizable.tsx": {
+    "mtime": 1783424904.5095756,
+    "ast_hash": "d9fcb9203c749fcab4e125a99bb12a86",
+    "semantic_hash": "d9fcb9203c749fcab4e125a99bb12a86"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\scroll-area.tsx": {
+    "mtime": 1783424904.5095756,
+    "ast_hash": "87b65d3eb26f2b02ff35a7acea585ba5",
+    "semantic_hash": "87b65d3eb26f2b02ff35a7acea585ba5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\select.tsx": {
+    "mtime": 1783424904.5209968,
+    "ast_hash": "31ea1bbd6671833b010b2e852c8a55d0",
+    "semantic_hash": "31ea1bbd6671833b010b2e852c8a55d0"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\separator.tsx": {
+    "mtime": 1783424904.5277545,
+    "ast_hash": "433d163c4ffa00b59398a0c293198b5e",
+    "semantic_hash": "433d163c4ffa00b59398a0c293198b5e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\sheet.tsx": {
+    "mtime": 1783424904.5303218,
+    "ast_hash": "0221fbf97b69611b47fcbc10bb27669a",
+    "semantic_hash": "0221fbf97b69611b47fcbc10bb27669a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\sidebar.tsx": {
+    "mtime": 1783424904.5362618,
+    "ast_hash": "83c1623eb50ebc370d7b1b84a542e369",
+    "semantic_hash": "83c1623eb50ebc370d7b1b84a542e369"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\skeleton.tsx": {
+    "mtime": 1783424904.5378191,
+    "ast_hash": "41b182e6e2fc3805960d41e767d4a972",
+    "semantic_hash": "41b182e6e2fc3805960d41e767d4a972"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\slider.tsx": {
+    "mtime": 1783424904.5378191,
+    "ast_hash": "4752f1bfa26426988d325599e01c335b",
+    "semantic_hash": "4752f1bfa26426988d325599e01c335b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\sonner.tsx": {
+    "mtime": 1783424904.5378191,
+    "ast_hash": "bcf3d2eabfc55f5ad8e72ee9c2ea8978",
+    "semantic_hash": "bcf3d2eabfc55f5ad8e72ee9c2ea8978"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\switch.tsx": {
+    "mtime": 1783424904.5378191,
+    "ast_hash": "82f5d8b0c59bb7ff305caa9f502e79ff",
+    "semantic_hash": "82f5d8b0c59bb7ff305caa9f502e79ff"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\table.tsx": {
+    "mtime": 1783424904.5525684,
+    "ast_hash": "7cc889989d53894b659903c73aded96e",
+    "semantic_hash": "7cc889989d53894b659903c73aded96e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\tabs.tsx": {
+    "mtime": 1783424904.5525684,
+    "ast_hash": "56e725558c2ce72c18243bf51717f385",
+    "semantic_hash": "56e725558c2ce72c18243bf51717f385"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\textarea.tsx": {
+    "mtime": 1783424904.5525684,
+    "ast_hash": "c7aad96fb9545210d53135a96c76ed6b",
+    "semantic_hash": "c7aad96fb9545210d53135a96c76ed6b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\toggle-group.tsx": {
+    "mtime": 1783424904.5648072,
+    "ast_hash": "ac26383acf721d116ca8e3ab5c5355d5",
+    "semantic_hash": "ac26383acf721d116ca8e3ab5c5355d5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\toggle.tsx": {
+    "mtime": 1783424904.567783,
+    "ast_hash": "ee8c5adac74e7242b85b544db1a8fbad",
+    "semantic_hash": "ee8c5adac74e7242b85b544db1a8fbad"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\components\\ui\\tooltip.tsx": {
+    "mtime": 1783424904.5724266,
+    "ast_hash": "67d71db5a1ab935695d1def497f5b8a6",
+    "semantic_hash": "67d71db5a1ab935695d1def497f5b8a6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\admin\\admin-screen.tsx": {
+    "mtime": 1783424904.578278,
+    "ast_hash": "c0f12b4dcf915ed3175e74559322a5f6",
+    "semantic_hash": "c0f12b4dcf915ed3175e74559322a5f6"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\auth\\auth-screen.tsx": {
+    "mtime": 1783424904.583047,
+    "ast_hash": "e9f51c731bf5a6866b4ba8bc9f19ab2c",
+    "semantic_hash": "e9f51c731bf5a6866b4ba8bc9f19ab2c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\avatars\\avatar-studio.tsx": {
+    "mtime": 1783424904.5871089,
+    "ast_hash": "a5247cf16486e28a46505dca42d0e849",
+    "semantic_hash": "a5247cf16486e28a46505dca42d0e849"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\avatars\\avatars-list.tsx": {
+    "mtime": 1783424899.1082408,
+    "ast_hash": "6e426d983de107f9e0715a86be3addc7",
+    "semantic_hash": "6e426d983de107f9e0715a86be3addc7"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\creation\\creation-studio.tsx": {
+    "mtime": 1783424904.591341,
+    "ast_hash": "79cf833e237c0bd6d4fe4e518db722ad",
+    "semantic_hash": "79cf833e237c0bd6d4fe4e518db722ad"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\dashboard\\dashboard.tsx": {
+    "mtime": 1783424904.5957263,
+    "ast_hash": "d40e8cc243862528e44942ecfa0fefb1",
+    "semantic_hash": "d40e8cc243862528e44942ecfa0fefb1"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\launchpad\\launchpad.tsx": {
+    "mtime": 1783424904.6006932,
+    "ast_hash": "72c6fcadb33599ed4c04b8d8076ced4a",
+    "semantic_hash": "72c6fcadb33599ed4c04b8d8076ced4a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\misc\\misc-screens.tsx": {
+    "mtime": 1783424904.6046195,
+    "ast_hash": "152559bd34e55cec154bc948cb1571e4",
+    "semantic_hash": "152559bd34e55cec154bc948cb1571e4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\modelos\\model-assembly-screen.tsx": {
+    "mtime": 1783424899.1714463,
+    "ast_hash": "14e025f46f7eb84749b045f7372bed19",
+    "semantic_hash": "14e025f46f7eb84749b045f7372bed19"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\modelos\\modelos-screen.tsx": {
+    "mtime": 1783424899.1714463,
+    "ast_hash": "8120f96bef614e3231c002445ff537c3",
+    "semantic_hash": "8120f96bef614e3231c002445ff537c3"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\products\\components\\add-product-modal.tsx": {
+    "mtime": 1783424904.60867,
+    "ast_hash": "a5ffd63f3cfa5b49c60602d938afd38d",
+    "semantic_hash": "a5ffd63f3cfa5b49c60602d938afd38d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\products\\components\\product-details-modal.tsx": {
+    "mtime": 1783424904.614754,
+    "ast_hash": "9bc5265274837834ee6ec9b609e435a2",
+    "semantic_hash": "9bc5265274837834ee6ec9b609e435a2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\products\\product-models-picker.tsx": {
+    "mtime": 1783424899.1872182,
+    "ast_hash": "bbdc10020fa692d5e2f1e4e58e22d817",
+    "semantic_hash": "bbdc10020fa692d5e2f1e4e58e22d817"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\products\\products-screen.tsx": {
+    "mtime": 1783424904.60867,
+    "ast_hash": "72127b02f9399a22067c2fc90ac93fa9",
+    "semantic_hash": "72127b02f9399a22067c2fc90ac93fa9"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\features\\trends\\trend-boost.tsx": {
+    "mtime": 1783424904.614754,
+    "ast_hash": "f17799c7f3edfa6c6fd94e1fe54d8e70",
+    "semantic_hash": "f17799c7f3edfa6c6fd94e1fe54d8e70"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\hooks\\use-mobile.tsx": {
+    "mtime": 1783424904.614754,
+    "ast_hash": "c0a0bdd4638c391a1dd06ac82074e60b",
+    "semantic_hash": "c0a0bdd4638c391a1dd06ac82074e60b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\layouts\\app-shell.tsx": {
+    "mtime": 1783424904.614754,
+    "ast_hash": "fa29f80186980a7929ba54d997ea5447",
+    "semantic_hash": "fa29f80186980a7929ba54d997ea5447"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\layouts\\auth-shell.tsx": {
+    "mtime": 1783424904.6305692,
+    "ast_hash": "33baf9eec1d5e14886af0fabf7be7af1",
+    "semantic_hash": "33baf9eec1d5e14886af0fabf7be7af1"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\layouts\\notifications-panel.tsx": {
+    "mtime": 1783424904.6305692,
+    "ast_hash": "63d17b534efaab0eda592f68c1327609",
+    "semantic_hash": "63d17b534efaab0eda592f68c1327609"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\layouts\\signature-background.tsx": {
+    "mtime": 1783424904.6305692,
+    "ast_hash": "cf83a3275978a8f62eb63ef713a13e02",
+    "semantic_hash": "cf83a3275978a8f62eb63ef713a13e02"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\api\\example.functions.ts": {
+    "mtime": 1783424904.6624048,
+    "ast_hash": "043d58c65b874e64b81caf99e5963ecf",
+    "semantic_hash": "043d58c65b874e64b81caf99e5963ecf"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\config.server.ts": {
+    "mtime": 1783424904.6305692,
+    "ast_hash": "630ee452f2db063bc3eb97a65e1ade1f",
+    "semantic_hash": "630ee452f2db063bc3eb97a65e1ade1f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\constants.ts": {
+    "mtime": 1783424904.6466463,
+    "ast_hash": "71aa344f8d55a6a309d51f7098b35c9d",
+    "semantic_hash": "71aa344f8d55a6a309d51f7098b35c9d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\error-capture.ts": {
+    "mtime": 1783424904.6466463,
+    "ast_hash": "00e77bfacfb2d79c0816361e678f1b65",
+    "semantic_hash": "00e77bfacfb2d79c0816361e678f1b65"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\error-page.ts": {
+    "mtime": 1783424904.6466463,
+    "ast_hash": "8da0ddd7569bac2676b9a5c8edff8a36",
+    "semantic_hash": "8da0ddd7569bac2676b9a5c8edff8a36"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\lovable-error-reporting.ts": {
+    "mtime": 1783424904.6466463,
+    "ast_hash": "0e6014b8724d59792cd855f3d014c2fe",
+    "semantic_hash": "0e6014b8724d59792cd855f3d014c2fe"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\mock-session.tsx": {
+    "mtime": 1783424904.6466463,
+    "ast_hash": "65fd343deafa80f64aa09079702aa844",
+    "semantic_hash": "65fd343deafa80f64aa09079702aa844"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\lib\\utils.ts": {
+    "mtime": 1783424904.6624048,
+    "ast_hash": "d9837f38cc05303254571985e3164050",
+    "semantic_hash": "d9837f38cc05303254571985e3164050"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\mock\\data.ts": {
+    "mtime": 1783424904.6624048,
+    "ast_hash": "cc49afdab9b7c97bf9394e90c858a6cb",
+    "semantic_hash": "cc49afdab9b7c97bf9394e90c858a6cb"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routeTree.gen.ts": {
+    "mtime": 1783424904.3374283,
+    "ast_hash": "cab715c69fb71f8c2782e3c87bbdd25d",
+    "semantic_hash": "cab715c69fb71f8c2782e3c87bbdd25d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\router.tsx": {
+    "mtime": 1783424904.3476882,
+    "ast_hash": "891ac6562951ae838a90ceff239bde5d",
+    "semantic_hash": "891ac6562951ae838a90ceff239bde5d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\__root.tsx": {
+    "mtime": 1783424904.6781962,
+    "ast_hash": "2ce98a96a74457b11d6c2ca9416f67de",
+    "semantic_hash": "2ce98a96a74457b11d6c2ca9416f67de"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\academy.tsx": {
+    "mtime": 1783424904.6781962,
+    "ast_hash": "cd5d675cbafaeea1598f59c62d4d13a4",
+    "semantic_hash": "cd5d675cbafaeea1598f59c62d4d13a4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\admin.tsx": {
+    "mtime": 1783424904.6781962,
+    "ast_hash": "811f22f50f7d0f8a4d2735413b87c9e7",
+    "semantic_hash": "811f22f50f7d0f8a4d2735413b87c9e7"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\avatares.tsx": {
+    "mtime": 1783424904.6781962,
+    "ast_hash": "1c3a6bdee2710372ff8e5ca1710d7723",
+    "semantic_hash": "1c3a6bdee2710372ff8e5ca1710d7723"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\cadastro.tsx": {
+    "mtime": 1783424904.6781962,
+    "ast_hash": "1e376ad98aa478a09b9b577bd46e106b",
+    "semantic_hash": "1e376ad98aa478a09b9b577bd46e106b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\configuracoes.tsx": {
+    "mtime": 1783424904.69596,
+    "ast_hash": "e127a182a11470d8fca4cc998d3e2a51",
+    "semantic_hash": "e127a182a11470d8fca4cc998d3e2a51"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\creditos.tsx": {
+    "mtime": 1783424904.6990893,
+    "ast_hash": "d7b68f200ddf57b337d4f9274251a412",
+    "semantic_hash": "d7b68f200ddf57b337d4f9274251a412"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\criar-avatar.tsx": {
+    "mtime": 1783424899.4241006,
+    "ast_hash": "f9285a10b2a066b09b1b29e7cc7fe12d",
+    "semantic_hash": "f9285a10b2a066b09b1b29e7cc7fe12d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\dashboard.tsx": {
+    "mtime": 1783424904.7026813,
+    "ast_hash": "62725b75e42dbd77f67fe216b5391f8a",
+    "semantic_hash": "62725b75e42dbd77f67fe216b5391f8a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\editor.tsx": {
+    "mtime": 1783424904.706119,
+    "ast_hash": "a89fdb9cedf2a2f215822ba6b5c45c3d",
+    "semantic_hash": "a89fdb9cedf2a2f215822ba6b5c45c3d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\estudio.$format.tsx": {
+    "mtime": 1783424904.7097893,
+    "ast_hash": "495f0258320f3d2e7534e554ada65ee2",
+    "semantic_hash": "495f0258320f3d2e7534e554ada65ee2"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\estudio.index.tsx": {
+    "mtime": 1783424904.7097893,
+    "ast_hash": "efa9298e41210db983608c9a50d41d61",
+    "semantic_hash": "efa9298e41210db983608c9a50d41d61"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\estudio.tsx": {
+    "mtime": 1783424904.7097893,
+    "ast_hash": "d7dad5137d29e26ef782969e4967f213",
+    "semantic_hash": "d7dad5137d29e26ef782969e4967f213"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\ferramentas.tsx": {
+    "mtime": 1783424904.7097893,
+    "ast_hash": "44cfb0174d591e707fc116c8b97ffd11",
+    "semantic_hash": "44cfb0174d591e707fc116c8b97ffd11"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\gerar.modelo-viral.tsx": {
+    "mtime": 1783424899.4716923,
+    "ast_hash": "40e8080510f22a924b411c72a3f4f23f",
+    "semantic_hash": "40e8080510f22a924b411c72a3f4f23f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\index.tsx": {
+    "mtime": 1783424904.7097893,
+    "ast_hash": "f8121403a6e657cf7b226f8bea37911b",
+    "semantic_hash": "f8121403a6e657cf7b226f8bea37911b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\indicacao.tsx": {
+    "mtime": 1783424904.7256632,
+    "ast_hash": "95a1ae9dc8dc9df65032f97f1dd9d5ba",
+    "semantic_hash": "95a1ae9dc8dc9df65032f97f1dd9d5ba"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\login.tsx": {
+    "mtime": 1783424904.7256632,
+    "ast_hash": "287b26f46618f5984cb2d5874becbbc5",
+    "semantic_hash": "287b26f46618f5984cb2d5874becbbc5"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\modelos.index.tsx": {
+    "mtime": 1783424899.4873505,
+    "ast_hash": "86ebd2f6e707dbffe7ceb06b6942497c",
+    "semantic_hash": "86ebd2f6e707dbffe7ceb06b6942497c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\modelos.tsx": {
+    "mtime": 1783424899.4873505,
+    "ast_hash": "3f0a17453a000bce1919c8cca88fe1e9",
+    "semantic_hash": "3f0a17453a000bce1919c8cca88fe1e9"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\modelos.usar.tsx": {
+    "mtime": 1783424899.4873505,
+    "ast_hash": "efe7c631a0024aad8ad7352f6c0fb22f",
+    "semantic_hash": "efe7c631a0024aad8ad7352f6c0fb22f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\perfil.tsx": {
+    "mtime": 1783424904.7256632,
+    "ast_hash": "007488dba517a54bfa67833510e762eb",
+    "semantic_hash": "007488dba517a54bfa67833510e762eb"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\produtos.tsx": {
+    "mtime": 1783424904.7380655,
+    "ast_hash": "55c35495d804522d163108b02da49e33",
+    "semantic_hash": "55c35495d804522d163108b02da49e33"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\prompts.tsx": {
+    "mtime": 1783424904.7419682,
+    "ast_hash": "ed4e484045f3364a43e03d47a252473d",
+    "semantic_hash": "ed4e484045f3364a43e03d47a252473d"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\sitemap[.]xml.ts": {
+    "mtime": 1783424904.7419682,
+    "ast_hash": "239e08ee30d43656adb2f49b1cbbae19",
+    "semantic_hash": "239e08ee30d43656adb2f49b1cbbae19"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\trend-boost.$template.tsx": {
+    "mtime": 1783424904.7419682,
+    "ast_hash": "e302b4d196ec470c3fe429dedf2b8e4e",
+    "semantic_hash": "e302b4d196ec470c3fe429dedf2b8e4e"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\trend-boost.index.tsx": {
+    "mtime": 1783424904.7419682,
+    "ast_hash": "64955b04cd27e69d31c633a24b0b89cb",
+    "semantic_hash": "64955b04cd27e69d31c633a24b0b89cb"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\trend-boost.tsx": {
+    "mtime": 1783424904.7419682,
+    "ast_hash": "d19e8367790b138c7476ea3f19c30e71",
+    "semantic_hash": "d19e8367790b138c7476ea3f19c30e71"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\server.ts": {
+    "mtime": 1783424904.3476882,
+    "ast_hash": "fbc6ebe75c2c10edbbe88119737e2f68",
+    "semantic_hash": "fbc6ebe75c2c10edbbe88119737e2f68"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\start.ts": {
+    "mtime": 1783424904.3476882,
+    "ast_hash": "dc15eda4f935f0db8392d02ab93cbce4",
+    "semantic_hash": "dc15eda4f935f0db8392d02ab93cbce4"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\tsconfig.json": {
+    "mtime": 1783424904.7890508,
+    "ast_hash": "27d03f6f98f5a2ec13c7a22596bead08",
+    "semantic_hash": "27d03f6f98f5a2ec13c7a22596bead08"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\vite.config.ts": {
+    "mtime": 1783424904.7890508,
+    "ast_hash": "9b5826e4234170e2eda50f3eb7a1b95c",
+    "semantic_hash": "9b5826e4234170e2eda50f3eb7a1b95c"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\postman\\Venyx.postman_collection.json": {
+    "mtime": 1783090564.7414038,
+    "ast_hash": "9a5d5567a21dae71d0012346fab9db91",
+    "semantic_hash": "9a5d5567a21dae71d0012346fab9db91"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\postman\\Venyx.postman_environment.json": {
+    "mtime": 1783079523.917341,
+    "ast_hash": "4e210f07223c55e8a55a0f8035b65acd",
+    "semantic_hash": "4e210f07223c55e8a55a0f8035b65acd"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\HELP.md": {
+    "mtime": 1781699678.9783862,
+    "ast_hash": "5df2ad528b9c1ced7c5d246a024ce997",
+    "semantic_hash": "5df2ad528b9c1ced7c5d246a024ce997"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\docker-compose.minio.yml": {
+    "mtime": 1775053544.360018,
+    "ast_hash": "5bf860ea7a6e5922373e15b97f8ca391",
+    "semantic_hash": "5bf860ea7a6e5922373e15b97f8ca391"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\docker-compose.postgres.yml": {
+    "mtime": 1781702276.8292756,
+    "ast_hash": "cb39641d27e98cf3ffd11a87666bfc6a",
+    "semantic_hash": "cb39641d27e98cf3ffd11a87666bfc6a"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\backend\\src\\main\\resources\\templates\\login.html": {
+    "mtime": 1781701959.6195824,
+    "ast_hash": "426813f7197e4f55de3f277a4b759a76",
+    "semantic_hash": "426813f7197e4f55de3f277a4b759a76"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\docs\\ARQUITETURA.md": {
+    "mtime": 1783428146.347185,
+    "ast_hash": "d1faf291aa1e024b20a10887bdff7e08",
+    "semantic_hash": "d1faf291aa1e024b20a10887bdff7e08"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\docs\\PLANO_EXECUCAO.md": {
+    "mtime": 1783428453.2028441,
+    "ast_hash": "1268ba7ba572dd76517c1615748c009f",
+    "semantic_hash": "1268ba7ba572dd76517c1615748c009f"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\docs\\REQUISITOS.md": {
+    "mtime": 1783428403.7479293,
+    "ast_hash": "e8c9c55ee71a7eb451798442c25c972b",
+    "semantic_hash": "e8c9c55ee71a7eb451798442c25c972b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\docs\\TELAS_PENDENTES.md": {
+    "mtime": 1783426872.037526,
+    "ast_hash": "c0a092eccc577a79b7290684fe425c52",
+    "semantic_hash": "c0a092eccc577a79b7290684fe425c52"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\.lovable\\plan.md": {
+    "mtime": 1783424904.7890508,
+    "ast_hash": "d72429d94b0ca92043af9be2fe4fbbe8",
+    "semantic_hash": "d72429d94b0ca92043af9be2fe4fbbe8"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\frontend\\src\\routes\\README.md": {
+    "mtime": 1783424904.6624048,
+    "ast_hash": "5c2a5d0092251bcee295864af048965b",
+    "semantic_hash": "5c2a5d0092251bcee295864af048965b"
+  },
+  "C:\\Projetos\\tiktokshop-saas\\docs\\Proposta_Comercial_Venyx_-_Plataforma_SaaS_TikTok_Shop.pdf": {
+    "mtime": 1781697182.3065133,
+    "ast_hash": "000f9bebb3dff9fe7b9af5d4600c3f97",
+    "semantic_hash": "000f9bebb3dff9fe7b9af5d4600c3f97"
+  }
+}
