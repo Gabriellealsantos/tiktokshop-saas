@@ -37,6 +37,10 @@ public class Avatar {
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "generation_id")
+    private ImageGeneration generation;
+
     public Avatar() {
     }
 
@@ -87,6 +91,18 @@ public class Avatar {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public ImageGeneration getGeneration() {
+        return generation;
+    }
+
+    public void setGeneration(ImageGeneration generation) {
+        this.generation = generation;
     }
 
     @Override

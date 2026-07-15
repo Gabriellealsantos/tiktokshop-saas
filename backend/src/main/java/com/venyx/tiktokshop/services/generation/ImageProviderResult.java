@@ -1,3 +1,3 @@
 package com.venyx.tiktokshop.services.generation;
 
-public record ImageProviderResult(String imageUrl) {}
+public record ImageProviderResult(byte[] content, String mimeType) {}

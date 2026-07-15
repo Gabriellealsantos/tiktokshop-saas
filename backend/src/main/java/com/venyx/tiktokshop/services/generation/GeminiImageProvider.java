@@ -1,6 +1,5 @@
 package com.venyx.tiktokshop.services.generation;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import org.slf4j.Logger;
@@ -9,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,22 +35,29 @@ public class GeminiImageProvider  implements ImageProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GeminiImageProvider.class);
 
-    private static final String IMAGE_FOLDER = "avatars";
-
     private final RestClient restClient;
     private final StorageService storageService;
     private final String model;
+    private final ObjectMapper objectMapper;
+    private final HttpClient httpClient;
 
     public GeminiImageProvider(StorageService storageService,
+                               ObjectMapper objectMapper,
                                @Value("${venyx.gemini.base-url}") String baseUrl,
                                @Value("${venyx.gemini.api-key}") String apiKey,
                                @Value("${venyx.gemini.model}") String model,
                                @Value("${venyx.gemini.timeout-seconds}") int timeoutSeconds) {
         this.storageService = storageService;
+        this.objectMapper = objectMapper;
         this.model = model;
 
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
         factory.setReadTimeout(ofSeconds(timeoutSeconds));
+
+        this.httpClient = HttpClient.newBuilder()
+                .followRedirects(NEVER)
+                .connectTimeout(ofSeconds(10))
+                .build();
 
         this.restClient = RestClient.builder()
                 .requestFactory(factory)
@@ -65,14 +73,16 @@ public class GeminiImageProvider  implements ImageProvider {
                 "model", model,
                 "input", buildInput(request));
 
-        JsonNode response = restClient.post()
-                .body(body)
+        String payload = objectMapper.writeValueAsString(body);
+
+        String raw = restClient.post()
+                .body(payload)
                 .retrieve()
-                .body(JsonNode.class);
+                .body(String.class);
 
-        logger.info("[GEMINI] resposta: {}", response);
+        logger.debug("[GEMINI] resposta recebida ({} bytes)", raw.length());
 
-        JsonNode image = findImageNode(response);
+        JsonNode image = findImageNode(objectMapper.readTree(raw));
         if (image == null) {
             throw new BusinessException("Gemini não retornou imagem.");
         }
@@ -80,38 +90,9 @@ public class GeminiImageProvider  implements ImageProvider {
         byte[] bytes = getDecoder().decode(image.path("data").asText());
         String mimeType = image.path("mime_type").asText("image/png");
 
-        return new ImageProviderResult(uploadWithRetry(bytes, mimeType));
+        return new ImageProviderResult(bytes, mimeType);
     }
 
-    private String uploadWithRetry(byte[] bytes, String mimeType) {
-
-
-        RuntimeException last = null;
-
-        for (int attempt = 1; attempt <= 3; attempt++) {
-            try {
-                return storageService.upload(bytes, mimeType, IMAGE_FOLDER);
-            } catch (RuntimeException e) {
-                last = e;
-                logger.warn("[GEMINI] Falha no upload da imagem (tentativa {}/3): {}", attempt, e.getMessage());
-                if (attempt < 3) {
-                    sleep(attempt);
-                }
-            }
-        }
-
-        logger.error("[GEMINI] Imagem gerada e paga foi perdida — upload falhou 3x.", last);
-        throw new BusinessException("Imagem gerada, mas o armazenamento falhou. Tente novamente.");
-    }
-
-    private void sleep(int attempt) {
-        try {
-            Thread.sleep(attempt * 500L);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new BusinessException("Upload interrompido.");
-        }
-    }
 
     private List<Map<String, Object>> buildInput(ImageProviderRequest request) {
         List<Map<String, Object>> input = new ArrayList<>();
@@ -129,22 +110,18 @@ public class GeminiImageProvider  implements ImageProvider {
 
     private byte[] downloadReference(String url) {
         URI uri = parseAndValidate(url);
-
-        HttpClient client = HttpClient.newBuilder()
-                .followRedirects(NEVER)
-                .connectTimeout(ofSeconds(10))
-                .build();
-
         HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
 
         try {
-            HttpResponse<byte[]> response = client.send(request, ofByteArray());
+            HttpResponse<byte[]> response = httpClient.send(request, ofByteArray());
             if (response.statusCode() != 200) {
                 throw new BusinessException("Falha ao baixar a imagem de referência.");
             }
             return response.body();
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new BusinessException("Download da imagem de referência interrompido.");
+        } catch (IOException e) {
             throw new BusinessException("Falha ao baixar a imagem de referência.");
         }
     }

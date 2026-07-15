@@ -1,6 +1,8 @@
 package com.venyx.tiktokshop.services;
 
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,9 @@ import java.util.UUID;
  */
 @Service
 public class StorageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(StorageService.class);
+    private static final int UPLOAD_ATTEMPTS = 3;
 
     private static final Map<String, byte[]> MAGIC_BYTES = Map.of(
             "image/png",  new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47},
@@ -82,6 +87,36 @@ public class StorageService {
         return buildUrl(key);
     }
 
+    public String uploadWithRetry(byte[] content, String contentType, String folder) {
+        RuntimeException last = null;
+
+        for (int attempt = 1; attempt <= UPLOAD_ATTEMPTS; attempt++) {
+            try {
+                return upload(content, contentType, folder);
+            } catch (BusinessException e) {
+                throw e;
+            } catch (RuntimeException e) {
+                last = e;
+                logger.warn("Falha no upload (tentativa {}/{}): {}", attempt, UPLOAD_ATTEMPTS, e.getMessage());
+                if (attempt < UPLOAD_ATTEMPTS) {
+                    sleep(attempt);
+                }
+            }
+        }
+
+        logger.error("Upload falhou após {} tentativas — imagem gerada foi perdida.", UPLOAD_ATTEMPTS, last);
+        throw new BusinessException("Falha ao armazenar a imagem. Tente novamente.");
+    }
+
+    private void sleep(int attempt) {
+        try {
+            Thread.sleep(attempt * 500L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new BusinessException("Upload interrompido.");
+        }
+    }
+
     public String publicBaseUrl() {
         if (endpoint != null && !endpoint.isBlank()) {
             return endpoint + "/" + bucket;
@@ -109,4 +144,6 @@ public class StorageService {
     private String buildUrl(String key) {
         return publicBaseUrl() + "/" + key;
     }
+
+
 }

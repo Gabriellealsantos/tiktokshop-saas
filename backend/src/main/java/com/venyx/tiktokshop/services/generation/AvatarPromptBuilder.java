@@ -1,35 +1,49 @@
 package com.venyx.tiktokshop.services.generation;
 
-import com.venyx.tiktokshop.services.exceptions.BusinessException;
+import com.venyx.tiktokshop.dtos.AvatarConfigDTO;
+import com.venyx.tiktokshop.entities.enums.HairStyle;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Component
 public class AvatarPromptBuilder {
-    private static final List<String> FIELDS = List.of(
-            "gender", "age", "bodyType", "skinTone", "hairStyle", "hairColor",
-            "shotType", "outfit", "outfitDetails", "background", "extraDetails");
 
-    public String build(Map<String, Object> config) {
-        String traits = FIELDS.stream()
-                .map(config::get)
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .map(String::trim)
-                .filter(Predicate.not(String::isBlank))
-                .collect(Collectors.joining(", "));
+    private final PromptSanitizer sanitizer;
 
-        if (traits.isBlank()) {
-            throw new BusinessException("Configuração do avatar está vazia.");
+    public AvatarPromptBuilder(PromptSanitizer sanitizer) {
+        this.sanitizer = sanitizer;
+    }
+
+    public String build(AvatarConfigDTO config) {
+        StringBuilder prompt = new StringBuilder()
+                .append("Retrato fotográfico realista de um influenciador digital para redes sociais. ")
+                .append(config.shotType().getDescription()).append(". ")
+                .append("Pessoa: ").append(config.gender().getDescription())
+                .append(", ").append(config.age().getDescription())
+                .append(", tipo físico ").append(config.bodyType().getDescription())
+                .append(". Tom de pele: ").append(config.skinTone().getDescription())
+                .append(". Cabelo: ").append(config.hairStyle().getDescription());
+
+                if (config.hairStyle() != HairStyle.BALD) {
+                    prompt.append(", cor ").append(config.hairColor().getDescription());
+                }
+                prompt.append(". Roupa: ").append(config.outfit().getDescription())
+                .append(". Cenário: ").append(config.background().getDescription())
+                .append(".");
+
+        appendDetail(prompt, "Detalhes da roupa", config.outfitDetails());
+        appendDetail(prompt, "Detalhes adicionais", config.extraDetails());
+
+        return prompt
+                .append(" Iluminação profissional, foco nítido, alta qualidade.")
+                .append(" A pessoa não deve segurar câmera nem celular.")
+                .toString();
+    }
+
+    private void appendDetail(StringBuilder prompt, String label, String raw) {
+        String clean = sanitizer.clean(raw);
+        if (clean != null) {
+            prompt.append(" ").append(label).append(": ").append(clean).append(".");
         }
-
-        return "Fotografia realista de um influenciador digital para redes sociais. "
-                + traits
-                + ". Alta qualidade, iluminação profissional, foco nítido no rosto.";
     }
 }

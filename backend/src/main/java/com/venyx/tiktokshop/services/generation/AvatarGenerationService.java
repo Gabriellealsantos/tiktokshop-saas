@@ -1,10 +1,12 @@
 package com.venyx.tiktokshop.services.generation;
 
+import com.venyx.tiktokshop.dtos.AvatarConfigDTO;
 import com.venyx.tiktokshop.entities.ImageGeneration;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.repositories.ImageGenerationRepository;
 import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.GenerationLimitService;
+import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -18,28 +20,40 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+
+
 @Service
 public class AvatarGenerationService {
 
+    private static final String AVATAR_FOLDER = "avatars";
+
+    private final ObjectMapper objectMapper;
     private final ImageGenerationRepository repository;
     private final GenerationLimitService limitService;
     private final AvatarPromptBuilder promptBuilder;
     private final ImageProvider imageProvider;
     private final AuthService authService;
+    private final StorageService storageService;
 
     public AvatarGenerationService(ImageGenerationRepository repository,
                                    GenerationLimitService limitService,
                                    AvatarPromptBuilder promptBuilder,
                                    ImageProvider imageProvider,
-                                   AuthService authService) {
+                                   AuthService authService,
+                                   StorageService storageService,
+                                   ObjectMapper objectMapper) {
         this.repository = repository;
         this.limitService = limitService;
         this.promptBuilder = promptBuilder;
         this.imageProvider = imageProvider;
         this.authService = authService;
+        this.storageService = storageService;
+        this.objectMapper = objectMapper;
     }
 
-    public ImageGeneration generate(Map<String, Object> config, String referenceImageUrl) {
+    public ImageGeneration generate(AvatarConfigDTO config, String referenceImageUrl) {
         User user = authService.authenticated();
         limitService.assertCanGenerate(user.getUuid(), AVATAR);
         return runAndPersist(user, config, null, referenceImageUrl);
@@ -59,7 +73,9 @@ public class AvatarGenerationService {
         }
 
         limitService.assertCanRegenerate(parent);
-        return runAndPersist(user, parent.getConfig(), parent, referenceImageUrl);
+
+        AvatarConfigDTO config = objectMapper.convertValue(parent.getConfig(), AvatarConfigDTO.class);
+        return runAndPersist(user, config, parent, referenceImageUrl);
     }
 
     @Transactional(readOnly = true)
@@ -69,7 +85,7 @@ public class AvatarGenerationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Geração não encontrada: " + id));
     }
 
-    private ImageGeneration runAndPersist(User user, Map<String, Object> config,
+    private ImageGeneration runAndPersist(User user, AvatarConfigDTO config,
                                           ImageGeneration parent, String referenceImageUrl) {
         String prompt = promptBuilder.build(config);
 
@@ -77,14 +93,16 @@ public class AvatarGenerationService {
         job.setUser(user);
         job.setFlowType(AVATAR);
         job.setParent(parent);
-        job.getConfig().putAll(config);
+        job.getConfig().putAll(objectMapper.convertValue(config, new TypeReference<Map<String, Object>>() {}));
         job.setPrompt(prompt);
         job.setCreatedAt(Instant.now());
 
         try {
             ImageProviderResult result = imageProvider.generate(
                     new ImageProviderRequest(prompt, referenceImageUrl));
-            job.setImageUrl(result.imageUrl());
+
+            String folder = AVATAR_FOLDER + "/" + user.getUuid();
+            job.setImageUrl(storageService.uploadWithRetry(result.content(), result.mimeType(), folder));
             job.setStatus(COMPLETED);
         } catch (Exception e) {
             job.setStatus(FAILED);

@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import tools.jackson.databind.exc.InvalidFormatException;
 
+import tools.jackson.core.JacksonException.Reference;
+import java.util.Objects;
+
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
+
 import java.time.Instant;
 
 @ControllerAdvice
@@ -133,17 +139,34 @@ public class ControllerExceptionHandler {
 
         Throwable cause = e.getCause();
         if (cause instanceof InvalidFormatException invalidFormat) {
-            String fieldName = "";
-            if (!invalidFormat.getPath().isEmpty()) {
-
-            }
-
-            String mensagem = "Valor inválido para o campo enum '" + fieldName + "'";
-            err.addError(fieldName, mensagem);
-        } else if (cause != null && cause.getMessage().contains("Cannot coerce empty String")) {
+            String fieldName = extractFieldName(invalidFormat);
+            String message = buildInvalidValueMessage(invalidFormat, fieldName);
+            err.addError(fieldName, message);
+        } else if (cause != null && cause.getMessage() != null
+                && cause.getMessage().contains("Cannot coerce empty String")) {
             err.addError("enum", "Campo enum não pode estar vazio");
         }
         return ResponseEntity.status(status).body(err);
+    }
+
+    private String extractFieldName(InvalidFormatException e) {
+        return e.getPath().stream()
+                .map(Reference::getPropertyName)
+                .filter(Objects::nonNull)
+                .collect(joining("."));
+    }
+
+    private String buildInvalidValueMessage(InvalidFormatException e, String fieldName) {
+        Class<?> targetType = e.getTargetType();
+
+        if (targetType != null && targetType.isEnum()) {
+            String accepted = stream(targetType.getEnumConstants())
+                    .map(Object::toString)
+                    .collect(joining(", "));
+            return "Valor inválido para '%s'. Valores aceitos: %s".formatted(fieldName, accepted);
+        }
+
+        return "Valor inválido para o campo '%s'".formatted(fieldName);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
