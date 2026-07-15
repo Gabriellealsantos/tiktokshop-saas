@@ -1570,7 +1570,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"config\": {\r\n    \"gender\": \"Feminino\",\r\n    \"age\": \"Jovem 18-24\",\r\n    \"bodyType\": \"Magro(a)\",\r\n    \"skinTone\": \"Clara\",\r\n    \"hairStyle\": \"Curto\",\r\n    \"hairColor\": \"Preto\",\r\n    \"shotType\": \"Selfie / Rosto\",\r\n    \"outfit\": \"Casual\",\r\n    \"background\": \"Estúdio\"\r\n  },\r\n  \"referenceImageUrl\": null\r\n}",
+              "raw": "{\r\n  \"config\": {\r\n    \"gender\": \"FEMALE\",\r\n    \"age\": \"YOUNG\",\r\n    \"bodyType\": \"SLIM\",\r\n    \"skinTone\": \"LIGHT\",\r\n    \"hairStyle\": \"SHORT\",\r\n    \"hairColor\": \"BLACK\",\r\n    \"shotType\": \"FACE\",\r\n    \"outfit\": \"CASUAL\",\r\n    \"background\": \"STUDIO\",\r\n    \"outfitDetails\": \"blazer preto minimalista\",\r\n    \"extraDetails\": \"sorriso leve\"\r\n  },\r\n  \"referenceImageUrl\": null\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1606,7 +1606,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/avatars/generation/9/regenerate",
+              "raw": "{{host}}/api/avatars/generation/28/regenerate",
               "host": [
                 "{{host}}"
               ],
@@ -1614,7 +1614,7 @@
                 "api",
                 "avatars",
                 "generation",
-                "9",
+                "28",
                 "regenerate"
               ]
             }
@@ -1671,7 +1671,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/avatars/generation/6",
+              "raw": "{{host}}/api/avatars/generation/28",
               "host": [
                 "{{host}}"
               ],
@@ -1679,7 +1679,7 @@
                 "api",
                 "avatars",
                 "generation",
-                "6"
+                "28"
               ]
             }
           },
@@ -1711,7 +1711,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{ \"maxPerDay\": 3, \"maxRegenerations\": 2 }",
+              "raw": "{ \"maxPerDay\": 10, \"maxRegenerations\": 5 }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1728,6 +1728,149 @@
                 "admin",
                 "daily-limits",
                 "AVATAR"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Save avatar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"generationId\": 25, \"name\": \"Camila\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars/from-generation",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "from-generation"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Buscar Avatares",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"config\": {\r\n    \"gender\": \"Feminino\",\r\n    \"age\": \"Jovem 18-24\",\r\n    \"bodyType\": \"Magro(a)\",\r\n    \"skinTone\": \"Clara\",\r\n    \"hairStyle\": \"Curto\",\r\n    \"hairColor\": \"Preto\",\r\n    \"shotType\": \"Selfie / Rosto\",\r\n    \"outfit\": \"Casual\",\r\n    \"background\": \"Estúdio\"\r\n  },\r\n  \"referenceImageUrl\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars?page=0&size=5",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Avatar",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"imageUrl\": \"http://localhost:9000/venyx-images/avatars/9119bbb8-f36e-4c35-80f6-3680a8726598/c3374253-ea05-433c-9d21-25bd9987ea00.png\", \"name\": \"Importado\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars/from-upload",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "from-upload"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar nome do avatar",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"name\": \"Camila Silva\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/avatars/1",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deletar Avatar",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/avatars/1",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "avatars",
+                "1"
               ]
             }
           },
