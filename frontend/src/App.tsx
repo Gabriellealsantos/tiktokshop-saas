@@ -1,9 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import { PrivateRoute } from "@/components/private-route";
+import { Toaster } from "@/components";
 
 import IndexRoute from "@/routes/home";
 import LoginRoute from "@/routes/login";
 import RegisterRoute from "@/routes/register";
+import AuthorizedRoute from "@/routes/authorized";
 import DashboardRoute from "@/routes/dashboard";
 import AdminScreen from "@/routes/admin";
 import AvatarsList from "@/routes/avatars";
@@ -31,9 +33,11 @@ import SpeechScreen from "@/routes/create-from-scratch/speech";
 
 function App() {
   return (
+    <>
     <Routes>
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/register" element={<RegisterRoute />} />
+      <Route path="/authorized" element={<AuthorizedRoute />} />
 
       <Route element={<PrivateRoute />}>
         <Route path="/" element={<IndexRoute />} />
@@ -63,6 +67,8 @@ function App() {
         <Route path="/create-from-scratch/speech" element={<SpeechScreen />} />
       </Route>
     </Routes>
+    <Toaster position="top-center" richColors />
+    </>
   );
 }
 

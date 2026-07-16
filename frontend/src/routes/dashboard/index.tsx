@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Banknote,
@@ -13,19 +13,109 @@ import {
   Eye,
   MousePointerClick
 } from "lucide-react";
-import { MetricCard, Pill, Page, PageHeader, SectionTitle, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components";
+import { MetricCard, Pill, Page, PageHeader, SectionTitle, ChartContainer, ChartTooltip, ChartTooltipContent, EmptyState } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
-import { useMockSession } from "@/context/mock-session";
-import { dashboardSeries, dashboardKPIs } from "@/services/data";
+import { useAuth } from "@/context/auth";
+import { getSummary, getLiveSalesFeed, getInsights, type DashboardSummary, type LiveSaleEventDTO, type DashboardInsightDTO } from "@/services/dashboardService";
+import { subscribeTopic } from "@/utils/ws";
 import { useDocumentTitle } from "@/utils/use-document-title";
 
 import { LiveSales } from "./components/live-sales";
 import { Trend } from "./components/trend-card";
 
+// Rótulos das pills → códigos de período aceitos pelo back (getSummary).
+const PERIOD_CODES: Record<string, string> = {
+  Hoje: "today",
+  "Esta semana": "week",
+  "7 dias": "7d",
+  "15 dias": "15d",
+  "Este mês": "month",
+  "30 dias": "30d",
+};
+
+// Ícones dos cards de tendência: a entidade não guarda ícone, então rotacionamos estes.
+const TREND_ICONS = [TrendingUp, ChartSpline, Sparkles];
+
+const brl = (n: number, digits = 0) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n ?? 0);
+const int = (n: number) => new Intl.NumberFormat("pt-BR").format(n ?? 0);
+const compact = (n: number) =>
+  new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(n ?? 0);
+
 export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactNode }) {
-  const { role } = useMockSession();
+  const { isAdmin, user } = useAuth();
+  const role = isAdmin ? "admin" : "afiliado";
+  const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
   const [view, setView] = useState(role === "admin" ? "Faturamento" : "Tendências");
   const [chart, setChart] = useState("Área");
+  const [selectedPeriod, setSelectedPeriod] = useState("7 dias");
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [liveSales, setLiveSales] = useState<LiveSaleEventDTO[]>([]);
+  const [insights, setInsights] = useState<DashboardInsightDTO[]>([]);
+  const canSeeRevenue = true; // since route is protected, all who reach here can see revenue
+
+  const fetchSummary = useCallback(async () => {
+    if (!canSeeRevenue) return;
+    const code = PERIOD_CODES[selectedPeriod];
+    if (!code) return;
+    try {
+      const res = await getSummary(code);
+      setSummary(res.data as DashboardSummary);
+    } catch {
+      // silencioso — mantém o último snapshot
+    }
+  }, [canSeeRevenue, selectedPeriod]);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary]);
+
+  // Buscar feed inicial de vendas ao vivo
+  useEffect(() => {
+    if (!canSeeRevenue) return;
+    getLiveSalesFeed().then(res => {
+      setLiveSales(res.data.recent.slice(0, 4));
+    }).catch(() => {});
+  }, [canSeeRevenue]);
+
+  // Tendências cadastradas pelo admin (já vêm filtradas por ativo do back).
+  useEffect(() => {
+    getInsights().then(res => {
+      setInsights(res.data as DashboardInsightDTO[]);
+    }).catch(() => {});
+  }, []);
+
+  // Ao vivo: cada venda estourada em /topic/live-sales refaz o fetch (debounce),
+  // atualizando faturamento, ticket médio, views e cliques em tempo real.
+  const refetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!canSeeRevenue) return;
+    const dispose = subscribeTopic<LiveSaleEventDTO>("/topic/live-sales", (payload) => {
+      setLiveSales(prev => [payload, ...prev].slice(0, 4));
+      if (refetchTimer.current) clearTimeout(refetchTimer.current);
+      refetchTimer.current = setTimeout(() => fetchSummary(), 800);
+    });
+    return () => {
+      if (refetchTimer.current) clearTimeout(refetchTimer.current);
+      dispose();
+    };
+  }, [canSeeRevenue, fetchSummary]);
+
+  const chartData = useMemo(
+    () => (summary?.series ?? []).map((p) => ({ day: p.label, vendas: p.revenue })),
+    [summary],
+  );
+
+  const byOrder = (a: DashboardInsightDTO, b: DashboardInsightDTO) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0);
+  const trendCards = useMemo(
+    () => insights.filter((i) => i.kind === "CARD").sort(byOrder),
+    [insights],
+  );
+  const momentRead = useMemo(
+    () => insights.filter((i) => i.kind === "MOMENT_READ").sort(byOrder)[0] ?? null,
+    [insights],
+  );
+
   const periods = [
     "Hoje",
     "Esta semana",
@@ -40,7 +130,7 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
       {renderHeader}
       <PageHeader
           eyebrow="Painel principal"
-          title="Olá, Allan!"
+          title={firstName ? `Olá, ${firstName}!` : "Olá!"}
           description="Sinais claros para decidir o que criar e escalar agora."
           actions={
             <div className="flex gap-2">
@@ -56,8 +146,12 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
           }
         />
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
-          {periods.map((period, i) => (
-            <Pill key={period} active={i === 2}>
+          {periods.map((period) => (
+            <Pill
+              key={period}
+              active={selectedPeriod === period}
+              onClick={() => PERIOD_CODES[period] && setSelectedPeriod(period)}
+            >
               {period}
             </Pill>
           ))}
@@ -67,8 +161,8 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <MetricCard
                 label="Faturamento total"
-                value="R$ 220.700"
-                hint="+18,2% no período"
+                value={summary ? brl(summary.revenue) : "—"}
+                hint="Base + vendas ao vivo"
                 tone="positive"
                 icon={Banknote}
                 surface="elevated"
@@ -76,39 +170,39 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
               />
               <MetricCard
                 label="Pedidos confirmados"
-                value="1.491"
-                hint="Taxa de aprovação 94%"
+                value={summary ? int(summary.orders) : "—"}
+                hint="No período"
                 tone="neutral"
                 icon={PackageCheck}
                 surface="elevated"
               />
               <MetricCard
                 label="Ganhos em comissão"
-                value="R$ 48.554"
-                hint="22% sobre as vendas"
+                value={summary ? brl(summary.commission) : "—"}
+                hint="Sobre as vendas"
                 tone="positive"
                 icon={CircleDollarSign}
                 surface="elevated"
               />
               <MetricCard
                 label="Ticket médio"
-                value="R$ 148,02"
-                hint="+ R$ 12,40 vs. anterior"
+                value={summary ? brl(summary.avgTicket, 2) : "—"}
+                hint="Faturamento / pedidos"
                 tone="positive"
                 icon={ReceiptText}
                 surface="elevated"
               />
               <MetricCard
                 label="Itens Vendidos"
-                value={dashboardKPIs.itensVendidos}
-                hint="+5,4% na semana"
+                value={summary ? int(summary.itemsSold) : "—"}
+                hint="No período"
                 tone="positive"
                 icon={ShoppingCart}
                 surface="elevated"
               />
               <MetricCard
                 label="Base de Comissão"
-                value={dashboardKPIs.baseComissao}
+                value={summary ? brl(summary.commissionBase) : "—"}
                 hint="Consistente com o volume"
                 tone="neutral"
                 icon={Wallet}
@@ -116,17 +210,17 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
               />
               <MetricCard
                 label="Visualizações do Produto"
-                value={dashboardKPIs.visualizacoesProduto}
-                hint="+12% hoje"
+                value={summary ? compact(summary.productViews) : "—"}
+                hint="Em tempo real"
                 tone="positive"
                 icon={Eye}
                 surface="elevated"
               />
               <MetricCard
                 label="Cliques no Produto"
-                value={dashboardKPIs.cliquesProduto}
-                hint="-2,1% hoje"
-                tone="negative"
+                value={summary ? compact(summary.productClicks) : "—"}
+                hint="Em tempo real"
+                tone="neutral"
                 icon={MousePointerClick}
                 surface="elevated"
               />
@@ -153,7 +247,7 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
                     config={{ vendas: { label: "Vendas", color: "var(--accent-500)" } }}
                   >
                     {chart === "Área" ? (
-                      <AreaChart data={dashboardSeries}>
+                      <AreaChart data={chartData}>
                         <defs>
                           <linearGradient id="fillSales" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="25%" stopColor="var(--color-dash-accent)" stopOpacity={0.25} />
@@ -176,7 +270,7 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
                         />
                       </AreaChart>
                     ) : (
-                      <BarChart data={dashboardSeries}>
+                      <BarChart data={chartData}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" />
                         <XAxis dataKey="day" axisLine={false} tickLine={false} />
                         <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `R$ ${value / 1000}k`} />
@@ -186,37 +280,35 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
                   </ChartContainer>
                 </div>
               </div>
-              <LiveSales />
+              <LiveSales sales={liveSales} total={summary?.revenue ?? 0} />
             </div>
           </>
+        ) : trendCards.length === 0 && !momentRead ? (
+          <EmptyState
+            title="Sem tendências no momento"
+            description="Assim que o admin publicar tendências, elas aparecem aqui."
+          />
         ) : (
           <div className="grid gap-5 lg:grid-cols-3">
-            <Trend
-              icon={TrendingUp}
-              title="Beleza prática em alta"
-              text="Produtos com demonstração visual cresceram 31% nas últimas 48h."
-            />
-            <Trend
-              icon={ChartSpline}
-              title="Hooks de comparação"
-              text="Vídeos antes/depois sustentam retenção 22% acima da média."
-            />
-            <Trend
-              icon={Sparkles}
-              title="Janela emergente"
-              text="Casa inteligente ganha tração entre 18h e 22h."
-            />
-            <div className="glass-surface p-6 lg:col-span-3">
-              <SectionTitle
-                title="Leitura do momento"
-                description="Sinais combinados de catálogo e formatos"
+            {trendCards.map((item, i) => (
+              <Trend
+                key={item.id}
+                icon={TREND_ICONS[i % TREND_ICONS.length]}
+                title={item.title}
+                text={item.content}
               />
-              <p className="max-w-4xl text-sm leading-7 text-text-2">
-                A oportunidade mais forte está em produtos que entregam transformação visível em até
-                oito segundos. Priorize creators com energia natural, enquadramento próximo e uma
-                prova concreta antes do CTA.
-              </p>
-            </div>
+            ))}
+            {momentRead && (
+              <div className="glass-surface p-6 lg:col-span-3">
+                <SectionTitle
+                  title={momentRead.title}
+                  description="Sinais combinados de catálogo e formatos"
+                />
+                <p className="max-w-4xl text-sm leading-7 text-text-2">
+                  {momentRead.content}
+                </p>
+              </div>
+            )}
           </div>
         )}
     </>
@@ -225,6 +317,19 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
 
 export default function DashboardRoute() {
   useDocumentTitle("Painel Principal");
+  const { isAdmin, roles } = useAuth();
+  const isAfiliado = roles.includes("ROLE_AFFILIATE");
+
+  if (!isAdmin && !isAfiliado) {
+    return (
+      <AppShell>
+        <Page>
+          <EmptyState title="Acesso Negado" description="Esta página é restrita a administradores e afiliados." />
+        </Page>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <Page>

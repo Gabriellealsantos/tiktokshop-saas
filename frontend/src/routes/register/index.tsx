@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import axios from "axios";
+import { toast } from "sonner";
 import { BrandMark } from "@/components";
 import { AuthShell } from "@/layouts/auth-shell";
 import { useDocumentTitle } from "@/utils/use-document-title";
 import { cn } from "@/utils/utils";
+import { register } from "@/services/authService";
 import { RegisterForm } from "./components/register-form";
 import { PendingApproval } from "./components/pending-approval";
 import type { RegisterFormValues } from "./components/register-form";
@@ -12,10 +15,22 @@ import type { RegisterFormValues } from "./components/register-form";
 export default function RegisterRoute() {
   useDocumentTitle("Cadastro — Estúdio Criativo");
   const [pending, setPending] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const onSubmit = (data: RegisterFormValues) => {
-    // TODO: implement actual registration logic
-    setPending(true);
+  const onSubmit = async (data: RegisterFormValues) => {
+    setSubmitting(true);
+    try {
+      await register({ name: data.name, email: data.email, password: data.password });
+      setPending(true);
+    } catch (error) {
+      const message =
+        axios.isAxiosError(error) && typeof error.response?.data?.message === "string"
+          ? error.response.data.message
+          : "Não foi possível concluir o cadastro. Tente novamente.";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (pending) {
@@ -71,7 +86,7 @@ export default function RegisterRoute() {
           </div>
 
           <div className="mt-7">
-            <RegisterForm onSubmit={onSubmit} />
+            <RegisterForm onSubmit={onSubmit} submitting={submitting} />
           </div>
 
           <div className="mt-8 text-center">

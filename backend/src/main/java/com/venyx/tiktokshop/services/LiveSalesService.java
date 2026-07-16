@@ -35,19 +35,22 @@ public class LiveSalesService {
     private final ProductService productService;
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationService notificationService;
+    private final LiveMetricsCounter liveMetricsCounter;
 
     public LiveSalesService(LiveSalesConfigRepository configRepository,
                              LiveSaleEventRepository eventRepository,
                              ProductRepository productRepository,
                              ProductService productService,
                              SimpMessagingTemplate messagingTemplate,
-                             NotificationService notificationService) {
+                             NotificationService notificationService,
+                             LiveMetricsCounter liveMetricsCounter) {
         this.configRepository = configRepository;
         this.eventRepository = eventRepository;
         this.productRepository = productRepository;
         this.productService = productService;
         this.messagingTemplate = messagingTemplate;
         this.notificationService = notificationService;
+        this.liveMetricsCounter = liveMetricsCounter;
     }
 
     @Transactional(readOnly = true)
@@ -63,6 +66,15 @@ public class LiveSalesService {
         }
         if (dto.intervalSeconds() != null) {
             config.setIntervalSeconds(dto.intervalSeconds());
+        }
+        if (dto.randomInterval() != null) {
+            config.setRandomInterval(dto.randomInterval());
+        }
+        if (dto.intervalMinSeconds() != null) {
+            config.setIntervalMinSeconds(dto.intervalMinSeconds());
+        }
+        if (dto.intervalMaxSeconds() != null) {
+            config.setIntervalMaxSeconds(dto.intervalMaxSeconds());
         }
         config = configRepository.save(config);
         return new LiveSalesConfigDTO(config);
@@ -95,6 +107,9 @@ public class LiveSalesService {
 
         LiveSaleEvent event = new LiveSaleEvent(product, product.getName(), product.getImageUrl(), amount, commission);
         event = eventRepository.save(event);
+
+        // Cada venda também move os KPIs de engajamento (views/cliques) em tempo real.
+        liveMetricsCounter.bumpOnSale();
 
         LiveSaleEventDTO dto = new LiveSaleEventDTO(event);
         messagingTemplate.convertAndSend("/topic/live-sales", dto);

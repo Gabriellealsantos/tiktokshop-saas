@@ -9,9 +9,20 @@ public record LiveSalesConfigDTO(
     Long id,
     LiveSalesMode mode,
     Integer intervalSeconds,
+    Boolean randomInterval,
+    Integer intervalMinSeconds,
+    Integer intervalMaxSeconds,
     Instant updatedAt
 ) {
     public LiveSalesConfigDTO(LiveSalesConfig entity) {
-        this(entity.getId(), entity.getMode(), entity.getIntervalSeconds(), entity.getUpdatedAt());
+        this(
+            entity.getId(),
+            entity.getMode(),
+            entity.getIntervalSeconds(),
+            entity.isRandomInterval(),
+            entity.getIntervalMinSeconds(),
+            entity.getIntervalMaxSeconds(),
+            entity.getUpdatedAt()
+        );
     }
 }

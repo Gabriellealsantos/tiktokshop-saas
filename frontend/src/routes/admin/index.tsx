@@ -1,41 +1,60 @@
-import { useState, useMemo } from "react";
-import { Search, RefreshCw, Ban, Check, Clock3, CircleUser, X } from "lucide-react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { Search, RefreshCw, Ban, Check, Clock3, CircleUser, X, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
 import { Button, EmptyState, Pill, Page, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
-import { useMockSession } from "@/context/mock-session";
-import type { User, UserRole, UserStatus, UserPlan } from "@/context/mock-session";
+import { useAuth } from "@/context/auth";
+import { mapUserResponse } from "@/models/user";
+import type { User, UserRole, UserStatus, UserPlan, UserResponse } from "@/models/user";
+import { findAllUsers, updateUser } from "@/services/userService";
+import { activateSubscription, revokeSubscription, cancelSubscription, planToBackend } from "@/services/subscriptionService";
 import { cn } from "@/utils/utils";
-
-const initialUsers: User[] = [
-  { id: "1", name: "Alice Silva", email: "alice@example.com", status: "aprovado", role: "user", plan: "mensal", createdAt: "2024-05-10T14:30:00Z" },
-  { id: "2", name: "Bruno Costa", email: "bruno@example.com", status: "pendente", role: "user", plan: "sem_plano", createdAt: "2024-06-15T09:12:00Z" },
-  { id: "3", name: "Carla Nunes", email: "carla@example.com", status: "bloqueado", role: "afiliado", plan: "anual", createdAt: "2023-11-20T16:45:00Z" },
-  { id: "4", name: "Daniel Rocha", email: "daniel@example.com", status: "pendente", role: "user", plan: "sem_plano", createdAt: "2024-06-16T11:20:00Z" },
-  { id: "5", name: "Elena Marques", email: "elena@example.com", status: "aprovado", role: "admin", plan: "vitalicio", createdAt: "2022-01-05T08:00:00Z" },
-];
+import { MetricsTab } from "./components/metrics-tab";
+import { InsightsTab } from "./components/insights-tab";
+import { LiveSalesTab } from "./components/live-sales-tab";
 
 export default function AdminScreen() {
-  const { role } = useMockSession();
+  const { isAdmin } = useAuth();
 
   const [tab, setTab] = useState("Usuários");
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actioningId, setActioningId] = useState<string | null>(null);
+  const [pendingPlan, setPendingPlan] = useState<Record<string, UserPlan>>({});
+  const [pendingRole, setPendingRole] = useState<Record<string, UserRole>>({});
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<UserStatus | "todos">("todos");
   const [roleFilter, setRoleFilter] = useState<UserRole | "todas">("todas");
   const [planFilter, setPlanFilter] = useState<UserPlan | "todos">("todos");
 
-  // Derived state
-  const pendingCount = users.filter(u => u.status === "pendente").length;
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await findAllUsers({ page: 0, size: 100 });
+      const content: UserResponse[] = res.data.content ?? [];
+      setUsers(content.map(mapUserResponse));
+    } catch {
+      toast.error("Falha ao carregar usuários.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) loadUsers();
+  }, [isAdmin, loadUsers]);
+
+  const pendingCount = users.filter((u) => u.status === "pendente").length;
 
   const filteredUsers = useMemo(() => {
-    return users.filter(u => {
-      const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
-                          u.email.toLowerCase().includes(search.toLowerCase());
+    return users.filter((u) => {
+      const matchSearch =
+        u.name.toLowerCase().includes(search.toLowerCase()) ||
+        u.email.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === "todos" || u.status === statusFilter;
       const matchRole = roleFilter === "todas" || u.role === roleFilter;
       const matchPlan = planFilter === "todos" || u.plan === planFilter;
@@ -43,32 +62,90 @@ export default function AdminScreen() {
     });
   }, [users, search, statusFilter, roleFilter, planFilter]);
 
-  if (role !== "admin") {
+  if (!isAdmin) {
     return (
       <AppShell>
         <Page>
-          <EmptyState
-            title="Acesso Negado"
-            description="Esta página é restrita a administradores."
-          />
+          <EmptyState title="Acesso Negado" description="Esta página é restrita a administradores." />
         </Page>
       </AppShell>
     );
   }
 
   const handleRefresh = () => {
-    toast("Atualizando dados... (TODO: integrar com backend)");
-    // TODO: invalidate query
+    loadUsers();
+    toast("Atualizando dados…");
   };
 
-  const handleUpdateStatus = (id: string, status: UserStatus) => {
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, status } : u));
-    toast.success(`Status atualizado para ${status} (TODO: mutation)`);
+  const handlePlanChange = (id: string, plan: UserPlan) => {
+    setPendingPlan((prev) => ({ ...prev, [id]: plan }));
   };
 
-  const handleUpdatePlan = (id: string, plan: UserPlan) => {
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, plan } : u));
-    toast.success(`Plano atualizado para ${plan} (TODO: mutation)`);
+  const handleRoleChange = (id: string, role: UserRole) => {
+    setPendingRole((prev) => ({ ...prev, [id]: role }));
+  };
+
+  // "Liberar" = ativar assinatura no plano escolhido + aprovar o usuário.
+  // Regra: exige um plano (≠ "Sem Plano"); a contagem começa neste momento.
+  const handleAtualizar = async (user: User) => {
+    const plan = pendingPlan[user.id] ?? user.plan;
+    const role = pendingRole[user.id] ?? user.role;
+    
+    if (plan === user.plan && role === user.role && user.status !== "pendente") {
+      return;
+    }
+
+    setActioningId(user.id);
+    try {
+      let newStatus = user.status;
+
+      if (plan !== user.plan || (user.status === "pendente" && plan !== "sem_plano")) {
+        if (plan === "sem_plano") {
+          await cancelSubscription(user.id);
+        } else {
+          await activateSubscription(user.id, planToBackend[plan]);
+          if (user.status === "pendente") newStatus = "aprovado";
+        }
+      }
+
+      if (role !== user.role) {
+         const roleIdMap: Record<UserRole, number> = { admin: 1, afiliado: 2, user: 3 };
+         const roleNameMap: Record<UserRole, string> = { admin: "ROLE_ADMIN", afiliado: "ROLE_AFFILIATE", user: "ROLE_CLIENT" };
+         
+         await updateUser(user.id, {
+            name: user.name,
+            email: user.email,
+            roles: [{ id: roleIdMap[role], authority: roleNameMap[role] }]
+         } as any);
+      }
+
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, plan, role, status: newStatus } : u)));
+      toast.success("Usuário atualizado com sucesso.");
+    } catch {
+      toast.error("Falha ao atualizar o usuário.");
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  const handleToggleBlock = async (user: User) => {
+    const isBlocked = user.status === "bloqueado";
+    setActioningId(user.id);
+    try {
+      if (isBlocked) {
+        await updateUser(user.id, { name: user.name, email: user.email, userStatus: "ACTIVE" } as any);
+        setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, status: "aprovado" } : u)));
+        toast.success("Acesso desbloqueado.");
+      } else {
+        await revokeSubscription(user.id);
+        setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, status: "bloqueado", plan: "sem_plano" } : u)));
+        toast.success("Acesso bloqueado.");
+      }
+    } catch {
+      toast.error(isBlocked ? "Falha ao desbloquear." : "Falha ao bloquear.");
+    } finally {
+      setActioningId(null);
+    }
   };
 
   const statusColors: Record<UserStatus, string> = {
@@ -94,9 +171,7 @@ export default function AdminScreen() {
             <h1 className="text-3xl font-extrabold tracking-[-.035em] text-white md:text-4xl">
               Painel Admin
             </h1>
-            <p className="mt-2 text-sm text-zinc-400">
-              Gerencie usuários e permissões
-            </p>
+            <p className="mt-2 text-sm text-zinc-400">Gerencie usuários e permissões</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1.5 text-xs font-medium text-brand-400">
@@ -104,13 +179,13 @@ export default function AdminScreen() {
               {pendingCount} pendentes
             </span>
             <Button variant="secondary" onClick={handleRefresh} className="size-9 p-0 rounded-full" aria-label="Atualizar">
-              <RefreshCw className="size-4" />
+              <RefreshCw className={cn("size-4", loading && "animate-spin")} />
             </Button>
           </div>
         </div>
 
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide entrance">
-          {["Usuários", "Métricas", "Cupom Indicação"].map((x) => (
+          {["Usuários", "Métricas", "Tendências", "Vendas ao Vivo"].map((x) => (
             <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
               {x}
             </Pill>
@@ -166,13 +241,13 @@ export default function AdminScreen() {
                   Todos <span className="ml-1.5 opacity-50">{users.length}</span>
                 </Pill>
                 <Pill active={statusFilter === "aprovado"} onClick={() => setStatusFilter("aprovado")}>
-                  Aprovados <span className="ml-1.5 opacity-50">{users.filter(u => u.status === "aprovado").length}</span>
+                  Aprovados <span className="ml-1.5 opacity-50">{users.filter((u) => u.status === "aprovado").length}</span>
                 </Pill>
                 <Pill active={statusFilter === "pendente"} onClick={() => setStatusFilter("pendente")}>
-                  Pendentes <span className="ml-1.5 opacity-50">{users.filter(u => u.status === "pendente").length}</span>
+                  Pendentes <span className="ml-1.5 opacity-50">{users.filter((u) => u.status === "pendente").length}</span>
                 </Pill>
                 <Pill active={statusFilter === "bloqueado"} onClick={() => setStatusFilter("bloqueado")}>
-                  Bloqueados <span className="ml-1.5 opacity-50">{users.filter(u => u.status === "bloqueado").length}</span>
+                  Bloqueados <span className="ml-1.5 opacity-50">{users.filter((u) => u.status === "bloqueado").length}</span>
                 </Pill>
               </div>
 
@@ -223,95 +298,118 @@ export default function AdminScreen() {
               <span>Página 1 de 1</span>
             </div>
 
-            <div className="grid gap-3">
-              {filteredUsers.map(user => (
-                <div
-                  key={user.id}
-                  className={cn(
-                    "flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 rounded-[16px] border p-5 transition-colors",
-                    user.status === "pendente"
-                      ? "border-brand-500/30 bg-brand-500/[0.03] hover:bg-brand-500/[0.05]"
-                      : "border-white/5 bg-white/[0.02] hover:bg-white/[0.04]"
-                  )}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="font-bold text-white truncate">{user.email}</span>
-                      <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border", statusColors[user.status])}>
-                        {user.status}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                        {user.role}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-zinc-400">
-                      <CircleUser className="size-3.5 opacity-70" />
-                      <span className="truncate">{user.name}</span>
-                      <span className="mx-1 opacity-50">•</span>
-                      <span>Criado {format(new Date(user.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3 lg:shrink-0 mt-3 lg:mt-0 pt-3 lg:pt-0 border-t border-white/5 lg:border-t-0">
-                    <Select
-                      value={user.plan}
-                      onValueChange={(val: UserPlan) => handleUpdatePlan(user.id, val)}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2 py-16 text-sm text-zinc-500">
+                <Loader2 className="size-4 animate-spin" /> Carregando usuários…
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {filteredUsers.map((user) => {
+                  const selectedPlan = pendingPlan[user.id] ?? user.plan;
+                  const selectedRole = pendingRole[user.id] ?? user.role;
+                  const busy = actioningId === user.id;
+                  const isBlocked = user.status === "bloqueado";
+                  const hasChanges = selectedPlan !== user.plan || selectedRole !== user.role || user.status === "pendente";
+                  return (
+                    <div
+                      key={user.id}
+                      className={cn(
+                        "flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 rounded-[16px] border p-5 transition-colors",
+                        user.status === "pendente"
+                          ? "border-brand-500/30 bg-brand-500/[0.03] hover:bg-brand-500/[0.05]"
+                          : "border-white/5 bg-white/[0.02] hover:bg-white/[0.04]",
+                      )}
                     >
-                      <SelectTrigger className="w-[140px] h-9 bg-black/40 border-white/10 text-xs">
-                        <SelectValue placeholder="Plano" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
-                        {Object.entries(planLabels).map(([key, label]) => (
-                          <SelectItem key={key} value={key} className="text-xs focus:bg-white/10 focus:text-white cursor-pointer">
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <span className="font-bold text-white truncate">{user.email}</span>
+                          <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border", statusColors[user.status])}>
+                            {user.status}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                            {user.role}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+                          <CircleUser className="size-3.5 opacity-70" />
+                          <span className="truncate">{user.name}</span>
+                          <span className="mx-1 opacity-50">•</span>
+                          <span>Criado {format(new Date(user.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
+                        </div>
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-9 px-3 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/20 disabled:opacity-30 disabled:border-transparent"
-                        onClick={() => handleUpdateStatus(user.id, "aprovado")}
-                        disabled={user.status === "aprovado"}
-                      >
-                        <Check className="size-3.5 mr-1.5" />
-                        Liberar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-9 px-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20 disabled:opacity-30 disabled:border-transparent"
-                        onClick={() => handleUpdateStatus(user.id, "bloqueado")}
-                        disabled={user.status === "bloqueado"}
-                      >
-                        <Ban className="size-3.5 mr-1.5" />
-                        Bloquear
-                      </Button>
+                      <div className="flex flex-wrap items-center gap-3 lg:shrink-0 mt-3 lg:mt-0 pt-3 lg:pt-0 border-t border-white/5 lg:border-t-0">
+                        <Select value={selectedPlan} onValueChange={(val: UserPlan) => handlePlanChange(user.id, val)}>
+                          <SelectTrigger className="w-[140px] h-9 bg-black/40 border-white/10 text-xs">
+                            <SelectValue placeholder="Plano" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
+                            {Object.entries(planLabels).map(([key, label]) => (
+                              <SelectItem key={key} value={key} className="text-xs focus:bg-white/10 focus:text-white cursor-pointer">
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select value={selectedRole} onValueChange={(val: UserRole) => handleRoleChange(user.id, val)}>
+                          <SelectTrigger className="w-[120px] h-9 bg-black/40 border-white/10 text-xs">
+                            <SelectValue placeholder="Role" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
+                            <SelectItem value="admin" className="text-xs">Admin</SelectItem>
+                            <SelectItem value="afiliado" className="text-xs">Afiliado</SelectItem>
+                            <SelectItem value="user" className="text-xs">User</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-9 px-3 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/20 disabled:opacity-30 disabled:border-transparent"
+                            onClick={() => handleAtualizar(user)}
+                            disabled={busy || !hasChanges || isBlocked}
+                          >
+                            {busy ? <Loader2 className="size-3.5 mr-1.5 animate-spin" /> : <Check className="size-3.5 mr-1.5" />}
+                            Atualizar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className={cn(
+                              "h-9 px-3 disabled:opacity-30 disabled:border-transparent",
+                              isBlocked
+                                ? "text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 border border-amber-500/20"
+                                : "text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20"
+                            )}
+                            onClick={() => handleToggleBlock(user)}
+                            disabled={busy}
+                          >
+                            <Ban className="size-3.5 mr-1.5" />
+                            {isBlocked ? "Desbloquear" : "Bloquear"}
+                          </Button>
+                        </div>
+                      </div>
                     </div>
+                  );
+                })}
+
+                {filteredUsers.length === 0 && (
+                  <div className="py-12 text-center text-zinc-500 text-sm">
+                    Nenhum usuário encontrado com os filtros atuais.
                   </div>
-                </div>
-              ))}
-
-              {filteredUsers.length === 0 && (
-                <div className="py-12 text-center text-zinc-500 text-sm">
-                  Nenhum usuário encontrado com os filtros atuais.
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
-        {(tab === "Métricas" || tab === "Cupom Indicação") && (
-          <div className="py-12">
-            <EmptyState
-              title="Em construção"
-              description={`A aba de ${tab} está sendo desenvolvida e estará disponível em breve.`}
-            />
-          </div>
-        )}
+        {tab === "Métricas" && <MetricsTab />}
+
+        {tab === "Tendências" && <InsightsTab />}
+
+        {tab === "Vendas ao Vivo" && <LiveSalesTab />}
       </Page>
     </AppShell>
   );

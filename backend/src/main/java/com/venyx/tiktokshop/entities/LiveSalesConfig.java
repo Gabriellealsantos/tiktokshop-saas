@@ -26,6 +26,15 @@ public class LiveSalesConfig {
     @Column(name = "interval_seconds")
     private Integer intervalSeconds;
 
+    @Column(name = "random_interval", nullable = false)
+    private boolean randomInterval = false;
+
+    @Column(name = "interval_min_seconds")
+    private Integer intervalMinSeconds;
+
+    @Column(name = "interval_max_seconds")
+    private Integer intervalMaxSeconds;
+
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updatedAt;
 
@@ -60,6 +69,30 @@ public class LiveSalesConfig {
 
     public void setIntervalSeconds(Integer intervalSeconds) {
         this.intervalSeconds = intervalSeconds;
+    }
+
+    public boolean isRandomInterval() {
+        return randomInterval;
+    }
+
+    public void setRandomInterval(boolean randomInterval) {
+        this.randomInterval = randomInterval;
+    }
+
+    public Integer getIntervalMinSeconds() {
+        return intervalMinSeconds;
+    }
+
+    public void setIntervalMinSeconds(Integer intervalMinSeconds) {
+        this.intervalMinSeconds = intervalMinSeconds;
+    }
+
+    public Integer getIntervalMaxSeconds() {
+        return intervalMaxSeconds;
+    }
+
+    public void setIntervalMaxSeconds(Integer intervalMaxSeconds) {
+        this.intervalMaxSeconds = intervalMaxSeconds;
     }
 
     public Instant getUpdatedAt() {

@@ -233,6 +233,9 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
+        if (userStatus == UserStatus.LOCKED) {
+            return false;
+        }
         if (lockoutEndTime == null) {
             return true;
         }

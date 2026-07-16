@@ -3,6 +3,7 @@ package com.venyx.tiktokshop.dtos;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.entities.enums.UserStatus;
 
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,7 +15,9 @@ public record UserDTO(
     String cpf,
     String email,
     UserStatus userStatus,
-    Set<RoleDTO> roles
+    Instant createdAt,
+    Set<RoleDTO> roles,
+    String planType
 ) {
     public UserDTO(User entity) {
         this(
@@ -24,7 +27,23 @@ public record UserDTO(
             entity.getCpf(),
             entity.getEmail(),
             entity.getUserStatus(),
-            entity.getRoles().stream().map(RoleDTO::new).collect(Collectors.toSet())
+            entity.getCreatedAt(),
+            entity.getRoles().stream().map(RoleDTO::new).collect(Collectors.toSet()),
+            null
+        );
+    }
+
+    public UserDTO(User entity, String planType) {
+        this(
+            entity.getId(),
+            entity.getName(),
+            entity.getPhone(),
+            entity.getCpf(),
+            entity.getEmail(),
+            entity.getUserStatus(),
+            entity.getCreatedAt(),
+            entity.getRoles().stream().map(RoleDTO::new).collect(Collectors.toSet()),
+            planType
         );
     }
 }

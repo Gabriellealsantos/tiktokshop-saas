@@ -1,32 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Coins, KeyRound, LogOut, ShieldCheck, Sparkles, UserCircle } from "lucide-react";
+import { KeyRound, LogOut, ShieldCheck, UserCircle } from "lucide-react";
+import axios from "axios";
 
 import { AppShell } from "@/layouts/app-shell";
-import { Page, PageHeader, SectionTitle, Button, Pill, Field, Toggle } from "@/components";
-import { useMockSession } from "@/context/mock-session";
-import type { UserStatus, UserPlan } from "@/context/mock-session";
+import { Page, PageHeader, SectionTitle, Button, Field, Toggle } from "@/components";
+import { useAuth } from "@/context/auth";
+import { mapUserResponse, type UserStatus, type UserPlan } from "@/models/user";
+import { updateMe, changeMyPassword } from "@/services/userService";
 import { cn } from "@/utils/utils";
 import { useDocumentTitle } from "@/utils/use-document-title";
 import { profileSchema, passwordSchema, type ProfileForm, type PasswordForm } from "./schema";
 
 export default function ProfileScreen() {
   useDocumentTitle("Meu Perfil");
-  const { user, credits, setCredits, updateUser, logout, notificationsEnabled, setNotificationsEnabled } =
-    useMockSession();
+  const { user: authUser, logout, reloadUser } = useAuth();
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(true); // Reused theme toggle state
+  const [isDark, setIsDark] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
+  const user = authUser ? mapUserResponse(authUser) : null;
+
   const profileForm = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { name: user.name },
+    defaultValues: { name: user?.name ?? "" },
   });
 
   const passwordForm = useForm<PasswordForm>({
@@ -34,29 +38,53 @@ export default function ProfileScreen() {
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
 
-  const onProfileSubmit = (data: ProfileForm) => {
+  // Sincroniza o form quando o usuário do contexto carrega/atualiza.
+  useEffect(() => {
+    if (user) profileForm.reset({ name: user.name });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser]);
+
+  const onProfileSubmit = async (data: ProfileForm) => {
     setIsUpdatingProfile(true);
-    setTimeout(() => {
-      updateUser({ name: data.name });
-      setIsUpdatingProfile(false);
+    try {
+      await updateMe({ name: data.name });
+      await reloadUser();
       toast.success("Perfil atualizado com sucesso!");
-    }, 600);
+    } catch {
+      toast.error("Falha ao atualizar o perfil.");
+    } finally {
+      setIsUpdatingProfile(false);
+    }
   };
 
-  const onPasswordSubmit = (_data: PasswordForm) => {
+  const onPasswordSubmit = async (data: PasswordForm) => {
     setIsUpdatingPassword(true);
-    setTimeout(() => {
-      // TODO: integrate backend password change
-      setIsUpdatingPassword(false);
+    try {
+      await changeMyPassword({ currentPassword: data.currentPassword, newPassword: data.newPassword });
       passwordForm.reset();
-      toast.success("Senha alterada com sucesso! (TODO)");
-    }, 600);
+      toast.success("Senha alterada com sucesso!");
+    } catch (e) {
+      const msg = axios.isAxiosError(e) ? (e.response?.data as { message?: string })?.message : undefined;
+      toast.error(msg ?? "Falha ao alterar a senha. Verifique a senha atual.");
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  if (!user) {
+    return (
+      <AppShell>
+        <Page className="max-w-[1000px]">
+          <div className="py-16 text-center text-sm text-zinc-500">Carregando perfil…</div>
+        </Page>
+      </AppShell>
+    );
+  }
 
   const initial = user.name.charAt(0).toUpperCase();
   const joinedDate = format(new Date(user.createdAt), "MMMM 'de' yyyy", { locale: ptBR });
@@ -176,47 +204,6 @@ export default function ProfileScreen() {
                   </span>
                 </div>
               </div>
-
-              <div className="mt-6">
-                <Button
-                  variant="ghost"
-                  className="w-full border border-white/10 hover:bg-white/5"
-                  onClick={() => toast("Em breve: fluxo de upgrade de plano (TODO)")}
-                >
-                  Mudar de plano
-                </Button>
-              </div>
-            </div>
-
-            {/* Créditos */}
-            <div className="panel p-6">
-              <SectionTitle
-                title="Créditos"
-                action={
-                  <Pill>
-                    <Coins className="size-3" />
-                    {credits}
-                  </Pill>
-                }
-              />
-              <p className="text-sm text-zinc-400 mt-2">
-                Use seus créditos para gerar imagens, vídeos e utilizar o estúdio de avatares.
-              </p>
-
-              <div className="mt-6">
-                <div className="block">
-                  <Button
-                    className="w-full"
-                    onClick={() => {
-                      setCredits(credits + 100);
-                      toast.success("Compra simulada: 100 créditos adicionados!");
-                    }}
-                  >
-                    <Sparkles className="size-4 mr-2" />
-                    Comprar mais créditos
-                  </Button>
-                </div>
-              </div>
             </div>
 
             {/* Preferências */}
@@ -235,7 +222,7 @@ export default function ProfileScreen() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-white">Notificações</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Receber alertas de vendas e geração (TODO)</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Receber alertas de vendas e geração</p>
                   </div>
                   <Toggle checked={notificationsEnabled} onChange={setNotificationsEnabled} />
                 </div>

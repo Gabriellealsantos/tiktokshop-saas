@@ -14,6 +14,10 @@ public record DashboardMetricDTO(
     Integer orders,
     BigDecimal commission,
     BigDecimal avgTicket,
+    Integer itemsSold,
+    BigDecimal commissionBase,
+    Long productViews,
+    Long productClicks,
     Instant updatedAt
 ) {
     public DashboardMetricDTO(DashboardMetric entity) {
@@ -25,6 +29,10 @@ public record DashboardMetricDTO(
             entity.getOrders(),
             entity.getCommission(),
             entity.getAvgTicket(),
+            entity.getItemsSold(),
+            entity.getCommissionBase(),
+            entity.getProductViews(),
+            entity.getProductClicks(),
             entity.getUpdatedAt()
         );
     }

@@ -8,6 +8,10 @@ public record DashboardSummaryDTO(
     Integer orders,
     BigDecimal commission,
     BigDecimal avgTicket,
+    Integer itemsSold,
+    BigDecimal commissionBase,
+    Long productViews,
+    Long productClicks,
     List<DashboardSeriesPointDTO> series
 ) {
 }

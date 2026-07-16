@@ -13,6 +13,8 @@ import com.venyx.tiktokshop.entities.enums.UserStatus;
 import com.venyx.tiktokshop.interfaces.UserData;
 import com.venyx.tiktokshop.repositories.RoleRepository;
 import com.venyx.tiktokshop.repositories.UserRepository;
+import com.venyx.tiktokshop.repositories.UserSubscriptionRepository;
+import com.venyx.tiktokshop.entities.UserSubscription;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.DatabaseException;
 import com.venyx.tiktokshop.services.exceptions.ForbiddenException;
@@ -29,6 +31,9 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -41,15 +46,18 @@ public class UserService {
     private final UserRepository repository;
     private final RoleRepository roleRepository;
     private final AuthService authService;
+    private final UserSubscriptionRepository subscriptionRepository;
 
     public UserService(PasswordEncoder passwordEncoder,
                        UserRepository repository,
                        RoleRepository roleRepository,
-                       AuthService authService) {
+                       AuthService authService,
+                       UserSubscriptionRepository subscriptionRepository) {
         this.passwordEncoder = passwordEncoder;
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.authService = authService;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
     private void enforcePhoneForClientOrAdmin(User entity) {
@@ -77,7 +85,18 @@ public class UserService {
     public Page<UserDTO> findAllPaged(String search, Pageable pageable) {
         String searchParam = (search == null || search.isBlank()) ? null : search;
         Page<User> page = repository.searchUsers(searchParam, pageable);
-        return page.map(UserDTO::new);
+        
+        List<UUID> userIds = page.getContent().stream().map(User::getId).toList();
+        List<UserSubscription> activeSubs = subscriptionRepository.findActiveSubscriptionsByUserIds(userIds);
+        
+        Map<UUID, String> planMap = activeSubs.stream()
+            .collect(Collectors.toMap(
+                sub -> sub.getUser().getId(),
+                sub -> sub.getPlan().getType().name(),
+                (existing, replacement) -> existing
+            ));
+
+        return page.map(u -> new UserDTO(u, planMap.get(u.getId())));
     }
 
     @Transactional

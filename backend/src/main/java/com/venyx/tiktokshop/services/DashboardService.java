@@ -35,10 +35,14 @@ public class DashboardService {
 
     private final DashboardMetricRepository metricRepository;
     private final LiveSaleEventRepository liveSaleEventRepository;
+    private final LiveMetricsCounter liveMetricsCounter;
 
-    public DashboardService(DashboardMetricRepository metricRepository, LiveSaleEventRepository liveSaleEventRepository) {
+    public DashboardService(DashboardMetricRepository metricRepository,
+                            LiveSaleEventRepository liveSaleEventRepository,
+                            LiveMetricsCounter liveMetricsCounter) {
         this.metricRepository = metricRepository;
         this.liveSaleEventRepository = liveSaleEventRepository;
+        this.liveMetricsCounter = liveMetricsCounter;
     }
 
     @Transactional(readOnly = true)
@@ -49,6 +53,10 @@ public class DashboardService {
         BigDecimal baseRevenue = base != null && base.getRevenue() != null ? base.getRevenue() : BigDecimal.ZERO;
         int baseOrders = base != null && base.getOrders() != null ? base.getOrders() : 0;
         BigDecimal baseCommission = base != null && base.getCommission() != null ? base.getCommission() : BigDecimal.ZERO;
+        int baseItemsSold = base != null && base.getItemsSold() != null ? base.getItemsSold() : 0;
+        BigDecimal baseCommissionBase = base != null && base.getCommissionBase() != null ? base.getCommissionBase() : BigDecimal.ZERO;
+        long baseViews = base != null && base.getProductViews() != null ? base.getProductViews() : 0L;
+        long baseClicks = base != null && base.getProductClicks() != null ? base.getProductClicks() : 0L;
 
         BigDecimal liveRevenue = liveSaleEventRepository.sumAmountBetween(window.start(), window.end());
         BigDecimal liveCommission = liveSaleEventRepository.sumCommissionBetween(window.start(), window.end());
@@ -61,7 +69,17 @@ public class DashboardService {
                 ? revenue.divide(BigDecimal.valueOf(orders), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
 
-        return new DashboardSummaryDTO(revenue, orders, commission, avgTicket, buildSeries(window.start(), window.seriesDays()));
+        // KPIs extras: itens/base de comissão crescem com as vendas; views/cliques
+        // via contador em tempo real (LiveMetricsCounter, movido a cada venda ao vivo).
+        int itemsSold = baseItemsSold + (int) liveOrders;
+        BigDecimal commissionBase = baseCommissionBase.add(liveRevenue);
+        long productViews = baseViews + liveMetricsCounter.getViews();
+        long productClicks = baseClicks + liveMetricsCounter.getClicks();
+
+        return new DashboardSummaryDTO(
+                revenue, orders, commission, avgTicket,
+                itemsSold, commissionBase, productViews, productClicks,
+                buildSeries(window.start(), window.seriesDays(), baseRevenue, baseOrders));
     }
 
     /**
@@ -129,13 +147,23 @@ public class DashboardService {
         return new ResolvedWindow(start, end, days, DashboardPeriodType.RANGE, "custom:" + fromDate + ":" + toDate);
     }
 
-    private List<DashboardSeriesPointDTO> buildSeries(Instant windowStart, int days) {
+    /**
+     * Série diária do gráfico: distribui a base manual igualmente entre os dias da janela
+     * e soma as vendas ao vivo de cada dia. Assim o gráfico reflete o mesmo total dos cards
+     * (base + ao vivo), em vez de mostrar só o que foi vendido ao vivo.
+     */
+    private List<DashboardSeriesPointDTO> buildSeries(Instant windowStart, int days, BigDecimal baseRevenue, int baseOrders) {
+        BigDecimal perDayBaseRevenue = days > 0
+                ? baseRevenue.divide(BigDecimal.valueOf(days), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+        int perDayBaseOrders = days > 0 ? baseOrders / days : 0;
+
         List<DashboardSeriesPointDTO> points = new ArrayList<>();
         for (int i = 0; i < days; i++) {
             Instant dayStart = windowStart.plus(i, ChronoUnit.DAYS);
             Instant dayEnd = dayStart.plus(1, ChronoUnit.DAYS);
-            BigDecimal dayRevenue = liveSaleEventRepository.sumAmountBetween(dayStart, dayEnd);
-            long dayOrders = liveSaleEventRepository.countBetween(dayStart, dayEnd);
+            BigDecimal dayRevenue = perDayBaseRevenue.add(liveSaleEventRepository.sumAmountBetween(dayStart, dayEnd));
+            long dayOrders = perDayBaseOrders + liveSaleEventRepository.countBetween(dayStart, dayEnd);
             points.add(new DashboardSeriesPointDTO(DAY_LABEL.format(dayStart), dayRevenue, (int) dayOrders));
         }
         return points;
@@ -159,6 +187,10 @@ public class DashboardService {
         entity.setOrders(dto.orders());
         entity.setCommission(dto.commission());
         entity.setAvgTicket(dto.avgTicket());
+        entity.setItemsSold(dto.itemsSold());
+        entity.setCommissionBase(dto.commissionBase());
+        entity.setProductViews(dto.productViews());
+        entity.setProductClicks(dto.productClicks());
         entity = metricRepository.save(entity);
         return new DashboardMetricDTO(entity);
     }

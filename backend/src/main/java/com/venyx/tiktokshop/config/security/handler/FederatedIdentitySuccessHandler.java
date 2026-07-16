@@ -67,6 +67,17 @@ public class FederatedIdentitySuccessHandler extends SavedRequestAwareAuthentica
                         .orElse(null);
 
                 if (user != null) {
+                    if (!user.isAccountNonLocked()) {
+                        log.warn("Login federado negado: usuário bloqueado: {}", email);
+                        getRedirectStrategy().sendRedirect(request, response, "/login?error=locked");
+                        return;
+                    }
+                    if (!user.isEnabled()) {
+                        log.warn("Login federado negado: usuário desabilitado: {}", email);
+                        getRedirectStrategy().sendRedirect(request, response, "/login?error=disabled");
+                        return;
+                    }
+
                     log.info("Login federado: convertendo OidcUser → UserDetails para email={}", email);
 
                     // Converte para UserDetails padrão do Spring — sem orders, sem lazy loading

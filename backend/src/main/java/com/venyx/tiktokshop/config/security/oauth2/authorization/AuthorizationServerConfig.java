@@ -133,6 +133,14 @@ public class AuthorizationServerConfig {
                                                 "/error",
                                                 "/csrf")
                                 .permitAll()
+                                // Recursos estáticos da página de login (CSS/logo/etc.)
+                                .requestMatchers(
+                                                "/css/**",
+                                                "/js/**",
+                                                "/images/**",
+                                                "/logo-Sfundo.png",
+                                                "/favicon.svg")
+                                .permitAll()
                                 .requestMatchers("/login").permitAll()
                                 .anyRequest().authenticated())
                                 .formLogin(form -> form
@@ -151,6 +159,11 @@ public class AuthorizationServerConfig {
                         .logout(logout -> logout
                                 .logoutRequestMatcher(request -> request.getRequestURI().equals("/logout"))
                                 .logoutSuccessHandler((request, response, authentication) -> {
+                                        String origin = request.getHeader("Origin");
+                                        if (origin != null && List.of(corsOrigins.split(",")).contains(origin)) {
+                                                response.setHeader("Access-Control-Allow-Origin", origin);
+                                                response.setHeader("Access-Control-Allow-Credentials", "true");
+                                        }
                                         response.setStatus(200);
                                         response.setContentType("application/json");
                                         response.getWriter().write("{\"message\":\"session_ended\"}");

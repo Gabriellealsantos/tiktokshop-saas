@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Boxes,
@@ -38,9 +38,19 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
   const { role, toggleRole } = useMockSession();
   const [isDark, setIsDark] = useState(true);
-  const { notifications } = useNotifications();
-  // We filtered 'venda' in the hook, so we just take the first
-  const latestSale = notifications[0];
+  const { latestSale } = useNotifications();
+  // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
+  const [saleVisible, setSaleVisible] = useState(false);
+  const lastSaleId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (latestSale && latestSale.id !== lastSaleId.current) {
+      lastSaleId.current = latestSale.id;
+      setSaleVisible(true);
+      const t = setTimeout(() => setSaleVisible(false), 6000);
+      return () => clearTimeout(t);
+    }
+  }, [latestSale]);
 
   return (
     <div className="min-h-screen text-text-1">
@@ -219,12 +229,17 @@ export function AppShell({ children }: { children: ReactNode }) {
         </TooltipProvider>
       </nav>
 
-      {role === "admin" && path !== "/login" && latestSale && (
-        <div className="fixed bottom-24 right-5 z-30 hidden max-w-xs rounded-[16px] border border-success/20 bg-elevated/95 p-4 shadow-2xl lg:block">
+      {path !== "/login" && saleVisible && latestSale && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="fixed bottom-24 right-5 z-30 hidden max-w-xs rounded-[16px] border border-success/20 bg-elevated/95 p-4 shadow-2xl lg:block"
+        >
           <div className="flex items-center gap-3">
             {latestSale.productImage ? (
               <div className="relative size-12 shrink-0 rounded-lg overflow-hidden ring-1 ring-inset ring-white/10">
-                <img src={latestSale.productImage} alt={latestSale.productName || "Produto"} className="w-full h-full object-cover" loading="lazy" />
+                <img src={latestSale.productImage} alt={latestSale.title} className="w-full h-full object-cover" loading="lazy" />
                 <span className="absolute -bottom-1 -right-1 grid size-4 place-items-center rounded-full bg-success text-white shadow-sm ring-2 ring-elevated/95">
                   <BadgeDollarSign className="size-3" />
                 </span>
@@ -236,12 +251,10 @@ export function AppShell({ children }: { children: ReactNode }) {
             )}
             <div>
               <p className="text-xs font-semibold text-text-1">Nova venda confirmada</p>
-              <p className="mt-0.5 text-[11px] text-success">
-                {latestSale.commission ? `+ R$ ${latestSale.commission.toFixed(2).replace('.', ',')} em comissão` : "+ R$ 28,40 em comissão"}
-              </p>
+              <p className="mt-0.5 text-[11px] text-success">{latestSale.description}</p>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </div>
   );

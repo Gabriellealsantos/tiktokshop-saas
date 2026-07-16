@@ -37,6 +37,18 @@ public class DashboardMetric {
     @Column(name = "avg_ticket", precision = 14, scale = 2)
     private BigDecimal avgTicket;
 
+    @Column(name = "items_sold")
+    private Integer itemsSold;
+
+    @Column(name = "commission_base", precision = 14, scale = 2)
+    private BigDecimal commissionBase;
+
+    @Column(name = "product_views")
+    private Long productViews;
+
+    @Column(name = "product_clicks")
+    private Long productClicks;
+
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant updatedAt;
 
@@ -103,6 +115,38 @@ public class DashboardMetric {
 
     public void setAvgTicket(BigDecimal avgTicket) {
         this.avgTicket = avgTicket;
+    }
+
+    public Integer getItemsSold() {
+        return itemsSold;
+    }
+
+    public void setItemsSold(Integer itemsSold) {
+        this.itemsSold = itemsSold;
+    }
+
+    public BigDecimal getCommissionBase() {
+        return commissionBase;
+    }
+
+    public void setCommissionBase(BigDecimal commissionBase) {
+        this.commissionBase = commissionBase;
+    }
+
+    public Long getProductViews() {
+        return productViews;
+    }
+
+    public void setProductViews(Long productViews) {
+        this.productViews = productViews;
+    }
+
+    public Long getProductClicks() {
+        return productClicks;
+    }
+
+    public void setProductClicks(Long productClicks) {
+        this.productClicks = productClicks;
     }
 
     public Instant getUpdatedAt() {

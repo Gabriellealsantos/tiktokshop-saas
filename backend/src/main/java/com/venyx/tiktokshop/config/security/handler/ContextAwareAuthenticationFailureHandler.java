@@ -4,6 +4,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
@@ -36,6 +38,12 @@ public class ContextAwareAuthenticationFailureHandler implements AuthenticationF
         String redirectUrl = "delivery".equals(loginContext)
                 ? "/delivery/login?error"
                 : "/login?error";
+
+        if (exception instanceof LockedException) {
+            redirectUrl += "=locked";
+        } else if (exception instanceof DisabledException) {
+            redirectUrl += "=disabled";
+        }
 
         response.sendRedirect(redirectUrl);
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Bell, Gift, Info, Settings, ShoppingBag, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Popover, PopoverContent, PopoverTrigger, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components";
@@ -7,8 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/utils/utils";
+import { subscribeTopic } from "@/utils/ws";
+import { getAccessTokenPayload } from "@/utils/token";
+import {
+  getNotifications, getUnreadCount, markAllNotificationsRead, markNotificationRead,
+  type BackendNotificationType, type NotificationResponse,
+} from "@/services/notificationService";
 
-// --- STORE LOGIC (TODO: Connect to real backend) ---
 export type NotificationType = "venda" | "sistema" | "indicacao" | "info";
 
 export interface AppNotification {
@@ -19,77 +24,137 @@ export interface AppNotification {
   read: boolean;
   createdAt: string;
   link?: string;
-  // Sale specific (TODO: connect backend)
-  productId?: string | number;
-  productName?: string;
   productImage?: string;
-  commission?: number;
-  saleValue?: number;
+  isSale?: boolean;
 }
 
+// Só admin/afiliado recebem os toasts de venda ao vivo (prova social interna).
+function canSeeSales(): boolean {
+  const authorities = getAccessTokenPayload()?.authorities ?? [];
+  return authorities.includes("ROLE_ADMIN") || authorities.includes("ROLE_AFFILIATE");
+}
+
+const TYPE_MAP: Record<BackendNotificationType, NotificationType> = {
+  SALE: "venda",
+  ANNOUNCEMENT: "info",
+  SYSTEM: "sistema",
+};
+
+function mapDto(dto: NotificationResponse): AppNotification {
+  return {
+    id: dto.id != null ? String(dto.id) : `sale-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    title: dto.title,
+    description: dto.body ?? "",
+    type: TYPE_MAP[dto.type] ?? "info",
+    read: dto.read,
+    createdAt: dto.createdAt ?? new Date().toISOString(),
+    link: dto.clickUrl ?? undefined,
+    productImage: dto.imageUrl ?? undefined,
+    isSale: dto.type === "SALE",
+  };
+}
+
+/**
+ * Store real do sino: puxa a caixa persistida (GET /api/notifications) e escuta o
+ * WebSocket /topic/notifications. Vendas ao vivo (SALE) são efêmeras — ficam só em
+ * memória e não contam no não-lido do servidor; avisos/sistema vêm persistidos.
+ */
 class NotificationsStore {
-  private notifications: AppNotification[] = [
-    {
-      id: "1",
-      title: "Nova venda confirmada!",
-      description: "Você recebeu uma comissão de R$ 47,90.",
-      type: "venda",
-      read: false,
-      createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-      link: "/dashboard",
-      productId: "p1",
-      productName: "Sérum Vitamina C Glow",
-      productImage: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150&q=75",
-      commission: 47.90,
-      saleValue: 120.00
-    },
-    {
-      id: "2",
-      title: "Produto em alta",
-      description: "O produto 'Sérum Vitamina C Glow' está viralizando na sua região.",
-      type: "info",
-      read: false,
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-      link: "/products",
-    },
-    {
-      id: "3",
-      title: "Sistema atualizado",
-      description: "A versão 2.4 está no ar com novos recursos de inteligência artificial.",
-      type: "sistema",
-      read: true,
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    },
-  ];
-  private listeners: Set<() => void> = new Set();
+  private inbox: AppNotification[] = [];
+  private sales: AppNotification[] = [];
+  private unread = 0;
+  private connected = false;
+  private snapshot: AppNotification[] = [];
+  private dirty = true;
+  private listeners = new Set<() => void>();
 
   subscribe(listener: () => void) {
     this.listeners.add(listener);
+    void this.connect();
     return () => {
       this.listeners.delete(listener);
     };
   }
 
   getSnapshot() {
-    return this.notifications;
+    if (this.dirty) {
+      this.snapshot = [...this.sales, ...this.inbox].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+      this.dirty = false;
+    }
+    return this.snapshot;
+  }
+
+  getUnreadCount() {
+    return this.unread + this.sales.filter((s) => !s.read).length;
+  }
+
+  getLatestSale(): AppNotification | undefined {
+    return this.sales[0];
   }
 
   markAsRead(id: string) {
-    this.notifications = this.notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
-    this.notify();
+    const sale = this.sales.find((s) => s.id === id);
+    if (sale) {
+      if (!sale.read) {
+        sale.read = true;
+        this.touch();
+      }
+      return;
+    }
+    const item = this.inbox.find((n) => n.id === id);
+    if (item && !item.read) {
+      item.read = true;
+      this.unread = Math.max(0, this.unread - 1);
+      markNotificationRead(Number(id)).catch(() => {});
+      this.touch();
+    }
   }
 
   markAllAsRead() {
-    this.notifications = this.notifications.map((n) => ({ ...n, read: true }));
-    this.notify();
+    this.inbox.forEach((n) => (n.read = true));
+    this.sales.forEach((s) => (s.read = true));
+    this.unread = 0;
+    markAllNotificationsRead().catch(() => {});
+    this.touch();
   }
 
   dismiss(id: string) {
-    this.notifications = this.notifications.filter((n) => n.id !== id);
-    this.notify();
+    this.sales = this.sales.filter((s) => s.id !== id);
+    this.inbox = this.inbox.filter((n) => n.id !== id);
+    this.touch();
   }
 
-  private notify() {
+  private async connect() {
+    if (this.connected) return;
+    this.connected = true;
+    try {
+      const [feed, count] = await Promise.all([getNotifications(0, 20), getUnreadCount()]);
+      this.inbox = (feed.data.content ?? []).map(mapDto);
+      this.unread = typeof count.data === "number" ? count.data : 0;
+      this.touch();
+    } catch {
+      // silencioso — mantém o estado vazio
+    }
+    subscribeTopic<NotificationResponse>("/topic/notifications", (dto) => this.onWs(dto));
+  }
+
+  private onWs(dto: NotificationResponse) {
+    const item = mapDto(dto);
+    if (dto.type === "SALE") {
+      if (!canSeeSales()) return;
+      item.read = false;
+      this.sales = [item, ...this.sales].slice(0, 20);
+    } else {
+      this.inbox = [item, ...this.inbox];
+      if (!item.read) this.unread += 1;
+    }
+    this.touch();
+  }
+
+  private touch() {
+    this.dirty = true;
     this.listeners.forEach((l) => l());
   }
 }
@@ -97,23 +162,18 @@ class NotificationsStore {
 export const notificationsStore = new NotificationsStore();
 
 export function useNotifications() {
-  const [data, setData] = useState(() => notificationsStore.getSnapshot());
+  const [, force] = useState(0);
 
   useEffect(() => {
-    return notificationsStore.subscribe(() => {
-      setData(notificationsStore.getSnapshot());
-    });
+    return notificationsStore.subscribe(() => force((n) => n + 1));
   }, []);
 
-  const salesNotifications = data.filter((n) => n.type === "venda");
-
   return {
-    notifications: salesNotifications,
-    unreadCount: salesNotifications.filter((n) => !n.read).length,
+    notifications: notificationsStore.getSnapshot(),
+    unreadCount: notificationsStore.getUnreadCount(),
+    latestSale: notificationsStore.getLatestSale(),
     markAsRead: (id: string) => notificationsStore.markAsRead(id),
-    markAllAsRead: () => {
-      salesNotifications.forEach(n => notificationsStore.markAsRead(n.id));
-    },
+    markAllAsRead: () => notificationsStore.markAllAsRead(),
     dismiss: (id: string) => notificationsStore.dismiss(id),
   };
 }
@@ -156,7 +216,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
               <div className="grid size-12 place-items-center rounded-full bg-surface-2 text-text-3 mb-3">
                 <ShoppingBag className="size-5" />
               </div>
-              <p className="text-sm font-medium text-text-1">Nenhuma venda por aqui ainda</p>
+              <p className="text-sm font-medium text-text-1">Nenhuma notificação por aqui ainda</p>
               <p className="text-xs text-text-3 mt-1">Tudo limpo no momento</p>
             </motion.div>
           ) : (
@@ -182,7 +242,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
                 {/* Icon or Thumbnail */}
                 {n.productImage ? (
                   <div className="relative size-12 shrink-0 rounded-lg overflow-hidden ring-1 ring-inset ring-white/10">
-                    <img src={n.productImage} alt={n.productName || "Produto"} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={n.productImage} alt={n.title} className="w-full h-full object-cover" loading="lazy" />
                     <span className="absolute -bottom-1 -right-1 grid size-4 place-items-center rounded-full bg-success text-white shadow-sm ring-2 ring-surface-1">
                       <ShoppingBag className="size-2.5" />
                     </span>
@@ -240,7 +300,7 @@ function NotificationList({ closePanel }: { closePanel: () => void }) {
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-text-3 line-clamp-2 leading-relaxed">
-                    {n.commission ? `Comissão de R$ ${n.commission.toFixed(2).replace('.', ',')}` : n.description}
+                    {n.description}
                   </p>
                 </div>
 

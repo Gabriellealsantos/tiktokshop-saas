@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { motion } from "motion/react";
 import { useForm } from "react-hook-form";
@@ -18,7 +18,6 @@ export type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const { login } = useMockSession();
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<LoginForm>({
@@ -26,9 +25,12 @@ export function LoginForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  const onSubmit = (data: LoginForm) => {
+  // Fluxo PKCE: o "Entrar" redireciona para o /oauth2/authorize do back, onde a
+  // autenticação de fato acontece (a tela de credenciais é servida pelo back).
+  // As credenciais digitadas aqui não são usadas nesta etapa — na Fase 3.1 o
+  // design deste formulário será portado para a página de login do back.
+  const onSubmit = () => {
     login();
-    navigate("/");
   };
 
   return (
