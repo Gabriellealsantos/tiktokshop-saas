@@ -2,7 +2,7 @@ import { Heart } from "lucide-react";
 import { Pill } from "@/components";
 import { toast } from "sonner";
 import { cn } from "@/utils/utils";
-import type { Product } from "@/services/data";
+import type { Product } from "@/models/product";
 
 interface ProductMediaProps {
   product: Product;

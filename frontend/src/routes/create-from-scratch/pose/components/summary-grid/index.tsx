@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Package, User, Camera, Image as ImageIcon } from "lucide-react";
-import type { Product, Avatar } from "@/services/data";
+import type { Product, Avatar } from "@/data/mock";
 
 interface SummaryGridProps {
   produto?: Product;

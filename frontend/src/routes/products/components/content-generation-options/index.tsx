@@ -1,6 +1,6 @@
 import { Flame, ArrowRight, WandSparkles } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import type { Product } from "@/services/data";
+import type { Product } from "@/models/product";
 
 interface ContentGenerationOptionsProps {
   product: Product;

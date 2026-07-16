@@ -1,33 +1,5 @@
 import { requestBackend } from "../utils/requests";
-import type { UserResponse } from "../models/user";
-
-// Página do Spring Data (Page<T>) devolvida pela listagem admin.
-export type SpringPage<T> = {
-  content: T[];
-  totalPages: number;
-  totalElements: number;
-  number: number;
-  size: number;
-};
-
-export type ProfileUpdateRequest = {
-  name: string;
-  phoneNumber?: string;
-};
-
-export type ChangePasswordRequest = {
-  currentPassword: string;
-  newPassword: string;
-};
-
-export type UserRequest = {
-  name: string;
-  email: string;
-  phoneNumber?: string;
-  cpf?: string;
-  password?: string;
-  roles?: { id: number }[];
-};
+import type { UserResponse, ProfileUpdateRequest, ChangePasswordRequest, UserRequest } from "@/models/user";
 
 // ── Self (usuário logado) ─────────────────────────────────────────────────────
 export const findMe = () =>

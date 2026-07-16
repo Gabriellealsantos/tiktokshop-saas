@@ -21,7 +21,7 @@ import { motion } from "motion/react";
 import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components";
 import { SignatureBackground } from "@/layouts/signature-background";
 import { NotificationsBell, useNotifications } from "@/layouts/notifications-panel";
-import { useMockSession } from "@/context/mock-session";
+import { useAuth } from "@/context/auth";
 import { cn } from "@/utils/utils";
 
 const toolbar = [
@@ -36,7 +36,7 @@ const MotionLink = motion.create(Link);
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
-  const { role, toggleRole } = useMockSession();
+  const { isAdmin } = useAuth();
   const [isDark, setIsDark] = useState(true);
   const { latestSale } = useNotifications();
   // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
@@ -67,7 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to="/admin"
                 className={cn(
                   "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                  role !== "admin" ? "hidden" : "",
+                  !isAdmin ? "hidden" : "",
                   path.startsWith("/admin")
                     ? "bg-white/10 text-white"
                     : "text-zinc-400 hover:bg-white/5 hover:text-white",
@@ -92,31 +92,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </MotionLink>
 
-            <div className="flex h-9 items-center rounded-full border border-white/10 bg-black/40 p-1 shadow-inner">
-              <button
-                onClick={() => role !== "admin" && toggleRole()}
-                className={cn(
-                  "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
-                  role === "admin"
-                    ? "btn-brand"
-                    : "text-zinc-500 hover:text-zinc-300",
-                )}
-              >
-                Admin
-              </button>
-              <button
-                onClick={() => role !== "user" && toggleRole()}
-                className={cn(
-                  "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all",
-                  role === "user"
-                    ? "btn-brand"
-                    : "text-zinc-500 hover:text-zinc-300",
-                )}
-              >
-                User
-              </button>
-            </div>
-
             <NotificationsBell />
 
             <motion.button
@@ -137,7 +112,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   transition={{ duration: 0.15 }}
                   className="flex size-9 items-center justify-center rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
                 >
-                  {role === "admin" ? "A" : "C"}
+                  {isAdmin ? "A" : "C"}
                 </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -154,7 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </Link>
                 </DropdownMenuItem>
 
-                {role === "admin" && (
+                {isAdmin && (
                   <DropdownMenuItem
                     asChild
                     className="focus:bg-white/10 focus:text-white cursor-pointer"

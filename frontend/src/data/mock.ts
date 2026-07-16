@@ -33,6 +33,7 @@ export const products: Product[] = Array.from({ length: 91 }, (_, index) => ({
   sales: `${(1.2 + (index % 18) * 0.7).toFixed(1)} mil vendas`,
   image: `https://images.unsplash.com/photo-${["1523275335684-37898b6baf30", "1596462502278-27bfdc403348", "1542291026-7eec264c27ff", "1503602642458-232111445657", "1600185365483-26d7a4cc7519", "1560343090-f0409e92791a"][index % 6]}?auto=format&fit=crop&w=700&q=75`,
   favorite: index % 11 === 0,
+  viral: false,
 }));
 
 export type Avatar = {

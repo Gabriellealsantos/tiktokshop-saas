@@ -10,11 +10,13 @@ import { useAuth } from "@/context/auth";
 import { mapUserResponse } from "@/models/user";
 import type { User, UserRole, UserStatus, UserPlan, UserResponse } from "@/models/user";
 import { findAllUsers, updateUser } from "@/services/userService";
-import { activateSubscription, revokeSubscription, cancelSubscription, planToBackend } from "@/services/subscriptionService";
+import { planToBackend } from "@/models/subscription";
+import { activateSubscription, revokeSubscription, cancelSubscription } from "@/services/subscriptionService";
 import { cn } from "@/utils/utils";
 import { MetricsTab } from "./components/metrics-tab";
 import { InsightsTab } from "./components/insights-tab";
 import { LiveSalesTab } from "./components/live-sales-tab";
+import { NotificationSoundTab } from "./components/notification-sound-tab";
 
 export default function AdminScreen() {
   const { isAdmin } = useAuth();
@@ -185,7 +187,7 @@ export default function AdminScreen() {
         </div>
 
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide entrance">
-          {["Usuários", "Métricas", "Tendências", "Vendas ao Vivo"].map((x) => (
+          {["Usuários", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações"].map((x) => (
             <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
               {x}
             </Pill>
@@ -410,6 +412,8 @@ export default function AdminScreen() {
         {tab === "Tendências" && <InsightsTab />}
 
         {tab === "Vendas ao Vivo" && <LiveSalesTab />}
+
+        {tab === "Notificações" && <NotificationSoundTab />}
       </Page>
     </AppShell>
   );

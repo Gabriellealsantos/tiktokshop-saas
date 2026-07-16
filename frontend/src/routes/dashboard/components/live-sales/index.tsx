@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Radio } from "lucide-react";
 import { AnimatePresence, motion, animate } from "motion/react";
-import type { LiveSaleEventDTO } from "@/services/dashboardService";
+import type { LiveSaleEventDTO } from "@/models/dashboard";
 
 interface LiveSalesProps {
   sales: LiveSaleEventDTO[];

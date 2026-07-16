@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowRight, Check, Copy, Download, ExternalLink, Flame, Hash, Image as ImageIcon, Package, Play, RefreshCw, Sparkles, UserRound } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button } from "@/components";
-import { avatars, products } from "@/services/data";
+import { avatars, products } from "@/data/mock";
 import { cn } from "@/utils/utils";
 import { finalPrompt } from "@/utils/constants";
 import { ActionCardButton } from "../action-card-button";

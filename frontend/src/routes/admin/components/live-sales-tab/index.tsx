@@ -6,9 +6,9 @@ import axios from "axios";
 import {
   Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch,
 } from "@/components";
+import type { LiveSalesConfig, LiveSalesMode } from "@/models/live-sales";
 import {
   fireLiveSale, getLiveSalesConfig, updateLiveSalesConfig,
-  type LiveSalesConfig, type LiveSalesMode,
 } from "@/services/liveSalesAdminService";
 
 const MODE_HINT: Record<LiveSalesMode, string> = {

@@ -1,10 +1,34 @@
+import { useEffect, useState } from "react";
 import { Coins } from "lucide-react";
+import { toast } from "sonner";
 import { Button, Pill, Field, Toggle, Page, PageHeader, SectionTitle } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
 import { useMockSession } from "@/context/mock-session";
+import { getSoundPreference, updateSoundPreference } from "@/services/notificationService";
+import { setUserSoundEnabled } from "@/utils/notification-sound";
 
 export default function SettingsScreen() {
-  const { credits, setCredits, notificationsEnabled, setNotificationsEnabled } = useMockSession();
+  const { credits, setCredits } = useMockSession();
+  const [soundEnabled, setSoundEnabled] = useState(true);
+
+  useEffect(() => {
+    getSoundPreference()
+      .then((res) => setSoundEnabled(res.data?.soundEnabled ?? true))
+      .catch(() => {});
+  }, []);
+
+  const handleSoundToggle = async (next: boolean) => {
+    setSoundEnabled(next); // otimista
+    setUserSoundEnabled(next); // reflete no player sem esperar o backend
+    try {
+      await updateSoundPreference(next);
+    } catch {
+      setSoundEnabled(!next);
+      setUserSoundEnabled(!next);
+      toast.error("Não foi possível salvar a preferência de som.");
+    }
+  };
+
   return (
     <AppShell>
       <Page>
@@ -53,8 +77,8 @@ export default function SettingsScreen() {
             <SectionTitle title="Preferências" />
             <div className="space-y-5">
               <div className="flex justify-between">
-                <span className="text-sm">Notificações</span>
-                <Toggle checked={notificationsEnabled} onChange={setNotificationsEnabled} />
+                <span className="text-sm">Som das notificações</span>
+                <Toggle checked={soundEnabled} onChange={handleSoundToggle} />
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Tema escuro</span>

@@ -60,6 +60,9 @@ public class UserProductService {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new BusinessException("Nome do produto é obrigatório.");
         }
+        if (dto.imageUrl() == null || dto.imageUrl().isBlank()) {
+            throw new BusinessException("A imagem do produto é obrigatória.");
+        }
         entity.setName(dto.name().trim());
         entity.setDescription(dto.description());
         entity.setImageUrl(dto.imageUrl());

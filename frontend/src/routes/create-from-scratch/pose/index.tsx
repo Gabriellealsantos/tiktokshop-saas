@@ -4,7 +4,7 @@ import { ChevronLeft, ArrowRight } from "lucide-react";
 import { AppShell } from "@/layouts/app-shell";
 import { Page, Button, Stepper } from "@/components";
 import { toast } from "sonner";
-import { avatars, products } from "@/services/data";
+import { avatars, products } from "@/data/mock";
 
 import { SummaryGrid } from "./components/summary-grid";
 import { PoseSelector } from "./components/pose-selector";

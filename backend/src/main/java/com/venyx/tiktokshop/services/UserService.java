@@ -71,7 +71,9 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDTO findMe() {
         User entity = authService.authenticated();
-        return new UserDTO(entity);
+        List<UserSubscription> activeSubs = subscriptionRepository.findActiveSubscriptionsByUserIds(List.of(entity.getId()));
+        String planType = activeSubs.isEmpty() ? null : activeSubs.get(0).getPlan().getType().name();
+        return new UserDTO(entity, planType);
     }
 
     @Transactional(readOnly = true)

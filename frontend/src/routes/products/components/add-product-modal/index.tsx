@@ -9,7 +9,10 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import { useMockSession } from "@/context/mock-session";
 import { ProductCard, Dialog, DialogContent, DialogDescription, DialogTitle, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch } from "@/components";
-import { categories, products, type Product } from "@/services/data";
+import { categories, type Product } from "@/data/mock";
+import { mapBackendToProduct, toProductDTO, type BackendProduct } from "@/models/product-mappers";
+import { createAdminProduct, uploadProductImage } from "@/services/productService";
+import { createUserProduct } from "@/services/userProductService";
 import { ContentGenerationOptions } from "../content-generation-options";
 
 import { SectionMedia } from "./components/section-media";
@@ -54,11 +57,13 @@ const formSchema = z.object({
 interface AddProductModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreated?: () => void;
 }
 
-export function AddProductModal({ open, onOpenChange }: AddProductModalProps) {
+export function AddProductModal({ open, onOpenChange, onCreated }: AddProductModalProps) {
   const { role } = useMockSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [createdProduct, setCreatedProduct] = useState<Product | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,7 +94,7 @@ export function AddProductModal({ open, onOpenChange }: AddProductModalProps) {
 
 
   const watchAllFields = form.watch();
-  const canSubmit = !!watchAllFields.image && !!watchAllFields.name && !!watchAllFields.category;
+  const canSubmit = !!watchAllFields.image && !!watchAllFields.name && !!watchAllFields.category && !isUploading;
 
   const previewProduct: Product = {
     id: 9999,
@@ -132,13 +137,30 @@ export function AddProductModal({ open, onOpenChange }: AddProductModalProps) {
     }
   }
 
-  function handleImageUpload(file: File) {
+  async function handleImageUpload(file: File) {
     if (!file.type.startsWith("image/")) {
       toast.error("Formato inválido", { description: "Por favor, envie apenas imagens." });
       return;
     }
-    const url = URL.createObjectURL(file);
-    form.setValue("image", url, { shouldValidate: true, shouldDirty: true });
+    // Mostra um blob local enquanto faz o upload real
+    const localPreview = URL.createObjectURL(file);
+    form.setValue("image", localPreview, { shouldValidate: true, shouldDirty: true });
+
+    setIsUploading(true);
+    try {
+      const res = await uploadProductImage(file);
+      const realUrl = res.data?.url || res.data;
+      if (typeof realUrl === "string" && realUrl.startsWith("http")) {
+        form.setValue("image", realUrl, { shouldValidate: true, shouldDirty: true });
+      }
+      toast.success("Imagem enviada com sucesso!");
+    } catch {
+      toast.error("Falha ao enviar imagem", { description: "Tente novamente." });
+      form.setValue("image", "", { shouldValidate: true, shouldDirty: true });
+    } finally {
+      URL.revokeObjectURL(localPreview);
+      setIsUploading(false);
+    }
   }
 
   function handleDrop(e: React.DragEvent) {
@@ -147,24 +169,49 @@ export function AddProductModal({ open, onOpenChange }: AddProductModalProps) {
     if (file) handleImageUpload(file);
   }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(">>> HANDLER CHAMADO", values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-
-      const newId = Math.max(0, ...products.map(p => p.id)) + 1;
-      const newProduct = { ...previewProduct, id: newId };
-      products.unshift(newProduct);
-      setCreatedProduct(newProduct);
+    try {
+      if (role === "admin") {
+        // Admin: cria produto no catálogo com todos os campos ricos.
+        const dto = toProductDTO(values);
+        const res = await createAdminProduct(dto);
+        const created = res.data as BackendProduct;
+        setCreatedProduct(mapBackendToProduct(created));
+      } else {
+        // Usuário: cria UserProduct (só nome, descrição, imagem).
+        await createUserProduct({
+          name: values.name,
+          imageUrl: values.image,
+          description: null,
+        });
+        // UserProduct não devolve um Product completo, construímos um mínimo para o step 2.
+        setCreatedProduct({
+          id: Date.now(),
+          name: values.name,
+          category: values.category || "Meus Produtos",
+          price: values.price ? `R$ ${values.price.toFixed(2).replace(".", ",")}` : "R$ 0,00",
+          sales: "0 vendas",
+          image: values.image,
+          favorite: false,
+          viral: false,
+        });
+      }
 
       toast.success("Produto adicionado com sucesso!", {
-        description: "Disponível na vitrine de Produtos Virais.",
+        description: role === "admin"
+          ? "Disponível na vitrine de Produtos Virais."
+          : "Adicionado à sua lista de produtos.",
       });
       setStep(2);
-      console.log(">>> ETAPA MUDOU PARA: 2");
-    }, 1500);
+      onCreated?.();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.response?.data?.error || "Erro inesperado ao salvar.";
+      toast.error("Falha ao salvar produto", { description: msg });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -208,6 +255,10 @@ export function AddProductModal({ open, onOpenChange }: AddProductModalProps) {
                 {/* 1. Mídia */}
                 <SectionMedia form={form} fileInputRef={fileInputRef} handleDrop={handleDrop} handleImageUpload={handleImageUpload} />
 
+                {isUploading && (
+                  <p className="text-xs text-brand-400 animate-pulse">Enviando imagem…</p>
+                )}
+
                 {/* 2. Básico */}
                 <SectionBasic form={form} />
 
@@ -243,7 +294,7 @@ export function AddProductModal({ open, onOpenChange }: AddProductModalProps) {
                 disabled={isSubmitting || !canSubmit}
                 className="btn-brand flex h-12 w-full items-center justify-center rounded-[14px] text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
               >
-                {isSubmitting ? "Salvando..." : "Adicionar ao Estúdio"}
+                {isSubmitting ? "Salvando..." : isUploading ? "Enviando imagem…" : "Adicionar ao Estúdio"}
               </button>
             </div>
           </div>

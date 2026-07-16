@@ -8,10 +8,11 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/utils/utils";
 import { subscribeTopic } from "@/utils/ws";
+import { initNotificationSound, playForType } from "@/utils/notification-sound";
 import { getAccessTokenPayload } from "@/utils/token";
+import type { BackendNotificationType, NotificationResponse } from "@/models/notification";
 import {
   getNotifications, getUnreadCount, markAllNotificationsRead, markNotificationRead,
-  type BackendNotificationType, type NotificationResponse,
 } from "@/services/notificationService";
 
 export type NotificationType = "venda" | "sistema" | "indicacao" | "info";
@@ -129,6 +130,8 @@ class NotificationsStore {
   private async connect() {
     if (this.connected) return;
     this.connected = true;
+    // Pré-carrega a config de som (presets do dono + mute do usuário) para tocar sem latência.
+    void initNotificationSound();
     try {
       const [feed, count] = await Promise.all([getNotifications(0, 20), getUnreadCount()]);
       this.inbox = (feed.data.content ?? []).map(mapDto);
@@ -150,6 +153,8 @@ class NotificationsStore {
       this.inbox = [item, ...this.inbox];
       if (!item.read) this.unread += 1;
     }
+    // Som por tipo de notificação (venda ≠ aviso ≠ sistema), respeitando kill switch + mute.
+    playForType(dto.type);
     this.touch();
   }
 

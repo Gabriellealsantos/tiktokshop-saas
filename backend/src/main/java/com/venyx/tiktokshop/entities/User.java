@@ -40,6 +40,10 @@ public class User implements UserDetails {
 
     private Integer failedLoginAttempts = 0;
 
+    /** Preferência do usuário para tocar (ou silenciar) o som das notificações in-app. */
+    @Column(name = "notification_sound_enabled", nullable = false)
+    private Boolean notificationSoundEnabled = true;
+
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant lockoutEndTime;
 
@@ -158,6 +162,14 @@ public class User implements UserDetails {
 
     public void setFailedLoginAttempts(Integer failedLoginAttempts) {
         this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public Boolean getNotificationSoundEnabled() {
+        return notificationSoundEnabled;
+    }
+
+    public void setNotificationSoundEnabled(Boolean notificationSoundEnabled) {
+        this.notificationSoundEnabled = notificationSoundEnabled;
     }
 
     public Instant getLockoutEndTime() {

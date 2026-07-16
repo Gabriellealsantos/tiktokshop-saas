@@ -4,7 +4,7 @@ import { AppShell } from "@/layouts/app-shell";
 import { Page } from "@/components/page";
 import { Stepper } from "@/components/stepper";
 import { Button } from "@/components/button";
-import { avatars as initialAvatars } from "@/services/data";
+import { avatars as initialAvatars } from "@/data/mock";
 
 import { VideoModel } from "./components/video-model";
 import { VideoPrint } from "./components/video-print";

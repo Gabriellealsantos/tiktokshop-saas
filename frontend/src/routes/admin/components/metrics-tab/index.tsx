@@ -3,11 +3,10 @@ import { Check, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button, Input, Label } from "@/components";
+import { METRIC_PERIODS, type DashboardMetric } from "@/models/dashboard";
 import {
-  METRIC_PERIODS,
   listMetrics,
   upsertMetric,
-  type DashboardMetric,
 } from "@/services/dashboardAdminService";
 
 // Campos efetivamente lidos pelo getSummary. avgTicket fica de fora: o back o recalcula.

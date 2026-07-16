@@ -1,36 +1,8 @@
 import { requestBackend } from "../utils/requests";
-import type { UserPlan } from "../models/user";
+import type { PlanType } from "@/models/subscription";
 
-// Tipos de plano do back (PlanType.java).
-export type PlanType = "MONTHLY" | "QUARTERLY" | "SEMIANNUAL" | "ANNUAL" | "LIFETIME";
-export type SubscriptionStatus = "ACTIVE" | "EXPIRED" | "BLOCKED";
+// ── Subscription — chamadas HTTP ─────────────────────────────────────────────
 
-export type SubscriptionResponse = {
-  id: number;
-  planType: PlanType;
-  startedAt: string;
-  expiresAt: string | null;
-  status: SubscriptionStatus;
-};
-
-// ── Mapeamento plano front (rótulo PT-BR) ↔ PlanType do back ──────────────────
-export const planToBackend: Record<Exclude<UserPlan, "sem_plano">, PlanType> = {
-  mensal: "MONTHLY",
-  trimestral: "QUARTERLY",
-  semestral: "SEMIANNUAL",
-  anual: "ANNUAL",
-  vitalicio: "LIFETIME",
-};
-
-export const backendToPlan: Record<PlanType, UserPlan> = {
-  MONTHLY: "mensal",
-  QUARTERLY: "trimestral",
-  SEMIANNUAL: "semestral",
-  ANNUAL: "anual",
-  LIFETIME: "vitalicio",
-};
-
-// ── Endpoints admin ───────────────────────────────────────────────────────────
 export const listPlans = () =>
   requestBackend({ method: "GET", url: "/api/admin/plans", withCredentials: true });
 

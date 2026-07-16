@@ -1,5 +1,5 @@
 import { SelectableCard } from "@/components";
-import { avatars } from "@/services/data";
+import { avatars } from "@/data/mock";
 
 export function AvatarGrid() {
   return (

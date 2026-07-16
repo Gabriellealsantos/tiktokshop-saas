@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Upload, Sparkles, Plus, Trash2, Image as ImageIcon } from "lucide-react";
 import { Button, Page, PageHeader } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
-import { avatars as initialAvatars } from "@/services/data";
+import { avatars as initialAvatars } from "@/data/mock";
 import { cn } from "@/utils/utils";
 
 export default function AvatarsList() {

@@ -146,6 +146,9 @@ public class ProductService {
         if (dto.name() == null || dto.name().isBlank()) {
             throw new BusinessException("Nome do produto é obrigatório.");
         }
+        if (dto.imageUrl() == null || dto.imageUrl().isBlank()) {
+            throw new BusinessException("A imagem do produto é obrigatória.");
+        }
         if (dto.price() != null && dto.price().signum() < 0) {
             throw new BusinessException("Preço inválido.");
         }

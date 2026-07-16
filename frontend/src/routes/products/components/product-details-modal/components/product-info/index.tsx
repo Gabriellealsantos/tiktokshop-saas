@@ -3,7 +3,7 @@ import { ptBR } from "date-fns/locale";
 import { ShoppingBag, Eye, TrendingUp, Target } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
-import type { Product } from "@/services/data";
+import type { Product } from "@/models/product";
 import { Pill } from "@/components";
 import { formatPtBr } from "@/utils/utils";
 import { ContentGenerationOptions } from "../../../content-generation-options";

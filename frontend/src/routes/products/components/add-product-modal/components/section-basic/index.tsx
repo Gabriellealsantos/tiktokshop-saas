@@ -1,7 +1,7 @@
 import type { UseFormReturn } from "react-hook-form";
 import { LayoutDashboard } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components";
-import { categories } from "@/services/data";
+import { categories } from "@/data/mock";
 
 interface SectionBasicProps {
   form: UseFormReturn<any>;

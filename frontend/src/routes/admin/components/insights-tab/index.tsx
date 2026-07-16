@@ -8,9 +8,9 @@ import {
   Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
   Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea,
 } from "@/components";
+import type { DashboardInsight, InsightKind } from "@/models/dashboard";
 import {
   createInsight, deleteInsight, listAllInsights, updateInsight,
-  type DashboardInsight, type InsightKind,
 } from "@/services/dashboardAdminService";
 import { cn } from "@/utils/utils";
 

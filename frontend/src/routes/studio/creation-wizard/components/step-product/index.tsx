@@ -1,5 +1,5 @@
 import { SectionTitle, ProductCard } from "@/components";
-import { products } from "@/services/data";
+import { products } from "@/data/mock";
 
 export function ProductStep({
   selected,

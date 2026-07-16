@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { type ReactNode } from "react";
 import { Boxes, Search, TrendingUp, WandSparkles } from "lucide-react";
 import { Button, Pill, SelectableCard, SectionTitle } from "@/components";
-import { products } from "@/services/data";
+import { products } from "@/data/mock";
 
 export function LaunchpadContent({ renderHeader }: { renderHeader?: ReactNode }) {
   const modules = [

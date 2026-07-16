@@ -1,5 +1,5 @@
 import { Heart } from "lucide-react";
-import type { Product } from "@/services/data";
+import type { Product } from "@/models/product";
 import { Pill } from "@/components/primitives";
 import { cn } from "@/utils/utils";
 import { toast } from "sonner";
@@ -9,14 +9,18 @@ export function ProductCard({
   product,
   selected,
   onClick,
+  onToggleFavorite,
 }: {
   product: Product;
   selected?: boolean;
   onClick?: () => void;
+  onToggleFavorite?: (product: Product) => void;
 }) {
   return (
-    <motion.button
-      type="button"
+    <motion.div
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick?.(); } }}
       onClick={onClick}
       whileHover={{ y: -4, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
@@ -29,7 +33,7 @@ export function ProductCard({
     >
       <div className="relative aspect-square w-full overflow-hidden rounded-t-[20px] bg-white/5">
         <img
-          src={product.image}
+          src={product.image || undefined}
           alt={product.name}
           loading="lazy"
           className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
@@ -51,7 +55,11 @@ export function ProductCard({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            toast.success(product.favorite ? "Removido dos favoritos" : "Adicionado aos favoritos!");
+            if (onToggleFavorite) {
+              onToggleFavorite(product);
+            } else {
+              toast.success(product.favorite ? "Removido dos favoritos" : "Adicionado aos favoritos!");
+            }
           }}
           className={cn(
             "absolute right-3 top-3 grid size-8 place-items-center rounded-full border border-white/10 backdrop-blur-md transition-colors hover:scale-110",
@@ -90,6 +98,6 @@ export function ProductCard({
           <span className="text-lg leading-none mb-0.5">+</span> Afiliar-se
         </button>
       </div>
-    </motion.button>
+    </motion.div>
   );
 }

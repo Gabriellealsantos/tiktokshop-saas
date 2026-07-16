@@ -1,0 +1,63 @@
+import { requestBackend } from "@/utils/requests";
+import type { ProductCategoryEnum, MiningWindowEnum } from "@/models/product-mappers";
+import type { toProductDTO } from "@/models/product-mappers";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Catálogo de produtos minerados (Product) — chamadas HTTP.
+// ─────────────────────────────────────────────────────────────────────────────
+
+type ProductSearchParams = {
+  search?: string;
+  category?: ProductCategoryEnum | null;
+  window?: MiningWindowEnum | null;
+  sort?: string;
+  page?: number;
+  size?: number;
+};
+
+export const searchProducts = (params: ProductSearchParams = {}) =>
+  requestBackend({
+    method: "GET",
+    url: "/api/products",
+    withCredentials: true,
+    params: {
+      search: params.search || undefined,
+      category: params.category || undefined,
+      window: params.window || undefined,
+      sort: params.sort || undefined,
+      page: params.page ?? 0,
+      size: params.size ?? 20,
+    },
+  });
+
+export const getFavorites = () =>
+  requestBackend({ method: "GET", url: "/api/products/me/favorites", withCredentials: true });
+
+export const favoriteProduct = (id: number) =>
+  requestBackend({ method: "POST", url: `/api/products/${id}/favorite`, withCredentials: true });
+
+export const unfavoriteProduct = (id: number) =>
+  requestBackend({ method: "DELETE", url: `/api/products/${id}/favorite`, withCredentials: true });
+
+/** Upload real da imagem do produto -> devolve a URL pública no storage. */
+export const uploadProductImage = (file: File) => {
+  const data = new FormData();
+  data.append("file", file);
+  return requestBackend({
+    method: "POST",
+    url: "/api/products/custom/image",
+    data,
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+// Admin CRUD do catálogo
+export const createAdminProduct = (dto: ReturnType<typeof toProductDTO>) =>
+  requestBackend({ method: "POST", url: "/api/admin/products", data: dto, withCredentials: true });
+
+export const updateAdminProduct = (id: number, dto: ReturnType<typeof toProductDTO>) =>
+  requestBackend({ method: "PUT", url: `/api/admin/products/${id}`, data: dto, withCredentials: true });
+
+export const deleteAdminProduct = (id: number) =>
+  requestBackend({ method: "DELETE", url: `/api/admin/products/${id}`, withCredentials: true });

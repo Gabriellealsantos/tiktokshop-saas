@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronLeft, Shirt, Filter, Wand, ArrowRight, Check } from "lucide-react";
 import { AppShell } from "@/layouts/app-shell";
 import { Page, Button, Stepper } from "@/components";
-import { avatars } from "@/services/data";
+import { avatars } from "@/data/mock";
 import { cn } from "@/utils/utils";
 import { toast } from "sonner";
 

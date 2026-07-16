@@ -2,11 +2,14 @@ package com.venyx.tiktokshop.controllers;
 
 import com.venyx.tiktokshop.dtos.CreateNotificationDTO;
 import com.venyx.tiktokshop.dtos.NotificationDTO;
+import com.venyx.tiktokshop.dtos.NotificationPreferenceDTO;
 import com.venyx.tiktokshop.dtos.NotificationScheduleDTO;
+import com.venyx.tiktokshop.dtos.NotificationSoundSettingsDTO;
 import com.venyx.tiktokshop.entities.RoleConstants;
 import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.NotificationScheduleService;
 import com.venyx.tiktokshop.services.NotificationService;
+import com.venyx.tiktokshop.services.NotificationSoundSettingsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,13 +30,16 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final NotificationScheduleService scheduleService;
+    private final NotificationSoundSettingsService soundSettingsService;
     private final AuthService authService;
 
     public NotificationController(NotificationService notificationService,
                                   NotificationScheduleService scheduleService,
+                                  NotificationSoundSettingsService soundSettingsService,
                                   AuthService authService) {
         this.notificationService = notificationService;
         this.scheduleService = scheduleService;
+        this.soundSettingsService = soundSettingsService;
         this.authService = authService;
     }
 
@@ -62,6 +68,24 @@ public class NotificationController {
     public ResponseEntity<Void> markAllRead() {
         notificationService.markAllRead(authService.authenticated());
         return ResponseEntity.noContent().build();
+    }
+
+    // ----- Som: config global (leitura) + preferência de mute do usuário -----
+
+    /** Config global do som (presets por tipo). Qualquer usuário logado lê para saber qual som tocar. */
+    @GetMapping("/api/notifications/sound-settings")
+    public ResponseEntity<NotificationSoundSettingsDTO> soundSettings() {
+        return ResponseEntity.ok(soundSettingsService.getSettings());
+    }
+
+    @GetMapping("/api/notifications/preferences")
+    public ResponseEntity<NotificationPreferenceDTO> getPreference() {
+        return ResponseEntity.ok(soundSettingsService.getPreference(authService.authenticated()));
+    }
+
+    @PutMapping("/api/notifications/preferences")
+    public ResponseEntity<NotificationPreferenceDTO> updatePreference(@RequestBody NotificationPreferenceDTO dto) {
+        return ResponseEntity.ok(soundSettingsService.updatePreference(authService.authenticated(), dto));
     }
 
     // ----- Admin: envio manual e histórico -----
@@ -111,5 +135,14 @@ public class NotificationController {
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long id) {
         scheduleService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ----- Admin: som padrão escolhido pelo dono -----
+
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PutMapping("/api/admin/notifications/sound-settings")
+    public ResponseEntity<NotificationSoundSettingsDTO> updateSoundSettings(
+            @RequestBody NotificationSoundSettingsDTO dto) {
+        return ResponseEntity.ok(soundSettingsService.updateSettings(dto));
     }
 }

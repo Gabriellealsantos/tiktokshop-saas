@@ -16,7 +16,8 @@ import {
 import { MetricCard, Pill, Page, PageHeader, SectionTitle, ChartContainer, ChartTooltip, ChartTooltipContent, EmptyState } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
 import { useAuth } from "@/context/auth";
-import { getSummary, getLiveSalesFeed, getInsights, type DashboardSummary, type LiveSaleEventDTO, type DashboardInsightDTO } from "@/services/dashboardService";
+import type { DashboardSummary, LiveSaleEventDTO, DashboardInsightDTO } from "@/models/dashboard";
+import { getSummary, getLiveSalesFeed, getInsights } from "@/services/dashboardService";
 import { subscribeTopic } from "@/utils/ws";
 import { useDocumentTitle } from "@/utils/use-document-title";
 
@@ -44,15 +45,16 @@ const compact = (n: number) =>
 
 export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactNode }) {
   const { isAdmin, user } = useAuth();
-  const role = isAdmin ? "admin" : "afiliado";
+  const isAfiliado = user?.roles?.includes("ROLE_AFFILIATE") ?? false;
+  const canSeeRevenue = isAdmin || isAfiliado;
   const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
-  const [view, setView] = useState(role === "admin" ? "Faturamento" : "Tendências");
+  
+  const [view, setView] = useState(canSeeRevenue ? "Faturamento" : "Tendências");
   const [chart, setChart] = useState("Área");
   const [selectedPeriod, setSelectedPeriod] = useState("7 dias");
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [liveSales, setLiveSales] = useState<LiveSaleEventDTO[]>([]);
   const [insights, setInsights] = useState<DashboardInsightDTO[]>([]);
-  const canSeeRevenue = true; // since route is protected, all who reach here can see revenue
 
   const fetchSummary = useCallback(async () => {
     if (!canSeeRevenue) return;
@@ -134,7 +136,7 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
           description="Sinais claros para decidir o que criar e escalar agora."
           actions={
             <div className="flex gap-2">
-              {role === "admin" && (
+              {canSeeRevenue && (
                 <Pill active={view === "Faturamento"} onClick={() => setView("Faturamento")}>
                   Faturamento
                 </Pill>
@@ -319,16 +321,6 @@ export default function DashboardRoute() {
   useDocumentTitle("Painel Principal");
   const { isAdmin, roles } = useAuth();
   const isAfiliado = roles.includes("ROLE_AFFILIATE");
-
-  if (!isAdmin && !isAfiliado) {
-    return (
-      <AppShell>
-        <Page>
-          <EmptyState title="Acesso Negado" description="Esta página é restrita a administradores e afiliados." />
-        </Page>
-      </AppShell>
-    );
-  }
 
   return (
     <AppShell>
