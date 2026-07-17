@@ -36,6 +36,7 @@ export function SectionStats({ form }: SectionStatsProps) {
               <FormControl>
                 <Input type="number" placeholder="Ex: 150000" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
               </FormControl>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -48,6 +49,7 @@ export function SectionStats({ form }: SectionStatsProps) {
               <FormControl>
                 <Input type="number" placeholder="Auto" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
               </FormControl>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -60,6 +62,7 @@ export function SectionStats({ form }: SectionStatsProps) {
               <FormControl>
                 <Input type="number" step="0.1" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
               </FormControl>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -72,6 +75,7 @@ export function SectionStats({ form }: SectionStatsProps) {
               <FormControl>
                 <Input type="number" step="0.1" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
               </FormControl>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -84,6 +88,7 @@ export function SectionStats({ form }: SectionStatsProps) {
               <FormControl>
                 <Input type="number" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
               </FormControl>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -96,6 +101,7 @@ export function SectionStats({ form }: SectionStatsProps) {
               <FormControl>
                 <Input placeholder="Em alta" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
               </FormControl>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -108,6 +114,7 @@ export function SectionStats({ form }: SectionStatsProps) {
               <FormControl>
                 <Input placeholder="12, 15, 20, 18, 25, 30, 45" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
               </FormControl>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />

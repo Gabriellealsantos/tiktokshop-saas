@@ -1,6 +1,5 @@
 import { requestBackend } from "@/utils/requests";
-import type { ProductCategoryEnum, MiningWindowEnum } from "@/models/product-mappers";
-import type { toProductDTO } from "@/models/product-mappers";
+import type { MiningWindowEnum, toProductDTO } from "@/models/product-mappers";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Catálogo de produtos minerados (Product) — chamadas HTTP.
@@ -8,7 +7,8 @@ import type { toProductDTO } from "@/models/product-mappers";
 
 type ProductSearchParams = {
   search?: string;
-  category?: ProductCategoryEnum | null;
+  /** Slug da categoria (ex.: "pets"). O backend resolve por slug. */
+  category?: string | null;
   window?: MiningWindowEnum | null;
   sort?: string;
   page?: number;

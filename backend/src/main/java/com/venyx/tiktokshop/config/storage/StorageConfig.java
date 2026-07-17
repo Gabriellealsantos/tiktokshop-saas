@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.s3.S3ClientBuilder;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.PutBucketPolicyRequest;
 
 import java.net.URI;
 
@@ -77,6 +78,38 @@ public class StorageConfig {
             }
         } catch (Exception e) {
             log.warn("Não foi possível verificar o bucket '{}': {}", bucket, e.getMessage());
+        }
+
+        // As URLs salvas em banco apontam direto pro objeto (sem assinatura), então o bucket
+        // precisa ser público para leitura. Só fazemos isso contra o MinIO local (endpoint
+        // customizado) — em AWS S3 real, a policy do bucket é responsabilidade da infra.
+        if (endpoint != null && !endpoint.isBlank()) {
+            ensurePublicReadPolicy(client);
+        }
+    }
+
+    private void ensurePublicReadPolicy(S3Client client) {
+        try {
+            String policy = """
+                    {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Principal": "*",
+                          "Action": ["s3:GetObject"],
+                          "Resource": ["arn:aws:s3:::%s/*"]
+                        }
+                      ]
+                    }
+                    """.formatted(bucket);
+            client.putBucketPolicy(PutBucketPolicyRequest.builder()
+                    .bucket(bucket)
+                    .policy(policy)
+                    .build());
+            log.info("Policy de leitura pública aplicada ao bucket '{}' (MinIO local).", bucket);
+        } catch (Exception e) {
+            log.warn("Não foi possível aplicar policy pública ao bucket '{}': {}", bucket, e.getMessage());
         }
     }
 }

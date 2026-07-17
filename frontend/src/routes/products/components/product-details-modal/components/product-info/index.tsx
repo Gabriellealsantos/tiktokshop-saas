@@ -16,7 +16,7 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product, metrics, onNavigateToContent }: ProductInfoProps) {
   return (
-    <div className="flex flex-col w-full md:w-[56%] p-6 md:p-8 overflow-y-auto bg-surface-1">
+    <div className="flex flex-col w-full p-6 md:p-8 overflow-y-auto bg-surface-1">
       {/* Header & Badges */}
       <div className="flex items-center gap-2 mb-3">
         <Pill className="border-white/10 bg-surface-2 text-text-2 text-xs">

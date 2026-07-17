@@ -1,7 +1,6 @@
 package com.venyx.tiktokshop.entities;
 
 import com.venyx.tiktokshop.entities.enums.MiningWindow;
-import com.venyx.tiktokshop.entities.enums.ProductCategory;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -32,8 +31,9 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Enumerated(EnumType.STRING)
-    private ProductCategory category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private Integer sales = 0;
 
@@ -128,11 +128,11 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public ProductCategory getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(ProductCategory category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 

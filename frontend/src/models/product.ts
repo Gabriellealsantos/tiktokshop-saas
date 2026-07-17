@@ -2,6 +2,8 @@ export type Product = {
   id: number;
   name: string;
   category: string;
+  categoryId?: number;
+  categorySlug?: string;
   price: string;
   sales: string;
   image: string;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 
 import type { Product } from "@/models/product";
 import {
@@ -23,9 +23,11 @@ interface ProductDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onDeleted?: () => void;
+  /** Admin: abre o produto no modal de edição. */
+  onEdit?: (product: Product) => void;
 }
 
-export function ProductDetailsModal({ product, isOpen, onOpenChange, onDeleted }: ProductDetailsModalProps) {
+export function ProductDetailsModal({ product, isOpen, onOpenChange, onDeleted, onEdit }: ProductDetailsModalProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { isAdmin } = useAuth();
@@ -85,6 +87,16 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange, onDeleted }
               {/* Admin: Editar / Excluir */}
               {isAdmin && (
                 <div className="border-t border-white/10 p-6 md:px-8 flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      onOpenChange(false);
+                      onEdit?.(product);
+                    }}
+                    className="flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-surface-2 px-4 text-sm font-semibold text-text-1 transition-colors hover:bg-surface-3"
+                  >
+                    <Pencil className="size-4" />
+                    Editar
+                  </button>
                   <button
                     onClick={() => setConfirmDelete(true)}
                     className="flex h-10 items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/20"

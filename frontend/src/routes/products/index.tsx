@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Pill, Page, PageHeader, ProductCard } from "@/components";
@@ -6,8 +7,8 @@ import { ProductDetailsModal } from "./components/product-details-modal";
 import { AddProductModal } from "./components/add-product-modal";
 import { AppShell } from "@/layouts/app-shell";
 import type { Product } from "@/models/product";
+import type { Category } from "@/models/category";
 import {
-  categoryLabelToEnum,
   mapBackendToProduct,
   type BackendProduct,
 } from "@/models/product-mappers";
@@ -17,30 +18,39 @@ import {
   searchProducts,
   unfavoriteProduct,
 } from "@/services/productService";
+import { getCategories } from "@/services/categoryService";
 import { useDocumentTitle } from "@/utils/use-document-title";
 
-const CATS = [
-  "Favoritos",
-  "Top Produtos",
-  "Beleza & Cuidados",
-  "Casa & Decoração",
-  "Saúde & Fitness",
-  "Moda & Estilo",
-  "Tecnologia",
-  "Acessórios",
-];
+// Abas fixas (não são categorias do backend): Favoritos e Top Produtos.
+const FIXED_TABS = ["Favoritos", "Top Produtos"];
 
 export default function ProductsScreen() {
   useDocumentTitle("Produtos Virais");
   const [addProductOpen, setAddProductOpen] = useState(false);
+  // Produto em edição (admin). null = modal de "Meu produto" abre em modo criação.
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [searchParams] = useSearchParams();
   const [category, setCategory] = useState("Top Produtos");
-  const [search, setSearch] = useState("");
+  // Semeia a busca a partir da URL (ex.: navegação vinda da Central via ?search=).
+  const [search, setSearch] = useState(() => searchParams.get("search") ?? "");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [list, setList] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   // Ids favoritados, para marcar o coração em qualquer aba (não só na de Favoritos).
   const [favIds, setFavIds] = useState<Set<number>>(new Set());
+  // Categorias reais do backend (viram abas dinâmicas depois das fixas).
+  const [cats, setCats] = useState<Category[]>([]);
+
+  useEffect(() => {
+    getCategories()
+      .then((res) => setCats((res.data ?? []) as Category[]))
+      .catch(() => {
+        /* silencioso: mantém só as abas fixas */
+      });
+  }, []);
+
+  const tabs = [...FIXED_TABS, ...cats.map((c) => c.name)];
 
   // Carrega os ids favoritados uma vez (usado para marcar o coração nas outras abas).
   const loadFavIds = useCallback(async () => {
@@ -62,8 +72,10 @@ export default function ProductsScreen() {
         const term = search.trim().toLowerCase();
         setList(term ? items.filter((p) => p.name.toLowerCase().includes(term)) : items);
       } else {
+        // "Top Produtos" = todas (sem filtro). Categoria real → filtra pelo slug.
+        const slug = cats.find((c) => c.name === category)?.slug;
         const res = await searchProducts({
-          category: categoryLabelToEnum(category),
+          category: category === "Top Produtos" ? undefined : slug,
           search: search.trim() || undefined,
           size: 40,
         });
@@ -76,7 +88,7 @@ export default function ProductsScreen() {
     } finally {
       setLoading(false);
     }
-  }, [category, search, favIds]);
+  }, [category, search, favIds, cats]);
 
   useEffect(() => {
     loadFavIds();
@@ -127,7 +139,7 @@ export default function ProductsScreen() {
         />
         <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center justify-between">
           <div className="flex gap-2 overflow-x-auto pb-1 flex-1 lg:flex-none">
-            {CATS.map((cat) => (
+            {tabs.map((cat) => (
               <Pill key={cat} active={category === cat} onClick={() => setCategory(cat)}>
                 {cat}
               </Pill>
@@ -144,7 +156,10 @@ export default function ProductsScreen() {
               />
             </div>
             <button
-              onClick={() => setAddProductOpen(true)}
+              onClick={() => {
+                setProductToEdit(null);
+                setAddProductOpen(true);
+              }}
               className="btn-brand flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-[12px] px-5 text-sm font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               <Plus className="size-4" />
@@ -189,10 +204,19 @@ export default function ProductsScreen() {
             setSelectedProduct(null);
             load();
           }}
+          onEdit={(product) => {
+            setSelectedProduct(null);
+            setProductToEdit(product);
+            setAddProductOpen(true);
+          }}
         />
         <AddProductModal
           open={addProductOpen}
-          onOpenChange={setAddProductOpen}
+          onOpenChange={(open) => {
+            setAddProductOpen(open);
+            if (!open) setProductToEdit(null);
+          }}
+          productToEdit={productToEdit}
           onCreated={() => {
             loadFavIds();
             load();

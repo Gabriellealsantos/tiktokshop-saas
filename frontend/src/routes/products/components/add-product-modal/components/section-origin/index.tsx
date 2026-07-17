@@ -1,6 +1,6 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Plus } from "lucide-react";
-import { FormField, FormItem, FormLabel, FormControl, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch } from "@/components";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch } from "@/components";
 
 interface SectionOriginProps {
   form: UseFormReturn<any>;
@@ -33,6 +33,7 @@ export function SectionOrigin({ form }: SectionOriginProps) {
                   <SelectItem value="18:00–00:00">18:00–00:00</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />

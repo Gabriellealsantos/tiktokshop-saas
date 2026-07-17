@@ -30,9 +30,14 @@ public class StorageService {
             "image/png",  new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47},
             "image/jpeg", new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF});
 
+    // WEBP não tem um prefixo simples: é "RIFF" + 4 bytes de tamanho (variável) + "WEBP".
+    private static final byte[] RIFF_MAGIC = new byte[]{0x52, 0x49, 0x46, 0x46};
+    private static final byte[] WEBP_MAGIC = new byte[]{0x57, 0x45, 0x42, 0x50};
+
     private static final Map<String, String> EXTENSIONS = Map.of(
             "image/png",  ".png",
-            "image/jpeg", ".jpg");
+            "image/jpeg", ".jpg",
+            "image/webp", ".webp");
 
     private final S3Client s3Client;
 
@@ -125,6 +130,12 @@ public class StorageService {
     }
 
     private void assertRealImage(byte[] content, String contentType) {
+        if ("image/webp".equals(contentType)) {
+            if (!isValidWebp(content)) {
+                throw new BusinessException("O arquivo enviado não é uma imagem válida.");
+            }
+            return;
+        }
         byte[] expected = MAGIC_BYTES.get(contentType);
         if (expected == null) {
             throw new BusinessException("Formato de imagem não suportado: " + contentType);
@@ -139,6 +150,13 @@ public class StorageService {
             return false;
         }
         return Arrays.equals(content, 0, prefix.length, prefix, 0, prefix.length);
+    }
+
+    /** WEBP não tem um prefixo único: valida o container RIFF e a assinatura WEBP no offset 8. */
+    private boolean isValidWebp(byte[] content) {
+        return content.length >= 12
+                && startsWith(content, RIFF_MAGIC)
+                && Arrays.equals(content, 8, 12, WEBP_MAGIC, 0, 4);
     }
 
     private String buildUrl(String key) {

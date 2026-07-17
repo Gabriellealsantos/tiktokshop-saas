@@ -38,10 +38,6 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    // Roles que exigem telefone. AFFILIATE fica de fora.
-    private static final Set<String> PHONE_REQUIRED_ROLES =
-            Set.of(RoleConstants.ROLE_CLIENT, RoleConstants.ROLE_ADMIN, RoleConstants.ROLE_AFFILIATE);
-
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
     private final RoleRepository roleRepository;
@@ -58,14 +54,6 @@ public class UserService {
         this.roleRepository = roleRepository;
         this.authService = authService;
         this.subscriptionRepository = subscriptionRepository;
-    }
-
-    private void enforcePhoneForClientOrAdmin(User entity) {
-        boolean requiresPhone = entity.getRoles().stream()
-                .anyMatch(r -> PHONE_REQUIRED_ROLES.contains(r.getAuthority()));
-        if (requiresPhone && (entity.getPhone() == null || entity.getPhone().isBlank())) {
-            throw new BusinessException("Telefone é obrigatório para clientes e administradores.");
-        }
     }
 
     @Transactional(readOnly = true)
@@ -129,7 +117,6 @@ public class UserService {
             entity.getRoles().add(role);
         }
 
-        enforcePhoneForClientOrAdmin(entity);
         entity = repository.save(entity);
         return new UserDTO(entity);
     }
@@ -215,7 +202,6 @@ public class UserService {
                 }
             }
 
-            enforcePhoneForClientOrAdmin(entity);
             entity = repository.save(entity);
             return new UserDTO(entity);
 
@@ -239,7 +225,6 @@ public class UserService {
         ensurePhoneAvailable(dto.phoneNumber(), entity.getId());
 
         copyDtoToEntity(dto, entity);
-        enforcePhoneForClientOrAdmin(entity);
         entity = repository.save(entity);
         return new UserDTO(entity);
     }

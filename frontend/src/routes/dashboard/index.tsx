@@ -44,8 +44,8 @@ const compact = (n: number) =>
   new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 }).format(n ?? 0);
 
 export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactNode }) {
-  const { isAdmin, user } = useAuth();
-  const isAfiliado = user?.roles?.includes("ROLE_AFFILIATE") ?? false;
+  const { isAdmin, user, roles } = useAuth();
+  const isAfiliado = roles.includes("ROLE_AFFILIATE");
   const canSeeRevenue = isAdmin || isAfiliado;
   const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
   

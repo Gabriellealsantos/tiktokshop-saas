@@ -9,7 +9,7 @@ import { KeyRound, LogOut, ShieldCheck, UserCircle } from "lucide-react";
 import axios from "axios";
 
 import { AppShell } from "@/layouts/app-shell";
-import { Page, PageHeader, SectionTitle, Button, Field, Toggle } from "@/components";
+import { Page, PageHeader, SectionTitle, Button, Field } from "@/components";
 import { useAuth } from "@/context/auth";
 import { mapUserResponse, type UserStatus, type UserPlan } from "@/models/user";
 import { updateMe, changeMyPassword } from "@/services/userService";
@@ -21,8 +21,6 @@ export default function ProfileScreen() {
   useDocumentTitle("Meu Perfil");
   const { user: authUser, logout, reloadUser } = useAuth();
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(true);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
@@ -202,29 +200,6 @@ export default function ProfileScreen() {
                     user.status === "aprovado" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400")}>
                     {user.status === "aprovado" ? "Ativo" : user.status}
                   </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Preferências */}
-            <div className="panel p-6">
-              <SectionTitle title="Preferências" />
-
-              <div className="space-y-6 mt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-white">Tema escuro</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Ativar modo noturno na interface</p>
-                  </div>
-                  <Toggle checked={isDark} onChange={setIsDark} />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-white">Notificações</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Receber alertas de vendas e geração</p>
-                  </div>
-                  <Toggle checked={notificationsEnabled} onChange={setNotificationsEnabled} />
                 </div>
               </div>
             </div>

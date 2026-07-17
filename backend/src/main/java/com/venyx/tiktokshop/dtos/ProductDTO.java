@@ -1,8 +1,8 @@
 package com.venyx.tiktokshop.dtos;
 
+import com.venyx.tiktokshop.entities.Category;
 import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.enums.MiningWindow;
-import com.venyx.tiktokshop.entities.enums.ProductCategory;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,7 +13,10 @@ public record ProductDTO(
     String name,
     String description,
     String imageUrl,
-    ProductCategory category,
+    // Escrita: só categoryId é lido. Leitura: categoryName/categorySlug são derivados.
+    Long categoryId,
+    String categoryName,
+    String categorySlug,
     Integer sales,
     Integer views,
     String affiliateLink,
@@ -37,7 +40,9 @@ public record ProductDTO(
             entity.getName(),
             entity.getDescription(),
             entity.getImageUrl(),
-            entity.getCategory(),
+            entity.getCategory() != null ? entity.getCategory().getId() : null,
+            entity.getCategory() != null ? entity.getCategory().getName() : null,
+            entity.getCategory() != null ? entity.getCategory().getSlug() : null,
             entity.getSales(),
             entity.getViews(),
             entity.getAffiliateLink(),

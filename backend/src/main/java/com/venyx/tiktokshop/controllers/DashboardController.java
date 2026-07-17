@@ -25,7 +25,7 @@ public class DashboardController {
         this.service = service;
     }
 
-    @PreAuthorize("hasAnyRole('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/dashboard")
     public ResponseEntity<DashboardSummaryDTO> getSummary(
             @RequestParam(value = "period", required = false) String period,
@@ -34,20 +34,20 @@ public class DashboardController {
         return ResponseEntity.ok(service.getSummary(period, from, to));
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
     @GetMapping("/api/admin/dashboard/metrics")
     public ResponseEntity<List<DashboardMetricDTO>> listMetrics(
             @RequestParam(value = "periodType", required = false) String periodType) {
         return ResponseEntity.ok(service.listMetrics(periodType));
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
     @PutMapping("/api/admin/dashboard/metrics")
     public ResponseEntity<DashboardMetricDTO> upsertMetric(@RequestBody DashboardMetricDTO dto) {
         return ResponseEntity.ok(service.upsertMetric(dto));
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
     @DeleteMapping("/api/admin/dashboard/metrics/{id}")
     public ResponseEntity<Void> deleteMetric(@PathVariable Long id) {
         service.deleteMetric(id);

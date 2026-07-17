@@ -17,6 +17,7 @@ import { MetricsTab } from "./components/metrics-tab";
 import { InsightsTab } from "./components/insights-tab";
 import { LiveSalesTab } from "./components/live-sales-tab";
 import { NotificationSoundTab } from "./components/notification-sound-tab";
+import { CategoriesTab } from "./components/categories-tab";
 
 export default function AdminScreen() {
   const { isAdmin } = useAuth();
@@ -187,7 +188,7 @@ export default function AdminScreen() {
         </div>
 
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide entrance">
-          {["Usuários", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações"].map((x) => (
+          {["Usuários", "Categorias", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações"].map((x) => (
             <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
               {x}
             </Pill>
@@ -406,6 +407,8 @@ export default function AdminScreen() {
             )}
           </div>
         )}
+
+        {tab === "Categorias" && <CategoriesTab />}
 
         {tab === "Métricas" && <MetricsTab />}
 

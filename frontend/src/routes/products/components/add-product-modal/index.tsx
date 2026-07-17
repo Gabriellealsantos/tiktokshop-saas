@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,9 +9,11 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import { useMockSession } from "@/context/mock-session";
 import { ProductCard, Dialog, DialogContent, DialogDescription, DialogTitle, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch } from "@/components";
-import { categories, type Product } from "@/data/mock";
-import { mapBackendToProduct, toProductDTO, type BackendProduct } from "@/models/product-mappers";
-import { createAdminProduct, uploadProductImage } from "@/services/productService";
+import { type Product } from "@/data/mock";
+import type { Category } from "@/models/category";
+import { mapBackendToProduct, toProductDTO, productToFormValues, type BackendProduct } from "@/models/product-mappers";
+import { createAdminProduct, updateAdminProduct, uploadProductImage } from "@/services/productService";
+import { getCategories } from "@/services/categoryService";
 import { createUserProduct } from "@/services/userProductService";
 import { ContentGenerationOptions } from "../content-generation-options";
 
@@ -31,7 +33,8 @@ const formSchema = z.object({
 
   // 2. Básico
   name: z.string().min(3, { message: "Nome muito curto" }),
-  category: z.string().min(1, { message: "Selecione um tipo" }),
+  // Categoria (id) só é exigida no fluxo admin — validada em canSubmit/onSubmit.
+  category: z.string().optional(),
   price: z.coerce.number().min(0, { message: "Preço inválido" }).optional(),
 
   // 3. Estatísticas
@@ -54,52 +57,76 @@ const formSchema = z.object({
   affiliateUrl: z.string().url({ message: "URL do TikTok Shop inválida" }).optional().or(z.literal("")),
 });
 
+const BLANK_DEFAULTS: z.infer<typeof formSchema> = {
+  image: "",
+  images: "",
+  name: "",
+  category: "",
+  price: 0,
+  sales: "0 vendas",
+  views: 0,
+  revenueEstimate: 0,
+  conversionRate: 0,
+  commissionRate: 15,
+  salesPerDay: 0,
+  trendLabel: "",
+  rankInCategory: undefined,
+  salesHistory7d: "",
+  miningWindow: "12:00–18:00",
+  viral: false,
+  favorite: false,
+  affiliateUrl: "",
+};
+
 interface AddProductModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreated?: () => void;
+  /** Quando presente, o modal abre em modo edição (admin) desse produto. */
+  productToEdit?: Product | null;
 }
 
-export function AddProductModal({ open, onOpenChange, onCreated }: AddProductModalProps) {
+export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }: AddProductModalProps) {
   const { role } = useMockSession();
+  const isAdmin = role === "admin";
+  const isEditing = !!productToEdit;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [createdProduct, setCreatedProduct] = useState<Product | null>(null);
+  const [cats, setCats] = useState<Category[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Categorias da vitrine (só o admin usa o select).
+  useEffect(() => {
+    if (!open || !isAdmin) return;
+    getCategories()
+      .then((res) => setCats((res.data ?? []) as Category[]))
+      .catch(() => {
+        /* silencioso */
+      });
+  }, [open, isAdmin]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      image: "",
-      images: "",
-      name: "",
-      category: "",
-      price: 0,
-      sales: "0 vendas",
-      views: 0,
-      revenueEstimate: 0,
-      conversionRate: 0,
-      commissionRate: 15,
-      salesPerDay: 0,
-      trendLabel: "",
-      rankInCategory: 0,
-      salesHistory7d: "",
-      miningWindow: "12:00–18:00",
-      viral: false,
-      favorite: false,
-      affiliateUrl: "",
-    },
+    defaultValues: BLANK_DEFAULTS,
   });
+
+  // Ao abrir: em modo edição pré-preenche com o produto; em modo criação garante form limpo.
+  useEffect(() => {
+    if (!open) return;
+    form.reset(productToEdit ? productToFormValues(productToEdit) : BLANK_DEFAULTS);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, productToEdit]);
 
 
   const watchAllFields = form.watch();
-  const canSubmit = !!watchAllFields.image && !!watchAllFields.name && !!watchAllFields.category && !isUploading;
+  const canSubmit = !!watchAllFields.image && !!watchAllFields.name && (!isAdmin || !!watchAllFields.category) && !isUploading;
 
   const previewProduct: Product = {
     id: 9999,
     name: watchAllFields.name || "Nome do Produto",
-    category: watchAllFields.category || "Categoria",
+    category: cats.find((c) => String(c.id) === watchAllFields.category)?.name || "Categoria",
     price: !isNaN(Number(watchAllFields.price)) && watchAllFields.price ? `R$ ${Number(watchAllFields.price).toFixed(2).replace(".", ",")}` : "R$ 0,00",
     sales: watchAllFields.sales || "0 vendas",
     image: watchAllFields.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
@@ -173,6 +200,18 @@ export function AddProductModal({ open, onOpenChange, onCreated }: AddProductMod
     setIsSubmitting(true);
 
     try {
+      if (isEditing && productToEdit) {
+        // Modo edição (admin): atualiza o produto existente e fecha — sem passo de gerar conteúdo.
+        const dto = toProductDTO(values);
+        await updateAdminProduct(productToEdit.id, dto);
+        toast.success("Produto atualizado com sucesso!", {
+          description: "As alterações já estão na vitrine de Produtos Virais.",
+        });
+        onCreated?.();
+        handleOpenChange(false);
+        return;
+      }
+
       if (role === "admin") {
         // Admin: cria produto no catálogo com todos os campos ricos.
         const dto = toProductDTO(values);
@@ -242,8 +281,16 @@ export function AddProductModal({ open, onOpenChange, onCreated }: AddProductMod
                 {/* LEFT/FORM: scrolls internally */}
           <div className="flex-1 min-h-0 p-6 md:p-8 overflow-y-auto">
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white">Adicionar Produto</h2>
-              <p className="text-sm text-zinc-400 mt-1">Preencha os campos para rastrear um novo produto na vitrine.</p>
+              <h2 className="text-2xl font-bold text-white">
+                {isEditing ? "Editar Produto" : isAdmin ? "Adicionar Produto" : "Adicionar Meu Produto"}
+              </h2>
+              <p className="text-sm text-zinc-400 mt-1">
+                {isEditing
+                  ? "Ajuste os campos e salve as alterações na vitrine."
+                  : isAdmin
+                    ? "Preencha os campos para rastrear um novo produto na vitrine."
+                    : "Envie a imagem e dê um nome ao seu produto para gerar conteúdo com ele."}
+              </p>
             </div>
 
             <Form {...form}>
@@ -260,7 +307,7 @@ export function AddProductModal({ open, onOpenChange, onCreated }: AddProductMod
                 )}
 
                 {/* 2. Básico */}
-                <SectionBasic form={form} />
+                <SectionBasic form={form} isAdmin={isAdmin} categories={cats} />
 
                 {/* 3. Estatísticas */}
                 {role === "admin" && (
@@ -290,11 +337,14 @@ export function AddProductModal({ open, onOpenChange, onCreated }: AddProductMod
             <div className="mt-auto pt-6 border-t border-white/10">
               <button
                 type="button"
-                onClick={form.handleSubmit(onSubmit, (errors) => console.log(">>> ERRO DE VALIDAÇÃO IMPEDIU O SUBMIT:", errors))}
+                onClick={form.handleSubmit(onSubmit, (errors) => {
+                  console.log(">>> ERRO DE VALIDAÇÃO IMPEDIU O SUBMIT:", errors);
+                  toast.error("Confira os campos destacados.");
+                })}
                 disabled={isSubmitting || !canSubmit}
                 className="btn-brand flex h-12 w-full items-center justify-center rounded-[14px] text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
               >
-                {isSubmitting ? "Salvando..." : isUploading ? "Enviando imagem…" : "Adicionar ao Estúdio"}
+                {isSubmitting ? "Salvando..." : isUploading ? "Enviando imagem…" : isEditing ? "Salvar alterações" : "Adicionar ao Estúdio"}
               </button>
             </div>
           </div>

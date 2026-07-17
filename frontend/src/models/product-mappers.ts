@@ -6,10 +6,6 @@ import type { Product } from "./product";
 // tradução dos enums de categoria e janela de mineração.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type ProductCategoryEnum =
-  | "FAVORITOS" | "TOP_PRODUTOS" | "BELEZA_CUIDADOS" | "CASA_MAIS"
-  | "SAUDE_FITNESS" | "MODA" | "TECNOLOGIA" | "ACESSORIOS";
-
 export type MiningWindowEnum = "W_00_06" | "W_06_12" | "W_12_18" | "W_18_24";
 
 /** ProductDTO do backend. */
@@ -18,7 +14,10 @@ export type BackendProduct = {
   name: string;
   description: string | null;
   imageUrl: string | null;
-  category: ProductCategoryEnum | null;
+  // Escrita: só categoryId. Leitura: categoryName/categorySlug derivados no backend.
+  categoryId: number | null;
+  categoryName: string | null;
+  categorySlug: string | null;
   sales: number | null;
   views: number | null;
   affiliateLink: string | null;
@@ -37,27 +36,6 @@ export type BackendProduct = {
   createdAt: string | null;
 };
 
-// Rótulo (UI) <-> enum (backend). Fonte única para os dois sentidos.
-const CATEGORY_LABEL_TO_ENUM: Record<string, ProductCategoryEnum> = {
-  "Beleza & Cuidados": "BELEZA_CUIDADOS",
-  "Casa & Decoração": "CASA_MAIS",
-  "Saúde & Fitness": "SAUDE_FITNESS",
-  "Tecnologia": "TECNOLOGIA",
-  "Moda & Estilo": "MODA",
-  "Acessórios": "ACESSORIOS",
-};
-
-const CATEGORY_ENUM_TO_LABEL: Record<ProductCategoryEnum, string> = {
-  FAVORITOS: "Favoritos",
-  TOP_PRODUTOS: "Top Produtos",
-  BELEZA_CUIDADOS: "Beleza & Cuidados",
-  CASA_MAIS: "Casa & Decoração",
-  SAUDE_FITNESS: "Saúde & Fitness",
-  MODA: "Moda & Estilo",
-  TECNOLOGIA: "Tecnologia",
-  ACESSORIOS: "Acessórios",
-};
-
 const WINDOW_LABEL_TO_ENUM: Record<string, MiningWindowEnum> = {
   "00:00–06:00": "W_00_06",
   "06:00–12:00": "W_06_12",
@@ -72,11 +50,6 @@ const WINDOW_ENUM_TO_LABEL: Record<MiningWindowEnum, string> = {
   W_18_24: "18:00–00:00",
 };
 
-/** Rótulo do pill (products screen) -> enum de categoria, ou null p/ "todos". */
-export function categoryLabelToEnum(label: string): ProductCategoryEnum | null {
-  return CATEGORY_LABEL_TO_ENUM[label] ?? null;
-}
-
 function formatBRL(value: number | null | undefined): string {
   const n = typeof value === "number" ? value : 0;
   return `R$ ${n.toFixed(2).replace(".", ",")}`;
@@ -87,7 +60,9 @@ export function mapBackendToProduct(dto: BackendProduct, favorite = false): Prod
   return {
     id: dto.id,
     name: dto.name,
-    category: dto.category ? CATEGORY_ENUM_TO_LABEL[dto.category] : "Top Produtos",
+    category: dto.categoryName ?? "Sem categoria",
+    categoryId: dto.categoryId ?? undefined,
+    categorySlug: dto.categorySlug ?? undefined,
     price: formatBRL(dto.price),
     sales: `${dto.sales ?? 0} vendas`,
     image: dto.imageUrl ?? "",
@@ -109,7 +84,8 @@ export function mapBackendToProduct(dto: BackendProduct, favorite = false): Prod
   };
 }
 
-/** Valores do formulário do add-product-modal (campos ricos são preenchidos só pelo admin). */
+/** Valores do formulário do add-product-modal (campos ricos são preenchidos só pelo admin).
+ *  `category` guarda o **id** da categoria (como string) — usado só no fluxo admin. */
 export type ProductFormValues = {
   image: string;
   images?: string;
@@ -129,6 +105,33 @@ export type ProductFormValues = {
   affiliateUrl?: string;
 };
 
+/** Product (modelo do front) -> valores do formulário do add-product-modal (usado no modo edição). */
+export function productToFormValues(p: Product): ProductFormValues & { viral: boolean; favorite: boolean } {
+  // p.price vem formatado como "R$ 49,90" -> volta pra number.
+  const priceNum = Number(p.price.replace(/[^\d,]/g, "").replace(",", ".")) || 0;
+  return {
+    image: p.image,
+    images: p.images?.join(", ") ?? "",
+    name: p.name,
+    // `category` no form guarda o id da categoria (para o select do admin).
+    category: p.categoryId != null ? String(p.categoryId) : "",
+    price: priceNum,
+    sales: p.sales,
+    views: p.views ?? 0,
+    revenueEstimate: p.revenueEstimate ?? 0,
+    conversionRate: p.conversionRate ?? 0,
+    commissionRate: p.commissionRate ?? 0,
+    salesPerDay: p.salesPerDay ?? 0,
+    trendLabel: p.trendLabel ?? "",
+    rankInCategory: p.rankInCategory ?? undefined,
+    salesHistory7d: p.salesHistory7d?.join(", ") ?? "",
+    miningWindow: p.miningWindow ?? "",
+    affiliateUrl: p.affiliateUrl ?? "",
+    viral: p.viral,
+    favorite: p.favorite,
+  };
+}
+
 function parseIntList(csv?: string): number[] | null {
   if (!csv) return null;
   const arr = csv.split(",").map((s) => Number(s.trim())).filter((n) => !isNaN(n));
@@ -147,7 +150,7 @@ export function toProductDTO(values: ProductFormValues) {
   return {
     name: values.name,
     imageUrl: values.image,
-    category: categoryLabelToEnum(values.category) ?? "TOP_PRODUTOS",
+    categoryId: values.category ? Number(values.category) : null,
     sales: isNaN(salesInt) ? 0 : salesInt,
     views: values.views ?? 0,
     affiliateLink: values.affiliateUrl || null,

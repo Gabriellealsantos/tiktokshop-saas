@@ -4,7 +4,8 @@ import com.venyx.tiktokshop.dtos.MiningStatusDTO;
 import com.venyx.tiktokshop.dtos.ProductDTO;
 import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.enums.MiningWindow;
-import com.venyx.tiktokshop.entities.enums.ProductCategory;
+import com.venyx.tiktokshop.entities.Category;
+import com.venyx.tiktokshop.repositories.CategoryRepository;
 import com.venyx.tiktokshop.repositories.ProductRepository;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
@@ -34,9 +35,11 @@ public class ProductService {
     private static final Duration MINING_REFRESH_INTERVAL = Duration.ofHours(6);
 
     private final ProductRepository repository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository repository) {
+    public ProductService(ProductRepository repository, CategoryRepository categoryRepository) {
         this.repository = repository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -56,23 +59,28 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductDTO> findAll(String category) {
-        List<Product> products = (category == null || category.isBlank())
-                ? repository.findAll()
-                : repository.findByCategoryOrderByRankPositionAsc(ProductCategory.valueOf(category.toUpperCase()));
-        return products.stream().map(ProductDTO::new).toList();
+        if (category == null || category.isBlank()) {
+            return repository.findAll().stream().map(ProductDTO::new).toList();
+        }
+        Category cat = categoryRepository.findBySlug(category)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada: " + category));
+        return repository.findByCategoryOrderByRankPositionAsc(cat)
+                .stream().map(ProductDTO::new).toList();
     }
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> search(String search, String category, String miningWindow, String sort, int page, int size) {
-        ProductCategory categoryEnum = (category == null || category.isBlank())
-                ? null
-                : ProductCategory.valueOf(category.toUpperCase());
+        Category categoryEntity = null;
+        if (category != null && !category.isBlank()) {
+             categoryEntity = categoryRepository.findBySlug(category)
+                 .orElse(null);
+        }
         // window inválida -> IllegalArgumentException -> HTTP 400 (mesmo tratamento da categoria).
         MiningWindow windowEnum = (miningWindow == null || miningWindow.isBlank())
                 ? null
                 : MiningWindow.valueOf(miningWindow.trim().toUpperCase());
         Pageable pageable = PageRequest.of(page, size, resolveSort(sort));
-        return repository.search(likePattern(search), categoryEnum, windowEnum, pageable)
+        return repository.search(likePattern(search), categoryEntity, windowEnum, pageable)
                 .map(ProductDTO::new);
     }
 
@@ -158,7 +166,13 @@ public class ProductService {
         entity.setName(dto.name().trim());
         entity.setDescription(dto.description());
         entity.setImageUrl(dto.imageUrl());
-        entity.setCategory(dto.category());
+        if (dto.categoryId() != null) {
+            Category category = categoryRepository.findById(dto.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada: " + dto.categoryId()));
+            entity.setCategory(category);
+        } else {
+            entity.setCategory(null);
+        }
         entity.setSales(dto.sales() != null ? dto.sales() : 0);
         entity.setViews(dto.views() != null ? dto.views() : 0);
         entity.setAffiliateLink(dto.affiliateLink());

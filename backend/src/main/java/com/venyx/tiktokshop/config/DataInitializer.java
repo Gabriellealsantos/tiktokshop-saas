@@ -9,8 +9,9 @@ import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.entities.enums.MiningWindow;
 import com.venyx.tiktokshop.entities.enums.NotificationAudience;
 import com.venyx.tiktokshop.entities.enums.NotificationType;
-import com.venyx.tiktokshop.entities.enums.ProductCategory;
+import com.venyx.tiktokshop.entities.Category;
 import com.venyx.tiktokshop.entities.enums.UserStatus;
+import com.venyx.tiktokshop.repositories.CategoryRepository;
 import com.venyx.tiktokshop.repositories.CreditWalletRepository;
 import com.venyx.tiktokshop.repositories.NotificationRepository;
 import com.venyx.tiktokshop.repositories.ProductRepository;
@@ -42,6 +43,7 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final CreditWalletRepository creditWalletRepository;
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -49,12 +51,14 @@ public class DataInitializer implements CommandLineRunner {
                            RoleRepository roleRepository,
                            CreditWalletRepository creditWalletRepository,
                            ProductRepository productRepository,
+                           CategoryRepository categoryRepository,
                            NotificationRepository notificationRepository,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.creditWalletRepository = creditWalletRepository;
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.notificationRepository = notificationRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -98,31 +102,47 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
 
-        seedProduct("Umidificador Portátil USB", ProductCategory.CASA_MAIS,
+        Category casaMais = getOrCreateCategory("Casa e Mais", "casa-e-mais");
+        Category tecnologia = getOrCreateCategory("Tecnologia", "tecnologia");
+        Category belezaCuidados = getOrCreateCategory("Beleza e Cuidados", "beleza-e-cuidados");
+        Category saudeFitness = getOrCreateCategory("Saúde e Fitness", "saude-e-fitness");
+
+        seedProduct("Umidificador Portátil USB", casaMais,
                 "49.90", "20", "1200", 1);
-        seedProduct("Fone Bluetooth TWS Pro", ProductCategory.TECNOLOGIA,
+        seedProduct("Fone Bluetooth TWS Pro", tecnologia,
                 "89.90", "25", "3400", 2);
-        seedProduct("Kit Skincare Coreano 5 Passos", ProductCategory.BELEZA_CUIDADOS,
+        seedProduct("Kit Skincare Coreano 5 Passos", belezaCuidados,
                 "119.90", "18", "2100", 3);
-        seedProduct("Escova Alisadora Elétrica", ProductCategory.BELEZA_CUIDADOS,
+        seedProduct("Escova Alisadora Elétrica", belezaCuidados,
                 "79.90", "22", "1800", 4);
-        seedProduct("Suporte de Celular Magnético Veicular", ProductCategory.TECNOLOGIA,
+        seedProduct("Suporte de Celular Magnético Veicular", tecnologia,
                 "34.90", "30", "2600", 5);
-        seedProduct("Massageador de Pescoço e Ombros", ProductCategory.SAUDE_FITNESS,
+        seedProduct("Massageador de Pescoço e Ombros", saudeFitness,
                 "129.90", "20", "1500", 6);
-        seedProduct("Tapete Antiderrapante para Pets", ProductCategory.CASA_MAIS,
+        seedProduct("Tapete Antiderrapante para Pets", casaMais,
                 "44.90", "15", "900", 7);
-        seedProduct("Luminária LED RGB com Controle", ProductCategory.CASA_MAIS,
+        seedProduct("Luminária LED RGB com Controle", casaMais,
                 "59.90", "20", "2000", 8);
-        seedProduct("Garrafa Térmica Inteligente com Display", ProductCategory.SAUDE_FITNESS,
+        seedProduct("Garrafa Térmica Inteligente com Display", saudeFitness,
                 "69.90", "18", "1300", 9);
-        seedProduct("Faixa Elástica de Resistência Kit", ProductCategory.SAUDE_FITNESS,
+        seedProduct("Faixa Elástica de Resistência Kit", saudeFitness,
                 "39.90", "25", "1100", 10);
 
         logger.info("✅ {} produtos de dev semeados para mineração/vendas ao vivo.", productRepository.count());
     }
 
-    private void seedProduct(String name, ProductCategory category, String price,
+    private Category getOrCreateCategory(String name, String slug) {
+        return categoryRepository.findBySlug(slug).orElseGet(() -> {
+            Category c = new Category();
+            c.setName(name);
+            c.setSlug(slug);
+            c.setSystem(true);
+            c.setSortOrder(1);
+            return categoryRepository.save(c);
+        });
+    }
+
+    private void seedProduct(String name, Category category, String price,
                              String commissionPct, String estimatedRevenue, int rankPosition) {
         Product product = new Product();
         product.setName(name);
