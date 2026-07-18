@@ -10,10 +10,10 @@ export function Trend({
   text: string;
 }) {
   return (
-    <div className="glass-surface p-6">
+    <div className="glass-surface p-6 overflow-hidden">
       <Icon className="size-5 text-accent-300" />
-      <h3 className="mt-5 font-bold">{title}</h3>
-      <p className="mt-2 text-sm leading-6 text-text-2">{text}</p>
+      <h3 className="mt-5 font-bold wrap-break-word">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-text-2 wrap-break-word">{text}</p>
     </div>
   );
 }

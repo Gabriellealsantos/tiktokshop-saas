@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -9,6 +10,7 @@ import {
   Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea,
 } from "@/components";
 import type { DashboardInsight, InsightKind } from "@/models/dashboard";
+import { INSIGHT_TITLE_MAX, INSIGHT_CONTENT_MAX } from "@/models/dashboard";
 import {
   createInsight, deleteInsight, listAllInsights, updateInsight,
 } from "@/services/dashboardAdminService";
@@ -29,8 +31,24 @@ export function InsightsTab() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<DashboardInsight>(emptyForm());
+  const [attempted, setAttempted] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<DashboardInsight | null>(null);
+
+  // Limite de conteúdo depende do tipo (CARD compacto x Leitura do momento).
+  const contentMax = INSIGHT_CONTENT_MAX[form.kind];
+
+  // Validação inline do formulário de tendência (mesmas regras do backend).
+  const titleError = !form.title.trim()
+    ? "Informe um título."
+    : form.title.trim().length > INSIGHT_TITLE_MAX
+      ? `O título deve ter no máximo ${INSIGHT_TITLE_MAX} caracteres.`
+      : null;
+  const contentError = !form.content.trim()
+    ? "Informe o conteúdo."
+    : form.content.trim().length > contentMax
+      ? `O conteúdo deve ter no máximo ${contentMax} caracteres.`
+      : null;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -51,18 +69,20 @@ export function InsightsTab() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm());
+    setAttempted(false);
     setDialogOpen(true);
   };
 
   const openEdit = (item: DashboardInsight) => {
     setEditingId(item.id ?? null);
     setForm({ ...item });
+    setAttempted(false);
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
-    if (!form.title.trim() || !form.content.trim()) {
-      toast.error("Preencha título e conteúdo.");
+    if (titleError || contentError) {
+      setAttempted(true);
       return;
     }
     setSaving(true);
@@ -76,8 +96,9 @@ export function InsightsTab() {
       }
       setDialogOpen(false);
       await load();
-    } catch {
-      toast.error("Falha ao salvar a tendência.");
+    } catch (e) {
+      const msg = axios.isAxiosError(e) ? (e.response?.data as { message?: string })?.message : undefined;
+      toast.error(msg ?? "Falha ao salvar a tendência.");
     } finally {
       setSaving(false);
     }
@@ -157,7 +178,7 @@ export function InsightsTab() {
         </div>
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setAttempted(false); }}>
         <DialogContent className="border-white/10 bg-zinc-950 text-white">
           <DialogHeader>
             <DialogTitle>{editingId != null ? "Editar tendência" : "Nova tendência"}</DialogTitle>
@@ -191,24 +212,46 @@ export function InsightsTab() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="title" className="text-xs text-zinc-400">Título</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="title" className="text-xs text-zinc-400">Título</Label>
+                <span className={cn("text-[10px] tabular-nums", form.title.length >= INSIGHT_TITLE_MAX ? "text-red-400" : "text-zinc-500")}>
+                  {form.title.length}/{INSIGHT_TITLE_MAX}
+                </span>
+              </div>
               <Input
                 id="title"
                 value={form.title}
+                maxLength={INSIGHT_TITLE_MAX}
                 onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-                className="h-9 bg-black/40 border-white/10 text-sm"
+                aria-invalid={attempted && !!titleError}
+                className={cn(
+                  "h-9 bg-black/40 border-white/10 text-sm",
+                  attempted && titleError && "border-red-500/50 focus-visible:ring-red-500/20",
+                )}
               />
+              {attempted && titleError && <p className="text-xs text-red-400">{titleError}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="content" className="text-xs text-zinc-400">Conteúdo</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="content" className="text-xs text-zinc-400">Conteúdo</Label>
+                <span className={cn("text-[10px] tabular-nums", form.content.length >= contentMax ? "text-red-400" : "text-zinc-500")}>
+                  {form.content.length}/{contentMax}
+                </span>
+              </div>
               <Textarea
                 id="content"
                 rows={4}
                 value={form.content}
+                maxLength={contentMax}
                 onChange={(e) => setForm((p) => ({ ...p, content: e.target.value }))}
-                className="bg-black/40 border-white/10 text-sm"
+                aria-invalid={attempted && !!contentError}
+                className={cn(
+                  "bg-black/40 border-white/10 text-sm",
+                  attempted && contentError && "border-red-500/50 focus-visible:ring-red-500/20",
+                )}
               />
+              {attempted && contentError && <p className="text-xs text-red-400">{contentError}</p>}
             </div>
 
             <div className="flex items-center gap-3">

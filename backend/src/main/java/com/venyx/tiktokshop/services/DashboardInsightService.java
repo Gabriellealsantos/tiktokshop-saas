@@ -71,9 +71,27 @@ public class DashboardInsightService {
         if (!DashboardInsight.KIND_CARD.equals(dto.kind()) && !DashboardInsight.KIND_MOMENT_READ.equals(dto.kind())) {
             throw new BusinessException("Tipo de insight inválido: " + dto.kind());
         }
+
+        String title = dto.title() == null ? "" : dto.title().trim();
+        String content = dto.content() == null ? "" : dto.content().trim();
+
+        if (title.isEmpty()) {
+            throw new BusinessException("O título é obrigatório.");
+        }
+        if (title.length() > DashboardInsight.TITLE_MAX) {
+            throw new BusinessException("O título deve ter no máximo " + DashboardInsight.TITLE_MAX + " caracteres.");
+        }
+        if (content.isEmpty()) {
+            throw new BusinessException("O conteúdo é obrigatório.");
+        }
+        int contentMax = DashboardInsight.contentMaxFor(dto.kind());
+        if (content.length() > contentMax) {
+            throw new BusinessException("O conteúdo deve ter no máximo " + contentMax + " caracteres para este tipo.");
+        }
+
         entity.setKind(dto.kind());
-        entity.setTitle(dto.title());
-        entity.setContent(dto.content());
+        entity.setTitle(title);
+        entity.setContent(content);
         entity.setOrderIndex(dto.orderIndex());
         entity.setActive(dto.active());
     }

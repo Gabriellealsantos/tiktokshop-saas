@@ -16,7 +16,7 @@ import {
   Film,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
 import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components";
 import { SignatureBackground } from "@/layouts/signature-background";
@@ -34,6 +34,9 @@ const toolbar = [
 
 const MotionLink = motion.create(Link);
 
+// Tempo que o popup de venda ao vivo fica visível antes de sumir sozinho.
+const SALE_TOAST_MS = 6000;
+
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
   const { isAdmin } = useAuth();
@@ -42,15 +45,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
   const [saleVisible, setSaleVisible] = useState(false);
   const lastSaleId = useRef<string | null>(null);
+  const saleId = latestSale?.id ?? null;
 
+  // Chaveado pelo id (string), não pelo objeto: evita que um re-render sem nova
+  // venda limpe o timer e deixe o toast preso na tela.
   useEffect(() => {
-    if (latestSale && latestSale.id !== lastSaleId.current) {
-      lastSaleId.current = latestSale.id;
-      setSaleVisible(true);
-      const t = setTimeout(() => setSaleVisible(false), 6000);
-      return () => clearTimeout(t);
-    }
-  }, [latestSale]);
+    if (!saleId || saleId === lastSaleId.current) return;
+    lastSaleId.current = saleId;
+    setSaleVisible(true);
+    const t = setTimeout(() => setSaleVisible(false), SALE_TOAST_MS);
+    return () => clearTimeout(t);
+  }, [saleId]);
 
   return (
     <div className="min-h-screen text-text-1">
@@ -204,33 +209,36 @@ export function AppShell({ children }: { children: ReactNode }) {
         </TooltipProvider>
       </nav>
 
-      {path !== "/login" && saleVisible && latestSale && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-24 right-5 z-30 hidden max-w-xs rounded-[16px] border border-success/20 bg-elevated/95 p-4 shadow-2xl lg:block"
-        >
-          <div className="flex items-center gap-3">
-            {latestSale.productImage ? (
-              <div className="relative size-12 shrink-0 rounded-lg overflow-hidden ring-1 ring-inset ring-white/10">
-                <img src={latestSale.productImage} alt={latestSale.title} className="w-full h-full object-cover" loading="lazy" />
-                <span className="absolute -bottom-1 -right-1 grid size-4 place-items-center rounded-full bg-success text-white shadow-sm ring-2 ring-elevated/95">
-                  <BadgeDollarSign className="size-3" />
+      <AnimatePresence>
+        {path !== "/login" && saleVisible && latestSale && (
+          <motion.div
+            key={latestSale.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 right-5 z-30 hidden max-w-xs rounded-[16px] border border-success/20 bg-elevated/95 p-4 shadow-2xl lg:block"
+          >
+            <div className="flex items-center gap-3">
+              {latestSale.productImage ? (
+                <div className="relative size-12 shrink-0 rounded-lg overflow-hidden ring-1 ring-inset ring-white/10">
+                  <img src={latestSale.productImage} alt={latestSale.title} className="w-full h-full object-cover" loading="lazy" />
+                  <span className="absolute -bottom-1 -right-1 grid size-4 place-items-center rounded-full bg-success text-white shadow-sm ring-2 ring-elevated/95">
+                    <BadgeDollarSign className="size-3" />
+                  </span>
+                </div>
+              ) : (
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-success/10 text-success">
+                  <ChartNoAxesCombined className="size-4" />
                 </span>
+              )}
+              <div>
+                <p className="text-xs font-semibold text-text-1">Nova venda confirmada</p>
+                <p className="mt-0.5 text-[11px] text-success">{latestSale.description}</p>
               </div>
-            ) : (
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-success/10 text-success">
-                <ChartNoAxesCombined className="size-4" />
-              </span>
-            )}
-            <div>
-              <p className="text-xs font-semibold text-text-1">Nova venda confirmada</p>
-              <p className="mt-0.5 text-[11px] text-success">{latestSale.description}</p>
             </div>
-          </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

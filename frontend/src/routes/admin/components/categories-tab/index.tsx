@@ -13,6 +13,7 @@ import type { Category } from "@/models/category";
 import {
   createCategory, deleteCategory, getCategories, updateCategory,
 } from "@/services/categoryService";
+import { cn } from "@/utils/utils";
 
 const emptyForm = (): Category => ({ name: "", system: false });
 
@@ -26,7 +27,16 @@ export function CategoriesTab() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<Category>(emptyForm());
+  const [attempted, setAttempted] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Validação inline do nome (reflete a mesma regra do handleSave).
+  const nameError = (() => {
+    const name = form.name.trim();
+    if (name.length < 2) return "O nome deve ter ao menos 2 caracteres.";
+    if (name.length > 40) return "O nome deve ter no máximo 40 caracteres.";
+    return null;
+  })();
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -49,21 +59,23 @@ export function CategoriesTab() {
   const openCreate = () => {
     setEditingId(null);
     setForm(emptyForm());
+    setAttempted(false);
     setDialogOpen(true);
   };
 
   const openEdit = (item: Category) => {
     setEditingId(item.id ?? null);
     setForm({ ...item });
+    setAttempted(false);
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
-    const name = form.name.trim();
-    if (name.length < 2) {
-      toast.error("O nome deve ter ao menos 2 caracteres.");
+    if (nameError) {
+      setAttempted(true);
       return;
     }
+    const name = form.name.trim();
     setSaving(true);
     try {
       if (editingId != null) {
@@ -161,7 +173,7 @@ export function CategoriesTab() {
         </div>
       )}
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setAttempted(false); }}>
         <DialogContent className="border-white/10 bg-zinc-950 text-white">
           <DialogHeader>
             <DialogTitle>{editingId != null ? "Editar categoria" : "Nova categoria"}</DialogTitle>
@@ -177,8 +189,16 @@ export function CategoriesTab() {
                 onKeyDown={(e) => { if (e.key === "Enter") handleSave(); }}
                 placeholder="Ex.: Pets"
                 autoFocus
-                className="h-9 bg-black/40 border-white/10 text-sm"
+                maxLength={40}
+                aria-invalid={attempted && !!nameError}
+                className={cn(
+                  "h-9 bg-black/40 border-white/10 text-sm",
+                  attempted && nameError && "border-red-500/50 focus-visible:ring-red-500/20",
+                )}
               />
+              {attempted && nameError && (
+                <p className="text-xs text-red-400">{nameError}</p>
+              )}
             </div>
 
             {editingId != null && (

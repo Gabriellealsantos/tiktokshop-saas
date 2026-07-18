@@ -28,11 +28,15 @@ export default function ProfileScreen() {
 
   const profileForm = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
+    // onTouched: mostra o erro do nome ao sair do campo, não só no submit.
+    mode: "onTouched",
     defaultValues: { name: user?.name ?? "" },
   });
 
   const passwordForm = useForm<PasswordForm>({
     resolver: zodResolver(passwordSchema),
+    // onTouched: valida (inclusive o "as senhas não coincidem") ao sair do campo, não só no submit.
+    mode: "onTouched",
     defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
   });
 
@@ -156,6 +160,7 @@ export default function ProfileScreen() {
                 <div>
                   <Field
                     label="Nome completo"
+                    maxLength={80}
                     {...profileForm.register("name")}
                     aria-invalid={!!profileForm.formState.errors.name}
                     aria-describedby="name-error"

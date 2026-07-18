@@ -45,6 +45,16 @@ export type DashboardInsight = {
   active: boolean;
 };
 
+/**
+ * Limites de tamanho de tendência — espelham o backend (DashboardInsight.java).
+ * CARD é compacto; MOMENT_READ é o bloco de texto largo, então aceita mais.
+ */
+export const INSIGHT_TITLE_MAX = 80;
+export const INSIGHT_CONTENT_MAX: Record<InsightKind, number> = {
+  CARD: 280,
+  MOMENT_READ: 2000,
+};
+
 // ── Dashboard do usuário ─────────────────────────────────────────────────────
 export type DashboardSeriesPoint = {
   label: string;

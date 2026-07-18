@@ -16,6 +16,16 @@ public class DashboardInsight {
     public static final String KIND_CARD = "CARD";
     public static final String KIND_MOMENT_READ = "MOMENT_READ";
 
+    // Limites de tamanho por tipo. CARD é compacto (aparece nos cards de topo);
+    // MOMENT_READ é o bloco de texto largo, então aceita bem mais conteúdo.
+    public static final int TITLE_MAX = 80;
+    public static final int CONTENT_MAX_CARD = 280;
+    public static final int CONTENT_MAX_MOMENT_READ = 2000;
+
+    public static int contentMaxFor(String kind) {
+        return KIND_MOMENT_READ.equals(kind) ? CONTENT_MAX_MOMENT_READ : CONTENT_MAX_CARD;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

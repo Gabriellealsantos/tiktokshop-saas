@@ -361,18 +361,36 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
                 className="w-full flex items-center justify-center p-6 md:p-12 overflow-y-auto"
               >
                 <div className="max-w-xl w-full">
-                  <button
-                    onClick={() => setStep(1)}
-                    className="mb-8 flex items-center gap-2 text-sm text-text-3 hover:text-text-1 transition-colors"
-                  >
-                    <ArrowLeft className="size-4" />
-                    Voltar para edição
-                  </button>
+                  {isAdmin ? (
+                    <>
+                      {/* Admin gerencia o catálogo: mantém a confirmação de que o produto foi salvo. */}
+                      <button
+                        onClick={() => setStep(1)}
+                        className="mb-8 flex items-center gap-2 text-sm text-text-3 hover:text-text-1 transition-colors"
+                      >
+                        <ArrowLeft className="size-4" />
+                        Voltar para edição
+                      </button>
 
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-white mb-2">Produto salvo com sucesso! 🎉</h2>
-                    <p className="text-text-2">O produto "{createdProduct.name}" foi adicionado ao seu estúdio. Como você deseja criar conteúdo para ele agora?</p>
-                  </div>
+                      <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-white mb-2">Produto salvo com sucesso! 🎉</h2>
+                        <p className="text-text-2">O produto "{createdProduct.name}" foi adicionado ao seu estúdio. Como você deseja criar conteúdo para ele agora?</p>
+                      </div>
+                    </>
+                  ) : (
+                    /* Cliente/afiliado: tela focada no produto — sem revelar a mecânica de salvar. */
+                    <div className="mb-8 flex flex-col items-center text-center">
+                      <div className="size-24 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-surface-2">
+                        <img
+                          src={createdProduct.image}
+                          alt={createdProduct.name}
+                          className="size-full object-cover"
+                        />
+                      </div>
+                      <h2 className="mt-5 text-2xl font-bold text-white">{createdProduct.name}</h2>
+                      <p className="mt-1.5 text-text-3">Como você quer criar conteúdo para este produto?</p>
+                    </div>
+                  )}
 
                   <ContentGenerationOptions product={createdProduct} onNavigate={() => handleOpenChange(false)} />
                 </div>

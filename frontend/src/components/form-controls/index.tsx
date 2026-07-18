@@ -1,21 +1,42 @@
 import { cn } from "@/utils/utils";
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { useState, type InputHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export function Field({
   label,
   hint,
   ...props
 }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
+  const [showPassword, setShowPassword] = useState(false);
+  // Campos de senha ganham automaticamente o botão de mostrar/ocultar.
+  const isPassword = props.type === "password";
+  const inputType = isPassword && showPassword ? "text" : props.type;
+
   return (
     <label className="block">
       <span className="mb-2 block text-xs font-medium text-text-2">{label}</span>
-      <input
-        {...props}
-        className={cn(
-          "h-11 w-full rounded-[12px] border border-border bg-deep/80 px-3.5 text-sm text-text-1 placeholder:text-text-3 focus:border-accent-400/50 focus:ring-4 focus:ring-accent-500/10",
-          props.className,
+      <div className="relative">
+        <input
+          {...props}
+          type={inputType}
+          className={cn(
+            "h-11 w-full rounded-[12px] border border-border bg-deep/80 px-3.5 text-sm text-text-1 placeholder:text-text-3 focus:border-accent-400/50 focus:ring-4 focus:ring-accent-500/10",
+            isPassword && "pr-11",
+            props.className,
+          )}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => setShowPassword((s) => !s)}
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            className="absolute right-0 top-0 grid h-11 w-11 place-items-center text-text-3 transition-colors hover:text-text-1"
+          >
+            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
         )}
-      />
+      </div>
       {hint && <span className="mt-1.5 block text-[11px] text-text-3">{hint}</span>}
     </label>
   );

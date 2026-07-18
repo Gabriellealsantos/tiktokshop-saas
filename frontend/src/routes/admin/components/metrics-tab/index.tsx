@@ -8,6 +8,7 @@ import {
   listMetrics,
   upsertMetric,
 } from "@/services/dashboardAdminService";
+import { cn } from "@/utils/utils";
 
 // Campos efetivamente lidos pelo getSummary. avgTicket fica de fora: o back o recalcula.
 const FIELDS = [
@@ -30,10 +31,21 @@ const EMPTY_SLOT: SlotForm = {
 const toStr = (v: number | null | undefined) => (v === null || v === undefined ? "" : String(v));
 const toNum = (v: string): number | null => (v.trim() === "" ? null : Number(v));
 
+// Vazio é válido (vira null). Só reprova texto não-numérico ou valor negativo.
+const fieldError = (v: string): string | null => {
+  if (v.trim() === "") return null;
+  const n = Number(v);
+  if (Number.isNaN(n)) return "Valor inválido";
+  if (n < 0) return "Não pode ser negativo";
+  return null;
+};
+
 export function MetricsTab() {
   const [forms, setForms] = useState<Record<string, SlotForm>>({});
   const [loading, setLoading] = useState(true);
   const [savingRef, setSavingRef] = useState<string | null>(null);
+  // Marca quais cards já tentaram salvar, para só então revelar os erros inline.
+  const [attempted, setAttempted] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -70,6 +82,14 @@ export function MetricsTab() {
 
   const handleSave = async (period: (typeof METRIC_PERIODS)[number]) => {
     const f = forms[period.periodRef] ?? EMPTY_SLOT;
+
+    // Bloqueia o save se algum campo do card estiver inválido e revela os erros.
+    const hasError = FIELDS.some((field) => fieldError(f[field.key]) !== null);
+    if (hasError) {
+      setAttempted((prev) => ({ ...prev, [period.periodRef]: true }));
+      return;
+    }
+
     const metric: DashboardMetric = {
       periodType: period.periodType,
       periodRef: period.periodRef,
@@ -139,24 +159,32 @@ export function MetricsTab() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                {FIELDS.map((field) => (
-                  <div key={field.key} className="space-y-1.5">
-                    <Label htmlFor={`${period.periodRef}-${field.key}`} className="text-xs text-zinc-400">
-                      {field.label}
-                    </Label>
-                    <Input
-                      id={`${period.periodRef}-${field.key}`}
-                      type="number"
-                      inputMode="decimal"
-                      step={field.step}
-                      min="0"
-                      placeholder="0"
-                      value={f[field.key]}
-                      onChange={(e) => handleField(period.periodRef, field.key, e.target.value)}
-                      className="h-9 bg-black/40 border-white/10 text-sm"
-                    />
-                  </div>
-                ))}
+                {FIELDS.map((field) => {
+                  const error = attempted[period.periodRef] ? fieldError(f[field.key]) : null;
+                  return (
+                    <div key={field.key} className="space-y-1.5">
+                      <Label htmlFor={`${period.periodRef}-${field.key}`} className="text-xs text-zinc-400">
+                        {field.label}
+                      </Label>
+                      <Input
+                        id={`${period.periodRef}-${field.key}`}
+                        type="number"
+                        inputMode="decimal"
+                        step={field.step}
+                        min="0"
+                        placeholder="0"
+                        value={f[field.key]}
+                        onChange={(e) => handleField(period.periodRef, field.key, e.target.value)}
+                        aria-invalid={!!error}
+                        className={cn(
+                          "h-9 bg-black/40 border-white/10 text-sm",
+                          error && "border-red-500/50 focus-visible:ring-red-500/20",
+                        )}
+                      />
+                      {error && <p className="text-xs text-red-400">{error}</p>}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

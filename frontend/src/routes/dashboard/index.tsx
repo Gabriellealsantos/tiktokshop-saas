@@ -301,12 +301,12 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
               />
             ))}
             {momentRead && (
-              <div className="glass-surface p-6 lg:col-span-3">
+              <div className="glass-surface p-6 lg:col-span-3 overflow-hidden">
                 <SectionTitle
                   title={momentRead.title}
                   description="Sinais combinados de catálogo e formatos"
                 />
-                <p className="max-w-4xl text-sm leading-7 text-text-2">
+                <p className="max-w-4xl text-sm leading-7 text-text-2 wrap-break-word">
                   {momentRead.content}
                 </p>
               </div>
