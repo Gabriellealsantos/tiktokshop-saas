@@ -27,7 +27,7 @@ import { cn } from "@/utils/utils";
 const toolbar = [
   ["/", Gauge, "Início"],
   ["/products", Boxes, "Produtos"],
-  ["/avatars", User, "Avatares"],
+  ["/create-avatar", User, "Avatares"],
   ["/templates", Film, "Modelos"],
   ["/trend-boost", Zap, "Boost"],
 ] as const;

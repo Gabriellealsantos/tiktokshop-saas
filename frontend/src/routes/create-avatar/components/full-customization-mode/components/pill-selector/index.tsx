@@ -15,7 +15,7 @@ export function PillSelector({ options, value, onChange }: { options: string[], 
               "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
               isSelected
                 ? "bg-brand-500/15 border border-brand-500 text-brand-300 shadow-[0_0_20px_-4px_rgba(75,68,232,0.3)] pr-8"
-                : "bg-surface-2 border border-white/5 text-text-2 hover:border-white/15 hover:text-white"
+                : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] text-text-2 hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:text-white"
             )}
           >
             {opt}

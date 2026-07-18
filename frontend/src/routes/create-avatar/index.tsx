@@ -7,6 +7,7 @@ import { Page, PageHeader, Button } from "@/components";
 import { cn } from "@/utils/utils";
 import { FullCustomizationMode } from "./components/full-customization-mode";
 import { PhotoCustomizationMode } from "./components/photo-customization-mode";
+import { AvatarLibraryModal } from "./components/avatar-library-modal";
 
 type CreationMode = "full" | "photo";
 
@@ -22,17 +23,13 @@ export default function AvatarStudio() {
           description="Personalize cada detalhe — aparência, estilo e personalidade. O avatar será usado em suas gerações de imagem e vídeo."
           actions={
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button variant="secondary">
-                <Bookmark className="size-4 mr-2" />
-                Guardados
-              </Button>
-              <Button variant="outline" asChild className="bg-surface-1">
-                <Link to="/avatars">
+              <AvatarLibraryModal>
+                <Button variant="outline" className="bg-surface-1 cursor-pointer">
                   <Library className="size-4 mr-2" />
                   Biblioteca
                   <span className="ml-2 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold text-white">12</span>
-                </Link>
-              </Button>
+                </Button>
+              </AvatarLibraryModal>
             </div>
           }
         />
@@ -46,7 +43,7 @@ export default function AvatarStudio() {
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "full"
                   ? "btn-brand shadow-lg"
-                  : "bg-surface-2 border border-white/5 hover:border-white/10 hover:-translate-y-0.5"
+                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5"
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">
@@ -84,7 +81,7 @@ export default function AvatarStudio() {
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "photo"
                   ? "btn-brand shadow-lg"
-                  : "bg-surface-2 border border-white/5 hover:border-white/10 hover:-translate-y-0.5"
+                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5"
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">

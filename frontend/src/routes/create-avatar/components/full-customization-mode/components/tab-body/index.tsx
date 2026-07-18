@@ -2,10 +2,18 @@ import type { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, Slider } from "@/components";
 import type { AvatarFormValues } from "../../index";
 import { ImageOptionSelector } from "../image-option-selector";
-import { tipoFisicoOptions } from "../../data";
 
 export function TabCorpo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
   const alturaVal = form.watch("altura");
+  const generoVal = form.watch("genero");
+  const isMasculino = generoVal === "Masculino";
+
+  const dynamicTipoFisicoOptions = [
+    { name: "Magro(a)", image: isMasculino ? "/magro-masculino.png" : "/magro-feminino.png" },
+    { name: "Atlético(a)", image: isMasculino ? "/atletico-masculino.png" : "/atletico-feminino.png" },
+    { name: "Curvy", image: isMasculino ? "/curvy-masculino.png" : "/curvy-feminino.png" },
+    { name: "Plus Size", image: isMasculino ? "/plus-size-masculino.png" : "/plus-size-feminino.png" },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -17,7 +25,7 @@ export function TabCorpo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Tipo Físico</FormLabel>
             <FormControl>
               <ImageOptionSelector
-                options={tipoFisicoOptions}
+                options={dynamicTipoFisicoOptions}
                 value={field.value}
                 onChange={field.onChange}
               />

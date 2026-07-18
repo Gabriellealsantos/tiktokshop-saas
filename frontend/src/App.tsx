@@ -8,7 +8,6 @@ import RegisterRoute from "@/routes/register";
 import AuthorizedRoute from "@/routes/authorized";
 import DashboardRoute from "@/routes/dashboard";
 import AdminScreen from "@/routes/admin";
-import AvatarsList from "@/routes/avatars";
 import AvatarStudio from "@/routes/create-avatar";
 import CreditsScreen from "@/routes/credits";
 import EditorScreen from "@/routes/editor";
@@ -43,7 +42,6 @@ function App() {
         <Route path="/" element={<IndexRoute />} />
         <Route path="/dashboard" element={<DashboardRoute />} />
         <Route path="/admin" element={<AdminScreen />} />
-        <Route path="/avatars" element={<AvatarsList />} />
         <Route path="/create-avatar" element={<AvatarStudio />} />
         <Route path="/credits" element={<CreditsScreen />} />
         <Route path="/editor" element={<EditorScreen />} />

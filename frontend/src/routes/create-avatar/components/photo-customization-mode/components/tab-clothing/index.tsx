@@ -36,7 +36,7 @@ export function TabRoupa({ form }: { form: UseFormReturn<AvatarPhotoFormValues> 
                     "flex flex-col gap-2 p-4 rounded-2xl border text-left transition-all duration-300 outline-none",
                     modoRoupa === "Automática"
                       ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500 shadow-[0_0_15px_-3px_rgba(75,68,232,0.3)]"
-                      : "border-white/10 bg-surface-2 hover:bg-white/5 hover:border-white/20"
+                      : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30"
                   )}
                 >
                   <div className="flex items-center justify-between">
@@ -53,7 +53,7 @@ export function TabRoupa({ form }: { form: UseFormReturn<AvatarPhotoFormValues> 
                     "flex flex-col gap-2 p-4 rounded-2xl border text-left transition-all duration-300 outline-none",
                     modoRoupa === "Upload de imagem"
                       ? "border-brand-500 bg-brand-500/10 ring-1 ring-brand-500 shadow-[0_0_15px_-3px_rgba(75,68,232,0.3)]"
-                      : "border-white/10 bg-surface-2 hover:bg-white/5 hover:border-white/20"
+                      : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30"
                   )}
                 >
                   <div className="flex items-center justify-between">
@@ -109,7 +109,7 @@ export function TabRoupa({ form }: { form: UseFormReturn<AvatarPhotoFormValues> 
                             "flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 relative outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
                             tipoPeca === opt
                               ? "bg-brand-500/15 border border-brand-500 text-brand-300 shadow-[0_0_20px_-4px_rgba(75,68,232,0.3)] pr-8"
-                              : "bg-surface-2 border border-white/5 text-text-2 hover:border-white/15 hover:text-white"
+                              : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] text-text-2 hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:text-white"
                           )}
                         >
                           {opt}
@@ -152,17 +152,12 @@ export function TabRoupa({ form }: { form: UseFormReturn<AvatarPhotoFormValues> 
                         </Button>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 gap-4 max-w-[500px]">
-                        <label className="relative flex flex-col items-center justify-center p-6 aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-surface-2 hover:bg-white/5 hover:border-brand-500/50 transition-all cursor-pointer group text-center">
+                      <div className="flex max-w-[250px]">
+                        <label className="w-full relative flex flex-col items-center justify-center p-6 aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-surface-2 hover:bg-white/5 hover:border-brand-500/50 transition-all cursor-pointer group text-center">
                           <input type="file" accept="image/*" className="hidden" onChange={handleDropRoupa} />
                           <ImageIcon className="size-8 text-text-3 group-hover:text-brand-400 transition-colors mb-4" />
                           <p className="font-medium text-white text-sm leading-tight whitespace-nowrap">Enviar imagem</p>
                         </label>
-
-                        <button type="button" className="relative flex flex-col items-center justify-center p-6 aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-surface-2 hover:bg-white/5 hover:border-brand-500/50 transition-all group text-center">
-                          <Library className="size-8 text-text-3 group-hover:text-brand-400 transition-colors mb-4" />
-                          <p className="font-medium text-white text-sm leading-tight whitespace-nowrap">Biblioteca de outfits</p>
-                        </button>
                       </div>
                     )}
                   </FormControl>

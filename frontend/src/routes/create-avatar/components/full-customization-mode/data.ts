@@ -8,100 +8,108 @@ export const TABS = [
 ];
 
 export const generoOptions = [
-  { name: "Feminino", image: "/placeholder-genero-feminino.jpg" },
-  { name: "Masculino", image: "/placeholder-genero-masculino.jpg" },
-  { name: "Andrógino", image: "/placeholder-genero-androgino.jpg" },
-  { name: "Não-binário", image: "/placeholder-genero-naobinario.jpg" }
+  { name: "Feminino", image: "/feminino-avatar.png" },
+  { name: "Masculino", image: "/masculino-avatar.png" },
+  { name: "Andrógino", image: "/androgino-avatar.png" },
+  { name: "Não-binário", image: "/nao-binario-avatar.png" }
 ];
 
 export const etniaOptions = [
-  { name: "Latino/Latina", image: "/placeholder-etnia-latino.jpg" },
-  { name: "Caucasiana", image: "/placeholder-etnia-caucasiana.jpg" },
-  { name: "Negra", image: "/placeholder-etnia-negra.jpg" },
-  { name: "Asiática", image: "/placeholder-etnia-asiatica.jpg" },
-  { name: "Árabe", image: "/placeholder-etnia-arabe.jpg" },
-  { name: "Indígena", image: "/placeholder-etnia-indigena.jpg" },
-  { name: "Mestiça", image: "/placeholder-etnia-mestica.jpg" },
+  { name: "Latino/Latina", image: "/latina.png" },
+  { name: "Caucasiana", image: "/caucasiana.png" },
+  { name: "Negra", image: "/negra.png" },
+  { name: "Asiática", image: "/asiatico.png" },
+  { name: "Árabe", image: "/arabe.png" },
+  { name: "Indígena", image: "/indigena.png" },
+  { name: "Mestiça", image: "/mestica.png" },
 ];
 
 export const tomPeleOptions = [
-  { name: "Muito Clara", color: "#FDE9D6" },
-  { name: "Clara", color: "#F3CDA6" },
-  { name: "Média", color: "#D19C71" },
-  { name: "Escura", color: "#8E5531" },
-  { name: "Muito Escura", color: "#472816" },
+  { name: "Tom 01", color: "#F6EDE4" },
+  { name: "Tom 02", color: "#F3E7DB" },
+  { name: "Tom 03", color: "#F7EAD0" },
+  { name: "Tom 04", color: "#EADABA" },
+  { name: "Tom 05", color: "#D7BD96" },
+  { name: "Tom 06", color: "#A07E56" },
+  { name: "Tom 07", color: "#825C43" },
+  { name: "Tom 08", color: "#604134" },
+  { name: "Tom 09", color: "#3A312A" },
+  { name: "Tom 10", color: "#292420" },
 ];
 
-export const tipoFisicoOptions = [
-  { name: "Magro(a)", image: "/placeholder-body-magro.jpg" },
-  { name: "Atlético(a)", image: "/placeholder-body-atletico.jpg" },
-  { name: "Curvy", image: "/placeholder-body-curvy.jpg" },
-  { name: "Plus Size", image: "/placeholder-body-plus.jpg" },
-];
 
-export const formatoRostoOptions = [
-  { name: "Oval", image: "/placeholder-rosto-oval.jpg" },
-  { name: "Redondo", image: "/placeholder-rosto-redondo.jpg" },
-  { name: "Quadrado", image: "/placeholder-rosto-quadrado.jpg" },
-  { name: "Coração", image: "/placeholder-rosto-coracao.jpg" },
-  { name: "Alongado", image: "/placeholder-rosto-alongado.jpg" }
-];
+
 
 export const corOlhosOptions = [
-  { name: "Castanho", color: "#613813" },
-  { name: "Preto", color: "#1A1A1A" },
-  { name: "Azul", color: "#4B94C9" },
-  { name: "Verde", color: "#5F8C44" },
-  { name: "Mel", color: "#C68E33" },
-  { name: "Cinza", color: "#959D9E" },
+  { name: "Castanho", image: "/olhos-castanho.png" },
+  { name: "Preto", label: "Castanho escuro", image: "/olhos-castanho-escuro.png" },
+  { name: "Azul", image: "/olhos-azul.png" },
+  { name: "Verde", image: "/olhos-verde.png" },
+  { name: "Mel", image: "/olhos-mel.png" },
+  { name: "Cinza", image: "/olhos-cinza.png" },
 ];
 
 export const expressaoOptions = [
-  { name: "Neutra", image: "/placeholder-expressao-neutra.jpg" },
-  { name: "Sorrindo", image: "/placeholder-expressao-sorrindo.jpg" },
-  { name: "Séria", image: "/placeholder-expressao-seria.jpg" },
-  { name: "Confiante", image: "/placeholder-expressao-confiante.jpg" },
-  { name: "Sensual", image: "/placeholder-expressao-sensual.jpg" }
+  { name: "Neutra", image: "/neutra.png" },
+  { name: "Sorrindo", image: "/sorrindo.png" },
+  { name: "Séria", image: "/seria.png" },
+  { name: "Confiante", image: "/confiante.png" },
+  { name: "Sensual", image: "/sensual.png" }
 ];
 
-export const pelosFaciaisOptions = ["Nenhum", "Barba curta", "Barba cheia", "Bigode", "Cavanhaque"];
-
-export const estiloCabeloOptions = [
-  { name: "Curto", image: "/placeholder-cabelo-curto.jpg" },
-  { name: "Médio", image: "/placeholder-cabelo-medio.jpg" },
-  { name: "Longo", image: "/placeholder-cabelo-longo.jpg" },
-  { name: "Careca", image: "/placeholder-cabelo-careca.jpg" },
-  { name: "Afro", image: "/placeholder-cabelo-afro.jpg" },
-  { name: "Cacheado", image: "/placeholder-cabelo-cacheado.jpg" }
+export const pelosFaciaisOptions = [
+  { name: "Nenhum", image: "/nenhum.png" },
+  { name: "Barba curta", image: "/barba-curta.png" },
+  { name: "Barba cheia", image: "/barba-cheia.png" },
+  { name: "Bigode", image: "/bigode.png" },
+  { name: "Cavanhaque", image: "/cavanhaque.png" },
 ];
 
-export const corCabeloOptions = [
-  { name: "Preto", color: "#111111" },
-  { name: "Castanho", color: "#4A2F1D" },
-  { name: "Loiro", color: "#DAB575" },
-  { name: "Ruivo", color: "#A8361B" },
-  { name: "Grisalho", color: "#B8B8B8" },
-  { name: "Rosa", color: "#F082AD" },
+
+
+export const corCabeloNaturaisOptions = [
+  { name: "Preto", color: "#0B0B0B" },
+  { name: "Preto azulado", color: "#141A22" },
+  { name: "Castanho escuro", color: "#3B2417" },
+  { name: "Castanho", label: "Castanho médio", color: "#5C3A21" },
+  { name: "Castanho claro", color: "#8B5A2B" },
+  { name: "Acaju", color: "#6E2A1E" },
+  { name: "Ruivo escuro", color: "#7B2E1E" },
+  { name: "Ruivo", color: "#B5451B" },
+  { name: "Ruivo claro", color: "#D2691E" },
+  { name: "Loiro escuro", color: "#A67B4B" },
+  { name: "Loiro", label: "Loiro médio", color: "#C9A063" },
+  { name: "Loiro claro", color: "#E3C58C" },
+  { name: "Loiro platinado", color: "#EDE4D0" },
+  { name: "Grisalho", color: "#9E9E9E" },
+  { name: "Branco", color: "#F2F2F2" },
 ];
 
-export const roupaOptions = ["Casual", "Luxo", "Streetwear", "Fitness", "Corporativo"];
-
-export const cenarioOptions = [
-  { name: "Academia", image: "/placeholder-cenario-academia.jpg" },
-  { name: "Ar livre", image: "/placeholder-cenario-parque.jpg" },
-  { name: "Banheiro", image: "/placeholder-cenario-banheiro.jpg" },
-  { name: "Cozinha", image: "/placeholder-cenario-cozinha.jpg" },
-  { name: "Escritório", image: "/placeholder-cenario-office.jpg" },
-  { name: "Estúdio", image: "/placeholder-cenario-estudio.jpg" },
-  { name: "Loja", image: "/placeholder-cenario-loja.jpg" },
-  { name: "Natureza", image: "/placeholder-cenario-natureza.jpg" },
-  { name: "Quarto", image: "/placeholder-cenario-quarto.jpg" },
+export const corCabeloFantasiaOptions = [
+  { name: "Rosa", color: "#F472A6" },
+  { name: "Rosa pastel", color: "#F9C5D5" },
+  { name: "Vermelho vibrante", color: "#E23B3B" },
+  { name: "Laranja", color: "#F97316" },
+  { name: "Dourado neon", color: "#F5C518" },
+  { name: "Verde", color: "#22C55E" },
+  { name: "Verde menta", color: "#A7F3D0" },
+  { name: "Azul", color: "#3B82F6" },
+  { name: "Azul petróleo", color: "#14B8A6" },
+  { name: "Roxo", color: "#8B5CF6" },
+  { name: "Lilás pastel", color: "#C4B5FD" },
+  { name: "Prata metálico", color: "#C7CDD4" },
 ];
 
-export const tipoFotoOptions = [
-  { name: "Selfie / Rosto", color: "linear-gradient(135deg, rgba(75,68,232,0.1) 0%, rgba(75,68,232,0.2) 100%)" },
-  { name: "Meio Corpo", color: "linear-gradient(135deg, rgba(75,68,232,0.1) 0%, rgba(75,68,232,0.2) 100%)" },
-  { name: "Corpo Inteiro", color: "linear-gradient(135deg, rgba(75,68,232,0.1) 0%, rgba(75,68,232,0.2) 100%)" },
-  { name: "Perfil / Lateral", color: "linear-gradient(135deg, rgba(75,68,232,0.1) 0%, rgba(75,68,232,0.2) 100%)" },
-  { name: "De Costas", color: "linear-gradient(135deg, rgba(75,68,232,0.1) 0%, rgba(75,68,232,0.2) 100%)" },
-];
+
+
+export const roupaSugestoes: Record<string, string[]> = {
+  "Casual": ["Jeans e camiseta branca", "Moletom oversized", "Camisa aberta com regata"],
+  "Luxo": ["Terno de alfaiataria italiana", "Vestido de seda com joias", "Casaco de lã premium"],
+  "Streetwear": ["Jaqueta bomber e boné", "Calça cargo com tênis chunky", "Hoodie oversized e correntes"],
+  "Fitness": ["Top e legging de compressão", "Regata dry-fit e shorts", "Conjunto de treino esportivo"],
+  "Corporativo": ["Blazer preto minimalista", "Camisa social e gravata", "Conjunto executivo slim"],
+};
+
+
+
+

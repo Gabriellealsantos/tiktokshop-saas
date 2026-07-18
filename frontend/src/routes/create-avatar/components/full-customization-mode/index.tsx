@@ -24,7 +24,7 @@ export const avatarSchema = z.object({
   genero: z.enum(["Feminino", "Masculino", "Andrógino", "Não-binário"], { required_error: "Selecione o gênero." }),
   idade: z.number().min(18).max(65),
   etnia: z.enum(["Latino/Latina", "Caucasiana", "Negra", "Asiática", "Árabe", "Indígena", "Mestiça"], { required_error: "Selecione a etnia." }),
-  tomPele: z.enum(["Muito Clara", "Clara", "Média", "Escura", "Muito Escura"], { required_error: "Selecione o tom de pele." }),
+  tomPele: z.enum(["Tom 01", "Tom 02", "Tom 03", "Tom 04", "Tom 05", "Tom 06", "Tom 07", "Tom 08", "Tom 09", "Tom 10"], { required_error: "Selecione o tom de pele." }),
   tipoFisico: z.enum(["Magro(a)", "Atlético(a)", "Curvy", "Plus Size"], { required_error: "Selecione o tipo físico." }),
   altura: z.number().min(150).max(200),
   formatoRosto: z.enum(["Oval", "Redondo", "Quadrado", "Coração", "Alongado"], { required_error: "Selecione o formato do rosto." }),
@@ -35,8 +35,6 @@ export const avatarSchema = z.object({
   corCabelo: z.enum(["Preto", "Castanho", "Loiro", "Ruivo", "Grisalho", "Rosa"], { required_error: "Selecione a cor de cabelo." }),
   roupa: z.enum(["Casual", "Luxo", "Streetwear", "Fitness", "Corporativo"], { required_error: "Selecione a roupa." }),
   detalhesRoupa: z.string().optional(),
-  cenario: z.enum(["Academia", "Ar livre", "Banheiro", "Cozinha", "Escritório", "Estúdio", "Loja", "Natureza", "Quarto"], { required_error: "Selecione o cenário." }),
-  tipoFoto: z.enum(["Selfie / Rosto", "Meio Corpo", "Corpo Inteiro", "Perfil / Lateral", "De Costas"], { required_error: "Selecione o tipo de foto." }),
   detalhesExtras: z.string().optional()
 });
 
@@ -53,7 +51,7 @@ export function FullCustomizationMode() {
       genero: "Feminino",
       idade: 28,
       etnia: "Latino/Latina",
-      tomPele: "Média",
+      tomPele: "Tom 05",
       tipoFisico: "Magro(a)",
       altura: 170,
       formatoRosto: "Oval",
@@ -64,8 +62,6 @@ export function FullCustomizationMode() {
       corCabelo: "Preto",
       roupa: "Casual",
       detalhesRoupa: "",
-      cenario: "Estúdio",
-      tipoFoto: "Meio Corpo",
       detalhesExtras: "",
     },
     mode: "onChange",
@@ -109,7 +105,7 @@ export function FullCustomizationMode() {
                   "whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   isActive
                     ? "btn-brand shadow-[0_0_20px_-4px_rgba(75,68,232,0.4)]"
-                    : "bg-surface-2 text-text-2 border border-white/5 hover:border-white/10 hover:text-white"
+                    : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] text-text-2 hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:text-white"
                 )}
               >
                 {tab.id}. {tab.label}
@@ -119,7 +115,7 @@ export function FullCustomizationMode() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={(e) => e.preventDefault()} className="relative overflow-hidden min-h-[500px]">
+          <form onSubmit={(e) => e.preventDefault()} className="relative overflow-hidden min-h-[500px] p-4 -mx-4">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}

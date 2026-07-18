@@ -2,11 +2,21 @@ import type { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl } from "@/components";
 import type { AvatarFormValues } from "../../index";
 import { ImageOptionSelector } from "../image-option-selector";
-import { ColorSwatchSelector } from "../color-swatch-selector";
-import { PillSelector } from "../pill-selector";
-import { formatoRostoOptions, corOlhosOptions, expressaoOptions, pelosFaciaisOptions } from "../../data";
+
+import { corOlhosOptions, expressaoOptions, pelosFaciaisOptions } from "../../data";
 
 export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
+  const generoVal = form.watch("genero");
+  const isMasculino = generoVal === "Masculino";
+
+  const dynamicFormatoRostoOptions = [
+    { name: "Oval", image: isMasculino ? "/oval-masc.png" : "/oval-fem.png" },
+    { name: "Redondo", image: isMasculino ? "/redondo-masc.png" : "/redondo-fem.png" },
+    { name: "Quadrado", image: isMasculino ? "/quadrado-masc.png" : "/quadrado-fem.png" },
+    { name: "Coração", image: isMasculino ? "/coracao-masc.png" : "/coracao-fem.png" },
+    { name: "Alongado", image: isMasculino ? "/alongado-masc.png" : "/alongado-fem.png" }
+  ];
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <FormField
@@ -17,7 +27,7 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Formato do Rosto</FormLabel>
             <FormControl>
               <ImageOptionSelector
-                options={formatoRostoOptions}
+                options={dynamicFormatoRostoOptions}
                 value={field.value}
                 onChange={field.onChange}
               />
@@ -33,10 +43,12 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Cor dos Olhos</FormLabel>
             <FormControl>
-              <ColorSwatchSelector
+              <ImageOptionSelector
                 options={corOlhosOptions}
                 value={field.value}
                 onChange={field.onChange}
+                columns={3}
+                aspectRatio="aspect-[3/2]"
               />
             </FormControl>
           </FormItem>
@@ -67,7 +79,7 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Pelos Faciais</FormLabel>
             <FormControl>
-              <PillSelector
+              <ImageOptionSelector
                 options={pelosFaciaisOptions}
                 value={field.value}
                 onChange={field.onChange}
