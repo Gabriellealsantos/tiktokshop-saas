@@ -3,8 +3,14 @@ import { FormField, FormItem, FormLabel, FormControl } from "@/components";
 import type { AvatarFormValues } from "../../index";
 import { ImageOptionSelector } from "../image-option-selector";
 
-import { corOlhosOptions, expressaoOptions, pelosFaciaisOptions } from "../../data";
-
+import {
+  corOlhosOptions,
+  expressaoOptions,
+  pelosFaciaisOptions,
+  bocaOptions,
+  sobrancelhaOptions,
+  narizOptions
+} from "../../data";
 export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
   const generoVal = form.watch("genero");
   const isMasculino = generoVal === "Masculino";
@@ -81,6 +87,61 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
             <FormControl>
               <ImageOptionSelector
                 options={pelosFaciaisOptions}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="boca"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Boca</FormLabel>
+            <FormControl>
+              <ImageOptionSelector
+                options={bocaOptions}
+                value={field.value}
+                onChange={field.onChange}
+                columns={3}
+                aspectRatio="aspect-[3/2]"
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="sobrancelha"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Sobrancelha</FormLabel>
+            <FormControl>
+              <ImageOptionSelector
+                options={sobrancelhaOptions}
+                value={field.value}
+                onChange={field.onChange}
+                columns={3}
+                aspectRatio="aspect-[16/7]"
+                objectFit="object-contain"
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="nariz"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Nariz</FormLabel>
+            <FormControl>
+              <ImageOptionSelector
+                options={narizOptions}
                 value={field.value}
                 onChange={field.onChange}
               />

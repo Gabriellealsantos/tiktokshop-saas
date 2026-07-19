@@ -2,21 +2,16 @@ import type { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl } from "@/components";
 import type { AvatarFormValues } from "../../index";
 import { ImageOptionSelector } from "../image-option-selector";
-import { ColorSwatchSelector } from "../color-swatch-selector";
-import { corCabeloNaturaisOptions, corCabeloFantasiaOptions } from "../../data";
+import { estiloCabeloOptions, corCabeloOptions } from "../../data";
 
 export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
   const generoVal = form.watch("genero");
-  const isMasculino = generoVal === "Masculino";
+  const isFeminino = generoVal === "Feminino" || !generoVal;
 
-  const dynamicEstiloCabeloOptions = [
-    { name: "Curto", image: isMasculino ? "/cabelo-curto-masc.png" : "/cabelo-curto-fem.png" },
-    { name: "Médio", image: isMasculino ? "/cabelo-medio-masc.png" : "/cabelo-medio-fem.png" },
-    { name: "Longo", image: isMasculino ? "/cabelo-longo-masc.png" : "/cabelo-longo-fem.png" },
-    { name: "Careca", image: isMasculino ? "/cabelo-careca-masc.png" : "/cabelo-careca-fem.png" },
-    { name: "Afro", image: isMasculino ? "/cabelo-afro-masc.png" : "/cabelo-afro-fem.png" },
-    { name: "Cacheado", image: isMasculino ? "/cabelo-cacheado-masc.png" : "/cabelo-cacheado-fem.png" }
-  ];
+  const dynamicCorCabeloOptions = corCabeloOptions.map((opt) => ({
+    ...opt,
+    image: isFeminino ? opt.image : opt.image?.replace(".png", "-masc.png")
+  }));
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -28,7 +23,7 @@ export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Estilo de Cabelo</FormLabel>
             <FormControl>
               <ImageOptionSelector
-                options={dynamicEstiloCabeloOptions}
+                options={estiloCabeloOptions}
                 value={field.value}
                 onChange={field.onChange}
               />
@@ -44,24 +39,11 @@ export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Cor do Cabelo</FormLabel>
             <FormControl>
-              <div className="space-y-5">
-                <div className="space-y-1">
-                  <div className="text-text-3 text-[10px] font-bold uppercase tracking-widest ml-1">Naturais</div>
-                  <ColorSwatchSelector
-                    options={corCabeloNaturaisOptions}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <div className="text-text-3 text-[10px] font-bold uppercase tracking-widest ml-1">Fantasia</div>
-                  <ColorSwatchSelector
-                    options={corCabeloFantasiaOptions}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </div>
-              </div>
+              <ImageOptionSelector
+                options={dynamicCorCabeloOptions}
+                value={field.value}
+                onChange={field.onChange}
+              />
             </FormControl>
           </FormItem>
         )}

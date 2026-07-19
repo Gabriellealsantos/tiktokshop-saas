@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/utils/utils";
 
-export function ImageOptionCard({ name, label, image, color, isSelected, onClick, aspectRatio = "aspect-[4/5]" }: { name: string, label?: string, image?: string, color?: string, isSelected: boolean, onClick: () => void, aspectRatio?: string }) {
+export function ImageOptionCard({ name, label, image, color, isSelected, onClick, aspectRatio = "aspect-[4/5]", objectFit = "object-cover" }: { name: string, label?: string, image?: string, color?: string, isSelected: boolean, onClick: () => void, aspectRatio?: string, objectFit?: string }) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -18,7 +18,7 @@ export function ImageOptionCard({ name, label, image, color, isSelected, onClick
       )}
     >
       {image && !imgError ? (
-        <img src={image} alt={label || name} onError={() => setImgError(true)} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        <img src={image} alt={label || name} onError={() => setImgError(true)} className={cn("absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105", objectFit)} />
       ) : (
         <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-surface-3 text-text-3 transition-colors" style={color ? { background: color } : undefined}>
           <ImageIcon className="size-8 mb-4 opacity-30" />
@@ -45,15 +45,17 @@ export function ImageOptionSelector({
   value,
   onChange,
   columns = 4,
-  aspectRatio = "aspect-[4/5]"
+  aspectRatio = "aspect-[4/5]",
+  objectFit = "object-cover"
 }: {
   options: { name: string, label?: string, image?: string, color?: string }[],
   value: string,
   onChange: (v: string) => void,
-  columns?: 3 | 4 | 5,
-  aspectRatio?: string
+  columns?: 2 | 3 | 4 | 5,
+  aspectRatio?: string,
+  objectFit?: string
 }) {
-  const colClass = columns === 3 ? "sm:grid-cols-3" : columns === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4";
+  const colClass = columns === 2 ? "sm:grid-cols-2" : columns === 3 ? "sm:grid-cols-3" : columns === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4";
 
   return (
     <div className={cn("grid gap-3 grid-cols-2 p-2 -m-2", colClass)}>
@@ -67,6 +69,7 @@ export function ImageOptionSelector({
           isSelected={value === opt.name}
           onClick={() => onChange(opt.name)}
           aspectRatio={aspectRatio}
+          objectFit={objectFit}
         />
       ))}
     </div>

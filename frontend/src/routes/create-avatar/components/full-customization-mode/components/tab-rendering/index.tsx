@@ -4,7 +4,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, Textarea } fr
 import type { AvatarFormValues } from "../../index";
 import {
   etniaOptions, expressaoOptions, pelosFaciaisOptions,
-  corOlhosOptions, tomPeleOptions, corCabeloNaturaisOptions, corCabeloFantasiaOptions
+  bocaOptions, sobrancelhaOptions, narizOptions, estiloCabeloOptions,
+  corOlhosOptions, tomPeleOptions, corCabeloOptions
 } from "../../data";
 import { cn } from "@/utils/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -31,10 +32,7 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
     const map: any = { "Magro(a)": "magro", "Atlético(a)": "atletico", "Curvy": "curvy", "Plus Size": "plus-size" };
     return `/${map[v]}-${isMasculino ? "masculino" : "feminino"}.png`;
   };
-  const getCabeloImg = (v: string) => {
-    const map: any = { "Curto": "curto", "Médio": "medio", "Longo": "longo", "Careca": "careca", "Afro": "afro", "Cacheado": "cacheado" };
-    return `/cabelo-${map[v]}-${isMasculino ? "masc" : "fem"}.png`;
-  };
+
   const getRoupaImg = (v: string) => {
     const map: any = { "Casual": "casual", "Luxo": "luxo", "Streetwear": "streetwear", "Fitness": "fitness", "Corporativo": "corporativo" };
     return `/${map[v]}-${isMasculino ? "masc" : "fem"}.png`;
@@ -55,18 +53,25 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
       case "altura": label = "Altura"; displayVal = `${val} cm`; break;
       case "formatoRosto": label = "Rosto"; type = "image"; image = getRostoImg(val); break;
       case "tipoFisico": label = "Corpo"; type = "image"; image = getCorpoImg(val); break;
-      case "estiloCabelo": label = "Cabelo"; type = "image"; image = getCabeloImg(val); break;
+      case "estiloCabelo": label = "Cabelo"; type = "image"; image = estiloCabeloOptions.find(o => o.name === val)?.image || ""; break;
       case "roupa": label = "Estilo"; type = "image"; image = getRoupaImg(val); break;
       case "etnia": label = "Etnia"; type = "image"; image = etniaOptions.find(o => o.name === val)?.image || ""; break;
       case "expressao": label = "Expressão"; type = "image"; image = expressaoOptions.find(o => o.name === val)?.image || ""; break;
       case "pelosFaciais": label = "Pelos"; type = "image"; image = pelosFaciaisOptions.find(o => o.name === val)?.image || ""; break;
+      case "boca": label = "Boca"; type = "image"; image = bocaOptions.find(o => o.name === val || o.label === val)?.image || ""; break;
+      case "sobrancelha": label = "Sobrancelha"; type = "image"; image = sobrancelhaOptions.find(o => o.name === val)?.image || ""; break;
+      case "nariz": label = "Nariz"; type = "image"; image = narizOptions.find(o => o.name === val || o.label === val)?.image || ""; break;
       case "corOlhos": label = "Olhos"; type = "image"; image = corOlhosOptions.find(o => o.name === val || o.label === val)?.image || ""; break;
       case "tomPele": label = "Pele"; type = "color"; color = tomPeleOptions.find(o => o.name === val)?.color || ""; break;
-      case "corCabelo":
+      case "corCabelo": {
         label = "Cor cabelo";
-        type = "color";
-        color = [...corCabeloNaturaisOptions, ...corCabeloFantasiaOptions].find(o => o.name === val || o.label === val)?.color || "";
+        type = "image";
+        const baseImg = corCabeloOptions.find((o) => o.name === val)?.image || "";
+        image = (isMasculino || values.genero === "Andrógino" || values.genero === "Não-binário") && baseImg
+          ? baseImg.replace(".png", "-masc.png")
+          : baseImg;
         break;
+      }
     }
 
     return (

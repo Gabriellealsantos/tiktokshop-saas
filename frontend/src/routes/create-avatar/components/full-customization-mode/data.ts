@@ -65,39 +65,62 @@ export const pelosFaciaisOptions = [
   { name: "Cavanhaque", image: "/cavanhaque.png" },
 ];
 
-
-
-export const corCabeloNaturaisOptions = [
-  { name: "Preto", color: "#0B0B0B" },
-  { name: "Preto azulado", color: "#141A22" },
-  { name: "Castanho escuro", color: "#3B2417" },
-  { name: "Castanho", label: "Castanho médio", color: "#5C3A21" },
-  { name: "Castanho claro", color: "#8B5A2B" },
-  { name: "Acaju", color: "#6E2A1E" },
-  { name: "Ruivo escuro", color: "#7B2E1E" },
-  { name: "Ruivo", color: "#B5451B" },
-  { name: "Ruivo claro", color: "#D2691E" },
-  { name: "Loiro escuro", color: "#A67B4B" },
-  { name: "Loiro", label: "Loiro médio", color: "#C9A063" },
-  { name: "Loiro claro", color: "#E3C58C" },
-  { name: "Loiro platinado", color: "#EDE4D0" },
-  { name: "Grisalho", color: "#9E9E9E" },
-  { name: "Branco", color: "#F2F2F2" },
+export const bocaOptions = [
+  { name: "Lábios finos", image: "/boca-finos.png" },
+  { name: "Lábios médios", image: "/boca-medios.png" },
+  { name: "Lábios carnudos", image: "/boca-carnudos.png" },
+  { name: "Arco do cupido", label: "Arco do cupido definido", image: "/boca-arco-cupido.png" },
+  { name: "Boca larga", image: "/boca-larga.png" },
+  { name: "Boca pequena", image: "/boca-pequena.png" },
 ];
 
-export const corCabeloFantasiaOptions = [
-  { name: "Rosa", color: "#F472A6" },
-  { name: "Rosa pastel", color: "#F9C5D5" },
-  { name: "Vermelho vibrante", color: "#E23B3B" },
-  { name: "Laranja", color: "#F97316" },
-  { name: "Dourado neon", color: "#F5C518" },
-  { name: "Verde", color: "#22C55E" },
-  { name: "Verde menta", color: "#A7F3D0" },
-  { name: "Azul", color: "#3B82F6" },
-  { name: "Azul petróleo", color: "#14B8A6" },
-  { name: "Roxo", color: "#8B5CF6" },
-  { name: "Lilás pastel", color: "#C4B5FD" },
-  { name: "Prata metálico", color: "#C7CDD4" },
+export const sobrancelhaOptions = [
+  { name: "Reta", image: "/sobrancelha-reta.png" },
+  { name: "Arqueada", image: "/sobrancelha-arqueada.png" },
+  { name: "Angulosa", image: "/sobrancelha-angulosa.png" },
+  { name: "Grossa / cheia", image: "/sobrancelha-grossa.png" },
+  { name: "Fina", image: "/sobrancelha-fina.png" },
+  { name: "Curvada suave", image: "/sobrancelha-curvada.png" },
+];
+
+export const narizOptions = [
+  { name: "Reto", image: "/nariz-reto.png" },
+  { name: "Aquilino", image: "/nariz-aquilino.png" },
+  { name: "Arrebitado", image: "/nariz-arrebitado.png" },
+  { name: "Largo", image: "/nariz-largo.png" },
+  { name: "Afilado", image: "/nariz-afilado.png" },
+  { name: "Botão", label: "Botão (pequeno)", image: "/nariz-botao.png" },
+];
+
+export const estiloCabeloOptions = [
+  { name: "Careca", image: "/cabelo-careca.png" },
+  { name: "Militar", image: "/cabelo-militar.png" },
+  { name: "Curto", image: "/cabelo-curto.png" },
+  { name: "Pixie", image: "/cabelo-pixie.png" },
+  { name: "Undercut", image: "/cabelo-undercut.png" },
+  { name: "Topete", image: "/cabelo-topete.png" },
+  { name: "Médio", image: "/cabelo-medio.png" },
+  { name: "Longo", image: "/cabelo-longo.png" },
+  { name: "Franja", image: "/cabelo-franja.png" },
+  { name: "Cacheado", image: "/cabelo-cacheado.png" },
+  { name: "Afro", image: "/cabelo-afro.png" },
+  { name: "Dreads", image: "/cabelo-dreads.png" },
+  { name: "Tranças", image: "/cabelo-trancas.png" },
+  { name: "Rabo de cavalo", image: "/cabelo-rabo-cavalo.png" },
+  { name: "Coque", image: "/cabelo-coque.png" },
+  { name: "Man bun", image: "/cabelo-man-bun.png" },
+];
+
+export const corCabeloOptions = [
+  { name: "Preto", image: "/cor-cabelo-preto.png" },
+  { name: "Castanho", image: "/cor-cabelo-castanho.png" },
+  { name: "Castanho claro", image: "/cor-cabelo-castanho-claro.png" },
+  { name: "Mel", image: "/cor-cabelo-mel.png" },
+  { name: "Loiro claro", image: "/cor-cabelo-loiro-claro.png" },
+  { name: "Ruivo", image: "/cor-cabelo-ruivo.png" },
+  { name: "Prateado", image: "/cor-cabelo-prateado.png" },
+  { name: "Amarelo", image: "/cor-cabelo-amarelo.png" },
+  { name: "Azul", image: "/cor-cabelo-azul.png" },
 ];
 
 
