@@ -46,14 +46,16 @@ export function ImageOptionSelector({
   onChange,
   columns = 4,
   aspectRatio = "aspect-[4/5]",
-  objectFit = "object-cover"
+  objectFit = "object-cover",
+  children
 }: {
   options: { name: string, label?: string, image?: string, color?: string }[],
   value: string,
   onChange: (v: string) => void,
   columns?: 2 | 3 | 4 | 5,
   aspectRatio?: string,
-  objectFit?: string
+  objectFit?: string,
+  children?: React.ReactNode
 }) {
   const colClass = columns === 2 ? "sm:grid-cols-2" : columns === 3 ? "sm:grid-cols-3" : columns === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4";
 
@@ -72,6 +74,7 @@ export function ImageOptionSelector({
           objectFit={objectFit}
         />
       ))}
+      {children}
     </div>
   );
 }

@@ -36,7 +36,7 @@ export const avatarSchema = z.object({
   nariz: z.enum(["Reto", "Aquilino", "Arrebitado", "Largo", "Afilado", "Botão"], { required_error: "Selecione o nariz." }),
   estiloCabelo: z.enum(["Careca", "Militar", "Curto", "Pixie", "Undercut", "Topete", "Médio", "Longo", "Franja", "Cacheado", "Afro", "Dreads", "Tranças", "Rabo de cavalo", "Coque", "Man bun"], { required_error: "Selecione o estilo de cabelo." }),
   corCabelo: z.enum(["Preto", "Castanho", "Castanho claro", "Mel", "Loiro claro", "Ruivo", "Prateado", "Amarelo", "Azul"], { required_error: "Selecione a cor de cabelo." }),
-  roupa: z.enum(["Casual", "Luxo", "Streetwear", "Fitness", "Corporativo"], { required_error: "Selecione a roupa." }),
+  roupa: z.enum(["Casual", "Luxo", "Streetwear", "Fitness", "Corporativo", "Geração Automática", "Enviar Imagem"], { required_error: "Selecione a roupa." }),
   detalhesRoupa: z.string().optional(),
   detalhesExtras: z.string().optional()
 });

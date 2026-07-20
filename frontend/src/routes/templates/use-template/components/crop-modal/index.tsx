@@ -19,6 +19,7 @@ interface CropModalProps {
   handleZoomChange: (newZoom: number) => void;
   resetCrop: () => void;
   saveCrop: () => void;
+  handleCropWheel: (e: React.WheelEvent) => void;
 }
 
 export function CropModal({
@@ -35,7 +36,8 @@ export function CropModal({
   onImgLoad,
   handleZoomChange,
   resetCrop,
-  saveCrop
+  saveCrop,
+  handleCropWheel
 }: CropModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,6 +58,7 @@ export function CropModal({
             onPointerMove={handleCropPointerMove}
             onPointerUp={handleCropPointerUp}
             onPointerCancel={handleCropPointerUp}
+            onWheel={handleCropWheel}
           >
             <img
               src={avatarOriginal || ""}

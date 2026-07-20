@@ -33,12 +33,26 @@ GlassDialogContent.displayName = "GlassDialogContent";
 function AvatarCard({
   avatar,
   isCustom = false,
+  mode,
+  onSelect
 }: {
   avatar: { id: string | number; name: string; image: string };
   isCustom?: boolean;
+  mode: "manage" | "select";
+  onSelect?: (avatar: { id: string | number; name: string; image: string }) => void;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-[20px] bg-surface-2 border border-white/5 transition-all hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_12px_24px_-12px_rgba(75,68,232,0.3)] aspect-[9/16]">
+    <div 
+      className={cn(
+        "group relative overflow-hidden rounded-[20px] bg-surface-2 border border-white/5 transition-all hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_12px_24px_-12px_rgba(75,68,232,0.3)] aspect-[9/16]",
+        mode === "select" && "cursor-pointer"
+      )}
+      onClick={() => {
+        if (mode === "select" && onSelect) {
+          onSelect(avatar);
+        }
+      }}
+    >
       <img
         src={avatar.image}
         alt={avatar.name}
@@ -53,7 +67,7 @@ function AvatarCard({
         </div>
       </div>
 
-      {isCustom && (
+      {isCustom && mode === "manage" && (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -70,7 +84,23 @@ function AvatarCard({
   );
 }
 
-export function AvatarLibraryModal({ children }: { children: React.ReactNode }) {
+export function AvatarLibraryModal({ 
+  children,
+  mode = "manage",
+  onSelect,
+  open,
+  onOpenChange,
+  title = "Biblioteca de Avatares",
+  subtitle = "Escolha um avatar do sistema ou gerencie os seus modelos customizados."
+}: { 
+  children?: React.ReactNode;
+  mode?: "manage" | "select";
+  onSelect?: (avatar: { id: string | number; name: string; image: string }) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  title?: string;
+  subtitle?: string;
+}) {
   const customAvatars = initialAvatars.slice(2, 4).map(a => ({ ...a, id: a.id.toString() }));
   
   const systemAvatars = [
@@ -87,10 +117,12 @@ export function AvatarLibraryModal({ children }: { children: React.ReactNode }) 
   ];
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children && (
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+      )}
       {/* Efeito Glass Intenso */}
       <GlassDialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto border-white/20 bg-zinc-950/50 backdrop-blur-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)]">
         <DialogHeader className="mb-2 text-left">
@@ -99,10 +131,10 @@ export function AvatarLibraryModal({ children }: { children: React.ReactNode }) 
               Biblioteca
             </span>
             <DialogTitle className="text-xl font-extrabold text-white">
-              Biblioteca de Avatares
+              {title}
             </DialogTitle>
             <p className="text-sm text-text-2 mt-0.5">
-              Escolha um avatar do sistema ou gerencie os seus modelos customizados.
+              {subtitle}
             </p>
           </div>
         </DialogHeader>
@@ -119,7 +151,7 @@ export function AvatarLibraryModal({ children }: { children: React.ReactNode }) 
             </div>
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {systemAvatars.map((avatar) => (
-                <AvatarCard key={avatar.id} avatar={avatar} />
+                <AvatarCard key={avatar.id} avatar={avatar} mode={mode} onSelect={onSelect} />
               ))}
             </div>
           </div>
@@ -145,7 +177,7 @@ export function AvatarLibraryModal({ children }: { children: React.ReactNode }) 
             
             <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {customAvatars.map((avatar) => (
-                <AvatarCard key={avatar.id} avatar={avatar} isCustom />
+                <AvatarCard key={avatar.id} avatar={avatar} isCustom mode={mode} onSelect={onSelect} />
               ))}
             </div>
           </div>

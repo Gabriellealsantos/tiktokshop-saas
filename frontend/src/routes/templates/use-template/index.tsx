@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type ChangeEvent, type DragEvent } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppShell } from "@/layouts/app-shell";
 import { Page } from "@/components/page";
@@ -8,8 +8,9 @@ import { avatars as initialAvatars } from "@/data/mock";
 
 import { VideoModel } from "./components/video-model";
 import { VideoPrint } from "./components/video-print";
-import { AvatarPreview } from "./components/avatar-preview";
-import { AvatarPickerModal } from "./components/avatar-picker-modal";
+import { ClothSwapPanel } from "./components/cloth-swap-panel";
+import { User, Crop, RefreshCw, ArrowLeftRight } from "lucide-react";
+import { AvatarLibraryModal } from "@/routes/create-avatar/components/avatar-library-modal";
 import { CropModal } from "./components/crop-modal";
 
 const STEPS = ["Templates", "Avatar", "Produto", "Prompt"];
@@ -36,9 +37,7 @@ export default function TemplateAssemblyScreen() {
   const [avatarOriginal, setAvatarOriginal] = useState<string | null>(null);
   const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(null);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
-  const [customAvatars, setCustomAvatars] = useState<{ id: string; name: string; image: string }[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [avatarConfirmed, setAvatarConfirmed] = useState(false);
 
   // Estado do recorte
   const [cropOpen, setCropOpen] = useState(false);
@@ -50,43 +49,14 @@ export default function TemplateAssemblyScreen() {
   const [dims, setDims] = useState({ cw: 0, ch: 0, dw: 0, dh: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Avatar system data
-  const allAvatars = [...initialAvatars.slice(0, 4), ...customAvatars];
-
   // Handlers para o modal de avatar
   const handleAvatarSelect = (avatarImage: string) => {
     setAvatarOriginal(avatarImage);
     setAvatarSelecionado(avatarImage);
     setAvatarPickerOpen(false);
+    setAvatarConfirmed(false); // Reset confirmation if avatar changes
     setSavedCrop({ zoom: 1, x: 0, y: 0 });
     setDims({ cw: 0, ch: 0, dw: 0, dh: 0 });
-  };
-
-  const handleFile = (file: File) => {
-    if (file && file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
-      const newAvatar = { id: `custom-${Date.now()}`, name: file.name.split(".")[0] || "Avatar Importado", image: url };
-      setCustomAvatars((prev) => [...prev, newAvatar]);
-      // Seleciona automaticamente o avatar recém-importado
-      handleAvatarSelect(url);
-    }
-  };
-
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
-  };
-
-  const openFilePicker = () => {
-    fileInputRef.current?.click();
   };
 
   const handleAvatarClick = () => {
@@ -160,6 +130,12 @@ export default function TemplateAssemblyScreen() {
     setPosition(prev => clampPosition(prev.x, prev.y, newZoom));
   };
 
+  const handleCropWheel = (e: React.WheelEvent) => {
+    const delta = e.deltaY * -0.001;
+    const newZoom = Math.min(Math.max(1, zoom + delta), 3);
+    handleZoomChange(newZoom);
+  };
+
   const handleCropPointerDown = (e: React.PointerEvent) => {
     setIsDraggingCrop(true);
     setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
@@ -202,25 +178,75 @@ export default function TemplateAssemblyScreen() {
   return (
     <AppShell>
       <Page>
-        <div className="max-w-5xl mx-auto w-full flex flex-col h-[calc(100vh-8rem)]">
+        <div className="max-w-5xl mx-auto w-full flex flex-col pb-12">
           <Stepper steps={STEPS} current={1} />
 
-          <div className="flex-1 min-h-0 overflow-y-auto mt-4 pb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 h-full items-start">
+          <div className="mt-8 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
               {/* CONTAINER 1 — MODELO */}
               <VideoModel videoUrl={videoUrl} videoRef={videoRef} />
 
-              {/* CONTAINER 2 — PRINT DO VÍDEO */}
-              <VideoPrint />
+              {/* CONTAINER 2 — PRINT DO VÍDEO + CONTROLES AVATAR */}
+              <div className="flex flex-col gap-6">
+                <VideoPrint />
+                
+                {/* CONTROLES DO AVATAR */}
+                {!avatarSelecionado ? (
+                  <div className="flex flex-col gap-3 mt-4">
+                    <Button 
+                      className="w-full btn-3d-surface border border-dashed border-white/20 rounded-[14px]"
+                      onClick={handleAvatarClick}
+                    >
+                      <User className="size-4 mr-2 text-white/50" />
+                      Selecionar avatar
+                    </Button>
+                    <Button 
+                      className="w-full rounded-[14px] btn-3d-primary cursor-not-allowed opacity-50 shadow-none hover:bg-brand-500 hover:scale-100"
+                      disabled
+                    >
+                      <ArrowLeftRight className="size-4 mr-2" />
+                      Trocar pessoa
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3 mt-4">
+                    <div className="flex flex-col gap-3 p-4 rounded-[16px] bg-surface-2 border border-white/5 shadow-lg">
+                      {/* LINHA SUPERIOR: Botões */}
+                      <div className="flex flex-row gap-2 w-full">
+                        <Button variant="secondary" size="sm" className="flex-1 text-xs btn-3d-surface h-8" onClick={openCropModal}>
+                          <Crop className="size-3.5 mr-1" />
+                          Recortar
+                        </Button>
+                        <Button variant="secondary" size="sm" className="flex-1 text-xs btn-3d-surface h-8" onClick={() => setAvatarPickerOpen(true)}>
+                          <RefreshCw className="size-3.5 mr-1" />
+                          Trocar
+                        </Button>
+                      </div>
+                      
+                      {/* LINHA INFERIOR: Thumbnail e Textos */}
+                      <div className="flex items-center gap-3 min-w-0 w-full">
+                        <div className="size-10 rounded-[10px] overflow-hidden bg-black/50 border border-white/10 flex-shrink-0">
+                          <img src={avatarSelecionado} alt="Avatar" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase drop-shadow-sm flex-shrink-0">Avatar Selecionado</span>
+                          <span className="text-white font-semibold text-sm truncate" title="Modelo Customizado">Modelo Customizado</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full btn-3d-primary rounded-[14px] font-semibold"
+                      onClick={() => setAvatarConfirmed(true)}
+                    >
+                      <ArrowLeftRight className="size-4 mr-2" />
+                      Trocar pessoa
+                    </Button>
+                  </div>
+                )}
+              </div>
 
-              {/* CONTAINER 3 — AVATAR */}
-              <AvatarPreview
-                avatarSelecionado={avatarSelecionado}
-                handleAvatarClick={handleAvatarClick}
-                openCropModal={openCropModal}
-                setAvatarPickerOpen={setAvatarPickerOpen}
-                openFilePicker={openFilePicker}
-              />
+              {/* CONTAINER 3 — PAINEL DE ROUPA */}
+              <ClothSwapPanel isBlocked={!avatarConfirmed} />
             </div>
           </div>
 
@@ -247,25 +273,14 @@ export default function TemplateAssemblyScreen() {
           </div>
         </div>
 
-        {/* INPUT HIDDEN PARA UPLOAD */}
-        <input
-          type="file"
-          accept="image/*"
-          className="hidden"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-        />
-
         {/* MODAL DE SELEÇÃO DE AVATAR */}
-        <AvatarPickerModal
+        <AvatarLibraryModal
           open={avatarPickerOpen}
           onOpenChange={setAvatarPickerOpen}
-          openFilePicker={openFilePicker}
-          handleDrop={handleDrop}
-          isDragging={isDragging}
-          setIsDragging={setIsDragging}
-          allAvatars={allAvatars}
-          handleAvatarSelect={handleAvatarSelect}
+          mode="select"
+          onSelect={(avatar) => handleAvatarSelect(avatar.image)}
+          title="Selecione o avatar"
+          subtitle="Escolha quem apresentará o vídeo."
         />
 
         {/* MODAL DE RECORTE DE AVATAR */}
@@ -284,6 +299,7 @@ export default function TemplateAssemblyScreen() {
           handleZoomChange={handleZoomChange}
           resetCrop={resetCrop}
           saveCrop={saveCrop}
+          handleCropWheel={handleCropWheel}
         />
       </Page>
     </AppShell>
