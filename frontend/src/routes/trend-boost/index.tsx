@@ -1,19 +1,27 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Play } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, Play } from "lucide-react";
 import { Button } from "@/components/button";
 import { Page } from "@/components/page";
 import { AppShell } from "@/layouts/app-shell";
 import { TrendHeader } from "./components/trend-header";
+import { listViralTemplates } from "@/services/viralService";
+import type { ViralTemplateSummary } from "@/models/viral";
 
-function TrendTemplateCard({ id, title, text }: { id: string; title: string; text: string }) {
+function TrendTemplateCard({
+  id,
+  title,
+  text,
+  videoSrc,
+}: {
+  id: string;
+  title: string;
+  text: string;
+  videoSrc?: string | null;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
-  const videoMap: Record<string, string> = {
-    novelinha: "/novelinha-viral.mp4",
-    objetos: "/objetos-falantes.mp4",
-  };
-  const videoSrc = videoMap[id];
 
   const handleMouseEnter = () => {
     if (!videoRef.current) return;
@@ -38,7 +46,7 @@ function TrendTemplateCard({ id, title, text }: { id: string; title: string; tex
       {!videoError ? (
         <video
           ref={videoRef}
-          src={videoSrc}
+          src={videoSrc ?? undefined}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           muted
           loop
@@ -75,10 +83,13 @@ function TrendTemplateCard({ id, title, text }: { id: string; title: string; tex
 }
 
 export default function TrendLanding() {
-  const templates = [
-    ["novelinha", "Novelinha Viral", "Histórias curtas com conflito, personagens e loop."],
-    ["objetos", "Objetos Falantes", "Dicas memoráveis narradas pelo próprio objeto."],
-  ] as const;
+  const { data: templates, isLoading } = useQuery({
+    queryKey: ["viral-templates"],
+    queryFn: async () => {
+      const res = await listViralTemplates();
+      return res.data as ViralTemplateSummary[];
+    },
+  });
 
   return (
     <AppShell>
@@ -88,11 +99,26 @@ export default function TrendLanding() {
           subtitle="Turbine seu Engajamento"
           description="Escolha uma estrutura feita para retenção, comentário e compartilhamento."
         />
-        <div className="max-w-4xl mx-auto grid gap-6 sm:grid-cols-1 md:grid-cols-2">
-          {templates.map(([id, title, text]) => (
-            <TrendTemplateCard key={id} id={id} title={title} text={text} />
-          ))}
-        </div>
+
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="size-6 animate-spin text-brand-400" />
+          </div>
+        ) : !templates?.length ? (
+          <p className="text-center text-text-3 py-20">Nenhum template disponível no momento.</p>
+        ) : (
+          <div className="max-w-4xl mx-auto grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+            {templates.map((t) => (
+              <TrendTemplateCard
+                key={t.slug}
+                id={t.slug}
+                title={t.title}
+                text={t.description ?? t.subtitle ?? ""}
+                videoSrc={t.previewVideoUrl}
+              />
+            ))}
+          </div>
+        )}
       </Page>
     </AppShell>
   );

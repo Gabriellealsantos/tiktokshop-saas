@@ -1,9 +1,16 @@
-import { Smile, Meh, Shuffle, Heart, Film } from "lucide-react";
+import { Smile, Meh, Shuffle, Heart, Film, Sparkles, type LucideIcon } from "lucide-react";
 
-export const TONES = [
-  { id: "funny", label: "Engraçado", desc: "Punchline e humor leve", icon: Smile },
-  { id: "sarcastic", label: "Sarcástico", desc: "Humor seco, deadpan", icon: Meh },
-  { id: "absurd", label: "Absurdo", desc: "Viradas inesperadas, surreal", icon: Shuffle },
-  { id: "cute", label: "Ternurinha", desc: "Fofo e carismático", icon: Heart },
-  { id: "nostalgic", label: "Nostálgico", desc: "Memória afetiva quente", icon: Film },
-];
+// Label e descrição dos tons vêm da API (GET /templates/{slug} → tones).
+// O ícone é puramente visual e não é modelado no backend, então é resolvido
+// aqui por slug. `fallback` cobre tons novos cadastrados via admin.
+export const TONE_ICONS: Record<string, LucideIcon> = {
+  funny: Smile,
+  sarcastic: Meh,
+  absurd: Shuffle,
+  cute: Heart,
+  nostalgic: Film,
+};
+
+export const TONE_ICON_FALLBACK: LucideIcon = Sparkles;
+
+export const toneIcon = (slug: string): LucideIcon => TONE_ICONS[slug] ?? TONE_ICON_FALLBACK;

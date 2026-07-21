@@ -1877,6 +1877,389 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Viral (Trend Boost)",
+      "description": "Fluxo viral (Novelinha Viral / Objetos Falantes). Cota diária própria (VIRAL_MODEL), separada do Avatar. Com venyx.text-provider=fake funciona sem chave.",
+      "item": [
+        {
+          "name": "List Templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/viral/templates",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "viral",
+                "templates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Template Detail (novelinha)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/viral/templates/novelinha",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "viral",
+                "templates",
+                "novelinha"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Template Detail (objetos)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/viral/templates/objetos",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "viral",
+                "templates",
+                "objetos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Scripts (3 roteiros)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "description": "Passo 1: gera 3 roteiros. Não consome cota.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"templateSlug\": \"novelinha\",\r\n  \"characterSlug\": \"char-1\",\r\n  \"tone\": \"funny\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/viral/scripts",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "viral",
+                "scripts"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Final Prompt",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "description": "Passo 2: gera o prompt final. Consome cota VIRAL_MODEL (5/dia). Texto retorna em 'prompt'.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"templateSlug\": \"novelinha\",\r\n  \"characterSlug\": \"char-1\",\r\n  \"tone\": \"funny\",\r\n  \"script\": {\r\n    \"id\": \"script-1\",\r\n    \"title\": \"O IPVA Tá Pago\",\r\n    \"description\": \"O personagem simula acelerar como uma moto e encara a câmera.\",\r\n    \"quote\": \"Pode avisar que o motorista de elite da vila acabou de passar!\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/viral/prompt",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "viral",
+                "prompt"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Usage (cota viral do dia)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/viral/usage",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "viral",
+                "usage"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Create Template",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"slug\": \"receitas\",\r\n  \"title\": \"Receitas Virais\",\r\n  \"subtitle\": \"Escolha o chef que vai apresentar a receita.\",\r\n  \"description\": \"Receitas rápidas narradas com humor.\",\r\n  \"thumbnailUrl\": \"/characters/receitas/char-1.png\",\r\n  \"previewVideoUrl\": \"/receitas.mp4\",\r\n  \"scriptInstruction\": \"Você é um roteirista viral. Template: {{templateTitle}}. Personagem: {{characterName}} — {{characterDescription}}. Tom: {{toneLabel}} ({{toneDescription}}). Crie roteiros de até 8 segundos com gancho forte e fala de efeito em pt-BR.\",\r\n  \"promptInstruction\": \"Diretor de vídeo IA. Personagem: {{characterName}} — {{characterDescription}}. Tom: {{toneLabel}}. Roteiro: {{scriptTitle}} / {{scriptDescription}} / fala: \\\"{{scriptQuote}}\\\". Gere o prompt cinematográfico em inglês, mantendo Dialogue em pt-BR.\",\r\n  \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/viral/templates",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "templates"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update Template",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"slug\": \"novelinha\",\r\n  \"title\": \"Vovôs e Vovós\",\r\n  \"subtitle\": \"Escolha o personagem que vai protagonizar sua história.\",\r\n  \"description\": \"Histórias curtas com conflito, personagens e loop.\",\r\n  \"thumbnailUrl\": \"/characters/novelinha/char-1.png\",\r\n  \"previewVideoUrl\": \"/novelinha-viral.mp4\",\r\n  \"scriptInstruction\": \"... corpo .md dos roteiros com {{placeholders}} ...\",\r\n  \"promptInstruction\": \"... corpo .md do prompt final com {{placeholders}} ...\",\r\n  \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/viral/templates/1",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "templates",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Delete Template",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/viral/templates/1",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "templates",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Add Character",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"slug\": \"char-11\",\r\n  \"name\": \"Vovô do Violão\",\r\n  \"description\": \"Idoso tocando um violão desafinado na varanda ao entardecer.\",\r\n  \"imageUrl\": \"/characters/novelinha/char-11.png\",\r\n  \"sortOrder\": 10,\r\n  \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/viral/templates/1/characters",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "templates",
+                "1",
+                "characters"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update Character",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"slug\": \"char-1\",\r\n  \"name\": \"Vovô do Triciclo\",\r\n  \"description\": \"Idoso pilotando um triciclo infantil como se fosse uma moto potente.\",\r\n  \"imageUrl\": \"/characters/novelinha/char-1.png\",\r\n  \"sortOrder\": 0,\r\n  \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/viral/characters/1",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "characters",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Delete Character",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/viral/characters/1",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "characters",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] List Tones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/admin/viral/tones",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "tones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Create Tone",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"slug\": \"dramatic\",\r\n  \"label\": \"Dramático\",\r\n  \"description\": \"Tensão e emoção de novela\",\r\n  \"sortOrder\": 5,\r\n  \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/viral/tones",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "tones"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "[Admin] Update Tone",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"slug\": \"funny\",\r\n  \"label\": \"Engraçado\",\r\n  \"description\": \"Punchline e humor leve\",\r\n  \"sortOrder\": 0,\r\n  \"active\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/admin/viral/tones/1",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "viral",
+                "tones",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "auth": {

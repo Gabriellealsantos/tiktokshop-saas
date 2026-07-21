@@ -36,7 +36,7 @@ export function PromptResult({ finalPrompt, handleCopy, resetPrompt }: PromptRes
 
       <div className="flex flex-col sm:flex-row gap-3">
         <a
-          href="https://lumaai.com/dream-machine"
+          href="https://labs.google/fx/tools/flow"
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1 btn-brand inline-flex items-center justify-center h-10 text-sm rounded-xl font-semibold px-4 transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_0_15px_-4px_rgba(75,68,232,0.6)]"

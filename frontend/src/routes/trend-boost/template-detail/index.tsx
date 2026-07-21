@@ -1,16 +1,36 @@
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, Image as ImageIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, Image as ImageIcon, Loader2 } from "lucide-react";
 import { Page } from "@/components/page";
 import { AppShell } from "@/layouts/app-shell";
 import { cn } from "@/utils/utils";
 import { TrendHeader } from "../components/trend-header";
-import { trendTemplates } from "../components/trend-data";
+import { getViralTemplate } from "@/services/viralService";
+import type { ViralTemplateDetail } from "@/models/viral";
 
 export default function RouteComponent() {
   const { template: templateId = "" } = useParams();
-  const template = trendTemplates[templateId];
 
-  if (!template) {
+  const { data: template, isLoading, isError } = useQuery({
+    queryKey: ["viral-template", templateId],
+    queryFn: async () => {
+      const res = await getViralTemplate(templateId);
+      return res.data as ViralTemplateDetail;
+    },
+    enabled: !!templateId,
+  });
+
+  if (isLoading) {
+    return (
+      <AppShell>
+        <Page className="pt-0 flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="size-6 animate-spin text-brand-400" />
+        </Page>
+      </AppShell>
+    );
+  }
+
+  if (isError || !template) {
     return (
       <AppShell>
         <Page className="pt-0 flex flex-col items-center justify-center min-h-[50vh]">
@@ -38,7 +58,7 @@ export default function RouteComponent() {
 
         <TrendHeader
           title={template.title}
-          subtitle={template.subtitle}
+          subtitle={template.subtitle ?? ""}
           description="Selecione uma opção abaixo para continuar a geração."
           titleHighlight=""
         />
@@ -47,8 +67,8 @@ export default function RouteComponent() {
           {template.characters.map((char) => {
             return (
               <Link
-                key={char.id}
-                to={`/trend-boost/${templateId}/${char.id}`}
+                key={char.slug}
+                to={`/trend-boost/${templateId}/${char.slug}`}
                 className="group relative w-full text-left outline-none block cursor-pointer"
               >
                 <div
@@ -67,7 +87,7 @@ export default function RouteComponent() {
                     </div>
 
                     <img
-                      src={char.image}
+                      src={char.imageUrl ?? undefined}
                       alt={char.name}
                       loading="lazy"
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 z-10"

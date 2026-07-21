@@ -1,14 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { AnimatePresence } from "motion/react";
-import { Check } from "lucide-react";
+import { Check, Loader2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Page } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
 import { cn } from "@/utils/utils";
+import {
+  generateViralPrompt,
+  generateViralScripts,
+  getViralTemplate,
+  getViralUsage,
+} from "@/services/viralService";
+import type {
+  ViralImageGeneration,
+  ViralScript,
+  ViralScriptsResponse,
+  ViralTemplateDetail,
+  ViralUsage,
+} from "@/models/viral";
 import { TrendHeader } from "../components/trend-header";
-import { trendTemplates } from "../components/trend-data";
 
 import { LoadingScreen } from "./components/loading-screen";
 import { CharacterSidebar } from "./components/character-sidebar";
@@ -18,60 +31,73 @@ import { PromptResult } from "./components/prompt-result";
 
 export default function RouteComponent() {
   const { template: templateId = "", characterId = "" } = useParams();
-  const template = trendTemplates[templateId];
-  const character = template?.characters.find((c) => c.id === characterId);
+  const queryClient = useQueryClient();
+
+  const { data: template, isLoading: isLoadingTemplate } = useQuery({
+    queryKey: ["viral-template", templateId],
+    queryFn: async () => {
+      const res = await getViralTemplate(templateId);
+      return res.data as ViralTemplateDetail;
+    },
+    enabled: !!templateId,
+  });
+
+  const character = template?.characters.find((c) => c.slug === characterId);
+  const tones = template?.tones ?? [];
+
+  const { data: usage } = useQuery({
+    queryKey: ["viral-usage"],
+    queryFn: async () => {
+      const res = await getViralUsage();
+      return res.data as ViralUsage;
+    },
+  });
 
   const [selectedTone, setSelectedTone] = useState<string | null>(null);
   const [selectedScript, setSelectedScript] = useState<string | null>(null);
   const [loadingStage, setLoadingStage] = useState(0);
 
   const { mutate: generateScripts, data: scripts, isPending: isGeneratingScripts } = useMutation({
-    mutationFn: async (toneId: string) => {
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 2500));
-      return [
-        {
-          id: "script-1",
-          title: "O IPVA Tá Pago",
-          description: "O personagem está no seu veículo/base e faz um som de motor potente com a boca enquanto simula mudar de marcha no ar, olhando para a câmera com um sorriso maroto.",
-          quote: "Pode avisar que o motorista de elite da vila acabou de passar!"
-        },
-        {
-          id: "script-2",
-          title: "Fofoca na Janela",
-          description: "Olha rapidamente para os lados como se estivesse vigiando alguém, se aproxima da câmera e sussurra gesticulando bastante.",
-          quote: "Você não vai acreditar no que eu acabei de escutar na padaria..."
-        },
-        {
-          id: "script-3",
-          title: "Conselho de Ouro",
-          description: "Assume uma postura mais séria, levanta um dedo como quem vai dar uma lição de moral e depois sorri amistosamente.",
-          quote: "Se tem uma coisa que a vida ensina, é que pressa não enche barriga."
-        }
-      ];
+    mutationFn: async (tone: string) => {
+      const res = await generateViralScripts({
+        templateSlug: templateId,
+        characterSlug: characterId,
+        tone,
+      });
+      return (res.data as ViralScriptsResponse).scripts;
     },
+    onSuccess: () => setSelectedScript(null),
     onError: () => {
       toast.error("Erro ao gerar roteiros. Tente novamente.");
-    }
+    },
   });
 
   const { mutate: generatePrompt, data: finalPrompt, isPending: isGeneratingPrompt, isSuccess: isPromptSuccess, reset: resetPrompt } = useMutation({
     mutationFn: async () => {
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 6000));
-      return `[Scene: A vintage living room setup, natural lighting, medium close-up shot]
-Character: An energetic elder person sitting on a small tricycle, pretending to ride it like a heavy motorcycle.
-
-Action: The character intensely grips the imaginary handlebars, making loud, exaggerated motorcycle engine noises with their mouth. They simulate kicking a gear shifter and then look directly into the camera with a mischievous, confident smile.
-
-Dialogue: "Pode avisar que o motorista de elite da vila acabou de passar!"
-
-Style: cinematic, 4k, hyper-detailed, tiktok style viral short, dynamic motion, vibrant colors.`;
+      const script = scripts?.find((s: ViralScript) => s.id === selectedScript);
+      if (!script) throw new Error("no-script");
+      const res = await generateViralPrompt({
+        templateSlug: templateId,
+        characterSlug: characterId,
+        tone: selectedTone!,
+        script,
+      });
+      return (res.data as ViralImageGeneration).prompt;
     },
-    onError: () => {
-      toast.error("Erro ao gerar o prompt. Tente novamente.");
+    onSuccess: () => {
+      // A cota do dia mudou — refetch do badge de uso.
+      queryClient.invalidateQueries({ queryKey: ["viral-usage"] });
+    },
+    onError: (err) => {
+      if (axios.isAxiosError(err) && err.response?.status === 429) {
+        toast.error(
+          `Você atingiu o limite diário${usage ? ` (${usage.max})` : ""} de prompts virais. Tente novamente amanhã.`
+        );
+      } else {
+        toast.error("Erro ao gerar o prompt. Tente novamente.");
+      }
       setLoadingStage(0);
-    }
+    },
   });
 
   useEffect(() => {
@@ -93,6 +119,16 @@ Style: cinematic, 4k, hyper-detailed, tiktok style viral short, dynamic motion, 
       toast.success("Prompt copiado!");
     }
   };
+
+  if (isLoadingTemplate) {
+    return (
+      <AppShell>
+        <Page className="pt-0 flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="size-6 animate-spin text-brand-400" />
+        </Page>
+      </AppShell>
+    );
+  }
 
   if (!template || !character) {
     return (
@@ -128,28 +164,40 @@ Style: cinematic, 4k, hyper-detailed, tiktok style viral short, dynamic motion, 
               compact
             />
 
-            {/* Stepper */}
-            <div className="flex items-center gap-2 mt-6 overflow-x-auto pb-2 scrollbar-hide">
-              <div className="flex items-center gap-2 text-brand-300 font-semibold text-sm">
-                <div className="flex items-center justify-center size-6 rounded-full bg-brand-500/20 text-brand-400">
-                  <Check className="size-3.5" />
+            {/* Stepper + cota */}
+            <div className="flex items-center justify-between gap-4 mt-6">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex items-center gap-2 text-brand-300 font-semibold text-sm">
+                  <div className="flex items-center justify-center size-6 rounded-full bg-brand-500/20 text-brand-400">
+                    <Check className="size-3.5" />
+                  </div>
+                  Personagem
                 </div>
-                Personagem
-              </div>
-              <div className="w-8 h-px bg-white/10" />
-              <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-brand-300" : "text-white")}>
-                <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500/20 text-brand-400" : "bg-brand-500 text-white shadow-[0_0_12px_rgba(75,68,232,0.5)]")}>
-                  {isStep3 ? <Check className="size-3.5" /> : "2"}
+                <div className="w-8 h-px bg-white/10" />
+                <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-brand-300" : "text-white")}>
+                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500/20 text-brand-400" : "bg-brand-500 text-white shadow-[0_0_12px_rgba(75,68,232,0.5)]")}>
+                    {isStep3 ? <Check className="size-3.5" /> : "2"}
+                  </div>
+                  Tom & roteiro
                 </div>
-                Tom & roteiro
-              </div>
-              <div className="w-8 h-px bg-white/10" />
-              <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-white" : "text-text-3")}>
-                <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500 text-white shadow-[0_0_12px_rgba(75,68,232,0.5)]" : "bg-white/5")}>
-                  3
+                <div className="w-8 h-px bg-white/10" />
+                <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-white" : "text-text-3")}>
+                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500 text-white shadow-[0_0_12px_rgba(75,68,232,0.5)]" : "bg-white/5")}>
+                    3
+                  </div>
+                  Prompt + download
                 </div>
-                Prompt + download
               </div>
+
+              {usage && (
+                <div
+                  className="hidden sm:inline-flex items-center gap-1.5 shrink-0 rounded-full border border-white/10 bg-deep px-3 py-1 text-xs font-semibold text-text-2"
+                  title="Prompts virais gerados hoje"
+                >
+                  <Zap className={cn("size-3.5", usage.remaining > 0 ? "text-brand-400" : "text-red-400")} />
+                  {usage.remaining}/{usage.max} restantes hoje
+                </div>
+              )}
             </div>
           </div>
 
@@ -164,6 +212,7 @@ Style: cinematic, 4k, hyper-detailed, tiktok style viral short, dynamic motion, 
                 <>
                   {/* ETAPA 2A: Escolha o tom */}
                   <ToneSelector
+                    tones={tones}
                     selectedTone={selectedTone}
                     setSelectedTone={setSelectedTone}
                     isGeneratingScripts={isGeneratingScripts}

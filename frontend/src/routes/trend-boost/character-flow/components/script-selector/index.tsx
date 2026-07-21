@@ -2,9 +2,10 @@ import { motion } from "motion/react";
 import { Loader2, Sparkles, Check } from "lucide-react";
 import { Button } from "@/components";
 import { cn } from "@/utils/utils";
+import type { ViralScript } from "@/models/viral";
 
 interface ScriptSelectorProps {
-  scripts: any[];
+  scripts: ViralScript[];
   selectedScript: string | null;
   setSelectedScript: (id: string | null) => void;
   selectedTone: string | null;

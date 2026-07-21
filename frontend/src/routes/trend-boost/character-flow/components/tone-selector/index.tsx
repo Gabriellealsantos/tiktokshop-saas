@@ -1,9 +1,11 @@
 import { Loader2, Sparkles, Check } from "lucide-react";
 import { Button } from "@/components";
 import { cn } from "@/utils/utils";
-import { TONES } from "../../data";
+import type { ViralTone } from "@/models/viral";
+import { toneIcon } from "../../data";
 
 interface ToneSelectorProps {
+  tones: ViralTone[];
   selectedTone: string | null;
   setSelectedTone: (tone: string) => void;
   isGeneratingScripts: boolean;
@@ -12,6 +14,7 @@ interface ToneSelectorProps {
 }
 
 export function ToneSelector({
+  tones,
   selectedTone,
   setSelectedTone,
   isGeneratingScripts,
@@ -28,13 +31,13 @@ export function ToneSelector({
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
-        {TONES.map((tone) => {
-          const isSelected = selectedTone === tone.id;
-          const Icon = tone.icon;
+        {tones.map((tone) => {
+          const isSelected = selectedTone === tone.slug;
+          const Icon = toneIcon(tone.slug);
           return (
             <button
-              key={tone.id}
-              onClick={() => setSelectedTone(tone.id)}
+              key={tone.slug}
+              onClick={() => setSelectedTone(tone.slug)}
               className={cn(
                 "relative flex flex-col items-center text-center gap-1 p-2 rounded-xl border transition-all duration-200 outline-none",
                 isSelected
@@ -52,7 +55,7 @@ export function ToneSelector({
                 {tone.label}
               </span>
               <span className="text-[9px] text-text-3 leading-tight px-0.5">
-                {tone.desc}
+                {tone.description}
               </span>
 
               {isSelected && (

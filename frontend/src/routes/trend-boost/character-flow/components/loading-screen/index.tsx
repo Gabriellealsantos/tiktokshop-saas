@@ -3,9 +3,10 @@ import { Check, Loader2 } from "lucide-react";
 import { Page } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
 import { cn } from "@/utils/utils";
+import type { ViralCharacter } from "@/models/viral";
 
 interface LoadingScreenProps {
-  character: any;
+  character: ViralCharacter;
   loadingStage: number;
 }
 
@@ -21,7 +22,7 @@ export function LoadingScreen({ character, loadingStage }: LoadingScreenProps) {
           >
             <div className="absolute inset-0 rounded-full bg-brand-500/20 blur-xl animate-pulse" />
             <div className="relative size-32 rounded-full overflow-hidden border-4 border-brand-500 shadow-[0_0_30px_rgba(75,68,232,0.5)]">
-              <img src={character.image} alt={character.name} className="w-full h-full object-cover" />
+              <img src={character.imageUrl ?? undefined} alt={character.name} className="w-full h-full object-cover" />
             </div>
           </motion.div>
 

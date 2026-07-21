@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ChevronLeft, Download, Image as ImageIcon } from "lucide-react";
+import type { ViralCharacter } from "@/models/viral";
 
 interface CharacterSidebarProps {
-  character: any;
+  character: ViralCharacter;
   templateId: string;
   isStep3: boolean;
 }
@@ -16,7 +17,7 @@ export function CharacterSidebar({ character, templateId, isStep3 }: CharacterSi
           <ImageIcon className="size-8 opacity-50" />
         </div>
         <img
-          src={character.image}
+          src={character.imageUrl ?? undefined}
           alt={character.name}
           className="absolute inset-0 w-full h-full object-cover z-10"
           onError={(e) => { e.currentTarget.style.opacity = "0"; }}
@@ -39,7 +40,7 @@ export function CharacterSidebar({ character, templateId, isStep3 }: CharacterSi
 
       {isStep3 && (
         <a
-          href={character.image}
+          href={character.imageUrl ?? undefined}
           download
           className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 bg-surface-2 hover:bg-surface-3 transition-colors text-sm font-semibold text-white"
         >
