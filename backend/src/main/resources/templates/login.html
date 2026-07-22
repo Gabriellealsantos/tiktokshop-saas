@@ -40,20 +40,22 @@
             isolation: isolate;
         }
 
+        /* BORDA — arco largo, cor da marca */
         .auth-card::before {
             content: '';
             position: absolute;
             inset: 0;
             border-radius: inherit;
-            padding: 1.5px;
+            padding: 2.5px;
             background: conic-gradient(
                 from var(--angle),
                 transparent 0%,
-                transparent 62%,
-                rgba(59, 51, 222, 0.30) 76%,
-                #3B33DE 86%,
-                #A9A3FF 92%,
-                #3B33DE 95%,
+                transparent 52%,
+                rgba(59, 51, 222, 0.22) 62%,
+                rgba(59, 51, 222, 0.60) 72%,
+                var(--brand-purple) 84%,
+                #5B52F0 90%,
+                var(--brand-purple) 95%,
                 transparent 100%
             );
             -webkit-mask:
@@ -61,9 +63,47 @@
                 linear-gradient(#000 0 0);
             -webkit-mask-composite: xor;
                     mask-composite: exclude;
-            animation: auth-border-spin 6s linear infinite;
+            animation: auth-border-spin 8s linear infinite;
             pointer-events: none;
             z-index: 3;
+        }
+
+        /* FEIXE — sai do centro estreito e alarga até a borda (lanterna) */
+        .auth-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: conic-gradient(
+                from var(--angle) at 50% 50%,
+                transparent 0%,
+                transparent 56%,
+                rgba(59, 51, 222, 0.14) 66%,
+                rgba(59, 51, 222, 0.38) 76%,
+                rgba(59, 51, 222, 0.60) 86%,
+                rgba(59, 51, 222, 0.28) 95%,
+                transparent 100%
+            );
+            filter: blur(30px);
+            mix-blend-mode: screen;
+            opacity: 0.95;
+            -webkit-mask: radial-gradient(
+                circle at 50% 50%,
+                transparent 0%,
+                rgba(0, 0, 0, 0.55) 5%,
+                #000 14%,
+                #000 100%
+            );
+                    mask: radial-gradient(
+                circle at 50% 50%,
+                transparent 0%,
+                rgba(0, 0, 0, 0.55) 5%,
+                #000 14%,
+                #000 100%
+            );
+            animation: auth-border-spin 8s linear infinite;
+            pointer-events: none;
+            z-index: 1;
         }
 
         @keyframes auth-border-spin {
@@ -71,7 +111,7 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .auth-card::before { animation: none; }
+            .auth-card::before, .auth-card::after { animation: none; }
         }
     </style>
 </head>
@@ -89,8 +129,8 @@
 
     <main class="relative grid min-h-screen place-items-center overflow-hidden px-4 py-6 md:py-10">
         <div
-            class="relative z-10 w-full max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md">
-            <div class="grid lg:grid-cols-2 rounded-[31px] overflow-hidden">
+            class="relative z-10 w-full max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/30 shadow-2xl backdrop-blur-xl">
+            <div class="relative z-[2] grid lg:grid-cols-2 rounded-[31px] overflow-hidden">
                 <!-- COLUNA ESQUERDA - FORMULÁRIO -->
                 <div
                     class="relative flex min-h-[600px] flex-col items-center justify-center bg-zinc-950/40 p-6 md:p-10 lg:p-14 backdrop-blur-xl border-r border-white/5">

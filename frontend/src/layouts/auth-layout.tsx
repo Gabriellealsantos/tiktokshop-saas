@@ -11,8 +11,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <SignatureBackground />
       
       {/* Container principal */}
-      <div className="relative z-10 w-full max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/20 shadow-2xl backdrop-blur-md">
-        <div className="grid lg:grid-cols-2 rounded-[31px] overflow-hidden">
+      <div className="relative z-10 w-full max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/30 shadow-2xl backdrop-blur-xl">
+        <div className="relative z-[2] grid lg:grid-cols-2 rounded-[31px] overflow-hidden">
           {/* COLUNA ESQUERDA - FORMULÁRIO (EFEITO GLASS) */}
           <div className="relative flex min-h-[600px] flex-col items-center justify-center bg-zinc-950/40 p-6 md:p-10 lg:p-14 backdrop-blur-xl border-r border-white/5">
             {children}
