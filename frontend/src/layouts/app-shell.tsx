@@ -20,7 +20,8 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components";
 import { SignatureBackground } from "@/layouts/signature-background";
-import { NotificationsBell, useNotifications } from "@/layouts/notifications-panel";
+import { NotificationsBell } from "@/layouts/notifications/notification-bell";
+import { useNotifications } from "@/layouts/notifications/store";
 import { useAuth } from "@/context/auth";
 import { cn } from "@/utils/utils";
 
