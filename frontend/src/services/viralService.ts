@@ -54,6 +54,38 @@ export const uploadStorage = (file: File, folder: string) => {
   });
 };
 
+/**
+ * Upload de vídeo pro storage (S3/MinIO). Retorna { url } usada em previewVideoUrl.
+ * Só aceita vídeo (o backend valida magic bytes de mp4/webm). A validação de
+ * duração/resolução é feita no client, antes de subir.
+ */
+export const uploadVideoStorage = (file: File, folder: string) => {
+  const data = new FormData();
+  data.append("file", file);
+  data.append("folder", folder);
+  return requestBackend({
+    method: "POST",
+    url: "/api/admin/storage/upload-video",
+    data,
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+/**
+ * Baixa um arquivo do storage via proxy do backend (Content-Disposition: attachment).
+ * Necessário porque a URL do S3/MinIO é cross-origin e o atributo download do <a>
+ * é ignorado nesse caso — o browser navegaria pro storage em vez de baixar.
+ */
+export const downloadStorage = (url: string, filename: string) =>
+  requestBackend({
+    method: "GET",
+    url: "/api/storage/download",
+    params: { url, filename },
+    responseType: "blob",
+    withCredentials: true,
+  });
+
 // --- templates ---
 export const listAdminViralTemplates = () =>
   requestBackend({ method: "GET", url: "/api/admin/viral/templates", withCredentials: true });

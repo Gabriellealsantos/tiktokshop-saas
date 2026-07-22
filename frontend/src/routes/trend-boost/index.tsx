@@ -14,14 +14,17 @@ function TrendTemplateCard({
   title,
   text,
   videoSrc,
+  thumbnailSrc,
 }: {
   id: string;
   title: string;
   text: string;
   videoSrc?: string | null;
+  thumbnailSrc?: string | null;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
+  const [thumbError, setThumbError] = useState(false);
 
   const handleMouseEnter = () => {
     if (!videoRef.current) return;
@@ -43,10 +46,11 @@ function TrendTemplateCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {!videoError ? (
+      {videoSrc && !videoError ? (
         <video
           ref={videoRef}
-          src={videoSrc ?? undefined}
+          src={videoSrc}
+          poster={thumbnailSrc ?? undefined}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           muted
           loop
@@ -54,6 +58,13 @@ function TrendTemplateCard({
           preload="metadata"
           onError={() => setVideoError(true)}
           aria-label={title}
+        />
+      ) : thumbnailSrc && !thumbError ? (
+        <img
+          src={thumbnailSrc}
+          alt={title}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+          onError={() => setThumbError(true)}
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-deep to-surface-3 flex flex-col items-center justify-center p-6 text-center z-0">
@@ -115,6 +126,7 @@ export default function TrendLanding() {
                 title={t.title}
                 text={t.description ?? t.subtitle ?? ""}
                 videoSrc={t.previewVideoUrl}
+                thumbnailSrc={t.thumbnailUrl}
               />
             ))}
           </div>

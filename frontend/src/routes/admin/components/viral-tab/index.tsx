@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 import { Pill } from "@/components";
-import { TemplatesPanel } from "./templates-panel";
-import { TonesPanel } from "./tones-panel";
+import { TemplatesPanel } from "./components/templates-panel";
+import { TonesPanel } from "./components/tones-panel";
 
 type SubTab = "Templates" | "Tons";
 

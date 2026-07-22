@@ -55,7 +55,7 @@ export function LaunchpadContent({ renderHeader }: { renderHeader?: ReactNode })
   const [activeIndex, setActiveIndex] = useState(-1);
   const [suggestLoading, setSuggestLoading] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reqIdRef = useRef(0);
 
   const goMine = (q?: string) => {

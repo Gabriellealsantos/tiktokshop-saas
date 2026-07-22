@@ -13,7 +13,7 @@ import {
   addViralCharacter, deleteViralCharacter, listAdminViralCharacters, updateViralCharacter,
 } from "@/services/viralService";
 import { cn } from "@/utils/utils";
-import { ImageUpload, errMessage } from "./image-upload";
+import { ImageUpload, errMessage } from "../image-upload";
 
 const emptyForm = (): ViralCharacterForm => ({
   slug: "", name: "", description: "", imageUrl: "", sortOrder: 0, active: true,

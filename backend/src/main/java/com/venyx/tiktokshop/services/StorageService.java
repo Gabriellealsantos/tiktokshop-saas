@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -16,9 +17,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Upload de imagens para o bucket S3/MinIO configurado em StorageConfig.
- * Reutilizado por qualquer módulo que precise de uma URL de imagem
- * (galeria de avatares, produtos, etc) via StorageController.
+ * Upload de imagens e vídeos para o bucket S3/MinIO configurado em StorageConfig.
+ * Reutilizado por qualquer módulo que precise de uma URL pública de mídia
+ * (galeria de avatares, produtos, preview de templates virais, etc) via StorageController.
  */
 @Service
 public class StorageService {
@@ -38,6 +39,15 @@ public class StorageService {
             "image/png",  ".png",
             "image/jpeg", ".jpg",
             "image/webp", ".webp");
+
+    private static final Map<String, String> VIDEO_EXTENSIONS = Map.of(
+            "video/mp4",  ".mp4",
+            "video/webm", ".webm");
+
+    // MP4: o box "ftyp" fica no offset 4 (bytes 0-3 são o tamanho do box).
+    private static final byte[] MP4_FTYP = new byte[]{0x66, 0x74, 0x79, 0x70};
+    // WEBM/Matroska: header EBML no offset 0.
+    private static final byte[] WEBM_MAGIC = new byte[]{0x1A, 0x45, (byte) 0xDF, (byte) 0xA3};
 
     private final S3Client s3Client;
 
@@ -92,6 +102,75 @@ public class StorageService {
         return buildUrl(key);
     }
 
+    public String uploadVideo(MultipartFile file, String folder) {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("Arquivo de vídeo é obrigatório.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("video/")) {
+            throw new BusinessException("Apenas arquivos de vídeo são aceitos.");
+        }
+
+        try {
+            return uploadVideo(file.getBytes(), contentType, folder);
+        } catch (IOException e) {
+            throw new BusinessException("Falha ao ler o arquivo enviado.");
+        }
+    }
+
+    public String uploadVideo(byte[] content, String contentType, String folder) {
+        if (content == null || content.length == 0) {
+            throw new BusinessException("Conteúdo do vídeo está vazio.");
+        }
+        if (folder == null || !folder.matches("[a-zA-Z0-9/_-]+")) {
+            throw new BusinessException("Pasta de destino inválida.");
+        }
+
+        String normalizedType = contentType == null ? "" : contentType.toLowerCase();
+        assertRealVideo(content, normalizedType);
+
+        String key = folder + "/" + UUID.randomUUID() + VIDEO_EXTENSIONS.get(normalizedType);
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(key)
+                        .contentType(normalizedType)
+                        .build(),
+                RequestBody.fromBytes(content));
+
+        return buildUrl(key);
+    }
+
+    /**
+     * Busca um objeto do próprio bucket para forçar download no browser (o atributo
+     * download do <a> é ignorado cross-origin, então o front baixa via este proxy).
+     * Valida que a URL pertence ao nosso storage — evita SSRF (não busca URL arbitrária).
+     */
+    public DownloadedFile download(String url) {
+        if (url == null || url.isBlank()) {
+            throw new BusinessException("URL do arquivo é obrigatória.");
+        }
+        String base = publicBaseUrl() + "/";
+        if (!url.startsWith(base)) {
+            throw new BusinessException("URL fora do storage permitido.");
+        }
+        String key = url.substring(base.length());
+
+        var object = s3Client.getObjectAsBytes(
+                GetObjectRequest.builder().bucket(bucket).key(key).build());
+        String contentType = object.response().contentType();
+        String filename = key.substring(key.lastIndexOf('/') + 1);
+
+        return new DownloadedFile(
+                object.asByteArray(),
+                contentType != null ? contentType : "application/octet-stream",
+                filename);
+    }
+
+    public record DownloadedFile(byte[] content, String contentType, String filename) {}
+
     public String uploadWithRetry(byte[] content, String contentType, String folder) {
         RuntimeException last = null;
 
@@ -142,6 +221,21 @@ public class StorageService {
         }
         if (!startsWith(content, expected)) {
             throw new BusinessException("O arquivo enviado não é uma imagem válida.");
+        }
+    }
+
+    private void assertRealVideo(byte[] content, String contentType) {
+        if (!VIDEO_EXTENSIONS.containsKey(contentType)) {
+            throw new BusinessException("Formato de vídeo não suportado: " + contentType);
+        }
+        boolean valid = switch (contentType) {
+            // No MP4 o box "ftyp" fica no offset 4, não no início do arquivo.
+            case "video/mp4"  -> content.length >= 8 && Arrays.equals(content, 4, 8, MP4_FTYP, 0, 4);
+            case "video/webm" -> startsWith(content, WEBM_MAGIC);
+            default -> false;
+        };
+        if (!valid) {
+            throw new BusinessException("O arquivo enviado não é um vídeo válido.");
         }
     }
 

@@ -41,13 +41,17 @@ public class ViralPromptComposer {
     private static final String PROMPT_CONTRACT = """
 
             ---
-            Responda SOMENTE com o prompt de vídeo, em INGLÊS, no formato de blocos rotulados:
-            [Scene: ...]
-            Character: ...
-            Action: ...
-            Dialogue: "<mantenha a fala exatamente em português do Brasil>"
-            Style: cinematic, 4k, hyper-detailed, tiktok viral short.
-            Não inclua explicações nem markdown fora do prompt.
+            Responda SOMENTE com o prompt de vídeo final, em INGLÊS, sem markdown e sem
+            explicações fora do prompt. Preencha cada bloco com direção concreta e visual:
+            [Scene: environment, time of day, mood]
+            Character: physical appearance, wardrobe, expression — consistent with the description
+            Action: what happens in ~8 seconds, beat by beat
+            Camera: shot size and movement (e.g. medium close-up, slow push-in, handheld) + lens feel
+            Lighting: quality, direction and color (e.g. soft warm key light, moody rim light)
+            Dialogue: "<mantenha a fala EXATAMENTE em português do Brasil, sem traduzir>"
+            Style: cinematic, 4k, hyper-detailed, vertical 9:16, tiktok viral short, natural realistic motion
+            Avoid: deformed or extra fingers and hands, warped faces, on-screen text, captions,
+            subtitles, watermarks, logos, distorted anatomy, flickering, plastic AI look, unnatural motion.
             """;
 
     /** Passo 1 — instrução para gerar os 3 roteiros. */

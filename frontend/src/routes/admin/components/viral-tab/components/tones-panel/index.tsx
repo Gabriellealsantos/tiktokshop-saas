@@ -8,7 +8,7 @@ import {
 } from "@/components";
 import type { ViralToneAdmin, ViralToneForm } from "@/models/viral";
 import { createViralTone, listAdminViralTones, updateViralTone } from "@/services/viralService";
-import { errMessage } from "./image-upload";
+import { errMessage } from "../image-upload";
 
 const emptyForm = (): ViralToneForm => ({ slug: "", label: "", description: "", sortOrder: 0, active: true });
 

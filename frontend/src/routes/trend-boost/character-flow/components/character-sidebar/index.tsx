@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, Download, Image as ImageIcon } from "lucide-react";
+import { ChevronLeft, Download, Image as ImageIcon, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import type { ViralCharacter } from "@/models/viral";
+import { downloadMedia } from "@/utils/download";
 
 interface CharacterSidebarProps {
   character: ViralCharacter;
@@ -8,7 +11,26 @@ interface CharacterSidebarProps {
   isStep3: boolean;
 }
 
+// NFD separa o acento da letra; [^a-z0-9] remove as marcas e a pontuação de uma vez.
+const slugify = (name: string) =>
+  name.normalize("NFD").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "imagem";
+
 export function CharacterSidebar({ character, templateId, isStep3 }: CharacterSidebarProps) {
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (!character.imageUrl) return;
+    setDownloading(true);
+    try {
+      const ext = character.imageUrl.split(".").pop()?.split("?")[0] || "png";
+      await downloadMedia(character.imageUrl, `${slugify(character.name)}.${ext}`);
+    } catch {
+      toast.error("Não foi possível baixar a imagem.");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="lg:sticky lg:top-24 flex flex-col gap-4">
       <div className="relative w-full aspect-[9/16] rounded-xl overflow-hidden bg-surface-2 border border-white/10 shadow-lg">
@@ -39,14 +61,19 @@ export function CharacterSidebar({ character, templateId, isStep3 }: CharacterSi
       )}
 
       {isStep3 && (
-        <a
-          href={character.imageUrl ?? undefined}
-          download
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 bg-surface-2 hover:bg-surface-3 transition-colors text-sm font-semibold text-white"
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={downloading || !character.imageUrl}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-white/10 bg-surface-2 hover:bg-surface-3 transition-colors text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <Download className="size-4 text-text-2" />
-          Baixar imagem
-        </a>
+          {downloading ? (
+            <Loader2 className="size-4 animate-spin text-text-2" />
+          ) : (
+            <Download className="size-4 text-text-2" />
+          )}
+          {downloading ? "Baixando…" : "Baixar imagem"}
+        </button>
       )}
     </div>
   );

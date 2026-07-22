@@ -12,8 +12,9 @@ import type { ViralTemplateAdmin, ViralTemplateForm } from "@/models/viral";
 import {
   createViralTemplate, deleteViralTemplate, listAdminViralTemplates, updateViralTemplate,
 } from "@/services/viralService";
-import { ImageUpload, errMessage } from "./image-upload";
-import { CharactersManager } from "./characters-manager";
+import { ImageUpload, errMessage } from "../image-upload";
+import { VideoUpload } from "../video-upload";
+import { CharactersManager } from "../characters-manager";
 
 const emptyForm = (): ViralTemplateForm => ({
   slug: "", title: "", subtitle: "", description: "", thumbnailUrl: "", previewVideoUrl: "",
@@ -134,7 +135,9 @@ export function TemplatesPanel() {
           {items.map((item) => (
             <div key={item.id} className="flex items-center gap-4 rounded-[16px] border border-white/5 bg-white/[0.02] p-4">
               <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-2 flex items-center justify-center">
-                {item.thumbnailUrl ? (
+                {item.previewVideoUrl ? (
+                  <video src={item.previewVideoUrl} poster={item.thumbnailUrl ?? undefined} className="w-full h-full object-cover" muted loop autoPlay playsInline preload="metadata" />
+                ) : item.thumbnailUrl ? (
                   <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
                 ) : (
                   <ImageIcon className="size-5 text-white/20" />
@@ -197,9 +200,9 @@ export function TemplatesPanel() {
                 <ImageUpload value={form.thumbnailUrl} folder="viral/templates" onChange={(url) => setForm((p) => ({ ...p, thumbnailUrl: url }))} />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">URL do vídeo de preview</Label>
-                <Input value={form.previewVideoUrl ?? ""} onChange={(e) => setForm((p) => ({ ...p, previewVideoUrl: e.target.value }))} placeholder="/novelinha-viral.mp4" className="h-9 bg-black/40 border-white/10 text-sm" />
-                <p className="text-[10px] text-zinc-500">Vídeo é por URL (o upload aceita só imagem).</p>
+                <Label className="text-xs text-zinc-400">Vídeo de preview</Label>
+                <VideoUpload value={form.previewVideoUrl} folder="viral/templates" onChange={(url) => setForm((p) => ({ ...p, previewVideoUrl: url }))} />
+                <p className="text-[10px] text-zinc-500">MP4/WEBM vertical (9:16), 1080×1920, até 10s.</p>
               </div>
             </div>
             <div className="space-y-1.5">
