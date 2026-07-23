@@ -24,6 +24,8 @@ import java.util.UUID;
 @Service
 public class AvatarService {
 
+    private static final int MAX_AVATARS_PER_USER = 20;
+
     private final AvatarRepository repository;
     private final ImageGenerationRepository generationRepository;
     private final StorageService storageService;
@@ -53,6 +55,8 @@ public class AvatarService {
     public AvatarDTO saveFromGeneration(AvatarFromGenerationDTO dto) {
         User user = authService.authenticated();
 
+        assertGalleryHasRoom(user.getUuid());
+
         ImageGeneration generation = generationRepository
                 .findByIdAndUser_Uuid(dto.generationId(), user.getUuid())
                 .orElseThrow(() -> new ResourceNotFoundException("Geração não encontrada: " + dto.generationId()));
@@ -81,6 +85,9 @@ public class AvatarService {
     @Transactional
     public AvatarDTO saveFromUpload(AvatarFromUploadDTO dto) {
         User user = authService.authenticated();
+
+        assertGalleryHasRoom(user.getUuid());
+
         assertOwnedImage(dto.imageUrl(), user.getUuid());
 
         Avatar avatar = new Avatar();
@@ -121,5 +128,13 @@ public class AvatarService {
 
     private UUID currentUserId() {
         return authService.authenticated().getUuid();
+    }
+
+    private void assertGalleryHasRoom(UUID userId) {
+        if (repository.countByUser(userId) >= MAX_AVATARS_PER_USER) {
+            throw new BusinessException(
+                    "Você atingiu o limite de " + MAX_AVATARS_PER_USER
+                            + " avatares. Exclua um avatar para criar outro.");
+        }
     }
 }

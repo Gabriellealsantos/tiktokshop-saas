@@ -25,4 +25,7 @@ public interface AvatarRepository extends JpaRepository<Avatar, Long> {
             value = "SELECT * FROM avatars WHERE user_id = :userId",
             countQuery = "SELECT COUNT(*) FROM avatars WHERE user_id = :userId")
     Page<Avatar> findAllByUser(UUID userId, Pageable pageable);
+
+    @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM avatars WHERE user_id = :userId")
+    long countByUser(UUID userId);
 }

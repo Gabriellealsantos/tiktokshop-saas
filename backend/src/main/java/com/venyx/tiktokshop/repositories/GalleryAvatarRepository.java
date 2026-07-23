@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GalleryAvatarRepository extends JpaRepository<GalleryAvatar, Long> {
 
@@ -17,4 +18,6 @@ public interface GalleryAvatarRepository extends JpaRepository<GalleryAvatar, Lo
             ORDER BY order_index ASC NULLS LAST, id ASC
             """, nativeQuery = true)
     List<GalleryAvatar> findGallery(@Param("gender") String gender, @Param("type") String type);
+
+    Optional<GalleryAvatar> findByIdAndActiveTrue(Long id);
 }

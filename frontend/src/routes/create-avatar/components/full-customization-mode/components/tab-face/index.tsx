@@ -12,15 +12,12 @@ import {
   narizOptions
 } from "../../data";
 export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
-  const generoVal = form.watch("genero");
-  const isMasculino = generoVal === "Masculino";
-
-  const dynamicFormatoRostoOptions = [
-    { name: "Oval", image: isMasculino ? "/oval-masc.png" : "/oval-fem.png" },
-    { name: "Redondo", image: isMasculino ? "/redondo-masc.png" : "/redondo-fem.png" },
-    { name: "Quadrado", image: isMasculino ? "/quadrado-masc.png" : "/quadrado-fem.png" },
-    { name: "Coração", image: isMasculino ? "/coracao-masc.png" : "/coracao-fem.png" },
-    { name: "Alongado", image: isMasculino ? "/alongado-masc.png" : "/alongado-fem.png" }
+  const formatoRostoOptions = [
+    { name: "Oval", image: "/oval.jpeg" },
+    { name: "Redondo", image: "/redondo.jpeg" },
+    { name: "Quadrado", image: "/quadrado.jpeg" },
+    { name: "Coração", image: "/coracao.jpeg" },
+    { name: "Alongado", image: "/alongado.jpeg" }
   ];
 
   return (
@@ -33,7 +30,7 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Formato do Rosto</FormLabel>
             <FormControl>
               <ImageOptionSelector
-                options={dynamicFormatoRostoOptions}
+                options={formatoRostoOptions}
                 value={field.value}
                 onChange={field.onChange}
               />
