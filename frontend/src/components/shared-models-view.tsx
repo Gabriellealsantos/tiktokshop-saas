@@ -1,24 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Play, Film, Upload } from "lucide-react";
+import { Sparkles, Play, Film, Upload, Loader2, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Page, PageHeader } from "./page";
 import { Button } from "./button";
 import { AppShell } from "@/layouts/app-shell";
 import { cn } from "@/utils/utils";
-
-// TODO: preencher categoria de cada modelo
-export const modelosPlaceholder = [
-  { id: 1, name: "Novelinha Viral", video: "/c-criar-seu-video3.mp4", categoria: "Moda" },
-  { id: 2, name: "UGC Natural", video: "/placeholder-video.mp4", categoria: "UGC" },
-  { id: 3, name: "Review Dinâmico", video: "/placeholder-video.mp4", categoria: "Beleza" },
-  { id: 4, name: "Estilo Vlog", video: "/placeholder-video.mp4", categoria: "Beleza" },
-  { id: 5, name: "Transições Rápidas", video: "/placeholder-video.mp4", categoria: "Moda" },
-  { id: 6, name: "Storytelling", video: "/placeholder-video.mp4", categoria: "UGC" },
-];
+import { listVideoTemplates, uploadManualVideo } from "@/services/videoTemplateService";
+import type { VideoTemplateSummary } from "@/models/videoTemplate";
 
 const CATEGORIAS = ["Todos", "Moda", "UGC", "Beleza"];
 
-export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: typeof modelosPlaceholder[0], isPicker?: boolean, productId?: string }) {
+export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: VideoTemplateSummary; isPicker?: boolean; productId?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
 
@@ -50,14 +44,16 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: typeo
     return () => observer.disconnect();
   }, []);
 
+  const goToAssembly = () => {
+    const params = new URLSearchParams();
+    params.set("slug", modelo.slug);
+    params.set("video", modelo.videoUrl);
+    if (productId) params.set("productId", productId);
+    navigate(`/templates/use?${params.toString()}`);
+  };
+
   const handleClick = () => {
-    if (isPicker) {
-      const params = new URLSearchParams();
-      params.set("id", String(modelo.id));
-      params.set("video", modelo.video);
-      if (productId) params.set("productId", productId);
-      navigate(`/templates/use?${params.toString()}`);
-    }
+    if (isPicker) goToAssembly();
   };
 
   return (
@@ -71,7 +67,7 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: typeo
           handleClick();
         }
       } : undefined}
-      aria-label={modelo.name}
+      aria-label={modelo.title}
       className={cn(
         "group relative overflow-hidden rounded-[20px] bg-gradient-to-br from-surface-3 to-deep border border-white/5 transition-all focus-within:ring-2 focus-within:ring-brand-500/50 aspect-[9/16]",
         isPicker
@@ -81,7 +77,12 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: typeo
     >
       <video
         ref={videoRef}
-        src={modelo.video}
+        src={modelo.videoUrl}
+        poster={modelo.thumbnailUrl ?? undefined}
+        // Mesma URL é capturada via <canvas> em /templates/use. Sem crossOrigin aqui,
+        // o navegador cacheia a resposta em modo "no-cors" (sem headers CORS) e reusa
+        // essa cópia lá, "taintando" o canvas. Manter os dois loads em modo CORS.
+        crossOrigin="anonymous"
         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         muted
         loop
@@ -96,9 +97,16 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: typeo
         <Play className="size-12" />
       </div>
 
-      {modelo.categoria && (
+      {modelo.category && (
         <div className="absolute top-3 left-3 z-10 pointer-events-none rounded-full bg-[#0a0810]/50 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
-          {modelo.categoria}
+          {modelo.category}
+        </div>
+      )}
+
+      {modelo.owned && (
+        <div className="absolute top-3 right-3 z-10 pointer-events-none inline-flex items-center gap-1 rounded-full bg-brand-500/70 backdrop-blur-md border border-white/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+          <UserRound className="size-3" />
+          Seu vídeo
         </div>
       )}
 
@@ -106,13 +114,7 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: typeo
         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex flex-col gap-3">
           <Button
             className="w-full opacity-100 md:opacity-0 md:translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-300 shadow-lg"
-            onClick={() => {
-              const params = new URLSearchParams();
-              params.set("id", String(modelo.id));
-              params.set("video", modelo.video);
-              if (productId) params.set("productId", productId);
-              navigate(`/templates/use?${params.toString()}`);
-            }}
+            onClick={goToAssembly}
           >
             <Sparkles className="size-4 mr-2" />
             Utilizar modelo
@@ -125,10 +127,35 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: typeo
 
 export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, productId?: string }) {
   const [categoriaAtiva, setCategoriaAtiva] = useState("Todos");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
-  const modelosFiltrados = modelosPlaceholder.filter(
-    m => categoriaAtiva === "Todos" || m.categoria === categoriaAtiva
+  const { data: templates, isLoading } = useQuery({
+    queryKey: ["video-templates"],
+    queryFn: async () => {
+      const res = await listVideoTemplates();
+      return res.data as VideoTemplateSummary[];
+    },
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: (file: File) => uploadManualVideo(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["video-templates"] });
+      toast.success("Vídeo enviado! Ele aparece na sua galeria.");
+    },
+    onError: () => toast.error("Não foi possível enviar o vídeo. Tente outro arquivo."),
+  });
+
+  const modelosFiltrados = (templates ?? []).filter(
+    m => categoriaAtiva === "Todos" || m.category === categoriaAtiva
   );
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadMutation.mutate(file);
+    e.target.value = ""; // permite reenviar o mesmo arquivo
+  };
 
   return (
     <AppShell>
@@ -178,22 +205,37 @@ export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, 
               );
             })}
           </div>
-          <Button
-            onClick={() => {
-              // TODO: fluxo de upload manual de vídeo
-              console.log("Upload manual click");
-            }}
-          >
-            <Upload className="size-4 mr-2" />
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          <Button onClick={() => fileInputRef.current?.click()} disabled={uploadMutation.isPending}>
+            {uploadMutation.isPending ? (
+              <Loader2 className="size-4 mr-2 animate-spin" />
+            ) : (
+              <Upload className="size-4 mr-2" />
+            )}
             Upload manual
           </Button>
         </div>
 
-        <div className="grid gap-2.5 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
-          {modelosFiltrados.map((modelo) => (
-            <SharedVideoCard key={modelo.id} modelo={modelo} isPicker={isPicker} productId={productId} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="size-6 animate-spin text-brand-400" />
+          </div>
+        ) : modelosFiltrados.length === 0 ? (
+          <p className="text-center text-text-3 py-20">Nenhum modelo disponível nesta categoria.</p>
+        ) : (
+          <div className="grid gap-2.5 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+            {modelosFiltrados.map((modelo) => (
+              <SharedVideoCard key={modelo.slug} modelo={modelo} isPicker={isPicker} productId={productId} />
+            ))}
+          </div>
+        )}
       </Page>
     </AppShell>
   );

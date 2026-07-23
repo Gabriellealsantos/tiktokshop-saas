@@ -30,6 +30,10 @@ export const searchProducts = (params: ProductSearchParams = {}) =>
     },
   });
 
+/** GET /api/products/{id} — produto por id (usado na tela de montagem /templates/use). */
+export const getProductById = (id: number) =>
+  requestBackend({ method: "GET", url: `/api/products/${id}`, withCredentials: true });
+
 export const getFavorites = () =>
   requestBackend({ method: "GET", url: "/api/products/me/favorites", withCredentials: true });
 

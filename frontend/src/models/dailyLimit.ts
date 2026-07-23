@@ -1,4 +1,4 @@
-export type FlowType = "AVATAR" | "VIRAL_MODEL";
+export type FlowType = "AVATAR" | "VIRAL_MODEL" | "VIDEO_TEMPLATE";
 
 /** Espelha DailyLimitDTO do backend. */
 export interface DailyLimit {
@@ -19,6 +19,7 @@ export interface DailyLimitForm {
 export const flowTypeLabels: Record<FlowType, string> = {
   AVATAR: "Avatar",
   VIRAL_MODEL: "Trend Boost (viral)",
+  VIDEO_TEMPLATE: "Extrair movimento",
 };
 
 /** Limites do DTO: maxPerDay 0–100, maxRegenerations 0–20. */

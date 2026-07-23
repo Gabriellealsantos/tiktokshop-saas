@@ -1,0 +1,102 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Tipos do fluxo "Templates / Extrair movimento" (/api/video-templates + /api/templates).
+// Espelham os DTOs do backend em com.venyx.tiktokshop.dtos.VideoTemplate* / Swap* / VideoPrompt*.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Card da galeria — GET /api/video-templates. `owned` = vídeo privado (upload manual do usuário). */
+export interface VideoTemplateSummary {
+  slug: string;
+  title: string;
+  category: string | null;
+  thumbnailUrl: string | null;
+  videoUrl: string;
+  owned: boolean;
+}
+
+/** Modo de troca de roupa (casa com o backend ClothSwapMode). */
+export type ClothSwapMode = "completo" | "substituir" | "adicionar";
+
+/** POST /api/templates/swap-person */
+export interface SwapPersonRequest {
+  frameUrl: string;
+  avatarImageUrl: string;
+}
+
+/** POST /api/templates/swap-clothes */
+export interface SwapClothesRequest {
+  baseImageUrl: string;
+  productImageUrl: string;
+  mode: ClothSwapMode;
+}
+
+/** Resposta dos swaps — ImageGenerationDTO (aqui `imageUrl` traz a imagem gerada). */
+export interface ImageGenerationResult {
+  id: number;
+  parentId: number | null;
+  flowType: string;
+  status: string;
+  prompt: string | null;
+  imageUrl: string | null;
+  error: string | null;
+  createdAt: string;
+}
+
+/** POST /api/templates/prompt */
+export interface VideoPromptRequest {
+  templateSlug: string;
+  productId: number;
+  finalImageUrl?: string | null;
+  avatarImageUrl?: string | null;
+}
+
+/** POST /api/templates/prompt → texto Veo3 para o Google Flow. */
+export interface VideoPromptResponse {
+  prompt: string;
+}
+
+/** GET /api/templates/usage — cota diária do VIDEO_TEMPLATE (só os swaps consomem). */
+export interface TemplateUsage {
+  used: number;
+  max: number;
+  remaining: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin (/api/admin/video-templates) — cadastro dinâmico dos templates PÚBLICOS.
+// Espelham VideoTemplateAdminDTO/VideoTemplateFormDTO. Só o admin usa.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Visão administrativa completa (id, active, sortOrder e direção de prompt). */
+export interface VideoTemplateAdmin {
+  id: number;
+  slug: string;
+  title: string;
+  category: string | null;
+  thumbnailUrl: string | null;
+  videoUrl: string;
+  videoStyle: string | null;
+  objective: string | null;
+  tone: string | null;
+  energy: string | null;
+  duration: string | null;
+  motionInstruction: string | null;
+  active: boolean;
+  sortOrder: number;
+}
+
+/** POST /api/admin/video-templates e PUT /api/admin/video-templates/{id} */
+export interface VideoTemplateForm {
+  slug: string;
+  title: string;
+  category?: string | null;
+  thumbnailUrl?: string | null;
+  videoUrl: string;
+  videoStyle?: string | null;
+  objective?: string | null;
+  tone?: string | null;
+  energy?: string | null;
+  duration?: string | null;
+  motionInstruction?: string | null;
+  sortOrder?: number;
+  active?: boolean;
+}

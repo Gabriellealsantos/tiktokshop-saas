@@ -16,6 +16,10 @@ export function VideoModel({ videoUrl, videoRef }: VideoModelProps) {
             <video
               ref={videoRef}
               src={videoUrl}
+              // Sem isso, canvas.toBlob() falha (canvas "tainted") ao capturar o frame
+              // pra troca de pessoa — precisa também de CORS habilitado no bucket
+              // (ver ensureCorsConfigured em StorageConfig.java).
+              crossOrigin="anonymous"
               className="h-full w-full object-cover"
               autoPlay
               muted

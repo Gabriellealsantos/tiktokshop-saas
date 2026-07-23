@@ -1,32 +1,50 @@
 import { useState } from "react";
-import { Sparkles, Shirt } from "lucide-react";
+import { Sparkles, Shirt, Package, Loader2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/button";
 import { cn } from "@/utils/utils";
 import { AnimatePresence, motion } from "motion/react";
+import type { Product } from "@/models/product";
+import type { ClothSwapMode } from "@/models/videoTemplate";
 
-export function ClothSwapPanel({ isBlocked }: { isBlocked?: boolean }) {
-  const [activeTab, setActiveTab] = useState<"completo" | "substituir" | "adicionar">("completo");
+interface ClothSwapPanelProps {
+  isBlocked?: boolean;
+  produto?: Product | null;
+  onEscolherProduto: () => void;
+  onAplicar: (mode: ClothSwapMode) => void;
+  onManterLook?: () => void;
+  loading?: boolean;
+}
+
+export function ClothSwapPanel({
+  isBlocked,
+  produto,
+  onEscolherProduto,
+  onAplicar,
+  onManterLook,
+  loading,
+}: ClothSwapPanelProps) {
+  const [activeTab, setActiveTab] = useState<ClothSwapMode>("completo");
   const [imgError, setImgError] = useState(false);
 
-  const OPCOES = [
-    { value: "completo",   label: "Look completo" },
+  const OPCOES: { value: ClothSwapMode; label: string }[] = [
+    { value: "completo", label: "Look completo" },
     { value: "substituir", label: "Substituir peça" },
-    { value: "adicionar",  label: "Adicionar peça" },
-  ] as const;
+    { value: "adicionar", label: "Adicionar peça" },
+  ];
 
   return (
     <div className="flex flex-col gap-3">
       <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase pl-1 drop-shadow-sm">Etapa 3 &middot; Troca de roupa</span>
       <span className="text-xs text-white/50 pl-1 mb-1">Substitua, adicione ou mantenha o look.</span>
-      
+
       <div className={cn(
         "group relative rounded-[24px] bg-surface-2/60 border border-white/5 backdrop-blur-xl flex flex-col p-6 shadow-2xl ring-1 ring-white/5 transition-all duration-500",
         isBlocked ? "opacity-50" : "opacity-100"
       )}>
-        
+
         <AnimatePresence mode="wait">
           {isBlocked ? (
-            <motion.div 
+            <motion.div
               key="blocked"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -83,41 +101,64 @@ export function ClothSwapPanel({ isBlocked }: { isBlocked?: boolean }) {
                 </p>
               </div>
 
-              {/* Referência do Produto */}
+              {/* Referência do Produto — clicável (escolher/trocar) */}
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] font-bold tracking-widest text-white/50 uppercase drop-shadow-sm">Referência do Produto</span>
-                
-                <div className="flex items-center gap-4 p-3 rounded-[16px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.05] transition-colors group cursor-default">
+
+                <button
+                  type="button"
+                  onClick={onEscolherProduto}
+                  className="flex items-center gap-4 p-3 rounded-[16px] bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-brand-500/40 transition-all group/prod text-left outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                >
                   <div className="size-16 rounded-[10px] overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative flex items-center justify-center">
-                    {!imgError ? (
-                      <img src="/blazer-masc.png" alt="Produto" className="w-full h-full object-cover opacity-80" onError={() => setImgError(true)} />
+                    {produto?.image && !imgError ? (
+                      <img src={produto.image} alt={produto.name} className="w-full h-full object-cover" onError={() => setImgError(true)} />
                     ) : (
-                      <Shirt className="size-6 text-white/20" />
+                      <Package className="size-6 text-white/20" />
                     )}
                   </div>
                   <div className="flex flex-col min-w-0 flex-1">
-                    <span className="text-white font-semibold text-sm truncate" title="Blazer Alfaiataria Premium">Blazer Alfaiataria Premium</span>
-                    <span className="text-white/50 text-xs truncate mt-0.5 font-mono no-underline">ID: 1029384756</span>
+                    {produto ? (
+                      <>
+                        <span className="text-white font-semibold text-sm truncate" title={produto.name}>{produto.name}</span>
+                        <span className="text-white/50 text-xs truncate mt-0.5 font-mono">ID: {produto.id}</span>
+                        <span className="text-brand-400 text-[11px] font-medium mt-0.5">Trocar produto</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-white font-semibold text-sm">Escolher produto</span>
+                        <span className="text-white/40 text-xs mt-0.5">Selecione um produto do catálogo</span>
+                      </>
+                    )}
                   </div>
-                </div>
+                  <ChevronRight className="size-4 text-white/30 group-hover/prod:text-white/60 transition-colors flex-shrink-0" />
+                </button>
               </div>
 
               {/* Ações */}
               <div className="flex flex-col gap-4 mt-8 pt-6 border-t border-white/10">
-                <Button 
-                  className="w-full btn-3d-primary h-12 rounded-[14px] text-sm font-semibold transition-all group"
-                  onClick={() => { /* TODO: Integrar ação real */ }}
+                <Button
+                  className="w-full btn-3d-primary h-12 rounded-[14px] text-sm font-semibold transition-all group/btn disabled:opacity-50"
+                  disabled={!produto || loading}
+                  onClick={() => onAplicar(activeTab)}
                 >
-                  <Sparkles className="size-4 mr-2 group-hover:rotate-12 transition-transform" />
+                  {loading ? (
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="size-4 mr-2 group-hover/btn:rotate-12 transition-transform" />
+                  )}
                   Aplicar troca
                 </Button>
-                
-                <button 
-                  className="text-xs text-white/40 hover:text-white/80 font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-sm"
-                  onClick={() => { /* TODO */ }}
-                >
-                  Manter look atual
-                </button>
+
+                {onManterLook && (
+                  <button
+                    type="button"
+                    className="text-xs text-white/40 hover:text-white/80 font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-sm"
+                    onClick={onManterLook}
+                  >
+                    Manter look atual
+                  </button>
+                )}
               </div>
             </motion.div>
           )}

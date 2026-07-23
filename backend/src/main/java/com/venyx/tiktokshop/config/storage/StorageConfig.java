@@ -10,12 +10,17 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.model.CORSConfiguration;
+import software.amazon.awssdk.services.s3.model.CORSRule;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.PutBucketCorsRequest;
 import software.amazon.awssdk.services.s3.model.PutBucketPolicyRequest;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Cliente S3, compatível tanto com MinIO local (endpoint customizado +
@@ -41,6 +46,9 @@ public class StorageConfig {
 
     @Value("${aws.s3.endpoint:}")
     private String endpoint;
+
+    @Value("${cors.origins}")
+    private String corsOrigins;
 
     @Bean
     public S3Client s3Client() {
@@ -86,6 +94,13 @@ public class StorageConfig {
         if (endpoint != null && !endpoint.isBlank()) {
             ensurePublicReadPolicy(client);
         }
+
+        // Necessário em qualquer ambiente: sem CORS na resposta do S3/MinIO, o navegador
+        // recusa ler pixels de <video>/<img> cross-origin via <canvas> (fica "tainted"),
+        // mesmo com o elemento marcado crossOrigin="anonymous" — é o que quebra a captura
+        // de frame em /templates/use. A bucket policy pública (acima) resolve só o GET
+        // em si, não esse caso de leitura de pixels.
+        ensureCorsConfigured(client);
     }
 
     private void ensurePublicReadPolicy(S3Client client) {
@@ -110,6 +125,36 @@ public class StorageConfig {
             log.info("Policy de leitura pública aplicada ao bucket '{}' (MinIO local).", bucket);
         } catch (Exception e) {
             log.warn("Não foi possível aplicar policy pública ao bucket '{}': {}", bucket, e.getMessage());
+        }
+    }
+
+    /**
+     * Best-effort: sem essa configuração, capturas de frame via <canvas> (ex.: fluxo
+     * /templates/use) ficam com o canvas "tainted" e toBlob()/toDataURL() falham, mesmo
+     * com o bucket lendo publicamente. Se a credencial não tiver permissão s3:PutBucketCORS
+     * (comum em prod, gerenciado pela infra), só loga o aviso — não derruba o boot.
+     */
+    private void ensureCorsConfigured(S3Client client) {
+        try {
+            List<String> allowedOrigins = Arrays.stream(corsOrigins.split(","))
+                    .map(String::trim)
+                    .filter(o -> !o.isBlank())
+                    .toList();
+
+            CORSRule rule = CORSRule.builder()
+                    .allowedMethods("GET", "HEAD")
+                    .allowedHeaders("*")
+                    .allowedOrigins(allowedOrigins)
+                    .exposeHeaders("ETag")
+                    .build();
+
+            client.putBucketCors(PutBucketCorsRequest.builder()
+                    .bucket(bucket)
+                    .corsConfiguration(CORSConfiguration.builder().corsRules(rule).build())
+                    .build());
+            log.info("CORS configurado no bucket '{}' para origens: {}", bucket, allowedOrigins);
+        } catch (Exception e) {
+            log.warn("Não foi possível configurar CORS no bucket '{}': {}", bucket, e.getMessage());
         }
     }
 }

@@ -98,8 +98,9 @@ public class GeminiImageProvider  implements ImageProvider {
         List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of("type", "text", "text", request.prompt()));
 
-        if (request.referenceImageUrl() != null && !request.referenceImageUrl().isBlank()) {
-            byte[] reference = downloadReference(request.referenceImageUrl());
+        // Ordem preservada: image 1, image 2, ... conforme a lista de referências.
+        for (String url : request.referenceImageUrls()) {
+            byte[] reference = downloadReference(url);
             input.add(Map.of(
                     "type", "image",
                     "mime_type", "image/png",

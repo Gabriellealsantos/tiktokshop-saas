@@ -12,6 +12,7 @@ import { LiveSalesTab } from "./components/live-sales-tab";
 import { NotificationSoundTab } from "./components/notification-sound-tab";
 import { CategoriesTab } from "./components/categories-tab";
 import { ViralTab } from "./components/viral-tab";
+import { VideoTemplatesTab } from "./components/video-templates-tab";
 import { LimitsTab } from "./components/limits-tab";
 import { UsersTab } from "./components/users-tab";
 
@@ -49,7 +50,7 @@ export default function AdminScreen() {
         </div>
 
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide entrance">
-          {["Usuários", "Categorias", "Trend Boost", "Limites", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações"].map((x) => (
+          {["Usuários", "Categorias", "Trend Boost", "Modelos de Vídeo", "Limites", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações"].map((x) => (
             <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
               {x}
             </Pill>
@@ -59,6 +60,7 @@ export default function AdminScreen() {
         {tab === "Usuários" && <UsersTab pendingCount={pendingCount} onPendingCountChange={setPendingCount} />}
         {tab === "Categorias" && <CategoriesTab />}
         {tab === "Trend Boost" && <ViralTab />}
+        {tab === "Modelos de Vídeo" && <VideoTemplatesTab />}
         {tab === "Limites" && <LimitsTab />}
         {tab === "Métricas" && <MetricsTab />}
         {tab === "Tendências" && <InsightsTab />}

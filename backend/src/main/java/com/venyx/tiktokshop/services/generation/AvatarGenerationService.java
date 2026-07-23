@@ -99,7 +99,7 @@ public class AvatarGenerationService {
 
         try {
             ImageProviderResult result = imageProvider.generate(
-                    new ImageProviderRequest(prompt, referenceImageUrl));
+                    ImageProviderRequest.of(prompt, referenceImageUrl));
 
             String folder = AVATAR_FOLDER + "/" + user.getUuid();
             job.setImageUrl(storageService.uploadWithRetry(result.content(), result.mimeType(), folder));
