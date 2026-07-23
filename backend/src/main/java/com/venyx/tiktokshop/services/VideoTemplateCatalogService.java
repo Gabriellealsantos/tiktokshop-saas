@@ -3,14 +3,13 @@ package com.venyx.tiktokshop.services;
 import com.venyx.tiktokshop.dtos.VideoTemplateAdminDTO;
 import com.venyx.tiktokshop.dtos.VideoTemplateFormDTO;
 import com.venyx.tiktokshop.dtos.VideoTemplateSummaryDTO;
-import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.entities.VideoTemplate;
+import com.venyx.tiktokshop.entities.enums.VideoAudioMode;
 import com.venyx.tiktokshop.repositories.VideoTemplateRepository;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,23 +17,20 @@ import java.util.UUID;
 /**
  * Catálogo de templates de vídeo (fluxo de extração de movimento).
  *
- * <p>Leitura: o usuário vê os públicos (curados pelo admin) + os privados dele próprio
- * (upload manual). CRUD administrativo opera apenas nos públicos (sem dono).
+ * <p>Leitura: o usuário vê os públicos (curados pelo admin) + os privados dele próprio.
+ * CRUD administrativo opera apenas nos públicos (sem dono). O script de movimento é
+ * cadastrado à mão pelo admin no {@code motionInstruction} do formulário — não há mais
+ * análise automática de vídeo.
  */
 @Service
 public class VideoTemplateCatalogService {
 
-    private static final String MANUAL_UPLOAD_FOLDER = "video-templates";
-
     private final VideoTemplateRepository repository;
-    private final StorageService storageService;
     private final AuthService authService;
 
     public VideoTemplateCatalogService(VideoTemplateRepository repository,
-                                       StorageService storageService,
                                        AuthService authService) {
         this.repository = repository;
-        this.storageService = storageService;
         this.authService = authService;
     }
 
@@ -72,33 +68,6 @@ public class VideoTemplateCatalogService {
             throw new ResourceNotFoundException("Template de vídeo não encontrado: " + slug);
         }
         return template;
-    }
-
-    // -------------------------------------------------- upload manual (privado)
-
-    /** Upload manual do usuário: sobe o vídeo e persiste um template PRIVADO (dono = usuário). */
-    @Transactional
-    public VideoTemplateSummaryDTO uploadManual(MultipartFile file) {
-        User user = authService.authenticated();
-        String url = storageService.uploadVideo(file, MANUAL_UPLOAD_FOLDER + "/" + user.getUuid());
-
-        VideoTemplate template = new VideoTemplate();
-        template.setOwner(user);
-        template.setSlug("u-" + UUID.randomUUID().toString().substring(0, 8));
-        template.setTitle(resolveTitle(file));
-        template.setVideoUrl(url);
-        template.setActive(true);
-        return new VideoTemplateSummaryDTO(repository.save(template));
-    }
-
-    private String resolveTitle(MultipartFile file) {
-        String name = file.getOriginalFilename();
-        if (name == null || name.isBlank()) {
-            return "Meu vídeo";
-        }
-        int dot = name.lastIndexOf('.');
-        String base = (dot > 0 ? name.substring(0, dot) : name).trim();
-        return base.isBlank() ? "Meu vídeo" : base;
     }
 
     // -------------------------------------------------------- admin (públicos)
@@ -158,6 +127,7 @@ public class VideoTemplateCatalogService {
         template.setEnergy(form.energy());
         template.setDuration(form.duration());
         template.setMotionInstruction(form.motionInstruction());
+        template.setAudioMode(VideoAudioMode.fromValue(form.audioMode()));
         template.setSortOrder(form.sortOrder() == null ? 0 : form.sortOrder());
         template.setActive(form.active() == null || form.active());
     }

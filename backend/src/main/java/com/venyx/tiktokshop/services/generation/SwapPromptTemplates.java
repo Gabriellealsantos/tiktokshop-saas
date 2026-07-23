@@ -38,10 +38,21 @@ final class SwapPromptTemplates {
             """;
 
     private static final String CLOTHES_CONTRACT = """
+            Keep the person's face, facial features, skin tone, hair and identity from image 1
+            EXACTLY unchanged — do NOT alter, morph, beautify, restyle, age or swap the face.
+            Only the clothing changes; the person stays identical to image 1. The face in the
+            result must be the same person as in image 1.
+            Preserve the person's exact body proportions and head-to-body ratio, and their size,
+            scale and position within the frame, plus the camera framing and distance from
+            image 1 — do NOT resize the head, zoom, crop or re-frame. The head must stay the
+            same size relative to the body as in image 1.
+            Take from image 2 ONLY the garment's design (shape, color, print, details); IGNORE
+            image 2's scale, cropping and body proportions.
             The product's shape, color, print and details must match image 2 faithfully.
             Preserve photorealism and natural fabric behavior.
-            Avoid: deformed or extra fingers and hands, warped faces, on-screen text, captions,
-            watermarks, logos, distorted anatomy, plastic AI look.
+            Avoid: deformed or extra fingers and hands, warped faces, changed facial identity,
+            a different-looking person, oversized or enlarged head, wrong body proportions,
+            on-screen text, captions, watermarks, logos, distorted anatomy, plastic AI look.
             """;
 
     static String clothes(ClothSwapMode mode) {

@@ -42,6 +42,24 @@ Use natural English.
 
 Avoid unnecessary adjectives.
 
+---
+
+# Spoken / In-Video Audio Language
+
+This is separate from the language of the prompt above.
+
+The prompt TEXT is written in English, but the language SPOKEN inside the
+generated video is different:
+
+Any dialogue, voiceover, narration or spoken line performed in the video must
+be in Brazilian Portuguese (pt-BR).
+
+Never make the on-screen character speak English.
+
+State this explicitly in the prompt (e.g. "all spoken dialogue and voiceover
+are in Brazilian Portuguese (pt-BR)"), so the video model does not default to
+English audio.
+
 Be direct.
 
 Be descriptive.

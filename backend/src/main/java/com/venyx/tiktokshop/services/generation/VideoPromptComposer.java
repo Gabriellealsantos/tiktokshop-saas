@@ -2,6 +2,7 @@ package com.venyx.tiktokshop.services.generation;
 
 import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.VideoTemplate;
+import com.venyx.tiktokshop.entities.enums.VideoAudioMode;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -45,12 +46,105 @@ public class VideoPromptComposer {
     /** Instrução completa enviada ao TextProvider para gerar UM prompt Veo3. */
     public String compose(VideoTemplate template, Product product) {
         String filledMaster = fillMaster(loadMaster(), template, product);
-        String motion = firstNonBlank(template.getMotionInstruction(), DEFAULT_MOTION);
 
         return loadKnowledge()
                 + "\n\n---\n\n" + filledMaster
-                + "\n\n---\n## MOTION REFERENCE (replicate this movement)\n" + motion.trim() + "\n";
+                + MOTION_HANDOFF
+                + IDENTITY_DIRECTIVE
+                + resolveAudioDirective(template.getAudioMode());
     }
+
+    /**
+     * Diretriz de áudio dependente do modo curado pelo admin (fora do LLM, no fim do prompt,
+     * alta saliência). NARRACAO mantém o comportamento comercial falado; MUSICA e SILENCIO
+     * DESLIGAM a fala — precisam sobrepor explicitamente o default da base de conhecimento,
+     * que sempre pede diálogo/voiceover/CTA falado. null → NARRACAO (retrocompatível).
+     */
+    private String resolveAudioDirective(VideoAudioMode mode) {
+        VideoAudioMode resolved = mode == null ? VideoAudioMode.NARRACAO : mode;
+        return switch (resolved) {
+            case NARRACAO -> AUDIO_NARRACAO;
+            case MUSICA -> AUDIO_MUSICA;
+            case SILENCIO -> AUDIO_SILENCIO;
+        };
+    }
+
+    /**
+     * Script de movimento a anexar VERBATIM no prompt final (fora do LLM): o texto extraído do
+     * vídeo pelo analyzer (timestamped), ou o {@link #DEFAULT_MOTION} para templates sem vídeo.
+     */
+    public String resolveMotion(VideoTemplate template) {
+        return firstNonBlank(template.getMotionInstruction(), DEFAULT_MOTION).trim();
+    }
+
+    /**
+     * Handoff de movimento: o LLM que escreve o prompt final NÃO pode descrever/parafrasear a
+     * coreografia — na prática ele resume e perde os timestamps do script. O script exato é
+     * anexado depois, direto na saída ({@code VideoTemplatePromptService.appendMotionScript}).
+     * Aqui só instruímos o LLM a montar cena/roupa/identidade/luz/câmera/áudio/CTA e delegar
+     * o movimento ao script anexado.
+     */
+    private static final String MOTION_HANDOFF =
+            "\n---\n## BODY MOVEMENT (do NOT write it here)\n"
+                    + "Do NOT describe, invent, summarize or paraphrase the subject's body movement, "
+                    + "dance steps, gestures or choreography. A precise, timestamped MOTION SCRIPT is "
+                    + "authoritative and will be appended verbatim AFTER your output. Your prompt must set "
+                    + "up scene, wardrobe, product, avatar identity, lighting, camera framing, spoken audio "
+                    + "and CTA, and simply state that the avatar performs the movement exactly as written in "
+                    + "the MOTION SCRIPT that follows. Leave all choreography to that appended script.\n";
+
+    /**
+     * Preservação de identidade (crítico): a avatar é a imagem de referência e o rosto/identidade
+     * dela NÃO pode mudar. O MOTION SCRIPT descreve só o MOVIMENTO do vídeo de referência —
+     * nunca a aparência da pessoa desse vídeo — então o modelo aplica o movimento mantendo o rosto
+     * da avatar. Anexado no fim (alta saliência) para o LLM não deixar isso implícito no prompt final.
+     */
+    private static final String IDENTITY_DIRECTIVE =
+            "\n---\n## AVATAR IDENTITY (must be preserved)\n"
+                    + "The avatar's face, facial features, skin tone, hair and overall identity come "
+                    + "ONLY from the avatar reference image and MUST be preserved exactly and consistently "
+                    + "across the whole video. Do NOT alter, morph, beautify, age, or swap the face, and do "
+                    + "NOT copy the face or appearance of any person from the reference/performance video — "
+                    + "that reference contributes ONLY action and energy, never identity. State this face-"
+                    + "preservation requirement explicitly in the final prompt.\n";
+
+    /**
+     * Modo NARRACAO (padrão comercial): o texto do prompt fica em inglês, mas a FALA dentro
+     * do vídeo tem que ser pt-BR. Sem isso o Veo3 fala inglês por padrão. Reforça a regra da
+     * base de conhecimento (12-output-rules.md) num ponto de alta atenção.
+     */
+    private static final String AUDIO_NARRACAO =
+            "\n---\n## AUDIO / SPOKEN LANGUAGE\n"
+                    + "The prompt text stays in English, but ALL spoken audio in the video "
+                    + "(dialogue, voiceover, narration) must be in Brazilian Portuguese (pt-BR). "
+                    + "The on-screen character never speaks English. Make this explicit in the final prompt.\n";
+
+    /**
+     * Modo MUSICA: vídeo SEM fala (ex.: dancinha mostrando o produto). Precisa sobrepor
+     * explicitamente o default falado da base de conhecimento — por isso manda ignorar
+     * qualquer regra acima que peça diálogo/CTA falado. Áudio = música/trilha em alta.
+     */
+    private static final String AUDIO_MUSICA =
+            "\n---\n## AUDIO (music, NO speech)\n"
+                    + "This video has NO spoken dialogue, voiceover or narration — the on-screen "
+                    + "character does NOT speak at all. Override and IGNORE any rule above that asks "
+                    + "for spoken dialogue, voiceover or a spoken call-to-action. The audio is upbeat, "
+                    + "trending background music that fits a short vertical social clip. Any call-to-"
+                    + "action is VISUAL only (on-screen text or a natural gesture toward the product), "
+                    + "never spoken. Make this explicit in the final prompt.\n";
+
+    /**
+     * Modo SILENCIO: também SEM fala, mas sem impor trilha — deixa o Veo escolher o som
+     * ambiente natural. Mesmo override do modo música quanto a não falar.
+     */
+    private static final String AUDIO_SILENCIO =
+            "\n---\n## AUDIO (natural ambient, NO speech)\n"
+                    + "This video has NO spoken dialogue, voiceover or narration — the on-screen "
+                    + "character does NOT speak at all. Override and IGNORE any rule above that asks "
+                    + "for spoken dialogue, voiceover or a spoken call-to-action. Use natural, subtle "
+                    + "ambient sound only (no forced music); let the scene's own audio carry it. Any "
+                    + "call-to-action is VISUAL only (on-screen text or a natural gesture toward the "
+                    + "product), never spoken. Make this explicit in the final prompt.\n";
 
     private String fillMaster(String body, VideoTemplate template, Product product) {
         String category = product.getCategory() != null ? product.getCategory().getName() : null;

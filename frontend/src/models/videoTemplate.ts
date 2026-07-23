@@ -16,6 +16,9 @@ export interface VideoTemplateSummary {
 /** Modo de troca de roupa (casa com o backend ClothSwapMode). */
 export type ClothSwapMode = "completo" | "substituir" | "adicionar";
 
+/** Camada de áudio/fala do prompt gerado (casa com o backend VideoAudioMode). */
+export type VideoAudioMode = "NARRACAO" | "MUSICA" | "SILENCIO";
+
 /** POST /api/templates/swap-person */
 export interface SwapPersonRequest {
   frameUrl: string;
@@ -80,6 +83,7 @@ export interface VideoTemplateAdmin {
   energy: string | null;
   duration: string | null;
   motionInstruction: string | null;
+  audioMode: VideoAudioMode;
   active: boolean;
   sortOrder: number;
 }
@@ -97,6 +101,7 @@ export interface VideoTemplateForm {
   energy?: string | null;
   duration?: string | null;
   motionInstruction?: string | null;
+  audioMode?: VideoAudioMode;
   sortOrder?: number;
   active?: boolean;
 }

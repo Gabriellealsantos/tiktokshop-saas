@@ -12,10 +12,20 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     boolean existsByCategoryId(Long categoryId);
+
+    /**
+     * Carrega o produto já com a {@code category} inicializada (eager via join fetch).
+     * Usado na geração de prompt, que roda FORA de transação e acessa
+     * {@code product.getCategory().getName()} no composer — sem o fetch, dá
+     * {@code LazyInitializationException} (proxy sem sessão).
+     */
+    @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.id = :id")
+    Optional<Product> findByIdWithCategory(@Param("id") Long id);
 
     List<Product> findByCategoryOrderByRankPositionAsc(Category category);
 

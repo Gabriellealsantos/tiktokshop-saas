@@ -15,6 +15,7 @@ public record VideoTemplateFormDTO(
         String energy,
         String duration,
         String motionInstruction,
+        String audioMode,
         Integer sortOrder,
         Boolean active
 ) {

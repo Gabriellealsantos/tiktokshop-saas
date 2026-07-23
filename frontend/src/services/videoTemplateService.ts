@@ -23,19 +23,6 @@ export const listVideoTemplates = (category?: string) =>
     withCredentials: true,
   });
 
-/** POST /api/video-templates/upload — upload manual (multipart) → template PRIVADO do usuário. */
-export const uploadManualVideo = (file: File) => {
-  const data = new FormData();
-  data.append("file", file);
-  return requestBackend({
-    method: "POST",
-    url: "/api/video-templates/upload",
-    data,
-    withCredentials: true,
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-};
-
 // Geração (/api/templates)
 
 /** POST /api/templates/frame — sobe o frame capturado (canvas) → { url }. */

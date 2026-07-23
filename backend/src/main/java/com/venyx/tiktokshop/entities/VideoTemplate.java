@@ -1,5 +1,6 @@
 package com.venyx.tiktokshop.entities;
 
+import com.venyx.tiktokshop.entities.enums.VideoAudioMode;
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -62,6 +63,11 @@ public class VideoTemplate {
 
     @Column(name = "motion_instruction", columnDefinition = "TEXT")
     private String motionInstruction;
+
+    /** Camada de áudio/fala do prompt gerado (narração falada / música / silêncio). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "audio_mode", nullable = false, length = 20)
+    private VideoAudioMode audioMode = VideoAudioMode.NARRACAO;
 
     @Column(nullable = false)
     private boolean active = true;
@@ -185,6 +191,14 @@ public class VideoTemplate {
 
     public void setMotionInstruction(String motionInstruction) {
         this.motionInstruction = motionInstruction;
+    }
+
+    public VideoAudioMode getAudioMode() {
+        return audioMode;
+    }
+
+    public void setAudioMode(VideoAudioMode audioMode) {
+        this.audioMode = audioMode;
     }
 
     public boolean isActive() {

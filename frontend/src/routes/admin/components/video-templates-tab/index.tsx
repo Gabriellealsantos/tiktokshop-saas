@@ -8,7 +8,7 @@ import {
   Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
   Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Textarea,
 } from "@/components";
-import type { VideoTemplateAdmin, VideoTemplateForm } from "@/models/videoTemplate";
+import type { VideoAudioMode, VideoTemplateAdmin, VideoTemplateForm } from "@/models/videoTemplate";
 import {
   createVideoTemplate, deleteVideoTemplate, listAdminVideoTemplates, updateVideoTemplate,
 } from "@/services/videoTemplateService";
@@ -22,8 +22,15 @@ const SEM_CATEGORIA = "__none__";
 const emptyForm = (): VideoTemplateForm => ({
   slug: "", title: "", category: null, thumbnailUrl: "", videoUrl: "",
   videoStyle: "", objective: "", tone: "", energy: "", duration: "",
-  motionInstruction: "", sortOrder: 0, active: true,
+  motionInstruction: "", audioMode: "NARRACAO", sortOrder: 0, active: true,
 });
+
+/** Opções do dropdown de áudio/fala (casa com o enum VideoAudioMode do backend). */
+const AUDIO_MODES: { value: VideoAudioMode; label: string; hint: string }[] = [
+  { value: "NARRACAO", label: "Narração — personagem fala (pt-BR)", hint: "Diálogo, voiceover e CTA falado em português. Comportamento padrão." },
+  { value: "MUSICA", label: "Música — sem fala", hint: "Sem diálogo; trilha/áudio em alta. CTA só visual." },
+  { value: "SILENCIO", label: "Silêncio — sem fala", hint: "Sem diálogo; som ambiente natural. CTA só visual." },
+];
 
 export function VideoTemplatesTab() {
   const [items, setItems] = useState<VideoTemplateAdmin[]>([]);
@@ -63,7 +70,8 @@ export function VideoTemplatesTab() {
       thumbnailUrl: item.thumbnailUrl ?? "", videoUrl: item.videoUrl,
       videoStyle: item.videoStyle ?? "", objective: item.objective ?? "",
       tone: item.tone ?? "", energy: item.energy ?? "", duration: item.duration ?? "",
-      motionInstruction: item.motionInstruction ?? "", sortOrder: item.sortOrder, active: item.active,
+      motionInstruction: item.motionInstruction ?? "", audioMode: item.audioMode ?? "NARRACAO",
+      sortOrder: item.sortOrder, active: item.active,
     });
     setDialogOpen(true);
   };
@@ -253,12 +261,32 @@ export function VideoTemplatesTab() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Instrução de movimento</Label>
+              <Label className="text-xs text-zinc-400">Áudio / fala</Label>
+              <Select
+                value={form.audioMode ?? "NARRACAO"}
+                onValueChange={(v) => setForm((p) => ({ ...p, audioMode: v as VideoAudioMode }))}
+              >
+                <SelectTrigger className="h-9 bg-black/40 border-white/10 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
+                  {AUDIO_MODES.map((m) => (
+                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-zinc-500">
+                {AUDIO_MODES.find((m) => m.value === (form.audioMode ?? "NARRACAO"))?.hint}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">Script de movimento (timestamped)</Label>
               <Textarea
                 value={form.motionInstruction ?? ""}
                 onChange={(e) => setForm((p) => ({ ...p, motionInstruction: e.target.value }))}
-                placeholder="Descreva o movimento de câmera e da cena para orientar o prompt Veo3 gerado a partir deste modelo."
-                className="min-h-[100px] font-mono text-xs bg-black/40 border-white/10"
+                placeholder={"Cole aqui o script de movimento COMPLETO, batida por batida com timestamps — a IA de vídeo segue exatamente este texto.\nEx.: 0.0s–0.8s: a pessoa olha para a câmera e sorri...\n0.8s–1.8s: gira o corpo levemente e ergue o produto na altura do peito...\n\nDeixe vazio para usar um movimento genérico padrão."}
+                className="min-h-40 font-mono text-xs bg-black/40 border-white/10"
               />
             </div>
 

@@ -49,6 +49,7 @@ public class ViralPromptComposer {
             Camera: shot size and movement (e.g. medium close-up, slow push-in, handheld) + lens feel
             Lighting: quality, direction and color (e.g. soft warm key light, moody rim light)
             Dialogue: "<mantenha a fala EXATAMENTE em português do Brasil, sem traduzir>"
+            Audio: all spoken dialogue and voiceover are in Brazilian Portuguese (pt-BR); the character never speaks English, never translate the speech.
             Style: cinematic, 4k, hyper-detailed, vertical 9:16, tiktok viral short, natural realistic motion
             Avoid: deformed or extra fingers and hands, warped faces, on-screen text, captions,
             subtitles, watermarks, logos, distorted anatomy, flickering, plastic AI look, unnatural motion.

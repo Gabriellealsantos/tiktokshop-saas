@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Play, Film, Upload, Loader2, UserRound } from "lucide-react";
+import { Sparkles, Play, Film, Settings, Loader2, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import { Page, PageHeader } from "./page";
 import { Button } from "./button";
 import { AppShell } from "@/layouts/app-shell";
 import { cn } from "@/utils/utils";
-import { listVideoTemplates, uploadManualVideo } from "@/services/videoTemplateService";
+import { useAuth } from "@/context/auth";
+import { listVideoTemplates } from "@/services/videoTemplateService";
 import type { VideoTemplateSummary } from "@/models/videoTemplate";
 
 const CATEGORIAS = ["Todos", "Moda", "UGC", "Beleza"];
@@ -127,8 +127,8 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: Video
 
 export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, productId?: string }) {
   const [categoriaAtiva, setCategoriaAtiva] = useState("Todos");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const { data: templates, isLoading } = useQuery({
     queryKey: ["video-templates"],
@@ -138,24 +138,9 @@ export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, 
     },
   });
 
-  const uploadMutation = useMutation({
-    mutationFn: (file: File) => uploadManualVideo(file),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["video-templates"] });
-      toast.success("Vídeo enviado! Ele aparece na sua galeria.");
-    },
-    onError: () => toast.error("Não foi possível enviar o vídeo. Tente outro arquivo."),
-  });
-
   const modelosFiltrados = (templates ?? []).filter(
     m => categoriaAtiva === "Todos" || m.category === categoriaAtiva
   );
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadMutation.mutate(file);
-    e.target.value = ""; // permite reenviar o mesmo arquivo
-  };
 
   return (
     <AppShell>
@@ -206,21 +191,12 @@ export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, 
             })}
           </div>
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="video/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <Button onClick={() => fileInputRef.current?.click()} disabled={uploadMutation.isPending}>
-            {uploadMutation.isPending ? (
-              <Loader2 className="size-4 mr-2 animate-spin" />
-            ) : (
-              <Upload className="size-4 mr-2" />
-            )}
-            Upload manual
-          </Button>
+          {isAdmin && (
+            <Button variant="outline" onClick={() => navigate("/admin")}>
+              <Settings className="size-4 mr-2" />
+              Gerenciar no Admin
+            </Button>
+          )}
         </div>
 
         {isLoading ? (

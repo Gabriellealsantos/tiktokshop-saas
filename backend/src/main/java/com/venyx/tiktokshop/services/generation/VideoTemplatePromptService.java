@@ -8,13 +8,15 @@ import com.venyx.tiktokshop.repositories.ProductRepository;
 import com.venyx.tiktokshop.services.VideoTemplateCatalogService;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Fase 5: gera o prompt Veo3 (texto) a partir do template de vídeo + produto, via prompt-engine.
  *
- * <p>Transformação stateless: não persiste nem consome cota (o recurso caro — imagens — é gasto
- * nos swaps do {@link VideoTemplateImageService}). Retorna apenas o texto para o Google Flow.
+ * <p>Não consome cota (o recurso caro — imagens — é gasto nos swaps do
+ * {@link VideoTemplateImageService}). O script de movimento (coluna {@code motion_instruction})
+ * é curadoria manual do admin: o time escreve/cadastra o script timestamped por template. Se o
+ * template não tiver script, o {@link VideoPromptComposer#resolveMotion} cai no motion default
+ * genérico. Não há mais análise automática de vídeo — o texto vem 100% do que o admin cadastrou.
  */
 @Service
 public class VideoTemplatePromptService {
@@ -34,15 +36,42 @@ public class VideoTemplatePromptService {
         this.textProvider = textProvider;
     }
 
-    @Transactional(readOnly = true)
     public VideoPromptResponseDTO generate(VideoPromptRequestDTO req) {
         VideoTemplate template = catalog.requireVisible(req.templateSlug());
-        Product product = productRepository.findById(req.productId())
+        Product product = productRepository.findByIdWithCategory(req.productId())
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + req.productId()));
 
         String instruction = composer.compose(template, product);
         TextProviderResult result = textProvider.generate(new TextProviderRequest(instruction, false));
 
-        return new VideoPromptResponseDTO(result.text().trim());
+        String prompt = appendMotionScript(result.text().trim(), composer.resolveMotion(template));
+        return new VideoPromptResponseDTO(withFaceLock(prompt));
+    }
+
+    /**
+     * Anexa o SCRIPT DE MOVIMENTO exato (timestamped) direto na saída, SEM passar pelo LLM.
+     * O LLM foi instruído a não descrever movimento justamente porque, ao receber o script, ele
+     * resume e parafraseia — perdendo os timestamps (visto na prática). Determinístico como o
+     * {@link #withFaceLock}: garante que o prompt final carregue a coreografia beat-by-beat
+     * verbatim, exatamente como o analyzer extraiu do vídeo com o MD de análise.
+     */
+    private String appendMotionScript(String prompt, String motion) {
+        return prompt
+                + "\n\n## MOTION SCRIPT — the avatar performs EXACTLY this movement, beat by beat, "
+                + "with these exact timings; do not deviate from, add to, or skip any beat:\n"
+                + motion;
+    }
+
+    /**
+     * Garantia determinística de preservação de rosto no PROMPT FINAL (o texto que o usuário
+     * cola no Veo). O composer já INSTRUI o LLM a incluir isso, mas a instrução depende do
+     * modelo obedecer — se ele resumir e cortar a linha, o prompt sairia sem a trava. Como
+     * preservar o rosto da avatar é requisito crítico, anexamos aqui a trava SEMPRE, direto na
+     * saída, para que nunca falte no prompt entregue. Redundância barata por uma restrição forte.
+     */
+    private String withFaceLock(String prompt) {
+        return prompt + "\n\nFace lock: the avatar's face and identity come strictly from the "
+                + "avatar reference image and must stay identical and unchanged for the entire "
+                + "video — never alter, morph, beautify or swap the face.";
     }
 }
