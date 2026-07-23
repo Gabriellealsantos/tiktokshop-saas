@@ -532,6 +532,12 @@
   to { --angle: 360deg; }
 }
 
+@media (max-width: 1023px) {
+  .auth-card::after {
+    filter: blur(16px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .auth-card::before, .auth-card::after { animation: none; }
 }

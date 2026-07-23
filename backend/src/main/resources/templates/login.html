@@ -110,6 +110,29 @@
             to { --angle: 360deg; }
         }
 
+        @media (max-width: 1023px) {
+            .mobile-container {
+                max-width: 440px !important;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .mobile-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .mobile-hidden {
+                display: none !important;
+            }
+            .mobile-form-col {
+                border-right: none !important;
+                border-radius: 31px !important;
+                min-height: fit-content !important;
+                padding: 2.5rem 1.5rem !important;
+            }
+            .auth-card::after {
+                filter: blur(16px);
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .auth-card::before, .auth-card::after { animation: none; }
         }
@@ -129,11 +152,11 @@
 
     <main class="relative grid min-h-screen place-items-center overflow-hidden px-4 py-6 md:py-10">
         <div
-            class="relative z-10 w-full max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/30 shadow-2xl backdrop-blur-xl">
-            <div class="relative z-[2] grid lg:grid-cols-2 rounded-[31px] overflow-hidden">
+            class="relative z-10 w-full max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/30 shadow-2xl backdrop-blur-xl mobile-container" style="border-radius: 32px;">
+            <div class="relative z-[2] grid lg:grid-cols-2 rounded-[31px] overflow-hidden mobile-grid" style="border-radius: 31px; overflow: hidden; transform: translateZ(0);">
                 <!-- COLUNA ESQUERDA - FORMULÁRIO -->
                 <div
-                    class="relative flex min-h-[600px] flex-col items-center justify-center bg-zinc-950/40 p-6 md:p-10 lg:p-14 backdrop-blur-xl border-r border-white/5">
+                    class="relative flex min-h-[600px] flex-col items-center justify-center bg-zinc-950/40 p-6 md:p-10 lg:p-14 backdrop-blur-xl border-r border-white/5 mobile-form-col">
 
                     <div class="w-full max-w-[400px] mx-auto flex flex-col">
                         <div class="flex flex-col items-center text-center">
@@ -249,7 +272,7 @@
                 </div>
 
                 <!-- COLUNA DIREITA - IMAGEM (SÓLIDA) -->
-                <div class="relative hidden lg:block bg-[#09080e]">
+                <div class="relative hidden lg:block bg-[#09080e] mobile-hidden">
                     <!-- 1. Imagem Base -->
                     <img src="/images/imagem-login-cadastro.png?v=4" alt="Estúdio Criativo"
                         class="absolute inset-0 h-full w-full object-cover" />
