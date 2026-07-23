@@ -50,6 +50,7 @@ public class StorageService {
     private static final byte[] WEBM_MAGIC = new byte[]{0x1A, 0x45, (byte) 0xDF, (byte) 0xA3};
 
     private final S3Client s3Client;
+    private final ImageNormalizer imageNormalizer;
 
     @Value("${aws.s3.bucket}")
     private String bucket;
@@ -57,8 +58,9 @@ public class StorageService {
     @Value("${aws.s3.endpoint:}")
     private String endpoint;
 
-    public StorageService(S3Client s3Client) {
+    public StorageService(S3Client s3Client, ImageNormalizer imageNormalizer) {
         this.s3Client = s3Client;
+        this.imageNormalizer = imageNormalizer;
     }
 
     public String upload(MultipartFile file, String folder) {
@@ -72,7 +74,7 @@ public class StorageService {
         }
 
         try {
-            return upload(file.getBytes(), contentType, folder);
+            return upload(imageNormalizer.toJpeg(file.getBytes()), "image/jpeg", folder);
         } catch (IOException e) {
             throw new BusinessException("Falha ao ler o arquivo enviado.");
         }

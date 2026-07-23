@@ -40,16 +40,19 @@ public class GeminiImageProvider  implements ImageProvider {
     private final String model;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
+    private final String aspectRatio;
 
     public GeminiImageProvider(StorageService storageService,
                                ObjectMapper objectMapper,
                                @Value("${venyx.gemini.base-url}") String baseUrl,
                                @Value("${venyx.gemini.api-key}") String apiKey,
                                @Value("${venyx.gemini.model}") String model,
-                               @Value("${venyx.gemini.timeout-seconds}") int timeoutSeconds) {
+                               @Value("${venyx.gemini.timeout-seconds}") int timeoutSeconds,
+                               @Value("${venyx.gemini.image-aspect-ratio}") String aspectRatio) {
         this.storageService = storageService;
         this.objectMapper = objectMapper;
         this.model = model;
+        this.aspectRatio = aspectRatio;
 
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
         factory.setReadTimeout(ofSeconds(timeoutSeconds));
@@ -71,7 +74,11 @@ public class GeminiImageProvider  implements ImageProvider {
     public ImageProviderResult generate(ImageProviderRequest request) {
         Map<String, Object> body = Map.of(
                 "model", model,
-                "input", buildInput(request));
+                "input", buildInput(request),
+                "response_format", Map.of(
+                        "type", "image",
+                        "mime_type", "image/jpeg",
+                        "aspect_ratio", aspectRatio));
 
         String payload = objectMapper.writeValueAsString(body);
 
@@ -98,14 +105,28 @@ public class GeminiImageProvider  implements ImageProvider {
         List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of("type", "text", "text", request.prompt()));
 
-        if (request.referenceImageUrl() != null && !request.referenceImageUrl().isBlank()) {
-            byte[] reference = downloadReference(request.referenceImageUrl());
+        for (String url : request.referenceImageUrls()) {
+            if (url == null || url.isBlank()) {
+                continue;
+            }
+            byte[] reference = downloadReference(url);
             input.add(Map.of(
                     "type", "image",
-                    "mime_type", "image/png",
+                    "mime_type", resolveMimeType(reference),
                     "data", getEncoder().encodeToString(reference)));
         }
         return input;
+    }
+
+    /** Deriva o mime dos magic bytes — a referência pode ser PNG (avatar) ou JPEG (produto). */
+    private String resolveMimeType(byte[] content) {
+        if (content.length >= 3
+                && (content[0] & 0xFF) == 0xFF
+                && (content[1] & 0xFF) == 0xD8
+                && (content[2] & 0xFF) == 0xFF) {
+            return "image/jpeg";
+        }
+        return "image/png";
     }
 
     private byte[] downloadReference(String url) {

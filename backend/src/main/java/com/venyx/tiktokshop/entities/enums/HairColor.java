@@ -3,18 +3,17 @@ package com.venyx.tiktokshop.entities.enums;
 public enum HairColor {
     BLACK("preto"),
     BROWN("castanho"),
-    BLONDE("loiro"),
+    LIGHT_BROWN("castanho claro"),
+    HONEY("mel"),
+    LIGHT_BLONDE("loiro claro"),
     RED("ruivo"),
-    GRAY("grisalho"),
-    PINK("rosa");
+    SILVER("prateado"),
+    BLUE("azul"),
+    NEON_GREEN("verde neon"),
+    PINK("rosa"),
+    PURPLE("roxo");
 
     private final String description;
-
-    HairColor(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
+    HairColor(String description) { this.description = description; }
+    public String getDescription() { return description; }
 }
