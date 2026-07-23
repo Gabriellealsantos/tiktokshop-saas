@@ -78,11 +78,9 @@ export function LoginForm() {
             <span />
           )}
           <Link
-            to="/login"
-            className="text-[11px] font-medium text-accent-400 hover:underline"
+            to="/forgot-password"
+            className="text-[11px] font-medium text-[var(--brand-purple)] hover:underline"
           >
-            {" "}
-            {/* TODO: replace with proper reset route */}
             Esqueci minha senha
           </Link>
         </div>

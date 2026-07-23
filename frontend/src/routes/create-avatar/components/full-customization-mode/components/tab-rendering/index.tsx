@@ -26,7 +26,7 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
 
   const getRostoImg = (v: string) => {
     const map: any = { "Oval": "oval", "Redondo": "redondo", "Quadrado": "quadrado", "Coração": "coracao", "Alongado": "alongado" };
-    return `/${map[v]}-${isMasculino ? "masc" : "fem"}.png`;
+    return `/${map[v]}.jpeg`;
   };
   const getCorpoImg = (v: string) => {
     const map: any = { "Magro(a)": "magro", "Atlético(a)": "atletico", "Curvy": "curvy", "Plus Size": "plus-size" };
@@ -35,7 +35,7 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
 
   const getRoupaImg = (v: string) => {
     const map: any = { "Casual": "casual", "Luxo": "luxo", "Streetwear": "streetwear", "Fitness": "fitness", "Corporativo": "corporativo" };
-    return `/${map[v]}-${isMasculino ? "masc" : "fem"}.png`;
+    return `/${map[v]}-${isMasculino ? "masc.jpeg" : "fem.png"}`;
   };
 
   const renderSummaryPill = (key: string, val: any) => {

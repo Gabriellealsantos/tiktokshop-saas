@@ -5,6 +5,7 @@ import { Toaster } from "@/components";
 import IndexRoute from "@/routes/home";
 import LoginRoute from "@/routes/login";
 import RegisterRoute from "@/routes/register";
+import ForgotPasswordRoute from "@/routes/forgot-password";
 import AuthorizedRoute from "@/routes/authorized";
 import DashboardRoute from "@/routes/dashboard";
 import AdminScreen from "@/routes/admin";
@@ -36,6 +37,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/register" element={<RegisterRoute />} />
+      <Route path="/forgot-password" element={<ForgotPasswordRoute />} />
       <Route path="/authorized" element={<AuthorizedRoute />} />
 
       <Route element={<PrivateRoute />}>

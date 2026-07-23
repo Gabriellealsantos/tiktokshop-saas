@@ -247,11 +247,11 @@ export function TabEstilo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
   const isMasculino = generoVal === "Masculino";
 
   const dynamicRoupaOptions = [
-    { name: "Casual", image: isMasculino ? "/casual-masc.png" : "/casual-fem.png" },
-    { name: "Luxo", image: isMasculino ? "/luxo-masc.png" : "/luxo-fem.png" },
-    { name: "Streetwear", image: isMasculino ? "/streetwear-masc.png" : "/streetwear-fem.png" },
-    { name: "Fitness", image: isMasculino ? "/fitness-masc.png" : "/fitness-fem.png" },
-    { name: "Corporativo", image: isMasculino ? "/corporativo-masc.png" : "/corporativo-fem.png" }
+    { name: "Casual", image: isMasculino ? "/casual-masc.jpeg" : "/casual-fem.png" },
+    { name: "Luxo", image: isMasculino ? "/luxo-masc.jpeg" : "/luxo-fem.png" },
+    { name: "Streetwear", image: isMasculino ? "/streetwear-masc.jpeg" : "/streetwear-fem.png" },
+    { name: "Fitness", image: isMasculino ? "/fitness-masc.jpeg" : "/fitness-fem.png" },
+    { name: "Corporativo", image: isMasculino ? "/corporativo-masc.jpeg" : "/corporativo-fem.png" }
   ];
 
   const estiloSelecionado = form.watch("roupa");
