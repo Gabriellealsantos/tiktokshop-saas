@@ -1,38 +1,28 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export interface GenerateAvatarPayload {
-  prompt: string;
-  style: string;
-  cameraAngle: string;
-  shotType: string;
-  gender: string;
-  ageRange: string;
-}
 
-interface GenerateAvatarResponse {
-  imageUrl: string;
-}
+import { generateAvatar } from "@/services/avatarService";
+import type { AvatarConfigDTO, ImageGenerationDTO } from "@/models/avatar";
+import { extractError } from "@/utils/api-error";
 
-export function useGenerateAvatar<T = GenerateAvatarPayload>() {
+export function useGenerateAvatar() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (payload: T) => {
-      // TODO: Substituir pelo fetch real do backend
-      return new Promise<string>((resolve, reject) => {
-        setTimeout(() => {
-          // Simulando sucesso (retornando a URL da imagem)
-          resolve("/placeholder-avatar-gerado.jpg");
+    mutationFn: async (config: AvatarConfigDTO) => {
+      const response = await generateAvatar(config);
+      const job = response.data as ImageGenerationDTO;
 
-          // Para testar erro, descomente abaixo:
-          // reject(new Error("Falha ao se conectar com os servidores GPU."));
-        }, 3000); // 3 segundos simulados
-      });
+      if (job.status === "FAILED") {
+        throw new Error(job.error ?? "A geração falhou. Tente novamente.");
+      }
+      return job;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["avatar-usage"] });
       toast.success("Avatar gerado com sucesso!");
     },
-    onError: (err) => {
-      toast.error(err.message || "Erro ao gerar avatar. Tente novamente.");
-    }
+    onError: (err) => toast.error(extractError(err, "Erro ao gerar avatar. Tente novamente.")),
   });
 }

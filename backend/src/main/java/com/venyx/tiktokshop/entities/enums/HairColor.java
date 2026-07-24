@@ -11,6 +11,7 @@ public enum HairColor {
     BLUE("azul"),
     NEON_GREEN("verde neon"),
     PINK("rosa"),
+    YELLOW("amarelo"),
     PURPLE("roxo");
 
     private final String description;

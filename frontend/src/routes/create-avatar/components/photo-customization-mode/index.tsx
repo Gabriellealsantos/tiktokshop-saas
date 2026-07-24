@@ -6,12 +6,16 @@ import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/utils/utils";
 import { Button, Form } from "@/components";
-import { useGenerateAvatar } from "../../api/use-generate-avatar";
 import { PreviewPanel } from "../preview-panel";
 
 import { avatarPhotoSchema, type AvatarPhotoFormValues } from "./schema";
 import { TabSuaFoto } from "./components/tab-your-photo";
 import { TabRoupa } from "./components/tab-clothing";
+
+import { useGenerateAvatarFromPhoto } from "../../api/use-generate-avatar-from-photo";
+import { useSaveAvatar } from "../../api/use-save-avatar";
+import { useAvatarUsage } from "../../api/use-avatars";
+import { toast } from "sonner";
 
 const TABS = [
   { id: 1, label: "Sua foto" },
@@ -20,7 +24,11 @@ const TABS = [
 
 export function PhotoCustomizationMode() {
   const [activeTab, setActiveTab] = useState(1);
-  const generateAvatar = useGenerateAvatar();
+
+  const generateAvatar = useGenerateAvatarFromPhoto();
+  const saveAvatar = useSaveAvatar();
+  const { data: usage } = useAvatarUsage();
+  const noQuota = usage ? usage.remaining <= 0 : false;
 
   const form = useForm<AvatarPhotoFormValues>({
     resolver: zodResolver(avatarPhotoSchema),
@@ -38,19 +46,39 @@ export function PhotoCustomizationMode() {
   const metadata = "Criado a partir de foto";
 
   const handleNext = () => {
-    if (activeTab < 2) setActiveTab((prev) => prev + 1);
-    else {
-      form.handleSubmit((data) => {
-        generateAvatar.mutate({
-          prompt: data.instrucoesRoupa || data.opcoesAdicionais || `Avatar para ${data.nome}`,
-          style: data.modoRoupa === "Upload de imagem" ? "image-upload" : "auto",
-          cameraAngle: "front",
-          shotType: data.tipoPeca === "Look completo" ? "full-body" : "medium",
-          gender: "unspecified",
-          ageRange: "adult"
-        });
-      })();
+    if (activeTab < 2) {
+      setActiveTab((prev) => prev + 1);
+      return;
     }
+    form.handleSubmit(
+      (data) => generateAvatar.mutate(data),
+      (errors) => {
+        const first = Object.keys(errors)[0];
+        if (first === "nome" || first === "fotoPrincipal") setActiveTab(1);
+
+        const message = errors[first as keyof typeof errors]?.message;
+        toast.error(
+          typeof message === "string"
+            ? message
+            : "Revise os campos destacados.",
+        );
+      },
+    )();
+  };
+
+  const handleSave = () => {
+    const generation = generateAvatar.data;
+    if (!generation || generation.status !== "COMPLETED") return;
+
+    const nomeAtual = form.getValues("nome").trim();
+    if (!nomeAtual) {
+      form.setError("nome", {
+        message: "Dê um nome ao avatar antes de salvar.",
+      });
+      setActiveTab(1);
+      return;
+    }
+    saveAvatar.mutate({ generationId: generation.id, name: nomeAtual });
   };
 
   const handlePrev = () => {
@@ -74,7 +102,7 @@ export function PhotoCustomizationMode() {
                   "whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   isActive
                     ? "btn-brand shadow-[0_0_20px_-4px_rgba(75,68,232,0.4)]"
-                    : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] text-text-2 hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:text-white"
+                    : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] text-text-2 hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:text-white",
                 )}
               >
                 {tab.id}. {tab.label}
@@ -84,7 +112,10 @@ export function PhotoCustomizationMode() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={(e) => e.preventDefault()} className="relative overflow-hidden min-h-[500px]">
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="relative overflow-hidden min-h-[500px]"
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
@@ -101,6 +132,14 @@ export function PhotoCustomizationMode() {
           </form>
         </Form>
 
+        {usage && (
+          <p className="text-xs text-text-3 px-1">
+            {noQuota
+              ? "Você atingiu o limite de gerações de hoje."
+              : `Restam ${usage.remaining} de ${usage.max} gerações hoje.`}
+          </p>
+        )}
+
         {/* RODAPÉ DAS TABS */}
         <div className="flex items-center justify-between pt-6 border-t border-white/5 mt-4">
           <Button
@@ -114,9 +153,11 @@ export function PhotoCustomizationMode() {
 
           <Button
             onClick={handleNext}
-            disabled={generateAvatar.isPending}
+            disabled={generateAvatar.isPending || (activeTab === 2 && noQuota)}
             className={cn(
-              activeTab === 2 ? "bg-brand-500 hover:bg-brand-600 text-white shadow-[0_0_24px_-6px_rgba(75,68,232,0.5)]" : ""
+              activeTab === 2
+                ? "bg-brand-500 hover:bg-brand-600 text-white shadow-[0_0_24px_-6px_rgba(75,68,232,0.5)]"
+                : "",
             )}
           >
             {activeTab === 2 ? (
@@ -138,7 +179,13 @@ export function PhotoCustomizationMode() {
         nome={nome}
         metadata={metadata}
         isGenerating={generateAvatar.isPending}
-        generatedImage={generateAvatar.data || null}
+        generatedImage={generateAvatar.data?.imageUrl ?? null}
+        prompt={generateAvatar.data?.prompt ?? null}
+        canSave={
+          generateAvatar.data?.status === "COMPLETED" && !saveAvatar.isSuccess
+        }
+        isSaving={saveAvatar.isPending}
+        onSave={handleSave}
       />
     </div>
   );

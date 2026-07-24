@@ -1,9 +1,6 @@
 package com.venyx.tiktokshop.controllers;
 
-import com.venyx.tiktokshop.dtos.AvatarGenerationRequestDTO;
-import com.venyx.tiktokshop.dtos.AvatarRegenerationRequestDTO;
-import com.venyx.tiktokshop.dtos.DailyUsageDTO;
-import com.venyx.tiktokshop.dtos.ImageGenerationDTO;
+import com.venyx.tiktokshop.dtos.*;
 import com.venyx.tiktokshop.entities.ImageGeneration;
 import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.generation.AvatarGenerationService;
@@ -67,4 +64,10 @@ public class AvatarGenerationController {
         return ResponseEntity.ok(new ImageGenerationDTO(service.findById(id)));
     }
 
+
+    @PostMapping("/from-photo")
+    @PreAuthorize("hasAnyRole('ADMIN', 'AFFILIATE', 'CLIENT')")
+    public ResponseEntity<ImageGenerationDTO> generateFromPhoto(@Valid @RequestBody AvatarFromPhotoRequestDTO dto) {
+        return created(service.generateFromPhoto(dto));
+    }
 }

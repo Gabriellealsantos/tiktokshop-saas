@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Library, Bookmark, SlidersHorizontal, UserPlus, Sparkles } from "lucide-react";
+import {
+  Library,
+  Bookmark,
+  SlidersHorizontal,
+  UserPlus,
+  Sparkles,
+} from "lucide-react";
 
 import { AppShell } from "@/layouts/app-shell";
 import { Page, PageHeader, Button } from "@/components";
@@ -24,10 +29,15 @@ export default function AvatarStudio() {
           actions={
             <div className="flex flex-col sm:flex-row gap-3">
               <AvatarLibraryModal>
-                <Button variant="outline" className="bg-surface-1 cursor-pointer">
+                <Button
+                  variant="outline"
+                  className="bg-surface-1 cursor-pointer"
+                >
                   <Library className="size-4 mr-2" />
                   Biblioteca
-                  <span className="ml-2 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold text-white">12</span>
+                  <span className="ml-2 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    12
+                  </span>
                 </Button>
               </AvatarLibraryModal>
             </div>
@@ -43,7 +53,7 @@ export default function AvatarStudio() {
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "full"
                   ? "btn-brand shadow-lg"
-                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5"
+                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5",
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">
@@ -52,7 +62,7 @@ export default function AvatarStudio() {
                     "grid size-8 place-items-center rounded-full transition-colors",
                     mode === "full"
                       ? "bg-white/20 text-white"
-                      : "bg-white/5 text-brand-400 group-hover:bg-brand-500/10 group-hover:text-brand-300"
+                      : "bg-white/5 text-brand-400 group-hover:bg-brand-500/10 group-hover:text-brand-300",
                   )}
                 >
                   <SlidersHorizontal className="size-4" />
@@ -61,16 +71,20 @@ export default function AvatarStudio() {
                   <Sparkles className="size-4 text-white/50" />
                 )}
               </div>
-              <h3 className={cn(
-                "text-base font-bold transition-colors",
-                mode === "full" ? "text-white" : "text-text-1"
-              )}>
+              <h3
+                className={cn(
+                  "text-base font-bold transition-colors",
+                  mode === "full" ? "text-white" : "text-text-1",
+                )}
+              >
                 Personalização completa
               </h3>
-              <p className={cn(
-                "text-xs transition-colors",
-                mode === "full" ? "text-white/80" : "text-text-2"
-              )}>
+              <p
+                className={cn(
+                  "text-xs transition-colors",
+                  mode === "full" ? "text-white/80" : "text-text-2",
+                )}
+              >
                 Defina cada característica em etapas
               </p>
             </button>
@@ -81,7 +95,7 @@ export default function AvatarStudio() {
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "photo"
                   ? "btn-brand shadow-lg"
-                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5"
+                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5",
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">
@@ -90,7 +104,7 @@ export default function AvatarStudio() {
                     "grid size-8 place-items-center rounded-full transition-colors",
                     mode === "photo"
                       ? "bg-white/20 text-white"
-                      : "bg-white/5 text-brand-400 group-hover:bg-brand-500/10 group-hover:text-brand-300"
+                      : "bg-white/5 text-brand-400 group-hover:bg-brand-500/10 group-hover:text-brand-300",
                   )}
                 >
                   <UserPlus className="size-4" />
@@ -99,22 +113,30 @@ export default function AvatarStudio() {
                   <Sparkles className="size-4 text-white/50" />
                 )}
               </div>
-              <h3 className={cn(
-                "text-base font-bold transition-colors",
-                mode === "photo" ? "text-white" : "text-text-1"
-              )}>
+              <h3
+                className={cn(
+                  "text-base font-bold transition-colors",
+                  mode === "photo" ? "text-white" : "text-text-1",
+                )}
+              >
                 Criar a partir de foto
               </h3>
-              <p className={cn(
-                "text-xs transition-colors",
-                mode === "photo" ? "text-white/80" : "text-text-2"
-              )}>
+              <p
+                className={cn(
+                  "text-xs transition-colors",
+                  mode === "photo" ? "text-white/80" : "text-text-2",
+                )}
+              >
                 Envie uma selfie — o avatar fica igual a você
               </p>
             </button>
           </div>
           {/* MODO ATIVO */}
-          {mode === "full" ? <FullCustomizationMode /> : <PhotoCustomizationMode />}
+          {mode === "full" ? (
+            <FullCustomizationMode />
+          ) : (
+            <PhotoCustomizationMode />
+          )}
         </div>
       </Page>
     </AppShell>
