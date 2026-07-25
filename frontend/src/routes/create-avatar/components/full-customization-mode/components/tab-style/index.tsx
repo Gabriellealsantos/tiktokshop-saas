@@ -294,14 +294,14 @@ export function TabEstilo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
             </div>
             <FormControl>
               <div className="relative group">
-                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-text-3 group-focus-within:text-brand-500 transition-colors" />
                 <Input
                   placeholder="Ex.: blazer preto minimalista"
-                  className="bg-surface-2 border-white/10 text-white h-14 rounded-xl pl-12 focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all"
+                  className="glass-container text-white h-14 rounded-xl pl-12 focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all"
                   maxLength={maxDetalhesLength}
                   {...field}
                   value={field.value || ""}
                 />
+                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-text-3 group-focus-within:text-brand-500 transition-colors pointer-events-none z-10" />
               </div>
             </FormControl>
             <AnimatePresence mode="popLayout">
@@ -311,9 +311,9 @@ export function TabEstilo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="mt-4 overflow-hidden"
+                  className="mt-4 overflow-hidden glass-container p-4.5 rounded-[20px]"
                 >
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-3 mb-2 ml-1">Inspire-se</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-3 mb-2.5 ml-1">Inspire-se</p>
                   <div className="flex flex-wrap gap-2">
                     {sugestoes.map((sugestao, idx) => {
                       const isSelected = detalhesVal.trim() === sugestao;
@@ -325,8 +325,8 @@ export function TabEstilo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
                           className={cn(
                             "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300",
                             isSelected
-                              ? "bg-brand-500/20 text-brand-400 border border-brand-500/50"
-                              : "bg-surface-2 text-text-3 border border-white/5 hover:bg-surface-3 hover:text-text-2"
+                              ? "bg-brand-500/20 backdrop-blur-md text-brand-400 border border-brand-500/50 shadow-[0_0_12px_rgba(75,68,232,0.3)]"
+                              : "bg-white/[0.06] backdrop-blur-md text-text-2 border border-white/15 hover:bg-white/[0.12] hover:text-white shadow-sm"
                           )}
                         >
                           {sugestao}

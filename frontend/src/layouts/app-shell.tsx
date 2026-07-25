@@ -92,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               whileTap={{ scale: 0.97 }}
               transition={{ duration: 0.15 }}
             >
-              <div className="flex h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 text-xs font-medium text-white shadow-sm hover:bg-white/10 transition-colors">
+              <div className="flex h-9 items-center gap-1.5 rounded-full btn-3d-neutral px-3 text-xs font-medium text-white">
                 <Gift className="size-3.5 text-brand-400" />
                 Indique e Ganhe
               </div>
@@ -105,7 +105,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="grid size-9 place-items-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="grid size-9 place-items-center rounded-full btn-3d-icon-neutral text-zinc-300 hover:text-white"
             >
               {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
             </motion.button>
@@ -161,7 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className="grid size-9 place-items-center rounded-full text-zinc-400 lg:hidden hover:bg-white/10 hover:text-white transition-colors">
+            <button className="grid size-9 place-items-center rounded-full btn-3d-icon-neutral text-zinc-300 lg:hidden hover:text-white">
               <Menu className="size-5" />
             </button>
           </div>
@@ -170,7 +170,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className="pt-28">{children}</main>
 
-      <nav className="glass-surface glass-surface--floating fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full p-2" style={{ backdropFilter: 'blur(24px) saturate(140%)' }}>
+      <nav className="glass-surface glass-surface--floating fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3.5 sm:gap-4.5 rounded-full px-4 sm:px-5 py-2" style={{ backdropFilter: 'blur(24px) saturate(140%)' }}>
         <TooltipProvider delayDuration={100}>
           {toolbar.map(([to, Icon, label]) => {
             const active = to === "/" ? path === "/" : path.startsWith(to);

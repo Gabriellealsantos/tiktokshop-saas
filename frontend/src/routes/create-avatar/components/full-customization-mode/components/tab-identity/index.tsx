@@ -17,7 +17,7 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider">Nome do Avatar</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: Aurora, Marcus, Luna..." className="bg-surface-2 border-white/10 text-white h-12 rounded-xl" {...field} />
+              <Input placeholder="Ex: Aurora, Marcus, Luna..." className="glass-container text-white h-12 rounded-xl focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

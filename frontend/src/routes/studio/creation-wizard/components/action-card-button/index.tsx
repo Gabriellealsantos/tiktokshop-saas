@@ -22,13 +22,13 @@ export function ActionCardButton({
 }) {
   const themes = {
     secondary: {
-      card: "bg-white/5 border-white/10 hover:bg-white/10 hover:border-accent-500/35 hover:shadow-[0_8px_24px_-12px_rgba(139,92,246,0.15)]",
+      card: "btn-3d-neutral",
       chip: "bg-accent-500/15 text-accent-300",
       title: "!text-white",
       desc: "!text-white/60"
     },
     purple: {
-      card: "bg-gradient-to-r from-accent-500 to-accent-600 border-none shadow-[0_12px_32px_-12px_rgba(139,92,246,0.5)] hover:from-accent-400 hover:to-accent-500 text-white",
+      card: "btn-3d-primary text-white",
       chip: "bg-white/20 text-white",
       title: "text-white font-bold",
       desc: "text-white/80"
@@ -41,8 +41,8 @@ export function ActionCardButton({
     <button
       type="button"
       className={cn(
-        "group relative flex items-center gap-4 w-full p-4 rounded-[18px] border text-left transition-all duration-300 motion-reduce:transform-none backdrop-blur-md",
-        primary ? cn(themes.purple.card, "hover:-translate-y-1") : cn("glass-surface hover:-translate-y-0.5", activeTheme.card),
+        "group relative flex items-center gap-4 w-full p-4 rounded-[18px] text-left transition-all duration-200 motion-reduce:transform-none",
+        activeTheme.card,
         disabled && "opacity-60 cursor-not-allowed pointer-events-none"
       )}
       onClick={onClick}

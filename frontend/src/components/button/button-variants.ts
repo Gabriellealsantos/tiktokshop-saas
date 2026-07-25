@@ -1,18 +1,16 @@
 import { cva } from "class-variance-authority";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[12px] text-sm font-semibold cursor-pointer transition-all duration-200 active:scale-[.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[12px] text-sm font-semibold cursor-pointer transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default: "btn-brand",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
-        outline:
-          "border border-border bg-surface-1 text-text-1 hover:border-accent-400/45 hover:bg-surface-2",
-        secondary:
-          "border border-border bg-surface-2 text-text-1 hover:border-accent-400/45 hover:-translate-y-0.5",
-        ghost: "text-text-2 hover:bg-surface-2 hover:text-text-1",
-        link: "text-primary underline-offset-4 hover:underline",
+        destructive: "btn-3d-destructive",
+        outline: "btn-3d-neutral",
+        secondary: "btn-3d-neutral",
+        ghost: "text-text-2 hover:bg-surface-2 hover:text-text-1 active:scale-[.98]",
+        link: "text-primary underline-offset-4 hover:underline active:scale-[.98]",
       },
       size: {
         default: "h-10 px-4 py-2",

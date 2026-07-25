@@ -67,9 +67,9 @@ export function PreviewPanel({
     <div className="sticky top-[calc(var(--navbar-height)+1.5rem)] z-30 flex flex-col gap-4">
       <h2 className="text-lg font-bold text-text-1 px-1">Pré-visualização</h2>
 
-      <div className="glass-surface rounded-[24px] p-4 flex flex-col gap-4">
+      <div className="glass-container rounded-[24px] p-4 flex flex-col gap-4">
         {/* CARD PRINCIPAL (ESTADOS) */}
-        <div className="w-full aspect-[3/4] bg-surface-1/50 rounded-[16px] overflow-hidden border border-white/5 relative flex items-center justify-center">
+        <div className="w-full aspect-[3/4] bg-white/[0.03] backdrop-blur-xl rounded-[16px] overflow-hidden border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative flex items-center justify-center">
           {isGenerating ? (
             <div className="flex flex-col items-center gap-3 text-brand-400">
               <Loader2 className="size-8 animate-spin" />
@@ -129,14 +129,14 @@ export function PreviewPanel({
                   )}
                 </Button>
               )}
-              <Button
+              <button
+                type="button"
                 onClick={handleDownload}
-                variant="outline"
-                className="w-full rounded-xl bg-surface-2 border-white/10 hover:bg-white/10 hover:text-white h-11"
+                className="w-full btn-3d-neutral rounded-xl font-semibold h-11 inline-flex items-center justify-center text-sm cursor-pointer transition-all outline-none"
               >
                 <Download className="size-4 mr-2" />
                 Baixar imagem (JPEG)
-              </Button>
+              </button>
             </>
           ) : null}
 
