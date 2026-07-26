@@ -43,7 +43,6 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
 
     let type = "text";
     let image = "";
-    let color = "";
     let label = key;
     let displayVal = String(val);
 
@@ -62,7 +61,7 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
       case "sobrancelha": label = "Sobrancelha"; type = "image"; image = sobrancelhaOptions.find(o => o.name === val)?.image || ""; break;
       case "nariz": label = "Nariz"; type = "image"; image = narizOptions.find(o => o.name === val || o.label === val)?.image || ""; break;
       case "corOlhos": label = "Olhos"; type = "image"; image = corOlhosOptions.find(o => o.name === val || o.label === val)?.image || ""; break;
-      case "tomPele": label = "Pele"; type = "color"; color = tomPeleOptions.find(o => o.name === val)?.color || ""; break;
+      case "tomPele": label = "Pele"; type = "image"; image = tomPeleOptions.find(o => o.name === val)?.image || ""; break;
       case "corCabelo": {
         label = "Cor cabelo";
         type = "image";
@@ -78,9 +77,6 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
       <div key={key} className="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-surface-2 pr-3 pl-1 py-1 shadow-sm">
         {type === "image" && image && (
           <img src={image} alt={displayVal} className="size-6 rounded-full object-cover shrink-0 bg-surface-3" />
-        )}
-        {type === "color" && color && (
-          <div className="size-6 rounded-full border border-white/10 shrink-0 shadow-inner" style={{ backgroundColor: color }} />
         )}
         {type === "text" && (
           <div className="size-2 shrink-0 rounded-full bg-brand-500/50 ml-2" />

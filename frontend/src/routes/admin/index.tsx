@@ -49,7 +49,7 @@ export default function AdminScreen() {
           </div>
         </div>
 
-        <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide entrance">
+        <div className="-mt-2 -mx-1 mb-6 flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide entrance">
           {["Usuários", "Categorias", "Trend Boost", "Modelos de Vídeo", "Limites", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações"].map((x) => (
             <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
               {x}

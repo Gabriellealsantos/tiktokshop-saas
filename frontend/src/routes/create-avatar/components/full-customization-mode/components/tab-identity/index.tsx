@@ -2,7 +2,6 @@ import type { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Input, Slider } from "@/components";
 import type { AvatarFormValues } from "../../index";
 import { ImageOptionSelector } from "../image-option-selector";
-import { ColorSwatchSelector } from "../color-swatch-selector";
 import { generoOptions, etniaOptions, tomPeleOptions } from "../../data";
 
 export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> }) {
@@ -89,10 +88,14 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Tom de Pele</FormLabel>
             <FormControl>
-              <ColorSwatchSelector
+              <ImageOptionSelector
                 options={tomPeleOptions}
                 value={field.value}
                 onChange={field.onChange}
+                columns={3}
+                aspectRatio="aspect-[16/7]"
+                objectFit="object-cover"
+                hideLabel
               />
             </FormControl>
           </FormItem>
