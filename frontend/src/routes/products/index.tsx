@@ -20,6 +20,7 @@ import {
 } from "@/services/productService";
 import { getCategories } from "@/services/categoryService";
 import { useDocumentTitle } from "@/utils/use-document-title";
+import { cn } from "@/utils/utils";
 
 // Abas fixas (não são categorias do backend): Favoritos e Top Produtos.
 const FIXED_TABS = ["Favoritos", "Top Produtos"];
@@ -41,6 +42,9 @@ export default function ProductsScreen() {
   const [favIds, setFavIds] = useState<Set<number>>(new Set());
   // Categorias reais do backend (viram abas dinâmicas depois das fixas).
   const [cats, setCats] = useState<Category[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   useEffect(() => {
     getCategories()
@@ -51,6 +55,43 @@ export default function ProductsScreen() {
   }, []);
 
   const tabs = [...FIXED_TABS, ...cats.map((c) => c.name)];
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 10);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(checkScroll, 50);
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [checkScroll, tabs]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleNativeWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && el.scrollWidth > el.clientWidth) {
+        const canScroll =
+          (e.deltaY > 0 && el.scrollLeft < el.scrollWidth - el.clientWidth - 1) ||
+          (e.deltaY < 0 && el.scrollLeft > 0);
+
+        if (canScroll) {
+          e.preventDefault();
+          el.scrollBy({ left: e.deltaY * 2, behavior: "smooth" });
+        }
+      }
+    };
+
+    el.addEventListener("wheel", handleNativeWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleNativeWheel);
+  }, [tabs]);
 
   // Carrega os ids favoritados uma vez (usado para marcar o coração nas outras abas).
   const loadFavIds = useCallback(async () => {
@@ -137,15 +178,47 @@ export default function ProductsScreen() {
           description="Oportunidades rastreadas e organizadas por força de demanda."
           actions={<Pill tone="success">Sistema online · minerando</Pill>}
         />
-        <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:items-center justify-between">
-          <div className="flex gap-2 overflow-x-auto pb-1 flex-1 lg:flex-none">
-            {tabs.map((cat) => (
-              <Pill key={cat} active={category === cat} onClick={() => setCategory(cat)}>
-                {cat}
-              </Pill>
-            ))}
+        <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-center justify-between w-full">
+          {/* Carrossel de Categorias (Rolagem horizontal fluida com fades nas bordas e sem quebra de linha) */}
+          <div className="relative flex-1 min-w-0 w-full lg:w-auto overflow-hidden">
+            {/* Fade à esquerda (aparece após rolagem) */}
+            <div
+              className={cn(
+                "absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[var(--bg-base)] to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                canScrollLeft ? "opacity-100" : "opacity-0"
+              )}
+            />
+
+            {/* Faixa em linha única rolável e sem barra nativa visível */}
+            <div
+              ref={scrollRef}
+              onScroll={checkScroll}
+              className="flex items-center gap-2 overflow-x-auto flex-nowrap py-1 px-1 no-scrollbar scroll-smooth"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {tabs.map((cat) => (
+                <Pill
+                  key={cat}
+                  active={category === cat}
+                  onClick={() => setCategory(cat)}
+                  className="shrink-0"
+                >
+                  {cat}
+                </Pill>
+              ))}
+            </div>
+
+            {/* Fade à direita (indica que há mais itens a rolar) */}
+            <div
+              className={cn(
+                "absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[var(--bg-base)] to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                canScrollRight ? "opacity-100" : "opacity-0"
+              )}
+            />
           </div>
-          <div className="flex items-center gap-3 w-full lg:w-auto">
+
+          {/* Campo de busca + Botão Meu produto Fixo (fora do carrossel, shrink-0 garantido) */}
+          <div className="flex items-center gap-3 w-full lg:w-auto shrink-0 z-10">
             <div className="glass-surface is-interactive flex h-11 flex-1 lg:w-64 xl:w-80 items-center gap-3 rounded-[12px] px-4">
               <Search className="size-4 text-text-3" />
               <input
