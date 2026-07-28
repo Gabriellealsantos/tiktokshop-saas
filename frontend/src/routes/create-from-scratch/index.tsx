@@ -1,21 +1,14 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  ChevronLeft,
-  Shirt,
-  Filter,
-  Wand,
-  ArrowRight,
-  Check,
-} from "lucide-react";
+import { ChevronLeft, ArrowRight } from "lucide-react";
 import { AppShell } from "@/layouts/app-shell";
 import { Page, Button, Stepper } from "@/components";
 import {
   useMyAvatars,
   useGalleryAvatars,
 } from "@/routes/create-avatar/api/use-avatars";
+
 import { cn } from "@/utils/utils";
-import { toast } from "sonner";
 
 const steps = [
   "Produto",
@@ -26,16 +19,6 @@ const steps = [
   "Vídeo",
 ];
 
-// Mock de aplicação de produto
-const MOCK_MODOS_APLICACAO = [
-  {
-    id: "vestindo",
-    title: "Vestindo (camisa)",
-    description: "A peça aparece no corpo do avatar. Mãos livres.",
-  },
-  // TODO: demais modos de aplicação (ex.: segurando a peça), se existirem
-];
-
 export default function CreateFromScratchScreen() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -44,11 +27,6 @@ export default function CreateFromScratchScreen() {
   const { data: gallery } = useGalleryAvatars();
 
   const avatarIdParam = searchParams.get("avatarId") ?? undefined;
-  const applicationModeParam = searchParams.get("applicationMode") ?? undefined;
-  const [applicationMode, setApplicationMode] = useState(
-    applicationModeParam || MOCK_MODOS_APLICACAO[0].id,
-  );
-  const [somenteNeutros, setSomenteNeutros] = useState(false);
 
   const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(
     avatarIdParam ?? null,
@@ -72,9 +50,7 @@ export default function CreateFromScratchScreen() {
     })),
   ];
 
-  const avataresFiltrados = avatares.filter(
-    (a) => !somenteNeutros || a.isNeutro,
-  );
+  const avataresFiltrados = avatares;
 
   return (
     <AppShell>
@@ -111,79 +87,6 @@ export default function CreateFromScratchScreen() {
           <p className="mt-3 text-sm leading-6 text-text-2">
             Escolha o avatar que vai aparecer na cena.
           </p>
-        </div>
-
-        {/* CARD COMO O AVATAR USA A PEÇA */}
-        <div className="mb-10 rounded-[20px] glass-surface p-5 sm:p-6 border border-white/10">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="grid size-10 place-items-center rounded-xl bg-brand-500/15 text-brand-400">
-              <Shirt className="size-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-text-1 leading-tight">
-                Como o avatar usa a peça?
-              </h2>
-              <p className="text-xs text-text-3">
-                Escolha o modo de aplicação.
-              </p>
-            </div>
-          </div>
-
-          {/* Opções de aplicação (single-select) */}
-          <div className="grid gap-3 sm:grid-cols-2 mb-6">
-            {MOCK_MODOS_APLICACAO.map((modo) => {
-              const isSelected = applicationMode === modo.id;
-              return (
-                <button
-                  key={modo.id}
-                  onClick={() => setApplicationMode(modo.id)}
-                  className={cn(
-                    "relative flex flex-col items-start gap-1 p-4 rounded-2xl border text-left transition-all duration-300",
-                    isSelected
-                      ? "bg-brand-500/10 border-brand-500 shadow-[0_0_20px_-4px_rgba(75,68,232,0.2)]"
-                      : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20",
-                  )}
-                >
-                  <span className="font-semibold text-text-1">
-                    {modo.title}
-                  </span>
-                  <span className="text-xs text-text-3 leading-relaxed">
-                    {modo.description}
-                  </span>
-                  {isSelected && (
-                    <div className="absolute right-3 top-3 grid size-5 place-items-center rounded-full bg-brand-500 text-white shadow-sm">
-                      <Check className="size-3" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-5 border-t border-white/5">
-            <button
-              onClick={() => setSomenteNeutros(!somenteNeutros)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors",
-                somenteNeutros
-                  ? "bg-brand-500/20 border-brand-500/30 text-brand-300"
-                  : "bg-white/5 border-white/10 text-text-2 hover:bg-white/10 hover:text-white",
-              )}
-            >
-              <Filter className="size-4" />
-              Somente neutros
-            </button>
-            <button
-              onClick={() => {
-                // TODO: ação de gerar variante neutra
-                toast("Em breve: Gerar variante neutra");
-              }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-white/10 bg-surface-2 text-text-1 hover:bg-surface-3 transition-colors shadow-sm"
-            >
-              <Wand className="size-4 text-brand-400" />
-              Gerar variante neutra
-            </button>
-          </div>
         </div>
 
         {/* 2. INFLUENCER GRID */}
@@ -262,7 +165,6 @@ export default function CreateFromScratchScreen() {
               const params = new URLSearchParams(searchParams);
               if (avatarSelecionado !== null)
                 params.set("avatarId", String(avatarSelecionado));
-              params.set("applicationMode", applicationMode);
               navigate(`/create-from-scratch/scenario?${params.toString()}`);
             }}
           >
