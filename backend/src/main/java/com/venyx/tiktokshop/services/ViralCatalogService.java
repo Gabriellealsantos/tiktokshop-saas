@@ -129,6 +129,7 @@ public class ViralCatalogService {
         template.setPreviewVideoUrl(form.previewVideoUrl());
         template.setScriptInstruction(form.scriptInstruction());
         template.setPromptInstruction(form.promptInstruction());
+        template.setCategory(form.category());
         template.setActive(form.active() == null || form.active());
     }
 
@@ -176,6 +177,7 @@ public class ViralCatalogService {
         character.setName(form.name());
         character.setDescription(form.description());
         character.setImageUrl(form.imageUrl());
+        character.setSubcategory(form.subcategory());
         character.setSortOrder(form.sortOrder() == null ? 0 : form.sortOrder());
         character.setActive(form.active() == null || form.active());
     }

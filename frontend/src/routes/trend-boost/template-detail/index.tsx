@@ -6,7 +6,37 @@ import { AppShell } from "@/layouts/app-shell";
 import { cn } from "@/utils/utils";
 import { TrendHeader } from "../components/trend-header";
 import { getViralTemplate } from "@/services/viralService";
-import type { ViralTemplateDetail } from "@/models/viral";
+import type { ViralCharacter, ViralTemplateDetail } from "@/models/viral";
+
+// Rótulo exibido por seção. Subcategoria fora do mapa cai no próprio slug, então
+// cadastrar uma seção nova no admin não exige mexer aqui.
+const SUBCATEGORY_LABELS: Record<string, string> = {
+  vovo: "Vovô",
+  vova: "Vovó",
+  objeto: "Objetos",
+  fruta: "Frutas",
+};
+
+const SUBCATEGORY_ORDER = ["vovo", "vova", "objeto", "fruta"];
+
+function groupBySubcategory(characters: ViralCharacter[]) {
+  const groups = new Map<string, ViralCharacter[]>();
+  for (const char of characters) {
+    const key = char.subcategory ?? "";
+    const bucket = groups.get(key);
+    if (bucket) bucket.push(char);
+    else groups.set(key, [char]);
+  }
+
+  return [...groups.entries()].sort(([a], [b]) => {
+    // Sem subcategoria vai para o fim; conhecidas seguem SUBCATEGORY_ORDER.
+    if (a === "") return 1;
+    if (b === "") return -1;
+    const ia = SUBCATEGORY_ORDER.indexOf(a);
+    const ib = SUBCATEGORY_ORDER.indexOf(b);
+    return (ia === -1 ? Number.MAX_SAFE_INTEGER : ia) - (ib === -1 ? Number.MAX_SAFE_INTEGER : ib);
+  });
+}
 
 export default function RouteComponent() {
   const { template: templateId = "" } = useParams();
@@ -63,9 +93,16 @@ export default function RouteComponent() {
           titleHighlight=""
         />
 
-        <div className="mx-auto max-w-6xl mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
-          {template.characters.map((char) => {
-            return (
+        <div className="mx-auto max-w-6xl mt-12 flex flex-col gap-10">
+          {groupBySubcategory(template.characters).map(([subcategory, chars]) => (
+            <section key={subcategory || "outros"}>
+              {subcategory && (
+                <h2 className="mb-4 text-lg font-bold text-white">
+                  {SUBCATEGORY_LABELS[subcategory] ?? subcategory}
+                </h2>
+              )}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
+                {chars.map((char) => (
               <Link
                 key={char.slug}
                 to={`/trend-boost/${templateId}/${char.slug}`}
@@ -105,8 +142,10 @@ export default function RouteComponent() {
                   </div>
                 </div>
               </Link>
-            );
-          })}
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
       </Page>
     </AppShell>

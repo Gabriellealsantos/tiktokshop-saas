@@ -16,7 +16,7 @@ import { cn } from "@/utils/utils";
 import { ImageUpload, errMessage } from "../image-upload";
 
 const emptyForm = (): ViralCharacterForm => ({
-  slug: "", name: "", description: "", imageUrl: "", sortOrder: 0, active: true,
+  slug: "", name: "", description: "", imageUrl: "", subcategory: "", sortOrder: 0, active: true,
 });
 
 interface CharactersManagerProps {
@@ -58,7 +58,8 @@ export function CharactersManager({ template, onBack }: CharactersManagerProps) 
     setEditingId(item.id);
     setForm({
       slug: item.slug, name: item.name, description: item.description ?? "",
-      imageUrl: item.imageUrl ?? "", sortOrder: item.sortOrder, active: item.active,
+      imageUrl: item.imageUrl ?? "", subcategory: item.subcategory ?? "",
+      sortOrder: item.sortOrder, active: item.active,
     });
     setDialogOpen(true);
   };
@@ -68,12 +69,13 @@ export function CharactersManager({ template, onBack }: CharactersManagerProps) 
   const handleSave = async () => {
     if (!canSave) return;
     setSaving(true);
+    const payload = { ...form, subcategory: form.subcategory?.trim() || null };
     try {
       if (editingId != null) {
-        await updateViralCharacter(editingId, form);
+        await updateViralCharacter(editingId, payload);
         toast.success("Personagem atualizado.");
       } else {
-        await addViralCharacter(template.id, form);
+        await addViralCharacter(template.id, payload);
         toast.success("Personagem criado.");
       }
       setDialogOpen(false);
@@ -142,7 +144,10 @@ export function CharactersManager({ template, onBack }: CharactersManagerProps) 
                     <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">inativo</span>
                   )}
                 </div>
-                <p className="text-xs text-zinc-400 truncate">{item.slug} · ordem {item.sortOrder}</p>
+                <p className="text-xs text-zinc-400 truncate">
+                  {item.slug} · ordem {item.sortOrder}
+                  {item.subcategory ? ` · seção ${item.subcategory}` : ""}
+                </p>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <Button size="sm" variant="ghost" className="h-8 px-2 text-zinc-300 hover:text-white hover:bg-white/10 border border-white/10" onClick={() => openEdit(item)}>
@@ -173,6 +178,18 @@ export function CharactersManager({ template, onBack }: CharactersManagerProps) 
                 <Label className="text-xs text-zinc-400">Ordem</Label>
                 <Input type="number" value={form.sortOrder ?? 0} onChange={(e) => setForm((p) => ({ ...p, sortOrder: Number(e.target.value) }))} className="h-9 bg-black/40 border-white/10 text-sm" />
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">Seção</Label>
+              <Input
+                value={form.subcategory ?? ""}
+                onChange={(e) => setForm((p) => ({ ...p, subcategory: e.target.value }))}
+                placeholder="vovo, vova, objeto, fruta…"
+                className="h-9 bg-black/40 border-white/10 text-sm"
+              />
+              <p className="text-[11px] text-zinc-500">
+                Agrupa os personagens em seções na tela do cliente. Deixe vazio para não agrupar.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-400">Nome *</Label>

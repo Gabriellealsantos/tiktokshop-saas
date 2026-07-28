@@ -11,6 +11,8 @@ export interface ViralTemplateSummary {
   description: string | null;
   thumbnailUrl: string | null;
   previewVideoUrl: string | null;
+  /** Tag livre de agrupamento/filtro (ex.: "POV"). */
+  category: string | null;
 }
 
 /** Personagem/objeto de um template (slug escopado ao template: char-1..char-N) */
@@ -19,6 +21,8 @@ export interface ViralCharacter {
   name: string;
   description: string | null;
   imageUrl: string | null;
+  /** Seção dentro do template: vovo/vova, objeto/fruta. */
+  subcategory: string | null;
 }
 
 /** Tom disponível (label/desc vêm da API; o ícone é resolvido no front por slug) */
@@ -99,6 +103,7 @@ export interface ViralTemplateAdmin {
   previewVideoUrl: string | null;
   scriptInstruction: string;
   promptInstruction: string;
+  category: string | null;
   active: boolean;
 }
 
@@ -108,6 +113,7 @@ export interface ViralCharacterAdmin {
   name: string;
   description: string | null;
   imageUrl: string | null;
+  subcategory: string | null;
   sortOrder: number;
   active: boolean;
 }
@@ -131,6 +137,7 @@ export interface ViralTemplateForm {
   previewVideoUrl?: string | null;
   scriptInstruction: string;
   promptInstruction: string;
+  category?: string | null;
   active?: boolean;
 }
 
@@ -140,6 +147,7 @@ export interface ViralCharacterForm {
   name: string;
   description: string;
   imageUrl?: string | null;
+  subcategory?: string | null;
   sortOrder?: number;
   active?: boolean;
 }

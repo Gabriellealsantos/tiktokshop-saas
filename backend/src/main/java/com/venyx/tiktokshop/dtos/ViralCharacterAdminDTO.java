@@ -12,6 +12,7 @@ public record ViralCharacterAdminDTO(
         String name,
         String description,
         String imageUrl,
+        String subcategory,
         int sortOrder,
         boolean active
 ) {
@@ -22,6 +23,7 @@ public record ViralCharacterAdminDTO(
                 entity.getName(),
                 entity.getDescription(),
                 entity.getImageUrl(),
+                entity.getSubcategory(),
                 entity.getSortOrder(),
                 entity.isActive()
         );
