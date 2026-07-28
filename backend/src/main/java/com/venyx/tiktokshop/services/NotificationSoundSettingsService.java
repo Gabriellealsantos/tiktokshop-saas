@@ -6,6 +6,7 @@ import com.venyx.tiktokshop.entities.NotificationSoundSettings;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.repositories.NotificationSoundSettingsRepository;
 import com.venyx.tiktokshop.repositories.UserRepository;
+import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class NotificationSoundSettingsService {
+
+    private static final String CUSTOM_KEY = "custom";
 
     private final NotificationSoundSettingsRepository settingsRepository;
     private final UserRepository userRepository;
@@ -48,8 +51,32 @@ public class NotificationSoundSettingsService {
         if (dto.systemSoundKey() != null && !dto.systemSoundKey().isBlank()) {
             settings.setSystemSoundKey(dto.systemSoundKey().trim());
         }
+        if (dto.saleSoundUrl() != null) {
+            settings.setSaleSoundUrl(blankToNull(dto.saleSoundUrl()));
+        }
+        if (dto.announcementSoundUrl() != null) {
+            settings.setAnnouncementSoundUrl(blankToNull(dto.announcementSoundUrl()));
+        }
+        if (dto.systemSoundUrl() != null) {
+            settings.setSystemSoundUrl(blankToNull(dto.systemSoundUrl()));
+        }
+
+        requireCustomUrl(settings.getSaleSoundKey(), settings.getSaleSoundUrl(), "venda");
+        requireCustomUrl(settings.getAnnouncementSoundKey(), settings.getAnnouncementSoundUrl(), "aviso");
+        requireCustomUrl(settings.getSystemSoundKey(), settings.getSystemSoundUrl(), "sistema");
+
         settings = settingsRepository.save(settings);
         return new NotificationSoundSettingsDTO(settings);
+    }
+
+    private void requireCustomUrl(String key, String url, String typeLabel) {
+        if (CUSTOM_KEY.equals(key) && (url == null || url.isBlank())) {
+            throw new BusinessException("Envie um som antes de selecionar Personalizado (" + typeLabel + ").");
+        }
+    }
+
+    private String blankToNull(String value) {
+        return value.isBlank() ? null : value.trim();
     }
 
     @Transactional(readOnly = true)

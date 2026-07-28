@@ -44,6 +44,9 @@ public class User implements UserDetails {
     @Column(name = "notification_sound_enabled", nullable = false)
     private Boolean notificationSoundEnabled = true;
 
+    @Column(name = "photo_url")
+    private String photoUrl;
+
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant lockoutEndTime;
 
@@ -170,6 +173,14 @@ public class User implements UserDetails {
 
     public void setNotificationSoundEnabled(Boolean notificationSoundEnabled) {
         this.notificationSoundEnabled = notificationSoundEnabled;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public Instant getLockoutEndTime() {

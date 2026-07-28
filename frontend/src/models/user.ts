@@ -12,6 +12,7 @@ export type User = {
   plan: UserPlan;
   createdAt: string;
   planExpiresAt?: string;
+  photoUrl?: string | null;
 };
 
 // ── Contratos do back (DTOs) ──────────────────────────────────────────────────
@@ -29,6 +30,7 @@ export type UserResponse = {
   createdAt: string;
   roles: RoleResponse[];
   planType?: string;
+  photoUrl?: string | null;
 };
 
 // ── Mapeamentos back → front ──────────────────────────────────────────────────
@@ -70,6 +72,7 @@ export function mapUserResponse(dto: UserResponse): User {
     role: mapRole(dto.roles),
     plan: dto.planType ? PLAN_MAP[dto.planType] ?? "sem_plano" : "sem_plano",
     createdAt: dto.createdAt ?? new Date().toISOString(),
+    photoUrl: dto.photoUrl,
   };
 }
 

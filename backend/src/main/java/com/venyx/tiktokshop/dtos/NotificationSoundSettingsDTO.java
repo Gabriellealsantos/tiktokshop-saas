@@ -10,6 +10,9 @@ public record NotificationSoundSettingsDTO(
     String saleSoundKey,
     String announcementSoundKey,
     String systemSoundKey,
+    String saleSoundUrl,
+    String announcementSoundUrl,
+    String systemSoundUrl,
     Instant updatedAt
 ) {
     public NotificationSoundSettingsDTO(NotificationSoundSettings entity) {
@@ -19,6 +22,9 @@ public record NotificationSoundSettingsDTO(
             entity.getSaleSoundKey(),
             entity.getAnnouncementSoundKey(),
             entity.getSystemSoundKey(),
+            entity.getSaleSoundUrl(),
+            entity.getAnnouncementSoundUrl(),
+            entity.getSystemSoundUrl(),
             entity.getUpdatedAt()
         );
     }

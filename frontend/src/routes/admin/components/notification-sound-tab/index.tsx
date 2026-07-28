@@ -10,27 +10,38 @@ import {
   getSoundSettings, updateSoundSettings,
 } from "@/services/notificationService";
 import {
-  SOUND_KEYS, SOUND_LABELS, playSoundKey, setCachedSettings,
+  CUSTOM_SOUND_KEY, CUSTOM_SOUND_LABEL, SOUND_KEYS, SOUND_LABELS, playSoundKey, setCachedSettings,
 } from "@/utils/notification-sound";
+
+import { AudioUpload } from "./components/audio-upload";
+
+type KeyField = "saleSoundKey" | "announcementSoundKey" | "systemSoundKey";
+type UrlField = "saleSoundUrl" | "announcementSoundUrl" | "systemSoundUrl";
 
 type TypeRow = {
   label: string;
   hint: string;
-  field: "saleSoundKey" | "announcementSoundKey" | "systemSoundKey";
+  keyField: KeyField;
+  urlField: UrlField;
 };
 
 const ROWS: TypeRow[] = [
-  { label: "Venda ao vivo", hint: "Toca no toast de prova social de venda.", field: "saleSoundKey" },
-  { label: "Aviso / anúncio", hint: "Comunicados enviados pelo painel.", field: "announcementSoundKey" },
-  { label: "Sistema", hint: "Mensagens automáticas do sistema.", field: "systemSoundKey" },
+  { label: "Venda ao vivo", hint: "Toca no toast de prova social de venda.", keyField: "saleSoundKey", urlField: "saleSoundUrl" },
+  { label: "Aviso / anúncio", hint: "Comunicados enviados pelo painel.", keyField: "announcementSoundKey", urlField: "announcementSoundUrl" },
+  { label: "Sistema", hint: "Mensagens automáticas do sistema.", keyField: "systemSoundKey", urlField: "systemSoundUrl" },
 ];
 
 export function NotificationSoundTab() {
   const [enabled, setEnabled] = useState(true);
-  const [keys, setKeys] = useState<Record<TypeRow["field"], string>>({
+  const [keys, setKeys] = useState<Record<KeyField, string>>({
     saleSoundKey: "cash",
     announcementSoundKey: "ding",
     systemSoundKey: "chime",
+  });
+  const [urls, setUrls] = useState<Record<UrlField, string | null>>({
+    saleSoundUrl: null,
+    announcementSoundUrl: null,
+    systemSoundUrl: null,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,6 +57,11 @@ export function NotificationSoundTab() {
         announcementSoundKey: cfg.announcementSoundKey ?? "ding",
         systemSoundKey: cfg.systemSoundKey ?? "chime",
       });
+      setUrls({
+        saleSoundUrl: cfg.saleSoundUrl ?? null,
+        announcementSoundUrl: cfg.announcementSoundUrl ?? null,
+        systemSoundUrl: cfg.systemSoundUrl ?? null,
+      });
     } catch {
       toast.error("Falha ao carregar a configuração de som.");
     } finally {
@@ -60,7 +76,7 @@ export function NotificationSoundTab() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await updateSoundSettings({ enabled, ...keys });
+      const res = await updateSoundSettings({ enabled, ...keys, ...urls });
       setCachedSettings(res.data as NotificationSoundSettings);
       toast.success("Som das notificações salvo.");
     } catch {
@@ -101,7 +117,7 @@ export function NotificationSoundTab() {
 
         <div className={enabled ? "space-y-4" : "space-y-4 opacity-50 pointer-events-none"}>
           {ROWS.map((row) => (
-            <div key={row.field} className="space-y-1.5 rounded-[12px] border border-white/5 bg-black/20 p-4">
+            <div key={row.keyField} className="space-y-1.5 rounded-[12px] border border-white/5 bg-black/20 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <Label className="text-sm text-zinc-300">{row.label}</Label>
@@ -109,8 +125,8 @@ export function NotificationSoundTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Select
-                    value={keys[row.field]}
-                    onValueChange={(v) => setKeys((prev) => ({ ...prev, [row.field]: v }))}
+                    value={keys[row.keyField]}
+                    onValueChange={(v) => setKeys((prev) => ({ ...prev, [row.keyField]: v }))}
                   >
                     <SelectTrigger className="h-9 w-36 bg-black/40 border-white/10 text-sm">
                       <SelectValue />
@@ -119,18 +135,29 @@ export function NotificationSoundTab() {
                       {SOUND_KEYS.map((k) => (
                         <SelectItem key={k} value={k}>{SOUND_LABELS[k]}</SelectItem>
                       ))}
+                      <SelectItem value={CUSTOM_SOUND_KEY}>{CUSTOM_SOUND_LABEL}</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button
-                    variant="secondary"
-                    onClick={() => playSoundKey(keys[row.field])}
-                    className="size-9 shrink-0 p-0 rounded-full"
-                    aria-label={`Ouvir ${row.label}`}
-                  >
-                    <Play className="size-4" />
-                  </Button>
+                  {keys[row.keyField] !== CUSTOM_SOUND_KEY && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => playSoundKey(keys[row.keyField])}
+                      className="size-9 shrink-0 p-0 rounded-full"
+                      aria-label={`Ouvir ${row.label}`}
+                    >
+                      <Play className="size-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
+
+              {keys[row.keyField] === CUSTOM_SOUND_KEY && (
+                <AudioUpload
+                  value={urls[row.urlField]}
+                  folder="notifications/sounds"
+                  onChange={(url) => setUrls((prev) => ({ ...prev, [row.urlField]: url || null }))}
+                />
+              )}
             </div>
           ))}
         </div>

@@ -49,6 +49,18 @@ public class StorageService {
     // WEBM/Matroska: header EBML no offset 0.
     private static final byte[] WEBM_MAGIC = new byte[]{0x1A, 0x45, (byte) 0xDF, (byte) 0xA3};
 
+    private static final Map<String, String> AUDIO_EXTENSIONS = Map.of(
+            "audio/mpeg", ".mp3",
+            "audio/wav",  ".wav",
+            "audio/ogg",  ".ogg");
+
+    // MP3: ou tem tag ID3 no início, ou começa direto num frame sync (11 bits em 1: FF Ex/Fx/Ax/Bx).
+    private static final byte[] ID3_MAGIC = new byte[]{0x49, 0x44, 0x33};
+    // WAV: "RIFF" + tamanho (offset 4-7) + "WAVE" no offset 8, mesmo container do WEBP.
+    private static final byte[] WAVE_MAGIC = new byte[]{0x57, 0x41, 0x56, 0x45};
+    // OGG: página começa com "OggS".
+    private static final byte[] OGG_MAGIC = new byte[]{0x4F, 0x67, 0x67, 0x53};
+
     private final S3Client s3Client;
     private final ImageNormalizer imageNormalizer;
 
@@ -133,6 +145,47 @@ public class StorageService {
         assertRealVideo(content, normalizedType);
 
         String key = folder + "/" + UUID.randomUUID() + VIDEO_EXTENSIONS.get(normalizedType);
+
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(key)
+                        .contentType(normalizedType)
+                        .build(),
+                RequestBody.fromBytes(content));
+
+        return buildUrl(key);
+    }
+
+    public String uploadAudio(MultipartFile file, String folder) {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("Arquivo de áudio é obrigatório.");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("audio/")) {
+            throw new BusinessException("Apenas arquivos de áudio são aceitos.");
+        }
+
+        try {
+            return uploadAudio(file.getBytes(), contentType, folder);
+        } catch (IOException e) {
+            throw new BusinessException("Falha ao ler o arquivo enviado.");
+        }
+    }
+
+    public String uploadAudio(byte[] content, String contentType, String folder) {
+        if (content == null || content.length == 0) {
+            throw new BusinessException("Conteúdo do áudio está vazio.");
+        }
+        if (folder == null || !folder.matches("[a-zA-Z0-9/_-]+")) {
+            throw new BusinessException("Pasta de destino inválida.");
+        }
+
+        String normalizedType = contentType == null ? "" : contentType.toLowerCase();
+        assertRealAudio(content, normalizedType);
+
+        String key = folder + "/" + UUID.randomUUID() + AUDIO_EXTENSIONS.get(normalizedType);
 
         s3Client.putObject(
                 PutObjectRequest.builder()
@@ -239,6 +292,33 @@ public class StorageService {
         if (!valid) {
             throw new BusinessException("O arquivo enviado não é um vídeo válido.");
         }
+    }
+
+    private void assertRealAudio(byte[] content, String contentType) {
+        if (!AUDIO_EXTENSIONS.containsKey(contentType)) {
+            throw new BusinessException("Formato de áudio não suportado: " + contentType);
+        }
+        boolean valid = switch (contentType) {
+            case "audio/mpeg" -> isValidMp3(content);
+            case "audio/wav"  -> content.length >= 12
+                    && startsWith(content, RIFF_MAGIC)
+                    && Arrays.equals(content, 8, 12, WAVE_MAGIC, 0, 4);
+            case "audio/ogg"  -> startsWith(content, OGG_MAGIC);
+            default -> false;
+        };
+        if (!valid) {
+            throw new BusinessException("O arquivo enviado não é um áudio válido.");
+        }
+    }
+
+    /** MP3 ou tem tag ID3 no início, ou começa direto num frame sync (FF seguido de Ex/Fx/Ax/Bx). */
+    private boolean isValidMp3(byte[] content) {
+        if (startsWith(content, ID3_MAGIC)) {
+            return true;
+        }
+        return content.length >= 2
+                && (content[0] & 0xFF) == 0xFF
+                && (content[1] & 0xE0) == 0xE0;
     }
 
     private boolean startsWith(byte[] content, byte[] prefix) {

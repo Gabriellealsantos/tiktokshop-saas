@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -68,6 +69,22 @@ public class UserController {
     public ResponseEntity<Void> changeMyPassword(@RequestBody @Valid ChangePasswordDTO dto) {
         userService.changeMyPassword(dto);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Envia/substitui a foto de perfil do próprio usuário autenticado.
+     */
+    @PostMapping(value = "/me/photo", consumes = "multipart/form-data")
+    public ResponseEntity<UserDTO> updateMyPhoto(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(userService.updatePhoto(file));
+    }
+
+    /**
+     * Remove a foto de perfil do próprio usuário autenticado.
+     */
+    @DeleteMapping(value = "/me/photo")
+    public ResponseEntity<UserDTO> removeMyPhoto() {
+        return ResponseEntity.ok(userService.removePhoto());
     }
 
     /**

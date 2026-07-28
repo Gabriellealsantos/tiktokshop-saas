@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Boxes,
@@ -38,21 +38,26 @@ const MotionLink = motion.create(Link);
 // Tempo que o popup de venda ao vivo fica visível antes de sumir sozinho.
 const SALE_TOAST_MS = 6000;
 
+// Fora do componente (nível de módulo) de propósito: cada página monta seu próprio
+// <AppShell>, então navegar entre rotas desmonta/remonta este componente. Um useRef
+// resetaria a cada remount e faria a MESMA venda antiga reaparecer como se fosse
+// nova a cada troca de página. Vivendo no módulo, sobrevive à navegação.
+let lastShownSaleId: string | null = null;
+
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const [isDark, setIsDark] = useState(true);
   const { latestSale } = useNotifications();
   // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
   const [saleVisible, setSaleVisible] = useState(false);
-  const lastSaleId = useRef<string | null>(null);
   const saleId = latestSale?.id ?? null;
 
   // Chaveado pelo id (string), não pelo objeto: evita que um re-render sem nova
   // venda limpe o timer e deixe o toast preso na tela.
   useEffect(() => {
-    if (!saleId || saleId === lastSaleId.current) return;
-    lastSaleId.current = saleId;
+    if (!saleId || saleId === lastShownSaleId) return;
+    lastShownSaleId = saleId;
     setSaleVisible(true);
     const t = setTimeout(() => setSaleVisible(false), SALE_TOAST_MS);
     return () => clearTimeout(t);
@@ -116,9 +121,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.15 }}
-                  className="flex size-9 items-center justify-center rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
+                  className="flex size-9 items-center justify-center overflow-hidden rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
                 >
-                  {isAdmin ? "A" : "C"}
+                  {user?.photoUrl ? (
+                    <img src={user.photoUrl} alt="Foto de perfil" className="size-full object-cover" />
+                  ) : (
+                    isAdmin ? "A" : "C"
+                  )}
                 </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent

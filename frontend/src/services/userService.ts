@@ -11,6 +11,21 @@ export const updateMe = (data: ProfileUpdateRequest) =>
 export const changeMyPassword = (data: ChangePasswordRequest) =>
   requestBackend({ method: "PUT", url: "/users/me/password", data, withCredentials: true });
 
+export const uploadProfilePhoto = (file: File) => {
+  const data = new FormData();
+  data.append("file", file);
+  return requestBackend({
+    method: "POST",
+    url: "/users/me/photo",
+    data,
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
+
+export const removeProfilePhoto = () =>
+  requestBackend({ method: "DELETE", url: "/users/me/photo", withCredentials: true });
+
 // ── Admin ─────────────────────────────────────────────────────────────────────
 export const findAllUsers = (params?: { page?: number; size?: number }) =>
   requestBackend({

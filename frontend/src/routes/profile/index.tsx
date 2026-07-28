@@ -10,7 +10,7 @@ import { PasswordForm } from "./components/password-form";
 
 export default function ProfileScreen() {
   useDocumentTitle("Meu Perfil");
-  const { user: authUser, logout } = useAuth();
+  const { user: authUser, logout, reloadUser } = useAuth();
 
   const user = authUser ? mapUserResponse(authUser) : null;
 
@@ -42,6 +42,8 @@ export default function ProfileScreen() {
             plan={user.plan}
             createdAt={user.createdAt}
             planExpiresAt={user.planExpiresAt}
+            photoUrl={user.photoUrl}
+            onPhotoChange={reloadUser}
           />
 
           <div className="grid gap-6 md:grid-cols-2">
