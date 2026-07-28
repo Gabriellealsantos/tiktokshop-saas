@@ -3,16 +3,32 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, Link as LinkIcon, Plus, Info, LayoutDashboard, X, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 import { useMockSession } from "@/context/mock-session";
-import { ProductCard, Dialog, DialogContent, DialogDescription, DialogTitle, Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch } from "@/components";
+import {
+  ProductCard,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  Form,
+} from "@/components";
 import { type Product } from "@/data/mock";
 import type { Category } from "@/models/category";
-import { mapBackendToProduct, toProductDTO, productToFormValues, type BackendProduct } from "@/models/product-mappers";
-import { createAdminProduct, updateAdminProduct, uploadProductImage } from "@/services/productService";
+import {
+  mapBackendToProduct,
+  toProductDTO,
+  productToFormValues,
+  type BackendProduct,
+} from "@/models/product-mappers";
+import {
+  createAdminProduct,
+  updateAdminProduct,
+  uploadProductImage,
+} from "@/services/productService";
 import { getCategories } from "@/services/categoryService";
 import { createUserProduct } from "@/services/userProductService";
 import { ContentGenerationOptions } from "../content-generation-options";
@@ -23,8 +39,6 @@ import { SectionStats } from "./components/section-stats";
 import { SectionOrigin } from "./components/section-origin";
 import { SectionAffiliate } from "./components/section-affiliate";
 import { cn } from "@/utils/utils";
-
-
 
 const formSchema = z.object({
   // 1. Mídia
@@ -54,7 +68,11 @@ const formSchema = z.object({
   favorite: z.boolean(),
 
   // 5. Afiliação
-  affiliateUrl: z.string().url({ message: "URL do TikTok Shop inválida" }).optional().or(z.literal("")),
+  affiliateUrl: z
+    .string()
+    .url({ message: "URL do TikTok Shop inválida" })
+    .optional()
+    .or(z.literal("")),
 });
 
 const BLANK_DEFAULTS: z.infer<typeof formSchema> = {
@@ -86,7 +104,12 @@ interface AddProductModalProps {
   productToEdit?: Product | null;
 }
 
-export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }: AddProductModalProps) {
+export function AddProductModal({
+  open,
+  onOpenChange,
+  onCreated,
+  productToEdit,
+}: AddProductModalProps) {
   const { role } = useMockSession();
   const isAdmin = role === "admin";
   const isEditing = !!productToEdit;
@@ -115,21 +138,33 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
   // Ao abrir: em modo edição pré-preenche com o produto; em modo criação garante form limpo.
   useEffect(() => {
     if (!open) return;
-    form.reset(productToEdit ? productToFormValues(productToEdit) : BLANK_DEFAULTS);
+    form.reset(
+      productToEdit ? productToFormValues(productToEdit) : BLANK_DEFAULTS,
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, productToEdit]);
 
-
   const watchAllFields = form.watch();
-  const canSubmit = !!watchAllFields.image && !!watchAllFields.name && (!isAdmin || !!watchAllFields.category) && !isUploading;
+  const canSubmit =
+    !!watchAllFields.image &&
+    !!watchAllFields.name &&
+    (!isAdmin || !!watchAllFields.category) &&
+    !isUploading;
 
   const previewProduct: Product = {
     id: 9999,
     name: watchAllFields.name || "Nome do Produto",
-    category: cats.find((c) => String(c.id) === watchAllFields.category)?.name || "Categoria",
-    price: !isNaN(Number(watchAllFields.price)) && watchAllFields.price ? `R$ ${Number(watchAllFields.price).toFixed(2).replace(".", ",")}` : "R$ 0,00",
+    category:
+      cats.find((c) => String(c.id) === watchAllFields.category)?.name ||
+      "Categoria",
+    price:
+      !isNaN(Number(watchAllFields.price)) && watchAllFields.price
+        ? `R$ ${Number(watchAllFields.price).toFixed(2).replace(".", ",")}`
+        : "R$ 0,00",
     sales: watchAllFields.sales || "0 vendas",
-    image: watchAllFields.image || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+    image:
+      watchAllFields.image ||
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
     favorite: watchAllFields.favorite,
     views: watchAllFields.views || undefined,
     revenueEstimate: watchAllFields.revenueEstimate || undefined,
@@ -142,12 +177,18 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
     viral: watchAllFields.viral,
     affiliateUrl: watchAllFields.affiliateUrl || undefined,
     salesHistory7d: watchAllFields.salesHistory7d
-      ? watchAllFields.salesHistory7d.split(",").map(s => Number(s.trim())).filter(n => !isNaN(n))
+      ? watchAllFields.salesHistory7d
+          .split(",")
+          .map((s) => Number(s.trim()))
+          .filter((n) => !isNaN(n))
       : undefined,
   };
 
   if (watchAllFields.images) {
-    const arr = watchAllFields.images.split(",").map(s => s.trim()).filter(Boolean);
+    const arr = watchAllFields.images
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (arr.length > 0) {
       previewProduct.images = arr;
     }
@@ -166,23 +207,33 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
 
   async function handleImageUpload(file: File) {
     if (!file.type.startsWith("image/")) {
-      toast.error("Formato inválido", { description: "Por favor, envie apenas imagens." });
+      toast.error("Formato inválido", {
+        description: "Por favor, envie apenas imagens.",
+      });
       return;
     }
     // Mostra um blob local enquanto faz o upload real
     const localPreview = URL.createObjectURL(file);
-    form.setValue("image", localPreview, { shouldValidate: true, shouldDirty: true });
+    form.setValue("image", localPreview, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
 
     setIsUploading(true);
     try {
       const res = await uploadProductImage(file);
       const realUrl = res.data?.url || res.data;
       if (typeof realUrl === "string" && realUrl.startsWith("http")) {
-        form.setValue("image", realUrl, { shouldValidate: true, shouldDirty: true });
+        form.setValue("image", realUrl, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
       }
       toast.success("Imagem enviada com sucesso!");
     } catch {
-      toast.error("Falha ao enviar imagem", { description: "Tente novamente." });
+      toast.error("Falha ao enviar imagem", {
+        description: "Tente novamente.",
+      });
       form.setValue("image", "", { shouldValidate: true, shouldDirty: true });
     } finally {
       URL.revokeObjectURL(localPreview);
@@ -202,7 +253,10 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
     try {
       if (isEditing && productToEdit) {
         // Modo edição (admin): atualiza o produto existente e fecha — sem passo de gerar conteúdo.
-        const dto = toProductDTO(values);
+        const dto = toProductDTO({
+          ...values,
+          category: values.category ?? "",
+        });
         await updateAdminProduct(productToEdit.id, dto);
         toast.success("Produto atualizado com sucesso!", {
           description: "As alterações já estão na vitrine de Produtos Virais.",
@@ -214,7 +268,10 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
 
       if (role === "admin") {
         // Admin: cria produto no catálogo com todos os campos ricos.
-        const dto = toProductDTO(values);
+        const dto = toProductDTO({
+          ...values,
+          category: values.category ?? "",
+        });
         const res = await createAdminProduct(dto);
         const created = res.data as BackendProduct;
         setCreatedProduct(mapBackendToProduct(created));
@@ -230,7 +287,9 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
           id: Date.now(),
           name: values.name,
           category: values.category || "Meus Produtos",
-          price: values.price ? `R$ ${values.price.toFixed(2).replace(".", ",")}` : "R$ 0,00",
+          price: values.price
+            ? `R$ ${values.price.toFixed(2).replace(".", ",")}`
+            : "R$ 0,00",
           sales: "0 vendas",
           image: values.image,
           favorite: false,
@@ -239,14 +298,18 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
       }
 
       toast.success("Produto adicionado com sucesso!", {
-        description: role === "admin"
-          ? "Disponível na vitrine de Produtos Virais."
-          : "Adicionado à sua lista de produtos.",
+        description:
+          role === "admin"
+            ? "Disponível na vitrine de Produtos Virais."
+            : "Adicionado à sua lista de produtos.",
       });
       setStep(2);
       onCreated?.();
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.response?.data?.error || "Erro inesperado ao salvar.";
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        "Erro inesperado ao salvar.";
       toast.error("Falha ao salvar produto", { description: msg });
     } finally {
       setIsSubmitting(false);
@@ -259,16 +322,18 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
         className={cn(
           "max-w-[1200px] gap-0 p-0 overflow-hidden border-white/10 bg-surface-1 text-text-1 shadow-2xl",
           "max-sm:top-auto max-sm:bottom-0 max-sm:translate-y-0 max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:border-b-0",
-          "sm:rounded-2xl"
+          "sm:rounded-2xl",
         )}
       >
         <VisuallyHidden.Root>
           <DialogTitle>Adicionar Novo Produto</DialogTitle>
-          <DialogDescription>Formulário de cadastro para a vitrine de produtos virais.</DialogDescription>
+          <DialogDescription>
+            Formulário de cadastro para a vitrine de produtos virais.
+          </DialogDescription>
         </VisuallyHidden.Root>
 
         <div className="flex flex-col lg:flex-row h-full max-h-[90dvh] md:max-h-[85vh] relative overflow-hidden">
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {step === 1 && (
               <motion.div
                 key="step-1"
@@ -279,75 +344,91 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
                 className="flex flex-col lg:flex-row h-full w-full"
               >
                 {/* LEFT/FORM: scrolls internally */}
-          <div className="flex-1 min-h-0 p-6 md:p-8 overflow-y-auto">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white">
-                {isEditing ? "Editar Produto" : isAdmin ? "Adicionar Produto" : "Adicionar Meu Produto"}
-              </h2>
-              <p className="text-sm text-zinc-400 mt-1">
-                {isEditing
-                  ? "Ajuste os campos e salve as alterações na vitrine."
-                  : isAdmin
-                    ? "Preencha os campos para rastrear um novo produto na vitrine."
-                    : "Envie a imagem e dê um nome ao seu produto para gerar conteúdo com ele."}
-              </p>
-            </div>
+                <div className="flex-1 min-h-0 p-6 md:p-8 overflow-y-auto">
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-white">
+                      {isEditing
+                        ? "Editar Produto"
+                        : isAdmin
+                          ? "Adicionar Produto"
+                          : "Adicionar Meu Produto"}
+                    </h2>
+                    <p className="text-sm text-zinc-400 mt-1">
+                      {isEditing
+                        ? "Ajuste os campos e salve as alterações na vitrine."
+                        : isAdmin
+                          ? "Preencha os campos para rastrear um novo produto na vitrine."
+                          : "Envie a imagem e dê um nome ao seu produto para gerar conteúdo com ele."}
+                    </p>
+                  </div>
 
-            <Form {...form}>
-              <form
-                id="add-product-form"
-                className="space-y-6"
-              >
+                  <Form {...form}>
+                    <form id="add-product-form" className="space-y-6">
+                      {/* 1. Mídia */}
+                      <SectionMedia
+                        form={form}
+                        fileInputRef={fileInputRef}
+                        handleDrop={handleDrop}
+                        handleImageUpload={handleImageUpload}
+                      />
 
-                {/* 1. Mídia */}
-                <SectionMedia form={form} fileInputRef={fileInputRef} handleDrop={handleDrop} handleImageUpload={handleImageUpload} />
+                      {isUploading && (
+                        <p className="text-xs text-brand-400 animate-pulse">
+                          Enviando imagem…
+                        </p>
+                      )}
 
-                {isUploading && (
-                  <p className="text-xs text-brand-400 animate-pulse">Enviando imagem…</p>
-                )}
+                      {/* 2. Básico */}
+                      <SectionBasic
+                        form={form}
+                        isAdmin={isAdmin}
+                        categories={cats}
+                      />
 
-                {/* 2. Básico */}
-                <SectionBasic form={form} isAdmin={isAdmin} categories={cats} />
+                      {/* 3. Estatísticas */}
+                      {role === "admin" && <SectionStats form={form} />}
 
-                {/* 3. Estatísticas */}
-                {role === "admin" && (
-                  <SectionStats form={form} />
-                )}
+                      {/* 4. Origem/Meta */}
+                      {role === "admin" && <SectionOrigin form={form} />}
 
-                {/* 4. Origem/Meta */}
-                {role === "admin" && (
-                  <SectionOrigin form={form} />
-                )}
+                      {/* 5. Afiliação */}
+                      {role === "admin" && <SectionAffiliate form={form} />}
+                    </form>
+                  </Form>
+                </div>
 
-                {/* 5. Afiliação */}
-                {role === "admin" && (
-                  <SectionAffiliate form={form} />
-                )}
-              </form>
-            </Form>
-          </div>
+                {/* RIGHT: Live Preview & Submit */}
+                <div className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-white/10 bg-surface-2/20 flex flex-col p-6 lg:p-8 shrink-0 overflow-y-auto lg:overflow-visible">
+                  <h3 className="text-sm font-bold text-white mb-4">
+                    Preview em Tempo Real
+                  </h3>
+                  <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-[320px]">
+                    <ProductCard product={previewProduct} />
+                  </div>
 
-          {/* RIGHT: Live Preview & Submit */}
-          <div className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-white/10 bg-surface-2/20 flex flex-col p-6 lg:p-8 shrink-0 overflow-y-auto lg:overflow-visible">
-            <h3 className="text-sm font-bold text-white mb-4">Preview em Tempo Real</h3>
-            <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-[320px]">
-              <ProductCard product={previewProduct} />
-            </div>
-
-            <div className="mt-auto pt-6 border-t border-white/10">
-              <button
-                type="button"
-                onClick={form.handleSubmit(onSubmit, (errors) => {
-                  console.log(">>> ERRO DE VALIDAÇÃO IMPEDIU O SUBMIT:", errors);
-                  toast.error("Confira os campos destacados.");
-                })}
-                disabled={isSubmitting || !canSubmit}
-                className="btn-brand flex h-12 w-full items-center justify-center rounded-[14px] text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
-              >
-                {isSubmitting ? "Salvando..." : isUploading ? "Enviando imagem…" : isEditing ? "Salvar alterações" : "Adicionar ao Estúdio"}
-              </button>
-            </div>
-          </div>
+                  <div className="mt-auto pt-6 border-t border-white/10">
+                    <button
+                      type="button"
+                      onClick={form.handleSubmit(onSubmit, (errors) => {
+                        console.log(
+                          ">>> ERRO DE VALIDAÇÃO IMPEDIU O SUBMIT:",
+                          errors,
+                        );
+                        toast.error("Confira os campos destacados.");
+                      })}
+                      disabled={isSubmitting || !canSubmit}
+                      className="btn-brand flex h-12 w-full items-center justify-center rounded-[14px] text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+                    >
+                      {isSubmitting
+                        ? "Salvando..."
+                        : isUploading
+                          ? "Enviando imagem…"
+                          : isEditing
+                            ? "Salvar alterações"
+                            : "Adicionar ao Estúdio"}
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -373,8 +454,14 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
                       </button>
 
                       <div className="mb-8">
-                        <h2 className="text-2xl font-bold text-white mb-2">Produto salvo com sucesso! 🎉</h2>
-                        <p className="text-text-2">O produto "{createdProduct.name}" foi adicionado ao seu estúdio. Como você deseja criar conteúdo para ele agora?</p>
+                        <h2 className="text-2xl font-bold text-white mb-2">
+                          Produto salvo com sucesso! 🎉
+                        </h2>
+                        <p className="text-text-2">
+                          O produto "{createdProduct.name}" foi adicionado ao
+                          seu estúdio. Como você deseja criar conteúdo para ele
+                          agora?
+                        </p>
                       </div>
                     </>
                   ) : (
@@ -387,12 +474,19 @@ export function AddProductModal({ open, onOpenChange, onCreated, productToEdit }
                           className="size-full object-cover"
                         />
                       </div>
-                      <h2 className="mt-5 text-2xl font-bold text-white">{createdProduct.name}</h2>
-                      <p className="mt-1.5 text-text-3">Como você quer criar conteúdo para este produto?</p>
+                      <h2 className="mt-5 text-2xl font-bold text-white">
+                        {createdProduct.name}
+                      </h2>
+                      <p className="mt-1.5 text-text-3">
+                        Como você quer criar conteúdo para este produto?
+                      </p>
                     </div>
                   )}
 
-                  <ContentGenerationOptions product={createdProduct} onNavigate={() => handleOpenChange(false)} />
+                  <ContentGenerationOptions
+                    product={createdProduct}
+                    onNavigate={() => handleOpenChange(false)}
+                  />
                 </div>
               </motion.div>
             )}

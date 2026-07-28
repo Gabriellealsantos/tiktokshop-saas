@@ -4,13 +4,28 @@ import { ChevronLeft, ArrowRight } from "lucide-react";
 import { AppShell } from "@/layouts/app-shell";
 import { Page, Button, Stepper } from "@/components";
 import { toast } from "sonner";
-import { avatars, products } from "@/data/mock";
 
 import { ScriptEditor } from "./components/script-editor";
 import { VoiceSelector } from "./components/voice-selector";
 import { GenerationSummary } from "./components/generation-summary";
 
-const steps = ["Produto", "Influencer", "Cenário", "Pose + Imagem", "Fala & Voz", "Vídeo"];
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getStudioSession,
+  generateStudioVideoPrompt,
+} from "@/services/studioService";
+import { NARRATOR_VOICE } from "@/models/studio";
+import { extractError } from "@/utils/api-error";
+import type { CreationSessionDTO } from "@/models/studio";
+
+const steps = [
+  "Produto",
+  "Influencer",
+  "Cenário",
+  "Pose + Imagem",
+  "Fala & Voz",
+  "Vídeo",
+];
 
 export default function SpeechScreen() {
   const navigate = useNavigate();
@@ -32,13 +47,29 @@ export default function SpeechScreen() {
   const [speechText, setSpeechText] = useState(search.speechText || "");
   const [voiceId, setVoiceId] = useState(search.voiceId || "voice-1");
 
-  // Resolvendo mocks para exibir os nomes na barra de resumo
-  const produto = products.find((p) => p.id === Number(search.productId));
-  const avatar = avatars.find((a) => a.id === Number(search.avatarId));
+  const sessionId = searchParams.get("sessionId");
 
-  // Formatando o resumo do cenário
-  const local = search.local ? search.local.charAt(0).toUpperCase() + search.local.slice(1) : "?";
-  const timeOfDay = search.timeOfDay ? search.timeOfDay.charAt(0).toUpperCase() + search.timeOfDay.slice(1) : "?";
+  const { data: session } = useQuery({
+    queryKey: ["studio-session", sessionId],
+    queryFn: async () => {
+      const response = await getStudioSession(Number(sessionId));
+      return response.data as CreationSessionDTO;
+    },
+    enabled: !!sessionId,
+  });
+
+  const generatePrompt = useMutation({
+    mutationFn: async () => {
+      const response = await generateStudioVideoPrompt({
+        sessionId: Number(sessionId),
+        script: speechText.trim(),
+        voice: NARRATOR_VOICE[voiceId],
+      });
+      return response.data as CreationSessionDTO;
+    },
+    onError: (err) =>
+      toast.error(extractError(err, "Erro ao gerar o prompt do vídeo.")),
+  });
 
   return (
     <AppShell>
@@ -48,7 +79,9 @@ export default function SpeechScreen() {
           <Button
             variant="ghost"
             className="bg-white/5 border border-white/10 hover:bg-white/10"
-            onClick={() => navigate(`/create-from-scratch/pose?${searchParams.toString()}`)}
+            onClick={() =>
+              navigate(`/create-from-scratch/pose?${searchParams.toString()}`)
+            }
           >
             <ChevronLeft className="size-4 mr-2" />
             Voltar
@@ -80,35 +113,45 @@ export default function SpeechScreen() {
         {/* CONTEÚDO PRINCIPAL */}
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            <ScriptEditor speechText={speechText} setSpeechText={setSpeechText} />
+            <ScriptEditor
+              speechText={speechText}
+              setSpeechText={setSpeechText}
+            />
             <VoiceSelector voiceId={voiceId} setVoiceId={setVoiceId} />
           </div>
 
-          <GenerationSummary 
-            produto={produto}
-            avatar={avatar}
-            search={search}
-            local={local}
-            timeOfDay={timeOfDay}
-          />
+          <GenerationSummary session={session} />
         </div>
 
         {/* RODAPÉ */}
         <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-8">
           <Button
             variant="ghost"
-            onClick={() => navigate(`/create-from-scratch/pose?${searchParams.toString()}`)}
+            onClick={() =>
+              navigate(`/create-from-scratch/pose?${searchParams.toString()}`)
+            }
             className="text-text-2 hover:text-white"
           >
             Voltar
           </Button>
           <Button
             onClick={() => {
-              toast("Geração do vídeo iniciada!");
+              generatePrompt.mutate(undefined, {
+                onSuccess: (updated) => {
+                  const videoPrompt = updated.config?.videoPrompt as string;
+                  const params = new URLSearchParams(searchParams);
+                  params.set("sessionId", String(updated.id));
+                  navigate(`/create-from-scratch/video?${params.toString()}`, {
+                    state: { videoPrompt, imageUrl: updated.config?.imageUrl },
+                  });
+                },
+              });
             }}
-            disabled={!speechText.trim()}
+            disabled={
+              !speechText.trim() || generatePrompt.isPending || !sessionId
+            }
           >
-            Avançar
+            {generatePrompt.isPending ? "Gerando prompt..." : "Avançar"}
             <ArrowRight className="size-4 ml-2" />
           </Button>
         </div>

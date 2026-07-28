@@ -52,7 +52,7 @@ function CreationWizard({ format }: { format: string }) {
             }
           />
         ) : (
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             <motion.div
               key={step}
               initial={{ opacity: 0, x: 28 }}
@@ -60,8 +60,12 @@ function CreationWizard({ format }: { format: string }) {
               exit={{ opacity: 0, x: -28 }}
               transition={{ duration: 0.25 }}
             >
-              {step === 0 && <ProductStep selected={selected} setSelected={setSelected} />}{" "}
-              {step > 0 && step === config.steps.length - 1 && <CreationFinal takes={takes} />}
+              {step === 0 && (
+                <ProductStep selected={selected} setSelected={setSelected} />
+              )}{" "}
+              {step > 0 && step === config.steps.length - 1 && (
+                <CreationFinal takes={takes} />
+              )}
               {step > 0 &&
                 step < config.steps.length - 1 &&
                 (key === "original" ? (
@@ -76,7 +80,10 @@ function CreationWizard({ format }: { format: string }) {
         )}{" "}
         {!loading && step < config.steps.length - 1 && (
           <div className="mt-7 flex justify-between">
-            <Button variant="ghost" onClick={() => setStep((value) => Math.max(0, value - 1))}>
+            <Button
+              variant="ghost"
+              onClick={() => setStep((value) => Math.max(0, value - 1))}
+            >
               Voltar
             </Button>
             <Button onClick={advance}>

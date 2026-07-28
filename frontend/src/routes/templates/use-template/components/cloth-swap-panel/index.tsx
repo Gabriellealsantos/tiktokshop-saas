@@ -34,15 +34,20 @@ export function ClothSwapPanel({
 
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase pl-1 drop-shadow-sm">Etapa 3 &middot; Troca de roupa</span>
-      <span className="text-xs text-white/50 pl-1 mb-1">Substitua, adicione ou mantenha o look.</span>
+      <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase pl-1 drop-shadow-sm">
+        Etapa 3 &middot; Troca de roupa
+      </span>
+      <span className="text-xs text-white/50 pl-1 mb-1">
+        Substitua, adicione ou mantenha o look.
+      </span>
 
-      <div className={cn(
-        "group relative rounded-[24px] bg-surface-2/60 border border-white/5 backdrop-blur-xl flex flex-col p-6 shadow-2xl ring-1 ring-white/5 transition-all duration-500",
-        isBlocked ? "opacity-50" : "opacity-100"
-      )}>
-
-        <AnimatePresence mode="wait">
+      <div
+        className={cn(
+          "group relative rounded-[24px] bg-surface-2/60 border border-white/5 backdrop-blur-xl flex flex-col p-6 shadow-2xl ring-1 ring-white/5 transition-all duration-500",
+          isBlocked ? "opacity-50" : "opacity-100",
+        )}
+      >
+        <AnimatePresence>
           {isBlocked ? (
             <motion.div
               key="blocked"
@@ -83,7 +88,7 @@ export function ClothSwapPanel({
                         ehUltimo && "col-span-2 mx-auto w-[calc(50%-0.25rem)]",
                         ativo
                           ? "bg-gradient-to-b from-brand-400 to-brand-600 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.45),inset_0_-2px_0_0_rgba(0,0,0,0.28),0_2px_6px_rgba(0,0,0,0.35),0_0_18px_rgba(75,68,232,0.45)]"
-                          : "bg-white/[0.07] text-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14),inset_0_-2px_0_0_rgba(0,0,0,0.30),0_2px_4px_rgba(0,0,0,0.25)] hover:bg-white/[0.12] hover:text-white/90"
+                          : "bg-white/[0.07] text-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14),inset_0_-2px_0_0_rgba(0,0,0,0.30),0_2px_4px_rgba(0,0,0,0.25)] hover:bg-white/[0.12] hover:text-white/90",
                       )}
                     >
                       {opcao.label}
@@ -95,15 +100,20 @@ export function ClothSwapPanel({
               {/* Texto Contextual */}
               <div className="mb-8">
                 <p className="text-sm text-white/60">
-                  {activeTab === "completo" && "Substitui o look inteiro pela referência selecionada."}
-                  {activeTab === "substituir" && "Troca apenas a peça indicada, mantendo o restante do look."}
-                  {activeTab === "adicionar" && "Acrescenta a peça de referência ao look atual."}
+                  {activeTab === "completo" &&
+                    "Substitui o look inteiro pela referência selecionada."}
+                  {activeTab === "substituir" &&
+                    "Troca apenas a peça indicada, mantendo o restante do look."}
+                  {activeTab === "adicionar" &&
+                    "Acrescenta a peça de referência ao look atual."}
                 </p>
               </div>
 
               {/* Referência do Produto — clicável (escolher/trocar) */}
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-bold tracking-widest text-white/50 uppercase drop-shadow-sm">Referência do Produto</span>
+                <span className="text-[10px] font-bold tracking-widest text-white/50 uppercase drop-shadow-sm">
+                  Referência do Produto
+                </span>
 
                 <button
                   type="button"
@@ -112,7 +122,12 @@ export function ClothSwapPanel({
                 >
                   <div className="size-16 rounded-[10px] overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative flex items-center justify-center">
                     {produto?.image && !imgError ? (
-                      <img src={produto.image} alt={produto.name} className="w-full h-full object-cover" onError={() => setImgError(true)} />
+                      <img
+                        src={produto.image}
+                        alt={produto.name}
+                        className="w-full h-full object-cover"
+                        onError={() => setImgError(true)}
+                      />
                     ) : (
                       <Package className="size-6 text-white/20" />
                     )}
@@ -120,14 +135,27 @@ export function ClothSwapPanel({
                   <div className="flex flex-col min-w-0 flex-1">
                     {produto ? (
                       <>
-                        <span className="text-white font-semibold text-sm truncate" title={produto.name}>{produto.name}</span>
-                        <span className="text-white/50 text-xs truncate mt-0.5 font-mono">ID: {produto.id}</span>
-                        <span className="text-brand-400 text-[11px] font-medium mt-0.5">Trocar produto</span>
+                        <span
+                          className="text-white font-semibold text-sm truncate"
+                          title={produto.name}
+                        >
+                          {produto.name}
+                        </span>
+                        <span className="text-white/50 text-xs truncate mt-0.5 font-mono">
+                          ID: {produto.id}
+                        </span>
+                        <span className="text-brand-400 text-[11px] font-medium mt-0.5">
+                          Trocar produto
+                        </span>
                       </>
                     ) : (
                       <>
-                        <span className="text-white font-semibold text-sm">Escolher produto</span>
-                        <span className="text-white/40 text-xs mt-0.5">Selecione um produto do catálogo</span>
+                        <span className="text-white font-semibold text-sm">
+                          Escolher produto
+                        </span>
+                        <span className="text-white/40 text-xs mt-0.5">
+                          Selecione um produto do catálogo
+                        </span>
                       </>
                     )}
                   </div>
@@ -163,7 +191,6 @@ export function ClothSwapPanel({
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </div>
   );

@@ -116,7 +116,7 @@ export function PhotoCustomizationMode() {
             onSubmit={(e) => e.preventDefault()}
             className="relative overflow-hidden min-h-[500px]"
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, x: 20 }}

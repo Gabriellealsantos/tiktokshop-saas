@@ -118,7 +118,7 @@ export function TabRoupa({
         )}
       />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         {modoRoupa === "Automática" ? (
           <motion.div
             key="auto"

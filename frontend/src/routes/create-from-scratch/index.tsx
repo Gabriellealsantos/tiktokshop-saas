@@ -1,13 +1,30 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ChevronLeft, Shirt, Filter, Wand, ArrowRight, Check } from "lucide-react";
+import {
+  ChevronLeft,
+  Shirt,
+  Filter,
+  Wand,
+  ArrowRight,
+  Check,
+} from "lucide-react";
 import { AppShell } from "@/layouts/app-shell";
 import { Page, Button, Stepper } from "@/components";
-import { avatars } from "@/data/mock";
+import {
+  useMyAvatars,
+  useGalleryAvatars,
+} from "@/routes/create-avatar/api/use-avatars";
 import { cn } from "@/utils/utils";
 import { toast } from "sonner";
 
-const steps = ["Produto", "Influencer", "Cenário", "Pose + Imagem", "Fala & Voz", "Vídeo"];
+const steps = [
+  "Produto",
+  "Influencer",
+  "Cenário",
+  "Pose + Imagem",
+  "Fala & Voz",
+  "Vídeo",
+];
 
 // Mock de aplicação de produto
 const MOCK_MODOS_APLICACAO = [
@@ -22,17 +39,41 @@ const MOCK_MODOS_APLICACAO = [
 export default function CreateFromScratchScreen() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const { data: myAvatars } = useMyAvatars();
+  const { data: gallery } = useGalleryAvatars();
+
   const avatarIdParam = searchParams.get("avatarId") ?? undefined;
   const applicationModeParam = searchParams.get("applicationMode") ?? undefined;
-  const [applicationMode, setApplicationMode] = useState(applicationModeParam || MOCK_MODOS_APLICACAO[0].id);
+  const [applicationMode, setApplicationMode] = useState(
+    applicationModeParam || MOCK_MODOS_APLICACAO[0].id,
+  );
   const [somenteNeutros, setSomenteNeutros] = useState(false);
-  const [avatarSelecionado, setAvatarSelecionado] = useState<number | null>(avatarIdParam ? Number(avatarIdParam) : null);
+
+  const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(
+    avatarIdParam ?? null,
+  );
 
   // TODO: campo/flag "neutro" no avatar. Usando um mock temporário
   // Aqui assumimos que alguns avatares poderiam ser neutros,
   // mas como o dado original não tem essa flag, vamos fingir que os "Modelo IA" são neutros para demonstração
-  const avataresFiltrados = avatars.filter(
-    (a) => !somenteNeutros || a.gender === "Modelo IA"
+  const avatares = [
+    ...(myAvatars?.items ?? []).map((a) => ({
+      id: `u${a.id}`,
+      name: a.name,
+      image: a.imageUrl,
+      isNeutro: false,
+    })),
+    ...(gallery ?? []).map((a) => ({
+      id: `g${a.id}`,
+      name: a.name,
+      image: a.imageUrl,
+      isNeutro: true,
+    })),
+  ];
+
+  const avataresFiltrados = avatares.filter(
+    (a) => !somenteNeutros || a.isNeutro,
   );
 
   return (
@@ -79,8 +120,12 @@ export default function CreateFromScratchScreen() {
               <Shirt className="size-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-text-1 leading-tight">Como o avatar usa a peça?</h2>
-              <p className="text-xs text-text-3">Escolha o modo de aplicação.</p>
+              <h2 className="text-lg font-bold text-text-1 leading-tight">
+                Como o avatar usa a peça?
+              </h2>
+              <p className="text-xs text-text-3">
+                Escolha o modo de aplicação.
+              </p>
             </div>
           </div>
 
@@ -96,11 +141,15 @@ export default function CreateFromScratchScreen() {
                     "relative flex flex-col items-start gap-1 p-4 rounded-2xl border text-left transition-all duration-300",
                     isSelected
                       ? "bg-brand-500/10 border-brand-500 shadow-[0_0_20px_-4px_rgba(75,68,232,0.2)]"
-                      : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                      : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20",
                   )}
                 >
-                  <span className="font-semibold text-text-1">{modo.title}</span>
-                  <span className="text-xs text-text-3 leading-relaxed">{modo.description}</span>
+                  <span className="font-semibold text-text-1">
+                    {modo.title}
+                  </span>
+                  <span className="text-xs text-text-3 leading-relaxed">
+                    {modo.description}
+                  </span>
                   {isSelected && (
                     <div className="absolute right-3 top-3 grid size-5 place-items-center rounded-full bg-brand-500 text-white shadow-sm">
                       <Check className="size-3" />
@@ -118,7 +167,7 @@ export default function CreateFromScratchScreen() {
                 "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors",
                 somenteNeutros
                   ? "bg-brand-500/20 border-brand-500/30 text-brand-300"
-                  : "bg-white/5 border-white/10 text-text-2 hover:bg-white/10 hover:text-white"
+                  : "bg-white/5 border-white/10 text-text-2 hover:bg-white/10 hover:text-white",
               )}
             >
               <Filter className="size-4" />
@@ -152,8 +201,7 @@ export default function CreateFromScratchScreen() {
           <div className="grid gap-2.5 sm:gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 mb-12">
             {avataresFiltrados.map((avatar) => {
               const isSelected = avatarSelecionado === avatar.id;
-              // Simulando flag neutro
-              const isNeutro = avatar.gender === "Modelo IA";
+              const isNeutro = avatar.isNeutro;
 
               return (
                 <button
@@ -163,7 +211,7 @@ export default function CreateFromScratchScreen() {
                     "group relative overflow-hidden rounded-2xl aspect-[2/3] text-left transition-all duration-300",
                     isSelected
                       ? "ring-2 ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.5)]"
-                      : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg"
+                      : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg",
                   )}
                 >
                   <img
@@ -212,7 +260,8 @@ export default function CreateFromScratchScreen() {
             disabled={!avatarSelecionado}
             onClick={() => {
               const params = new URLSearchParams(searchParams);
-              if (avatarSelecionado !== null) params.set("avatarId", String(avatarSelecionado));
+              if (avatarSelecionado !== null)
+                params.set("avatarId", String(avatarSelecionado));
               params.set("applicationMode", applicationMode);
               navigate(`/create-from-scratch/scenario?${params.toString()}`);
             }}

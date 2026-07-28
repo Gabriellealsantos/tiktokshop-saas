@@ -278,7 +278,7 @@ export function FullCustomizationMode() {
             onSubmit={(e) => e.preventDefault()}
             className="relative overflow-hidden min-h-[500px] p-4 -mx-4"
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               <motion.div
                 key={activeTab}
                 initial={{ opacity: 0, x: 20 }}

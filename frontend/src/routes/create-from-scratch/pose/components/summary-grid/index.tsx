@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { Package, User, Camera, Image as ImageIcon } from "lucide-react";
-import type { Product, Avatar } from "@/data/mock";
 
 interface SummaryGridProps {
-  produto?: Product;
-  avatar?: Avatar;
+  produto?: { name: string; image?: string };
+  avatar?: { name: string; image?: string };
   local: string;
   timeOfDay: string;
   lighting: string;
   atmosphere: string;
 }
 
-export function SummaryGrid({ produto, avatar, local, timeOfDay, lighting, atmosphere }: SummaryGridProps) {
+export function SummaryGrid({
+  produto,
+  avatar,
+  local,
+  timeOfDay,
+  lighting,
+  atmosphere,
+}: SummaryGridProps) {
   const [productImgError, setProductImgError] = useState(false);
   const [avatarImgError, setAvatarImgError] = useState(false);
 
@@ -31,8 +37,12 @@ export function SummaryGrid({ produto, avatar, local, timeOfDay, lighting, atmos
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">Produto</p>
-          <p className="text-sm font-medium text-text-1 truncate">{produto?.name || "Desconhecido"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">
+            Produto
+          </p>
+          <p className="text-sm font-medium text-text-1 truncate">
+            {produto?.name || "Desconhecido"}
+          </p>
         </div>
       </div>
 
@@ -50,8 +60,12 @@ export function SummaryGrid({ produto, avatar, local, timeOfDay, lighting, atmos
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">Influencer</p>
-          <p className="text-sm font-medium text-text-1 truncate">{avatar?.name || "Desconhecido"} (padrão)</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">
+            Influencer
+          </p>
+          <p className="text-sm font-medium text-text-1 truncate">
+            {avatar?.name || "Desconhecido"} (padrão)
+          </p>
         </div>
       </div>
 
@@ -60,9 +74,13 @@ export function SummaryGrid({ produto, avatar, local, timeOfDay, lighting, atmos
           <Camera className="size-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">Ponto de Vista</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">
+            Ponto de Vista
+          </p>
           {/* TODO: origem do "ponto de vista" — se ainda não é escolhido em nenhuma etapa, definir default ou etapa de origem */}
-          <p className="text-sm font-medium text-text-1 truncate">Selfie (POV)</p>
+          <p className="text-sm font-medium text-text-1 truncate">
+            Selfie (POV)
+          </p>
         </div>
       </div>
 
@@ -71,8 +89,12 @@ export function SummaryGrid({ produto, avatar, local, timeOfDay, lighting, atmos
           <ImageIcon className="size-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">Cenário</p>
-          <p className="text-sm font-medium text-text-1 truncate">{local} · {timeOfDay} · {lighting} · {atmosphere}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-text-3">
+            Cenário
+          </p>
+          <p className="text-sm font-medium text-text-1 truncate">
+            {local} · {timeOfDay} · {lighting} · {atmosphere}
+          </p>
         </div>
       </div>
     </div>

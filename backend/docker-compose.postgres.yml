@@ -23,8 +23,11 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5051:80"
+    volumes:
+      - tiktokshop_pgadmin_data:/var/lib/pgadmin
     depends_on:
       - db
 
 volumes:
   tiktokshop_pg_data:
+  tiktokshop_pgadmin_data:

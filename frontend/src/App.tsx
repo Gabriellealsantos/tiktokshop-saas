@@ -30,44 +30,64 @@ import CreateFromScratchScreen from "@/routes/create-from-scratch";
 import PoseScreen from "@/routes/create-from-scratch/pose";
 import ScenarioScreen from "@/routes/create-from-scratch/scenario";
 import SpeechScreen from "@/routes/create-from-scratch/speech";
+import VideoScreen from "./routes/create-from-scratch/video";
 
 function App() {
   return (
     <>
-    <Routes>
-      <Route path="/login" element={<LoginRoute />} />
-      <Route path="/register" element={<RegisterRoute />} />
-      <Route path="/forgot-password" element={<ForgotPasswordRoute />} />
-      <Route path="/authorized" element={<AuthorizedRoute />} />
+      <Routes>
+        <Route path="/login" element={<LoginRoute />} />
+        <Route path="/register" element={<RegisterRoute />} />
+        <Route path="/forgot-password" element={<ForgotPasswordRoute />} />
+        <Route path="/authorized" element={<AuthorizedRoute />} />
 
-      <Route element={<PrivateRoute />}>
-        <Route path="/" element={<IndexRoute />} />
-        <Route path="/dashboard" element={<DashboardRoute />} />
-        <Route path="/admin" element={<AdminScreen />} />
-        <Route path="/create-avatar" element={<AvatarStudio />} />
-        <Route path="/credits" element={<CreditsScreen />} />
-        <Route path="/editor" element={<EditorScreen />} />
-        <Route path="/generate/viral-template" element={<ProductTemplatesPicker />} />
-        <Route path="/products" element={<ProductsScreen />} />
-        <Route path="/profile" element={<ProfileScreen />} />
-        <Route path="/prompts" element={<PromptsScreen />} />
-        <Route path="/referral" element={<ReferralScreen />} />
-        <Route path="/settings" element={<SettingsScreen />} />
-        <Route path="/studio" element={<StudioLanding />} />
-        <Route path="/studio/:format" element={<StudioRoute />} />
-        <Route path="/templates" element={<TemplatesScreen />} />
-        <Route path="/templates/use" element={<TemplateAssemblyScreen />} />
-        <Route path="/tools" element={<ToolsScreen />} />
-        <Route path="/trend-boost" element={<TrendLanding />} />
-        <Route path="/trend-boost/:template" element={<TrendTemplateDetail />} />
-        <Route path="/trend-boost/:template/:characterId" element={<TrendCharacterFlow />} />
-        <Route path="/create-from-scratch" element={<CreateFromScratchScreen />} />
-        <Route path="/create-from-scratch/pose" element={<PoseScreen />} />
-        <Route path="/create-from-scratch/scenario" element={<ScenarioScreen />} />
-        <Route path="/create-from-scratch/speech" element={<SpeechScreen />} />
-      </Route>
-    </Routes>
-    <Toaster position="top-center" richColors />
+        <Route element={<PrivateRoute />}>
+          <Route path="/" element={<IndexRoute />} />
+          <Route path="/dashboard" element={<DashboardRoute />} />
+          <Route path="/admin" element={<AdminScreen />} />
+          <Route path="/create-avatar" element={<AvatarStudio />} />
+          <Route path="/credits" element={<CreditsScreen />} />
+          <Route path="/editor" element={<EditorScreen />} />
+          <Route
+            path="/generate/viral-template"
+            element={<ProductTemplatesPicker />}
+          />
+          <Route path="/products" element={<ProductsScreen />} />
+          <Route path="/profile" element={<ProfileScreen />} />
+          <Route path="/prompts" element={<PromptsScreen />} />
+          <Route path="/referral" element={<ReferralScreen />} />
+          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/studio" element={<StudioLanding />} />
+          <Route path="/studio/:format" element={<StudioRoute />} />
+          <Route path="/templates" element={<TemplatesScreen />} />
+          <Route path="/templates/use" element={<TemplateAssemblyScreen />} />
+          <Route path="/tools" element={<ToolsScreen />} />
+          <Route path="/trend-boost" element={<TrendLanding />} />
+          <Route
+            path="/trend-boost/:template"
+            element={<TrendTemplateDetail />}
+          />
+          <Route
+            path="/trend-boost/:template/:characterId"
+            element={<TrendCharacterFlow />}
+          />
+          <Route
+            path="/create-from-scratch"
+            element={<CreateFromScratchScreen />}
+          />
+          <Route path="/create-from-scratch/pose" element={<PoseScreen />} />
+          <Route
+            path="/create-from-scratch/scenario"
+            element={<ScenarioScreen />}
+          />
+          <Route
+            path="/create-from-scratch/speech"
+            element={<SpeechScreen />}
+          />
+          <Route path="/create-from-scratch/video" element={<VideoScreen />} />
+        </Route>
+      </Routes>
+      <Toaster position="top-center" richColors />
     </>
   );
 }
