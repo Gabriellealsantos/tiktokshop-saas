@@ -115,6 +115,12 @@ public class OAuth2SchemaInitializer {
                 )
                 """, textType));
 
+        // Suporta a checagem de sessão única, que filtra por principal_name.
+        jdbcTemplate.execute("""
+                CREATE INDEX IF NOT EXISTS idx_oauth2_authorization_principal
+                    ON oauth2_authorization (principal_name)
+                """);
+
         // Create oauth2_authorization_consent table
         jdbcTemplate.execute("""
                 CREATE TABLE IF NOT EXISTS oauth2_authorization_consent (

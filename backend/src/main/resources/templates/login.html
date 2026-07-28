@@ -191,6 +191,10 @@
                             class="mt-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-300">
                             Sua conta está aguardando aprovação ou seu plano expirou.
                         </div>
+                        <div th:if="${param.error != null and param.error[0] == 'session_in_use'}"
+                            class="mt-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-300">
+                            Esta conta já está em uso em outro dispositivo. Saia da outra sessão e tente novamente.
+                        </div>
                         <div th:if="${param.error != null and param.error[0] == ''}"
                             class="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
                             Credenciais inválidas. Tente novamente.

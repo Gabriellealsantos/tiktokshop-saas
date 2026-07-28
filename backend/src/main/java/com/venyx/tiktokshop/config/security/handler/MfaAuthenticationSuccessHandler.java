@@ -1,7 +1,9 @@
 package com.venyx.tiktokshop.config.security.handler;
 
+import com.venyx.tiktokshop.entities.RoleConstants;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.repositories.UserRepository;
+import com.venyx.tiktokshop.services.AuthSecurityService;
 import com.venyx.tiktokshop.services.JwtTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,13 +31,16 @@ public class MfaAuthenticationSuccessHandler extends SavedRequestAwareAuthentica
 
     private final UserRepository userRepository;
     private final JwtTokenService jwtTokenService;
+    private final AuthSecurityService authSecurityService;
     private final RequestCache requestCache = new HttpSessionRequestCache();
 
     public MfaAuthenticationSuccessHandler(UserRepository userRepository,
                                            JwtTokenService jwtTokenService,
+                                           AuthSecurityService authSecurityService,
                                            @Value("${cors.origins}") String corsOrigins) {
         this.userRepository = userRepository;
         this.jwtTokenService = jwtTokenService;
+        this.authSecurityService = authSecurityService;
 
         // Fallback: redireciona pro frontend (primeiro origin configurado)
         String frontendUrl = corsOrigins.split(",")[0].trim();
@@ -50,7 +55,22 @@ public class MfaAuthenticationSuccessHandler extends SavedRequestAwareAuthentica
             throws ServletException, IOException {
 
         String email = authentication.getName();
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByEmailWithRoles(email).orElse(null);
+
+        // Sessão única: recusa antes de qualquer token ser emitido, derrubando a
+        // sessão de cookie recém-criada para que /oauth2/authorize exija login de novo.
+        // Admin fica de fora dessa regra: sem exceção, um admin travado por ela não
+        // teria como entrar de novo nem para desligar o próprio switch.
+        boolean isAdmin = user != null && user.hasRole(RoleConstants.ROLE_ADMIN);
+        if (!isAdmin && authSecurityService.isLoginBlockedByActiveSession(email)) {
+            SecurityContextHolder.clearContext();
+            HttpSession current = request.getSession(false);
+            if (current != null) {
+                current.invalidate();
+            }
+            getRedirectStrategy().sendRedirect(request, response, "/login?error=session_in_use");
+            return;
+        }
 
         // ── MFA ativo: redireciona para verificação ──
         if (user != null && Boolean.TRUE.equals(user.getMfaEnabled())) {

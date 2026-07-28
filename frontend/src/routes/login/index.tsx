@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import { BrandMark } from "@/components";
 import { AuthShell } from "@/layouts/auth-shell";
@@ -15,7 +15,6 @@ export default function LoginRoute() {
   useDocumentTitle("Entrar — Estúdio Criativo");
   const ran = useRef(false);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
 
   const error = params.get("error");
   const isError = error === "disabled" || error === "locked";
@@ -38,8 +37,8 @@ export default function LoginRoute() {
                 ? "Você precisa de um plano ativo para acessar a plataforma."
                 : "Sua conta foi bloqueada temporariamente."}
             </p>
-            <button 
-              onClick={() => navigate("/login")}
+            <button
+              onClick={() => void loginRedirect()}
               className="btn-brand mt-4 rounded-xl px-6 py-2 text-sm font-semibold"
             >
               Tentar Novamente
