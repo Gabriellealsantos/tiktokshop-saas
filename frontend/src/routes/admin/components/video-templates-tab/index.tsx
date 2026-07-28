@@ -28,8 +28,8 @@ const emptyForm = (): VideoTemplateForm => ({
 /** Opções do dropdown de áudio/fala (casa com o enum VideoAudioMode do backend). */
 const AUDIO_MODES: { value: VideoAudioMode; label: string; hint: string }[] = [
   { value: "NARRACAO", label: "Narração — personagem fala (pt-BR)", hint: "Diálogo, voiceover e CTA falado em português. Comportamento padrão." },
-  { value: "MUSICA", label: "Música — sem fala", hint: "Sem diálogo; trilha/áudio em alta. CTA só visual." },
-  { value: "SILENCIO", label: "Silêncio — sem fala", hint: "Sem diálogo; som ambiente natural. CTA só visual." },
+  { value: "MUSICA", label: "Música — sem fala", hint: "Sem diálogo, voz ou narração; trilha/áudio em alta. CTA só visual." },
+  { value: "SILENCIO", label: "Silêncio — sem fala", hint: "Sem diálogo, voz ou narração; mantém só o som ambiente da cena (não gera vídeo 100% mudo). CTA só visual." },
 ];
 
 export function VideoTemplatesTab() {
