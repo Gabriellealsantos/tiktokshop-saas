@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { Clock3, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
+import { Clock3 } from "lucide-react";
 
-import { Button, EmptyState, Pill, Page } from "@/components";
+import { EmptyState, Pill, Page } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
 import { useAuth } from "@/context/auth";
-import { cn } from "@/utils/utils";
 import { MetricsTab } from "./components/metrics-tab";
 import { InsightsTab } from "./components/insights-tab";
 import { LiveSalesTab } from "./components/live-sales-tab";
@@ -16,6 +14,7 @@ import { VideoTemplatesTab } from "./components/video-templates-tab";
 import { LimitsTab } from "./components/limits-tab";
 import { UsersTab } from "./components/users-tab";
 import { SecurityTab } from "./components/security-tab";
+import { StudioPromptTab } from "./components/studio-prompt-tab";
 
 export default function AdminScreen() {
   const { isAdmin } = useAuth();
@@ -26,7 +25,10 @@ export default function AdminScreen() {
     return (
       <AppShell>
         <Page>
-          <EmptyState title="Acesso Negado" description="Esta página é restrita a administradores." />
+          <EmptyState
+            title="Acesso Negado"
+            description="Esta página é restrita a administradores."
+          />
         </Page>
       </AppShell>
     );
@@ -40,7 +42,9 @@ export default function AdminScreen() {
             <h1 className="text-3xl font-extrabold tracking-[-.035em] text-white md:text-4xl">
               Painel Admin
             </h1>
-            <p className="mt-2 text-sm text-zinc-400">Gerencie usuários e permissões</p>
+            <p className="mt-2 text-sm text-zinc-400">
+              Gerencie usuários e permissões
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-2 rounded-full border border-brand-500/20 bg-brand-500/10 px-3 py-1.5 text-xs font-medium text-brand-400">
@@ -51,17 +55,35 @@ export default function AdminScreen() {
         </div>
 
         <div className="-mt-2 -mx-1 mb-6 flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide entrance">
-          {["Usuários", "Categorias", "Trend Boost", "Modelos de Vídeo", "Limites", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações", "Segurança"].map((x) => (
+          {[
+            "Usuários",
+            "Categorias",
+            "Trend Boost",
+            "Modelos de Vídeo",
+            "Prompt de Vídeo",
+            "Limites",
+            "Métricas",
+            "Tendências",
+            "Vendas ao Vivo",
+            "Notificações",
+            "Segurança",
+          ].map((x) => (
             <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
               {x}
             </Pill>
           ))}
         </div>
 
-        {tab === "Usuários" && <UsersTab pendingCount={pendingCount} onPendingCountChange={setPendingCount} />}
+        {tab === "Usuários" && (
+          <UsersTab
+            pendingCount={pendingCount}
+            onPendingCountChange={setPendingCount}
+          />
+        )}
         {tab === "Categorias" && <CategoriesTab />}
         {tab === "Trend Boost" && <ViralTab />}
         {tab === "Modelos de Vídeo" && <VideoTemplatesTab />}
+        {tab === "Prompt de Vídeo" && <StudioPromptTab />}
         {tab === "Limites" && <LimitsTab />}
         {tab === "Métricas" && <MetricsTab />}
         {tab === "Tendências" && <InsightsTab />}
