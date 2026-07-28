@@ -25,16 +25,16 @@ export const etniaOptions = [
 ];
 
 export const tomPeleOptions = [
-  { name: "Tom 01", color: "#F6EDE4" },
-  { name: "Tom 02", color: "#F3E7DB" },
-  { name: "Tom 03", color: "#F7EAD0" },
-  { name: "Tom 04", color: "#EADABA" },
-  { name: "Tom 05", color: "#D7BD96" },
-  { name: "Tom 06", color: "#A07E56" },
-  { name: "Tom 07", color: "#825C43" },
-  { name: "Tom 08", color: "#604134" },
-  { name: "Tom 09", color: "#3A312A" },
-  { name: "Tom 10", color: "#292420" },
+  { name: "Tom 01", image: "/cor-pele1.png" },
+  { name: "Tom 02", image: "/cor-pele2.png" },
+  { name: "Tom 03", image: "/cor-pele3.png" },
+  { name: "Tom 04", image: "/cor-pele4.png" },
+  { name: "Tom 05", image: "/cor-pele5.png" },
+  { name: "Tom 06", image: "/cor-pele6.png" },
+  { name: "Tom 07", image: "/cor-pele7.png" },
+  { name: "Tom 08", image: "/cor-pele8.png" },
+  { name: "Tom 09", image: "/cor-pele9.png" },
+  { name: "Tom 10", image: "/cor-pele10.png" },
 ];
 
 

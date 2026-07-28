@@ -47,6 +47,15 @@ public class StorageController {
         return ResponseEntity.ok(new UploadResponseDTO(url));
     }
 
+    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PostMapping(value = "/api/admin/storage/upload-audio", consumes = "multipart/form-data")
+    public ResponseEntity<UploadResponseDTO> uploadAudio(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "folder", defaultValue = "misc") String folder) {
+        String url = storageService.uploadAudio(file, folder);
+        return ResponseEntity.ok(new UploadResponseDTO(url));
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN','AFFILIATE','CLIENT')")
     @GetMapping("/api/storage/download")
     public ResponseEntity<byte[]> download(

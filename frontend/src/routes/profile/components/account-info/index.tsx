@@ -6,6 +6,8 @@ import { SectionTitle } from "@/components";
 import type { UserStatus, UserPlan } from "@/models/user";
 import { cn } from "@/utils/utils";
 
+import { AvatarUpload } from "./avatar-upload";
+
 const statusColors: Record<UserStatus, string> = {
   aprovado: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   pendente: "bg-amber-500/10 text-amber-400 border-amber-500/20",
@@ -29,9 +31,11 @@ interface AccountInfoProps {
   plan: UserPlan;
   createdAt: string;
   planExpiresAt?: string | null;
+  photoUrl?: string | null;
+  onPhotoChange?: () => void;
 }
 
-export function AccountHeader({ name, email, status, role, plan, createdAt, planExpiresAt }: AccountInfoProps) {
+export function AccountHeader({ name, email, status, role, plan, createdAt, photoUrl, onPhotoChange }: AccountInfoProps) {
   const initial = name.charAt(0).toUpperCase();
   const joinedDate = format(new Date(createdAt), "MMMM 'de' yyyy", { locale: ptBR });
 
@@ -41,8 +45,8 @@ export function AccountHeader({ name, email, status, role, plan, createdAt, plan
         <div className="w-64 h-64 brand-gradient rounded-full blur-[100px]" />
       </div>
 
-      <div className="relative z-10 flex size-24 shrink-0 items-center justify-center rounded-full brand-gradient text-3xl font-bold text-white shadow-xl ring-4 ring-zinc-950">
-        {initial}
+      <div className="relative z-10">
+        <AvatarUpload photoUrl={photoUrl} initial={initial} onChanged={() => onPhotoChange?.()} />
       </div>
 
       <div className="relative z-10 flex flex-col items-center sm:items-start text-center sm:text-left flex-1">

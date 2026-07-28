@@ -22,7 +22,14 @@ export const SOUND_LABELS: Record<SoundKey, string> = {
   chime: "Chime",
 };
 
-const soundUrl = (key: string) => {
+export const CUSTOM_SOUND_KEY = "custom";
+export const CUSTOM_SOUND_LABEL = "Personalizado";
+
+/** Resolve a URL do som: "custom" toca o áudio enviado, senão cai no preset fixo. */
+const soundUrl = (key: string, customUrl?: string | null) => {
+  if (key === CUSTOM_SOUND_KEY) {
+    return customUrl ?? "";
+  }
   const safe = (SOUND_KEYS as readonly string[]).includes(key) ? key : "ding";
   return `/sounds/${safe}.wav`;
 };
@@ -49,6 +56,9 @@ export async function initNotificationSound(): Promise<void> {
         saleSoundKey: "cash",
         announcementSoundKey: "ding",
         systemSoundKey: "chime",
+        saleSoundUrl: null,
+        announcementSoundUrl: null,
+        systemSoundUrl: null,
         updatedAt: null,
       };
     } finally {
@@ -58,23 +68,25 @@ export async function initNotificationSound(): Promise<void> {
   return loading;
 }
 
-function keyForType(type: BackendNotificationType): string {
-  if (!settings) return "ding";
+function soundForType(type: BackendNotificationType): { key: string; url: string | null } {
+  if (!settings) return { key: "ding", url: null };
   switch (type) {
     case "SALE":
-      return settings.saleSoundKey;
+      return { key: settings.saleSoundKey, url: settings.saleSoundUrl };
     case "SYSTEM":
-      return settings.systemSoundKey;
+      return { key: settings.systemSoundKey, url: settings.systemSoundUrl };
     case "ANNOUNCEMENT":
     default:
-      return settings.announcementSoundKey;
+      return { key: settings.announcementSoundKey, url: settings.announcementSoundUrl };
   }
 }
 
 /** Toca o som de um arquivo específico (usado no preview do admin). */
-export function playSoundKey(key: string): void {
+export function playSoundKey(key: string, customUrl?: string | null): void {
   try {
-    const audio = new Audio(soundUrl(key));
+    const url = soundUrl(key, customUrl);
+    if (!url) return;
+    const audio = new Audio(url);
     audio.volume = 0.6;
     void audio.play().catch(() => {});
   } catch {
@@ -88,7 +100,8 @@ export function playSoundKey(key: string): void {
  */
 export function playForType(type: BackendNotificationType): void {
   if (!settings || !settings.enabled || userMuted) return;
-  playSoundKey(keyForType(type));
+  const { key, url } = soundForType(type);
+  playSoundKey(key, url);
 }
 
 /** Atualiza o cache local quando o admin salva novos presets. */

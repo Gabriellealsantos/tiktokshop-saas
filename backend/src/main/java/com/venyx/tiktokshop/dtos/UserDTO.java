@@ -17,7 +17,8 @@ public record UserDTO(
     UserStatus userStatus,
     Instant createdAt,
     Set<RoleDTO> roles,
-    String planType
+    String planType,
+    String photoUrl
 ) {
     public UserDTO(User entity) {
         this(
@@ -29,7 +30,8 @@ public record UserDTO(
             entity.getUserStatus(),
             entity.getCreatedAt(),
             entity.getRoles().stream().map(RoleDTO::new).collect(Collectors.toSet()),
-            null
+            null,
+            entity.getPhotoUrl()
         );
     }
 
@@ -43,7 +45,8 @@ public record UserDTO(
             entity.getUserStatus(),
             entity.getCreatedAt(),
             entity.getRoles().stream().map(RoleDTO::new).collect(Collectors.toSet()),
-            planType
+            planType,
+            entity.getPhotoUrl()
         );
     }
 }

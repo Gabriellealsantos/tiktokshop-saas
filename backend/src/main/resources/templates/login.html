@@ -191,6 +191,10 @@
                             class="mt-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-300">
                             Sua conta está aguardando aprovação ou seu plano expirou.
                         </div>
+                        <div th:if="${param.error != null and param.error[0] == 'session_in_use'}"
+                            class="mt-6 rounded-xl border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-300">
+                            Esta conta já está em uso em outro dispositivo. Saia da outra sessão e tente novamente.
+                        </div>
                         <div th:if="${param.error != null and param.error[0] == ''}"
                             class="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
                             Credenciais inválidas. Tente novamente.
@@ -291,7 +295,7 @@
 
                     <!-- 4. Bloco de Texto ancorado na base-esquerda -->
                     <div
-                        class="absolute bottom-0 left-0 flex w-full flex-col justify-end px-8 pb-10 pointer-events-none">
+                        class="absolute bottom-0 left-0 flex w-full flex-col justify-end px-8 pb-[3.1rem] pointer-events-none" style="padding-bottom: 3.1rem;">
                         <div class="w-full max-w-[420px] overflow-hidden pr-4">
                             <h2
                                 class="whitespace-nowrap text-[26px] xl:text-[28px] font-extrabold leading-tight tracking-tight text-white drop-shadow-lg">

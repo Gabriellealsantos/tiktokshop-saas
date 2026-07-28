@@ -46,7 +46,7 @@ export function CreationFinal({ takes = 1 }: { takes?: number }) {
               <p className="text-sm text-text-2 mt-0.5">Gere a imagem base para o seu vídeo.</p>
             </div>
           </div>
-          <Button className="bg-success hover:bg-success/80 text-black border-none font-semibold shadow-md gap-2 pl-2" onClick={() => {/* TODO: baixar todos os ativos */}}>
+          <Button className="btn-3d-success text-black border-none font-semibold gap-2 pl-2" onClick={() => {/* TODO: baixar todos os ativos */}}>
             <div className="flex size-7 shrink-0 items-center justify-center rounded-[8px] bg-black/10">
               <Download className="size-4" />
             </div>

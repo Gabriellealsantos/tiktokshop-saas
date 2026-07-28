@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -43,17 +44,20 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final AuthService authService;
     private final UserSubscriptionRepository subscriptionRepository;
+    private final StorageService storageService;
 
     public UserService(PasswordEncoder passwordEncoder,
                        UserRepository repository,
                        RoleRepository roleRepository,
                        AuthService authService,
-                       UserSubscriptionRepository subscriptionRepository) {
+                       UserSubscriptionRepository subscriptionRepository,
+                       StorageService storageService) {
         this.passwordEncoder = passwordEncoder;
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.authService = authService;
         this.subscriptionRepository = subscriptionRepository;
+        this.storageService = storageService;
     }
 
     @Transactional(readOnly = true)
@@ -248,6 +252,27 @@ public class UserService {
 
         entity.setPassword(passwordEncoder.encode(dto.newPassword()));
         repository.save(entity);
+    }
+
+    @Transactional
+    public UserDTO updatePhoto(MultipartFile file) {
+        User entity = repository.findById(authService.authenticated().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        String url = storageService.upload(file, "profile-photos/" + entity.getId());
+        entity.setPhotoUrl(url);
+        entity = repository.save(entity);
+        return new UserDTO(entity);
+    }
+
+    @Transactional
+    public UserDTO removePhoto() {
+        User entity = repository.findById(authService.authenticated().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        entity.setPhotoUrl(null);
+        entity = repository.save(entity);
+        return new UserDTO(entity);
     }
 
     private void ensureEmailAvailable(String rawEmail, UUID selfId) {

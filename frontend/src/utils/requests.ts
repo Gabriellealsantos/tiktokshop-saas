@@ -97,25 +97,28 @@ export const requestBackend = (config: AxiosRequestConfig) => {
   return axios({ ...config, baseURL: BASE_URL, headers });
 };
 
-/** Limpa a sessão local e revoga a sessão no servidor. */
-export const logout = async () => {
+/**
+ * Limpa a sessão local e revoga a sessão no servidor.
+ * `redirectTo: null` deixa a navegação a cargo de quem chamou — necessário para
+ * fluxos que precisam cair numa tela específica sem competir com o /login.
+ */
+export const logout = async (redirectTo: string | null = "/login") => {
   const authData = getAuthData();
 
-  // 1. Revogar o Token no Authorization Server
+  // 1. Encerrar a autorização OAuth2 no servidor.
+  // Não usa /oauth2/revoke: o client é público (sem secret no browser) e aquele
+  // endpoint exige autenticação de client, então respondia 302 pro /login sem
+  // revogar nada — o que deixava a sessão "ativa" no banco por até 15 min e
+  // travava o próximo login quando a sessão única está ligada.
   if (authData?.access_token) {
     try {
-      const params = QueryString.stringify({
-        token: authData.access_token,
-        client_id: CLIENT_ID,
-      });
-
-      await axios.post(`${BASE_URL}/oauth2/revoke`, params, {
+      await axios.post(`${BASE_URL}/api/auth/logout`, null, {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: "Bearer " + authData.access_token,
         },
       });
     } catch (e) {
-      console.error("Erro ao revogar o token", e);
+      console.error("Erro ao encerrar a sessão no servidor", e);
     }
   }
 
@@ -132,7 +135,9 @@ export const logout = async () => {
   removeAuthData();
   removeCodeVerifier();
   removeState();
-  history.replace("/login");
+  if (redirectTo) {
+    history.replace(redirectTo);
+  }
 };
 
 // REQUEST INTERCEPTOR

@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
 import { AppShell } from "@/layouts/app-shell";
 import { Page, PageHeader } from "@/components";
 import { useAuth } from "@/context/auth";
@@ -12,15 +10,9 @@ import { PasswordForm } from "./components/password-form";
 
 export default function ProfileScreen() {
   useDocumentTitle("Meu Perfil");
-  const { user: authUser, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user: authUser, logout, reloadUser } = useAuth();
 
   const user = authUser ? mapUserResponse(authUser) : null;
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
   if (!user) {
     return (
@@ -50,12 +42,14 @@ export default function ProfileScreen() {
             plan={user.plan}
             createdAt={user.createdAt}
             planExpiresAt={user.planExpiresAt}
+            photoUrl={user.photoUrl}
+            onPhotoChange={reloadUser}
           />
 
           <div className="grid gap-6 md:grid-cols-2">
             <ProfileForm userName={user.name} userEmail={user.email} />
             <SubscriptionCard plan={user.plan} status={user.status} planExpiresAt={user.planExpiresAt} />
-            <PasswordForm onLogout={handleLogout} />
+            <PasswordForm onLogout={logout} />
           </div>
         </div>
       </Page>

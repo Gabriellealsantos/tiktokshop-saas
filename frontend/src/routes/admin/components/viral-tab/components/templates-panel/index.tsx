@@ -18,7 +18,7 @@ import { CharactersManager } from "../characters-manager";
 
 const emptyForm = (): ViralTemplateForm => ({
   slug: "", title: "", subtitle: "", description: "", thumbnailUrl: "", previewVideoUrl: "",
-  scriptInstruction: "", promptInstruction: "", active: true,
+  scriptInstruction: "", promptInstruction: "", category: "", active: true,
 });
 
 export function TemplatesPanel() {
@@ -58,7 +58,8 @@ export function TemplatesPanel() {
     setForm({
       slug: item.slug, title: item.title, subtitle: item.subtitle ?? "", description: item.description ?? "",
       thumbnailUrl: item.thumbnailUrl ?? "", previewVideoUrl: item.previewVideoUrl ?? "",
-      scriptInstruction: item.scriptInstruction, promptInstruction: item.promptInstruction, active: item.active,
+      scriptInstruction: item.scriptInstruction, promptInstruction: item.promptInstruction,
+      category: item.category ?? "", active: item.active,
     });
     setDialogOpen(true);
   };
@@ -68,12 +69,13 @@ export function TemplatesPanel() {
   const handleSave = async () => {
     if (!canSave) return;
     setSaving(true);
+    const payload = { ...form, category: form.category?.trim() || null };
     try {
       if (editingId != null) {
-        await updateViralTemplate(editingId, form);
+        await updateViralTemplate(editingId, payload);
         toast.success("Template atualizado.");
       } else {
-        await createViralTemplate(form);
+        await createViralTemplate(payload);
         toast.success("Template criado.");
       }
       setDialogOpen(false);
@@ -204,6 +206,18 @@ export function TemplatesPanel() {
                 <VideoUpload value={form.previewVideoUrl} folder="viral/templates" onChange={(url) => setForm((p) => ({ ...p, previewVideoUrl: url }))} />
                 <p className="text-[10px] text-zinc-500">MP4/WEBM vertical (9:16), 1080×1920, até 10s.</p>
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-400">Categoria</Label>
+              <Input
+                value={form.category ?? ""}
+                onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+                placeholder="POV, Trend…"
+                className="h-9 bg-black/40 border-white/10 text-sm"
+              />
+              <p className="text-[10px] text-zinc-500">
+                Tag livre exibida na vitrine. Deixe vazio se o modelo não tem categoria.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-400">Instrução de roteiros (.md) *</Label>

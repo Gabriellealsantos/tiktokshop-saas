@@ -7,6 +7,7 @@ import LoginRoute from "@/routes/login";
 import RegisterRoute from "@/routes/register";
 import ForgotPasswordRoute from "@/routes/forgot-password";
 import AuthorizedRoute from "@/routes/authorized";
+import AccessPendingRoute from "@/routes/access-pending";
 import DashboardRoute from "@/routes/dashboard";
 import AdminScreen from "@/routes/admin";
 import AvatarStudio from "@/routes/create-avatar";
@@ -40,6 +41,7 @@ function App() {
         <Route path="/register" element={<RegisterRoute />} />
         <Route path="/forgot-password" element={<ForgotPasswordRoute />} />
         <Route path="/authorized" element={<AuthorizedRoute />} />
+        <Route path="/acesso-pendente" element={<AccessPendingRoute />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<IndexRoute />} />

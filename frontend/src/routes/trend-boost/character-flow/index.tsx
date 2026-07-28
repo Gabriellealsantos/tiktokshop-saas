@@ -207,7 +207,7 @@ export default function RouteComponent() {
             <CharacterSidebar character={character} templateId={templateId} isStep3={isStep3} />
 
             {/* COLUNA DIREITA - PAINEL DE TRABALHO */}
-            <div className="flex flex-col bg-surface-2 border border-white/5 rounded-2xl p-5">
+            <div className="flex flex-col glass-container rounded-2xl p-5 sm:p-6">
               {!isStep3 ? (
                 <>
                   {/* ETAPA 2A: Escolha o tom */}

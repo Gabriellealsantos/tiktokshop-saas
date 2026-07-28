@@ -33,6 +33,10 @@ public class ViralCharacter {
     @Column(name = "image_url", length = 1024)
     private String imageUrl;
 
+    /** Seção dentro do template: "vovo"/"vova" na Novelinha, "objeto"/"fruta" nos Objetos. */
+    @Column(length = 50)
+    private String subcategory;
+
     @Column(name = "sort_order", nullable = false)
     private int sortOrder = 0;
 
@@ -84,6 +88,14 @@ public class ViralCharacter {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getSubcategory() {
+        return subcategory;
+    }
+
+    public void setSubcategory(String subcategory) {
+        this.subcategory = subcategory;
     }
 
     public int getSortOrder() {

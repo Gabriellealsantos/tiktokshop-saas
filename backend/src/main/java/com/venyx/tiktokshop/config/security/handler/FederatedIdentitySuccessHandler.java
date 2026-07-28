@@ -1,10 +1,13 @@
 package com.venyx.tiktokshop.config.security.handler;
 
+import com.venyx.tiktokshop.entities.RoleConstants;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.repositories.UserRepository;
+import com.venyx.tiktokshop.services.AuthSecurityService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,12 +41,15 @@ public class FederatedIdentitySuccessHandler extends SavedRequestAwareAuthentica
     private static final Logger log = LoggerFactory.getLogger(FederatedIdentitySuccessHandler.class);
 
     private final UserRepository userRepository;
+    private final AuthSecurityService authSecurityService;
     private final HttpSessionRequestCache requestCache;
     private final String frontendUrl;
 
     public FederatedIdentitySuccessHandler(UserRepository userRepository,
+                                           AuthSecurityService authSecurityService,
                                            @Value("${app.frontend-url:http://localhost:5173}") String frontendUrl) {
         this.userRepository = userRepository;
+        this.authSecurityService = authSecurityService;
         this.frontendUrl = frontendUrl;
 
         this.requestCache = new HttpSessionRequestCache();
@@ -75,6 +81,19 @@ public class FederatedIdentitySuccessHandler extends SavedRequestAwareAuthentica
                     if (!user.isEnabled()) {
                         log.warn("Login federado negado: usuário desabilitado: {}", email);
                         getRedirectStrategy().sendRedirect(request, response, "/login?error=disabled");
+                        return;
+                    }
+                    // Admin fica de fora da sessão única: sem exceção, um admin travado
+                    // por ela não teria como entrar de novo nem para desligar o switch.
+                    if (!user.hasRole(RoleConstants.ROLE_ADMIN)
+                            && authSecurityService.isLoginBlockedByActiveSession(email)) {
+                        log.warn("Login federado negado: conta já em uso em outro dispositivo: {}", email);
+                        SecurityContextHolder.clearContext();
+                        HttpSession current = request.getSession(false);
+                        if (current != null) {
+                            current.invalidate();
+                        }
+                        getRedirectStrategy().sendRedirect(request, response, "/login?error=session_in_use");
                         return;
                     }
 

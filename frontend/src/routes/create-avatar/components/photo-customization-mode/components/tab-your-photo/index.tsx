@@ -38,7 +38,7 @@ export function TabSuaFoto({
             <FormControl>
               <Input
                 placeholder="Ex: Aurora, Marcus, Luna..."
-                className="bg-surface-2 border-white/10 text-white h-12 rounded-xl"
+                className="glass-container text-white h-12 rounded-xl focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all"
                 {...field}
               />
             </FormControl>

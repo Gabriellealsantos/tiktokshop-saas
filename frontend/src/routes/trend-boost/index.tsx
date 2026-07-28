@@ -15,12 +15,14 @@ function TrendTemplateCard({
   text,
   videoSrc,
   thumbnailSrc,
+  category,
 }: {
   id: string;
   title: string;
   text: string;
   videoSrc?: string | null;
   thumbnailSrc?: string | null;
+  category?: string | null;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
@@ -78,7 +80,7 @@ function TrendTemplateCard({
       <div className="absolute top-4 left-4 z-20">
         <div className="glass-surface inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white/90">
           <Play className="size-3" />
-          Template
+          {category?.trim() || "Template"}
         </div>
       </div>
 
@@ -127,6 +129,7 @@ export default function TrendLanding() {
                 text={t.description ?? t.subtitle ?? ""}
                 videoSrc={t.previewVideoUrl}
                 thumbnailSrc={t.thumbnailUrl}
+                category={t.category}
               />
             ))}
           </div>

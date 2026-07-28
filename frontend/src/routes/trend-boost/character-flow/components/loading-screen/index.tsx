@@ -13,8 +13,8 @@ interface LoadingScreenProps {
 export function LoadingScreen({ character, loadingStage }: LoadingScreenProps) {
   return (
     <AppShell>
-      <Page className="pt-0 flex flex-col items-center justify-center min-h-[70vh]">
-        <div className="w-full max-w-md mx-auto flex flex-col items-center text-center">
+      <Page className="pt-0 flex flex-col items-center justify-center min-h-[75vh] px-4">
+        <div className="w-full max-w-lg mx-auto flex flex-col items-center text-center glass-container p-8 sm:p-10 rounded-[32px] shadow-2xl">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

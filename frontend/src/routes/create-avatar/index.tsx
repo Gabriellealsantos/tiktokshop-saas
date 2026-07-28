@@ -31,7 +31,7 @@ export default function AvatarStudio() {
               <AvatarLibraryModal>
                 <Button
                   variant="outline"
-                  className="bg-surface-1 cursor-pointer"
+                  className="cursor-pointer"
                 >
                   <Library className="size-4 mr-2" />
                   Biblioteca
@@ -53,7 +53,7 @@ export default function AvatarStudio() {
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "full"
                   ? "btn-brand shadow-lg"
-                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5",
+                  : "btn-3d-neutral",
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">
@@ -95,7 +95,7 @@ export default function AvatarStudio() {
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "photo"
                   ? "btn-brand shadow-lg"
-                  : "bg-gradient-to-b from-white/10 to-brand-500/5 backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.15)] hover:from-white/15 hover:to-brand-500/10 hover:border-white/30 hover:-translate-y-0.5",
+                  : "btn-3d-neutral",
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">

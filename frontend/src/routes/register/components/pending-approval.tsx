@@ -3,7 +3,15 @@ import { Clock3 } from "lucide-react";
 import { BrandMark, Button } from "@/components";
 import { AuthShell } from "@/layouts/auth-shell";
 
-export function PendingApproval() {
+type Props = {
+  title?: string;
+  message?: string;
+};
+
+export function PendingApproval({
+  title = "Conta pendente de aprovação",
+  message = "Recebemos seu cadastro. Um administrador vai revisar seus dados e liberar o acesso.",
+}: Props) {
   return (
     <AuthShell>
       <div className="relative mx-auto w-full max-w-[420px] rounded-[24px] p-[1px] overflow-hidden entrance">
@@ -20,10 +28,8 @@ export function PendingApproval() {
           <span className="mx-auto mt-8 grid size-16 place-items-center rounded-full bg-warning/10 text-warning">
             <Clock3 className="size-7" />
           </span>
-          <h1 className="mt-6 text-2xl font-bold">Conta pendente de aprovação</h1>
-          <p className="mt-3 text-sm leading-6 text-text-2">
-            Recebemos seu cadastro. Um administrador vai revisar seus dados e liberar o acesso.
-          </p>
+          <h1 className="mt-6 text-2xl font-bold">{title}</h1>
+          <p className="mt-3 text-sm leading-6 text-text-2">{message}</p>
           <Link to="/login" className="mt-7 block">
             <Button variant="secondary" className="w-full">
               Voltar ao login

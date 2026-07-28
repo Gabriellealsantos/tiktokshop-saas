@@ -2,7 +2,6 @@ import type { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Input, Slider } from "@/components";
 import type { AvatarFormValues } from "../../index";
 import { ImageOptionSelector } from "../image-option-selector";
-import { ColorSwatchSelector } from "../color-swatch-selector";
 import { generoOptions, etniaOptions, tomPeleOptions } from "../../data";
 
 export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> }) {
@@ -17,7 +16,7 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider">Nome do Avatar</FormLabel>
             <FormControl>
-              <Input placeholder="Ex: Aurora, Marcus, Luna..." className="bg-surface-2 border-white/10 text-white h-12 rounded-xl" {...field} />
+              <Input placeholder="Ex: Aurora, Marcus, Luna..." className="glass-container text-white h-12 rounded-xl focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -89,10 +88,14 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Tom de Pele</FormLabel>
             <FormControl>
-              <ColorSwatchSelector
+              <ImageOptionSelector
                 options={tomPeleOptions}
                 value={field.value}
                 onChange={field.onChange}
+                columns={3}
+                aspectRatio="aspect-[16/7]"
+                objectFit="object-cover"
+                hideLabel
               />
             </FormControl>
           </FormItem>

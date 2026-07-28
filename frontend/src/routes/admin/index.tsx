@@ -15,6 +15,7 @@ import { ViralTab } from "./components/viral-tab";
 import { VideoTemplatesTab } from "./components/video-templates-tab";
 import { LimitsTab } from "./components/limits-tab";
 import { UsersTab } from "./components/users-tab";
+import { SecurityTab } from "./components/security-tab";
 
 export default function AdminScreen() {
   const { isAdmin } = useAuth();
@@ -49,8 +50,8 @@ export default function AdminScreen() {
           </div>
         </div>
 
-        <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide entrance">
-          {["Usuários", "Categorias", "Trend Boost", "Modelos de Vídeo", "Limites", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações"].map((x) => (
+        <div className="-mt-2 -mx-1 mb-6 flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide entrance">
+          {["Usuários", "Categorias", "Trend Boost", "Modelos de Vídeo", "Limites", "Métricas", "Tendências", "Vendas ao Vivo", "Notificações", "Segurança"].map((x) => (
             <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
               {x}
             </Pill>
@@ -66,6 +67,7 @@ export default function AdminScreen() {
         {tab === "Tendências" && <InsightsTab />}
         {tab === "Vendas ao Vivo" && <LiveSalesTab />}
         {tab === "Notificações" && <NotificationSoundTab />}
+        {tab === "Segurança" && <SecurityTab />}
       </Page>
     </AppShell>
   );

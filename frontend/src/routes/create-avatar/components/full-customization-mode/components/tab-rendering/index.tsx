@@ -43,7 +43,6 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
 
     let type = "text";
     let image = "";
-    let color = "";
     let label = key;
     let displayVal = String(val);
 
@@ -62,7 +61,7 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
       case "sobrancelha": label = "Sobrancelha"; type = "image"; image = sobrancelhaOptions.find(o => o.name === val)?.image || ""; break;
       case "nariz": label = "Nariz"; type = "image"; image = narizOptions.find(o => o.name === val || o.label === val)?.image || ""; break;
       case "corOlhos": label = "Olhos"; type = "image"; image = corOlhosOptions.find(o => o.name === val || o.label === val)?.image || ""; break;
-      case "tomPele": label = "Pele"; type = "color"; color = tomPeleOptions.find(o => o.name === val)?.color || ""; break;
+      case "tomPele": label = "Pele"; type = "image"; image = tomPeleOptions.find(o => o.name === val)?.image || ""; break;
       case "corCabelo": {
         label = "Cor cabelo";
         type = "image";
@@ -78,9 +77,6 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
       <div key={key} className="inline-flex items-center gap-2 rounded-full border border-brand-500/20 bg-surface-2 pr-3 pl-1 py-1 shadow-sm">
         {type === "image" && image && (
           <img src={image} alt={displayVal} className="size-6 rounded-full object-cover shrink-0 bg-surface-3" />
-        )}
-        {type === "color" && color && (
-          <div className="size-6 rounded-full border border-white/10 shrink-0 shadow-inner" style={{ backgroundColor: color }} />
         )}
         {type === "text" && (
           <div className="size-2 shrink-0 rounded-full bg-brand-500/50 ml-2" />
@@ -108,18 +104,18 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
             </div>
             <FormControl>
               <div className="relative group">
-                <PenLine className="absolute left-4 top-4 size-5 text-text-3 group-focus-within:text-brand-500 transition-colors" />
                 <Textarea
                   placeholder="Expressão, acessórios, iluminação..."
-                  className="bg-surface-2 border-white/10 text-white rounded-xl min-h-[100px] resize-none pl-12 pt-4 focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all"
+                  className="glass-container text-white rounded-xl min-h-[100px] resize-none pl-12 pt-4 focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all"
                   maxLength={maxDetalhesLength}
                   {...field}
                   value={field.value || ""}
                 />
+                <PenLine className="absolute left-4 top-4 size-5 text-text-3 group-focus-within:text-brand-500 transition-colors pointer-events-none z-10" />
               </div>
             </FormControl>
-            <div className="mt-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3 mb-2 ml-1">Inspire-se</p>
+            <div className="mt-4 glass-container p-4.5 rounded-[20px]">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-text-3 mb-2.5 ml-1">Inspire-se</p>
               <div className="flex flex-wrap gap-2">
                 {SUGESTOES_EXTRAS.map((sugestao, idx) => {
                   const isSelected = detalhesVal.trim() === sugestao;
@@ -131,8 +127,8 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
                       className={cn(
                         "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300",
                         isSelected
-                          ? "bg-brand-500/20 text-brand-400 border border-brand-500/50"
-                          : "bg-surface-2 text-text-3 border border-white/5 hover:bg-surface-3 hover:text-text-2"
+                          ? "bg-brand-500/20 backdrop-blur-md text-brand-400 border border-brand-500/50 shadow-[0_0_12px_rgba(75,68,232,0.3)]"
+                          : "bg-white/[0.06] backdrop-blur-md text-text-2 border border-white/15 hover:bg-white/[0.12] hover:text-white shadow-sm"
                       )}
                     >
                       {sugestao}
@@ -146,7 +142,7 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
         )}
       />
 
-      <div className="glass-surface p-6 rounded-[24px]">
+      <div className="glass-container p-6 rounded-[24px]">
         <h3 className="text-sm font-semibold text-text-1 mb-4 flex items-center gap-2">
           <Sparkles className="size-4 text-brand-400" /> Resumo do Avatar
         </h3>

@@ -12,6 +12,7 @@ public record ViralTemplateFormDTO(
         String previewVideoUrl,
         @NotBlank String scriptInstruction,
         @NotBlank String promptInstruction,
+        String category,
         Boolean active
 ) {
 }

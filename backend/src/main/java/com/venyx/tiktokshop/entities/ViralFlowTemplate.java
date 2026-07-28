@@ -43,6 +43,10 @@ public class ViralFlowTemplate {
     @Column(name = "prompt_instruction", columnDefinition = "TEXT", nullable = false)
     private String promptInstruction;
 
+    /** Tag livre de agrupamento/filtro na vitrine (ex.: "POV"). Opcional. */
+    @Column(length = 50)
+    private String category;
+
     @Column(nullable = false)
     private boolean active = true;
 
@@ -125,6 +129,14 @@ public class ViralFlowTemplate {
 
     public void setPromptInstruction(String promptInstruction) {
         this.promptInstruction = promptInstruction;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public boolean isActive() {

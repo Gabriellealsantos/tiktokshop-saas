@@ -8,7 +8,8 @@ public record ViralTemplateSummaryDTO(
         String subtitle,
         String description,
         String thumbnailUrl,
-        String previewVideoUrl
+        String previewVideoUrl,
+        String category
 ) {
     public ViralTemplateSummaryDTO(ViralFlowTemplate entity) {
         this(
@@ -17,7 +18,8 @@ public record ViralTemplateSummaryDTO(
                 entity.getSubtitle(),
                 entity.getDescription(),
                 entity.getThumbnailUrl(),
-                entity.getPreviewVideoUrl()
+                entity.getPreviewVideoUrl(),
+                entity.getCategory()
         );
     }
 }

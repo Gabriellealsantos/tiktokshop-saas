@@ -17,6 +17,7 @@ public record ViralTemplateAdminDTO(
         String previewVideoUrl,
         String scriptInstruction,
         String promptInstruction,
+        String category,
         boolean active
 ) {
     public ViralTemplateAdminDTO(ViralFlowTemplate entity) {
@@ -30,6 +31,7 @@ public record ViralTemplateAdminDTO(
                 entity.getPreviewVideoUrl(),
                 entity.getScriptInstruction(),
                 entity.getPromptInstruction(),
+                entity.getCategory(),
                 entity.isActive()
         );
     }

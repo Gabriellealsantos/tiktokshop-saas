@@ -20,6 +20,9 @@ export type NotificationSoundSettings = {
   saleSoundKey: string;
   announcementSoundKey: string;
   systemSoundKey: string;
+  saleSoundUrl: string | null;
+  announcementSoundUrl: string | null;
+  systemSoundUrl: string | null;
   updatedAt: string | null;
 };
 

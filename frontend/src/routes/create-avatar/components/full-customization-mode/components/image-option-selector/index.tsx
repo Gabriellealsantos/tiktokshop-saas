@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/utils/utils";
 
-export function ImageOptionCard({ name, label, image, color, isSelected, onClick, aspectRatio = "aspect-[4/5]", objectFit = "object-cover" }: { name: string, label?: string, image?: string, color?: string, isSelected: boolean, onClick: () => void, aspectRatio?: string, objectFit?: string }) {
+export function ImageOptionCard({ name, label, image, color, isSelected, onClick, aspectRatio = "aspect-[4/5]", objectFit = "object-cover", hideLabel = false }: { name: string, label?: string, image?: string, color?: string, isSelected: boolean, onClick: () => void, aspectRatio?: string, objectFit?: string, hideLabel?: boolean }) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -24,10 +24,14 @@ export function ImageOptionCard({ name, label, image, color, isSelected, onClick
           <ImageIcon className="size-8 mb-4 opacity-30" />
         </div>
       )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 p-3">
-        <p className="font-bold text-white text-sm drop-shadow-md truncate">{label || name}</p>
-      </div>
+      {!hideLabel && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 p-3">
+            <p className="font-bold text-white text-sm drop-shadow-md truncate">{label || name}</p>
+          </div>
+        </>
+      )}
       {isSelected && (
         <>
           <div className="absolute inset-0 border-2 border-brand-500 rounded-[20px] pointer-events-none" />
@@ -47,6 +51,7 @@ export function ImageOptionSelector({
   columns = 4,
   aspectRatio = "aspect-[4/5]",
   objectFit = "object-cover",
+  hideLabel = false,
   children
 }: {
   options: { name: string, label?: string, image?: string, color?: string }[],
@@ -55,6 +60,7 @@ export function ImageOptionSelector({
   columns?: 2 | 3 | 4 | 5,
   aspectRatio?: string,
   objectFit?: string,
+  hideLabel?: boolean,
   children?: React.ReactNode
 }) {
   const colClass = columns === 2 ? "sm:grid-cols-2" : columns === 3 ? "sm:grid-cols-3" : columns === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4";
@@ -72,6 +78,7 @@ export function ImageOptionSelector({
           onClick={() => onChange(opt.name)}
           aspectRatio={aspectRatio}
           objectFit={objectFit}
+          hideLabel={hideLabel}
         />
       ))}
       {children}

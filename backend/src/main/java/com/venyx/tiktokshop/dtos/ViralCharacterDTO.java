@@ -6,8 +6,10 @@ public record ViralCharacterDTO(
         String slug,
         String name,
         String description,
-        String imageUrl) {
+        String imageUrl,
+        String subcategory) {
     public ViralCharacterDTO(ViralCharacter entity) {
-        this(entity.getSlug(), entity.getName(), entity.getDescription(), entity.getImageUrl());
+        this(entity.getSlug(), entity.getName(), entity.getDescription(), entity.getImageUrl(),
+                entity.getSubcategory());
     }
 }
