@@ -2,9 +2,10 @@ import type { UseFormReturn } from "react-hook-form";
 import { LayoutDashboard } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components";
 import type { Category } from "@/models/category";
+import type { AddProductFormValues } from "../..";
 
 interface SectionBasicProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<AddProductFormValues>;
   /** Admin cadastra na vitrine (categoria + preço); afiliado/cliente só nomeia o próprio produto. */
   isAdmin: boolean;
   categories: Category[];

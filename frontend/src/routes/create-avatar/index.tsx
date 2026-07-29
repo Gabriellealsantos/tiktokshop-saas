@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   Library,
-  Bookmark,
   SlidersHorizontal,
   UserPlus,
   Sparkles,

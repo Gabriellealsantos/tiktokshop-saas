@@ -87,7 +87,7 @@ export function ClothSwapPanel({
                         "h-9 whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
                         ehUltimo && "col-span-2 mx-auto w-[calc(50%-0.25rem)]",
                         ativo
-                          ? "bg-gradient-to-b from-brand-400 to-brand-600 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.45),inset_0_-2px_0_0_rgba(0,0,0,0.28),0_2px_6px_rgba(0,0,0,0.35),0_0_18px_rgba(75,68,232,0.45)]"
+                          ? "bg-linear-to-b from-brand-400 to-brand-600 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.45),inset_0_-2px_0_0_rgba(0,0,0,0.28),0_2px_6px_rgba(0,0,0,0.35),0_0_18px_rgba(75,68,232,0.45)]"
                           : "bg-white/[0.07] text-white/60 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14),inset_0_-2px_0_0_rgba(0,0,0,0.30),0_2px_4px_rgba(0,0,0,0.25)] hover:bg-white/[0.12] hover:text-white/90",
                       )}
                     >

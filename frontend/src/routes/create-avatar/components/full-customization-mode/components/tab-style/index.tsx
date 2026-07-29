@@ -37,12 +37,12 @@ function CardGeracaoAutomatica({ value, onChange }: { value: string, onChange: (
 
       {/* CAMADA 2: Face de vidro (backdrop + ruído + gradiente) */}
       <div className="absolute inset-0 backdrop-blur-xl bg-white/[0.02] saturate-150 mix-blend-overlay pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-transparent opacity-50 pointer-events-none" />
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
 
       {/* CAMADA 3: Arestas e reflexo especular */}
       <div className="absolute inset-0 rounded-[20px] border border-white/10 border-t-white/20 border-b-white/5 pointer-events-none transition-colors duration-300 group-hover:border-t-white/30" />
-      <div className="absolute top-[1px] inset-x-3 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" />
+      <div className="absolute top-px inset-x-3 h-px bg-linear-to-r from-transparent via-white/30 to-transparent pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" />
 
       {/* CAMADA 5: Preenchimento central (Partículas) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -60,8 +60,8 @@ function CardGeracaoAutomatica({ value, onChange }: { value: string, onChange: (
       </div>
       
       {/* CAMADA 6: Bloco de texto */}
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
-      <div className="absolute inset-x-0 bottom-0 px-3 pb-[10px] pt-6 flex flex-col justify-end pointer-events-none z-10">
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
+      <div className="absolute inset-x-0 bottom-0 px-3 pb-2.5 pt-6 flex flex-col justify-end pointer-events-none z-10">
         <p className="font-bold text-white text-sm drop-shadow-md truncate">Geração Automática</p>
         <p className="text-[10px] text-white/70 font-medium truncate mt-0.5 drop-shadow-sm leading-tight">Deixe a IA escolher</p>
       </div>
@@ -165,7 +165,7 @@ function CardEnviarImagem({ value, onChange }: { value: string, onChange: (v: st
       {preview ? (
         <>
           <img src={preview} alt="Upload preview" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
           
           <div className="absolute left-3 right-3 bottom-3 pointer-events-none z-10">
             <p className="font-bold text-white text-sm drop-shadow-md truncate">{fileName}</p>
@@ -208,11 +208,11 @@ function CardEnviarImagem({ value, onChange }: { value: string, onChange: (v: st
 
           {/* CAMADA 2: Face de vidro */}
           <div className="absolute inset-0 backdrop-blur-xl bg-white/[0.02] saturate-150 mix-blend-overlay pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-50 pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-br from-white/10 via-transparent to-transparent opacity-50 pointer-events-none" />
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
 
           {/* CAMADA 3: Reflexo especular superior */}
-          <div className="absolute top-[1px] inset-x-3 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" />
+          <div className="absolute top-px inset-x-3 h-px bg-linear-to-r from-transparent via-white/30 to-transparent pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" />
 
           {/* CAMADA 5: Seta marca d'água */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden pb-4">
@@ -231,8 +231,8 @@ function CardEnviarImagem({ value, onChange }: { value: string, onChange: (v: st
           </div>
           
           {/* CAMADA 6: Bloco de texto */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
-          <div className="absolute inset-x-0 bottom-0 px-3 pb-[10px] pt-6 flex flex-col justify-end pointer-events-none z-10">
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-0" />
+          <div className="absolute inset-x-0 bottom-0 px-3 pb-2.5 pt-6 flex flex-col justify-end pointer-events-none z-10">
             <p className="font-bold text-white text-sm drop-shadow-md truncate">Enviar Imagem</p>
             <p className="text-[10px] text-white/70 font-medium truncate mt-0.5 drop-shadow-sm leading-tight">PNG, JPG ou WEBP &middot; até 5 MB</p>
           </div>

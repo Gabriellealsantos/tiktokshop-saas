@@ -20,7 +20,7 @@ export function ProductMedia({ product, onNavigateToCreate }: ProductMediaProps)
           loading="lazy"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/30 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/0 to-black/30 pointer-events-none" />
 
         <span className="absolute left-4 top-4">
           <Pill className="border-white/10 bg-black/40 text-white shadow-sm backdrop-blur-md">

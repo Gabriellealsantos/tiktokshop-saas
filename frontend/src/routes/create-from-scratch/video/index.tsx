@@ -142,7 +142,7 @@ export default function VideoScreen() {
                     {copied ? "Copiado" : "Copiar"}
                   </Button>
                 </div>
-                <p className="max-h-[320px] overflow-y-auto rounded-xl bg-surface-2 border border-white/10 p-4 text-sm leading-relaxed text-text-2 whitespace-pre-wrap">
+                <p className="max-h-80 overflow-y-auto rounded-xl bg-surface-2 border border-white/10 p-4 text-sm leading-relaxed text-text-2 whitespace-pre-wrap">
                   {videoPrompt || "Prompt não disponível."}
                 </p>
               </div>

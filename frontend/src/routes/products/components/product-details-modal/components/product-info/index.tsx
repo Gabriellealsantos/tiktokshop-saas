@@ -5,12 +5,12 @@ import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
 import type { Product } from "@/models/product";
 import { Pill } from "@/components";
-import { formatPtBr } from "@/utils/utils";
+import { formatPtBr, type deriveProductMetrics } from "@/utils/utils";
 import { ContentGenerationOptions } from "../../../content-generation-options";
 
 interface ProductInfoProps {
   product: Product;
-  metrics: any;
+  metrics: ReturnType<typeof deriveProductMetrics>;
   onNavigateToContent: () => void;
 }
 

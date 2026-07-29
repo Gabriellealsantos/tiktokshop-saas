@@ -134,7 +134,7 @@ export default function RouteComponent() {
                       }}
                     />
 
-                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent pointer-events-none z-20" />
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-black/90 to-transparent pointer-events-none z-20" />
 
                     <div className="absolute bottom-0 inset-x-0 p-3 flex items-end z-30">
                       <span className="font-semibold text-sm text-white">{char.name}</span>

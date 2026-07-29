@@ -197,7 +197,7 @@ export function CharactersManager({ template, onBack }: CharactersManagerProps) 
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-400">Descrição / direção de cena *</Label>
-              <Textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder="Idoso pilotando um triciclo infantil como se fosse uma moto potente…" className="min-h-[80px] bg-black/40 border-white/10 text-sm" />
+              <Textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder="Idoso pilotando um triciclo infantil como se fosse uma moto potente…" className="min-h-20 bg-black/40 border-white/10 text-sm" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-400">Imagem</Label>

@@ -285,9 +285,19 @@ export function VideoTemplatesTab() {
               <Textarea
                 value={form.motionInstruction ?? ""}
                 onChange={(e) => setForm((p) => ({ ...p, motionInstruction: e.target.value }))}
-                placeholder={"Cole aqui o script de movimento COMPLETO, batida por batida com timestamps — a IA de vídeo segue exatamente este texto.\nEx.: 0.0s–0.8s: a pessoa olha para a câmera e sorri...\n0.8s–1.8s: gira o corpo levemente e ergue o produto na altura do peito...\n\nDeixe vazio para usar um movimento genérico padrão."}
+                placeholder={"Cole aqui o script de movimento COMPLETO, batida por batida com timestamps — a IA de vídeo segue exatamente este texto.\nEx.: 0.0s–0.8s: the subject looks at the camera and smiles...\n0.8s–1.8s: turns the body slightly and raises the product to chest height...\n\nDeixe vazio para usar um movimento genérico padrão."}
                 className="min-h-40 font-mono text-xs bg-black/40 border-white/10"
               />
+              <p className="text-[10px] text-zinc-500 leading-relaxed">
+                Este texto é anexado ao prompt <strong className="text-zinc-400">sem passar pela IA</strong> —
+                sai palavra por palavra igual ao que você escrever, para qualquer produto escolhido.
+                Descreva <strong className="text-zinc-400">só o movimento</strong>: o produto já chega
+                pela imagem que o usuário monta (avatar + produto), então não cite marca, nome nem
+                formato. Se o produto for de segurar ou aplicar, inclua os beats dele como{" "}
+                <strong className="text-zinc-400">"the product"</strong> — sem esses beats o produto
+                não aparece no vídeo. O pronome do sujeito ("she", "he", "the subject") deve casar com
+                o público do template, porque ele vale para todos os avatares que o usarem.
+              </p>
             </div>
 
             <div className="flex items-center gap-2 pt-1">

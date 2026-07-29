@@ -8,7 +8,6 @@ import {
   corOlhosOptions, tomPeleOptions, corCabeloOptions
 } from "../../data";
 import { cn } from "@/utils/utils";
-import { AnimatePresence, motion } from "framer-motion";
 
 const SUGESTOES_EXTRAS = [
   "Luz suave de estúdio",
@@ -25,20 +24,20 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
   const isMasculino = values.genero === "Masculino";
 
   const getRostoImg = (v: string) => {
-    const map: any = { "Oval": "oval", "Redondo": "redondo", "Quadrado": "quadrado", "Coração": "coracao", "Alongado": "alongado" };
+    const map: Record<string, string> = { "Oval": "oval", "Redondo": "redondo", "Quadrado": "quadrado", "Coração": "coracao", "Alongado": "alongado" };
     return `/${map[v]}.jpeg`;
   };
   const getCorpoImg = (v: string) => {
-    const map: any = { "Magro(a)": "magro", "Atlético(a)": "atletico", "Curvy": "curvy", "Plus Size": "plus-size" };
+    const map: Record<string, string> = { "Magro(a)": "magro", "Atlético(a)": "atletico", "Curvy": "curvy", "Plus Size": "plus-size" };
     return `/${map[v]}-${isMasculino ? "masculino" : "feminino"}.png`;
   };
 
   const getRoupaImg = (v: string) => {
-    const map: any = { "Casual": "casual", "Luxo": "luxo", "Streetwear": "streetwear", "Fitness": "fitness", "Corporativo": "corporativo" };
+    const map: Record<string, string> = { "Casual": "casual", "Luxo": "luxo", "Streetwear": "streetwear", "Fitness": "fitness", "Corporativo": "corporativo" };
     return `/${map[v]}-${isMasculino ? "masc.jpeg" : "fem.png"}`;
   };
 
-  const renderSummaryPill = (key: string, val: any) => {
+  const renderSummaryPill = (key: string, val: unknown) => {
     if (!val || key === "nome" || key === "detalhesRoupa" || key === "detalhesExtras") return null;
 
     let type = "text";
@@ -50,10 +49,10 @@ export function TabRenderizacao({ form }: { form: UseFormReturn<AvatarFormValues
       case "genero": label = "Gênero"; break;
       case "idade": label = "Idade"; displayVal = `${val} anos`; break;
       case "altura": label = "Altura"; displayVal = `${val} cm`; break;
-      case "formatoRosto": label = "Rosto"; type = "image"; image = getRostoImg(val); break;
-      case "tipoFisico": label = "Corpo"; type = "image"; image = getCorpoImg(val); break;
+      case "formatoRosto": label = "Rosto"; type = "image"; image = getRostoImg(String(val)); break;
+      case "tipoFisico": label = "Corpo"; type = "image"; image = getCorpoImg(String(val)); break;
       case "estiloCabelo": label = "Cabelo"; type = "image"; image = estiloCabeloOptions.find(o => o.name === val)?.image || ""; break;
-      case "roupa": label = "Estilo"; type = "image"; image = getRoupaImg(val); break;
+      case "roupa": label = "Estilo"; type = "image"; image = getRoupaImg(String(val)); break;
       case "etnia": label = "Etnia"; type = "image"; image = etniaOptions.find(o => o.name === val)?.image || ""; break;
       case "expressao": label = "Expressão"; type = "image"; image = expressaoOptions.find(o => o.name === val)?.image || ""; break;
       case "pelosFaciais": label = "Pelos"; type = "image"; image = pelosFaciaisOptions.find(o => o.name === val)?.image || ""; break;

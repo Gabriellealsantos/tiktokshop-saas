@@ -63,9 +63,9 @@ function StudioModeCard({ format, selected }: { format: { title: string; text: s
         preload="metadata"
       />
       {/* Fallback gradient if poster is missing or loading */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent-200/20 to-accent-300/20 -z-10" />
+      <div className="absolute inset-0 bg-linear-to-br from-accent-200/20 to-accent-300/20 -z-10" />
 
-      <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-black/95 via-black/60 to-transparent pointer-events-none transition-all duration-300 group-hover:h-[60%] group-hover:from-black" />
+      <div className="absolute inset-x-0 bottom-0 h-[55%] bg-linear-to-t from-black/95 via-black/60 to-transparent pointer-events-none transition-all duration-300 group-hover:h-[60%] group-hover:from-black" />
 
       <div className="absolute top-4 left-4 z-10">
         <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white bg-black/40 backdrop-blur-md rounded-full border border-white/10">
@@ -137,7 +137,7 @@ export default function StudioLanding() {
           eyebrow="Estúdio de criação"
           title={
             <>
-              Escolha como criar <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-pink-500">seu vídeo</span>
+              Escolha como criar <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-500 to-pink-500">seu vídeo</span>
             </>
           }
           description="Três linguagens de produção, um fluxo guiado até os ativos finais."

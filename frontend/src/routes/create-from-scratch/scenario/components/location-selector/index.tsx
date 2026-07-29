@@ -47,7 +47,7 @@ export function LocalSelector({ localSelecionado, setLocalSelecionado }: LocalSe
               {/* Fundo fallback se a imagem quebrar */}
               <div className="absolute inset-0 bg-surface-3 -z-10" />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
 
               <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
                 <p className="font-bold text-white text-sm drop-shadow-md truncate">

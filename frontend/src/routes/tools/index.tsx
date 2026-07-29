@@ -101,13 +101,13 @@ export default function ToolsScreen() {
                       loading="lazy"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-surface-3 to-deep transition-transform duration-500 group-hover:scale-105">
+                    <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-surface-3 to-deep transition-transform duration-500 group-hover:scale-105">
                       <Icon className="size-16 text-violet-500/20" strokeWidth={1} />
                     </div>
                   )}
 
                   {/* Soft bottom gradient fading into the card body */}
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-1/2 bg-gradient-to-t from-[#100f17] to-transparent" />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-1/2 bg-linear-to-t from-[#100f17] to-transparent" />
                 </div>
 
                 {/* Body */}

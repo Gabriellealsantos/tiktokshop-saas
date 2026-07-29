@@ -9,9 +9,10 @@ import {
   FormMessage,
 } from "@/components";
 import { cn } from "@/utils/utils";
+import type { AddProductFormValues } from "../..";
 
 interface SectionMediaProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<AddProductFormValues>;
   fileInputRef: RefObject<HTMLInputElement | null>;
   handleDrop: (e: React.DragEvent) => void;
   handleImageUpload: (file: File) => void;

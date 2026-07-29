@@ -1,9 +1,10 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Link as LinkIcon } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Input } from "@/components";
+import type { AddProductFormValues } from "../..";
 
 interface SectionAffiliateProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<AddProductFormValues>;
 }
 
 export function SectionAffiliate({ form }: SectionAffiliateProps) {

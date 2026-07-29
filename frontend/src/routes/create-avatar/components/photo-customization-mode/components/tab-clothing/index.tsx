@@ -291,7 +291,7 @@ export function TabRoupa({
               <FormControl>
                 <Textarea
                   placeholder="Ex: tatuagem no braço, brinco prateado, piercing no nariz..."
-                  className="bg-surface-2 border-white/10 text-white rounded-xl min-h-[80px] resize-none"
+                  className="bg-surface-2 border-white/10 text-white rounded-xl min-h-20 resize-none"
                   {...field}
                 />
               </FormControl>
