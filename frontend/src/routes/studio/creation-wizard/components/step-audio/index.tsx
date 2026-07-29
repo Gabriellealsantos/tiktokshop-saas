@@ -1,4 +1,4 @@
-import { SectionTitle, Stepper, TakeEditor, TakesSelector, VoiceConfig } from "@/components";
+import { SectionTitle, TakeEditor, TakesSelector, VoiceConfig } from "@/components";
 
 export function AudioStep({ takes, setTakes }: { takes: number; setTakes: (v: number) => void }) {
   return (

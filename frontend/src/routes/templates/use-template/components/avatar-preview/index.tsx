@@ -40,7 +40,7 @@ export function AvatarPreview({
           />
 
           {/* Overlay gradient & buttons */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 gap-2.5">
+          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 gap-2.5">
             <Button variant="secondary" className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-md h-10" onClick={openCropModal}>
               <Crop className="size-4 mr-2" />
               Recortar

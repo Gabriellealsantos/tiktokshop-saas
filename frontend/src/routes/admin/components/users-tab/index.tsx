@@ -16,7 +16,7 @@ interface UsersTabProps {
   onPendingCountChange: (count: number) => void;
 }
 
-export function UsersTab({ pendingCount, onPendingCountChange }: UsersTabProps) {
+export function UsersTab({ onPendingCountChange }: UsersTabProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [actioningId, setActioningId] = useState<string | null>(null);
@@ -95,8 +95,8 @@ export function UsersTab({ pendingCount, onPendingCountChange }: UsersTabProps) 
          await updateUser(user.id, {
             name: user.name,
             email: user.email,
-            roles: [{ id: roleIdMap[role], authority: roleNameMap[role] }]
-         } as any);
+            roles: [{ id: roleIdMap[role], authority: roleNameMap[role] }],
+         });
       }
 
       setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, plan, role, status: newStatus } : u)));
@@ -113,7 +113,7 @@ export function UsersTab({ pendingCount, onPendingCountChange }: UsersTabProps) 
     setActioningId(user.id);
     try {
       if (isBlocked) {
-        await updateUser(user.id, { name: user.name, email: user.email, userStatus: "ACTIVE" } as any);
+        await updateUser(user.id, { name: user.name, email: user.email, userStatus: "ACTIVE" });
         setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, status: "aprovado" } : u)));
         toast.success("Acesso desbloqueado.");
       } else {

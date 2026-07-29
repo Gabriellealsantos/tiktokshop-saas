@@ -30,7 +30,7 @@ export function TimeSelector({ timeOfDaySelected, setTimeOfDaySelected }: TimeSe
               onClick={() => setTimeOfDaySelected(horario.id)}
               className={cn(
                 "group relative overflow-hidden rounded-2xl aspect-[16/10] flex flex-col items-center justify-center gap-2 transition-all duration-300",
-                `bg-gradient-to-br ${horario.gradient}`,
+                `bg-linear-to-br ${horario.gradient}`,
                 isSelected
                   ? "ring-2 ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.4)]"
                   : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg"

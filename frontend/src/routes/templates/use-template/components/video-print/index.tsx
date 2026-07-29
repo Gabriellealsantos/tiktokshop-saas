@@ -10,7 +10,7 @@ export function VideoPrint({ src, loading }: VideoPrintProps) {
   return (
     <div className="flex flex-col gap-3">
       <span className="text-sm font-semibold tracking-wide text-white/50 uppercase pl-1">Print do vídeo</span>
-      <div className="group relative overflow-hidden rounded-[20px] bg-gradient-to-br from-surface-3 to-deep border border-white/5 aspect-[9/16] flex flex-col items-center justify-center">
+      <div className="group relative overflow-hidden rounded-[20px] bg-linear-to-br from-surface-3 to-deep border border-white/5 aspect-[9/16] flex flex-col items-center justify-center">
         {src ? (
           <img src={src} alt="Print do vídeo" className="h-full w-full object-cover" />
         ) : (

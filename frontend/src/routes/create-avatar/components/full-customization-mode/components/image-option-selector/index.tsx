@@ -26,7 +26,7 @@ export function ImageOptionCard({ name, label, image, color, isSelected, onClick
       )}
       {!hideLabel && (
         <>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
           <div className="absolute inset-x-0 bottom-0 p-3">
             <p className="font-bold text-white text-sm drop-shadow-md truncate">{label || name}</p>
           </div>

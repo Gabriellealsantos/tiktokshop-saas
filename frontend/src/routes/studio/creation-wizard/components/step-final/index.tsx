@@ -86,7 +86,7 @@ export function CreationFinal({ takes = 1 }: { takes?: number }) {
                     className="h-full w-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
                 <div className="absolute bottom-0 inset-x-0 flex items-center justify-between p-4">
                   <div className="flex items-center gap-3">
@@ -105,12 +105,12 @@ export function CreationFinal({ takes = 1 }: { takes?: number }) {
       {/* Mesclagem Colapsável */}
       <Accordion type="single" collapsible className="space-y-4">
         <AccordionItem value="mesclagem" className={cn(cardBase, "border-white/[0.08] data-[state=open]:pb-0")}>
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-500/50 to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent-500/50 to-transparent" />
 
           <AccordionTrigger className="px-6 sm:px-7 py-6 hover:no-underline hover:bg-white/[0.02]">
             <div className="flex flex-1 items-center justify-between gap-4 mr-4">
               <div className="flex items-center gap-4 text-left">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-gradient-to-br from-accent-400 to-accent-600 text-white shadow-lg">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-linear-to-br from-accent-400 to-accent-600 text-white shadow-lg">
                   <Flame className="size-5" />
                 </div>
                 <div>
@@ -160,7 +160,7 @@ export function CreationFinal({ takes = 1 }: { takes?: number }) {
                     <img src={avatars[0].image} className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105 opacity-90" alt="Avatar" />
                     <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[14px]" />
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-[#34d399] to-[#10b981] hover:from-[#10b981] hover:to-[#059669] text-black border-none font-bold shadow-md pl-1.5 gap-2 h-10 rounded-[12px]" onClick={() => {/* TODO: download avatar real */}}>
+                  <Button className="w-full bg-linear-to-r from-[#34d399] to-[#10b981] hover:from-[#10b981] hover:to-[#059669] text-black border-none font-bold shadow-md pl-1.5 gap-2 h-10 rounded-[12px]" onClick={() => {/* TODO: download avatar real */}}>
                     <div className="flex size-7 shrink-0 items-center justify-center rounded-[8px] bg-black/10">
                       <Download className="size-4" />
                     </div>
@@ -172,7 +172,7 @@ export function CreationFinal({ takes = 1 }: { takes?: number }) {
                     <img src={products[0].image} className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105 opacity-90" alt="Produto" />
                     <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[14px]" />
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-[#34d399] to-[#10b981] hover:from-[#10b981] hover:to-[#059669] text-black border-none font-bold shadow-md pl-1.5 gap-2 h-10 rounded-[12px]" onClick={() => {/* TODO: download produto real */}}>
+                  <Button className="w-full bg-linear-to-r from-[#34d399] to-[#10b981] hover:from-[#10b981] hover:to-[#059669] text-black border-none font-bold shadow-md pl-1.5 gap-2 h-10 rounded-[12px]" onClick={() => {/* TODO: download produto real */}}>
                     <div className="flex size-7 shrink-0 items-center justify-center rounded-[8px] bg-black/10">
                       <Download className="size-4" />
                     </div>

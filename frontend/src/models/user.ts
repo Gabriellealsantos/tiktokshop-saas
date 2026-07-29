@@ -102,7 +102,8 @@ export type UserRequest = {
   phoneNumber?: string;
   cpf?: string;
   password?: string;
-  roles?: { id: number }[];
+  roles?: { id: number; authority: string }[];
+  userStatus?: "ACTIVE" | "PENDING_CONFIRMATION" | "LOCKED" | "DISABLED";
 };
 
 export type RegisterRequest = {

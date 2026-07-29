@@ -21,7 +21,7 @@ export function CreditPackageCard({ pkg, loading, onBuy }: CreditPackageCardProp
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.15 }}
       className={cn(
-        "relative flex flex-col rounded-[24px] p-[1px] group",
+        "relative flex flex-col rounded-[24px] p-px group",
         pkg.highlighted ? "scale-[1.02] shadow-2xl z-10" : "z-0",
       )}
     >
@@ -85,7 +85,7 @@ export function CreditPackageCard({ pkg, loading, onBuy }: CreditPackageCardProp
             className={cn(
               "mt-6 w-full relative overflow-hidden transition-all duration-300",
               pkg.highlighted
-                ? "bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)] border-0"
+                ? "bg-linear-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)] border-0"
                 : "bg-transparent border border-violet-500/30 text-violet-300 hover:bg-violet-500/10 hover:border-violet-500/50",
             )}
           >

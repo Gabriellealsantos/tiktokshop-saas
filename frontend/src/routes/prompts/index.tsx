@@ -27,7 +27,7 @@ export default function PromptsScreen() {
             .filter((p) => tab === "Todos" || p[1] === tab)
             .map(([title, type, text]) => (
               <div className="panel overflow-hidden" key={title}>
-                <div className="grid aspect-video place-items-center bg-gradient-to-br from-surface-3 to-deep">
+                <div className="grid aspect-video place-items-center bg-linear-to-br from-surface-3 to-deep">
                   <Sparkles className="size-8 text-text-3" />
                 </div>
                 <div className="p-5">

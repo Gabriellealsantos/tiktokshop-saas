@@ -28,7 +28,7 @@ export function SignatureBackground() {
           }}
         >
           <span
-            className="relative block rounded-full bg-gradient-to-b from-transparent to-[#5327C9]/50 motion-reduce:[animation-play-state:paused]"
+            className="relative block rounded-full bg-linear-to-b from-transparent to-[#5327C9]/50 motion-reduce:[animation-play-state:paused]"
             style={
               {
                 width: meteor.width,
@@ -39,7 +39,7 @@ export function SignatureBackground() {
             }
           >
             {/* Meteor Head */}
-            <div className="absolute bottom-0 left-1/2 h-2 w-[2px] -translate-x-1/2 rounded-full bg-[#6D3EE0] drop-shadow-[0_0_6px_#6D3EE0]" />
+            <div className="absolute bottom-0 left-1/2 h-2 w-0.5 -translate-x-1/2 rounded-full bg-[#6D3EE0] drop-shadow-[0_0_6px_#6D3EE0]" />
           </span>
         </div>
       ))}

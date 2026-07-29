@@ -94,11 +94,11 @@ export function OptionImageCard({ title, imageSlug, selected, onClick, compact, 
             {showFallbackIcon && <ImageIcon className="mb-2 size-6 text-white/50" />}
           </div>
         ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-surface-2 to-surface-3">
+          <div className="flex h-full w-full flex-col items-center justify-center bg-linear-to-br from-surface-2 to-surface-3">
             <ImageIcon className="mb-2 size-6 text-text-3" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
       </div>
       <div className={cn("absolute bottom-0 inset-x-0 flex items-center justify-between bg-surface-2/80 backdrop-blur-md", compact ? "p-2" : "p-2.5")}>
         <span className={cn("font-semibold text-text-1", compact ? "text-[10px] sm:text-xs" : "text-xs")}>{title}</span>

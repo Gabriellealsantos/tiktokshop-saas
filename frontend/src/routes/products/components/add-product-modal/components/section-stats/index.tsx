@@ -1,9 +1,10 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Info } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Input } from "@/components";
+import type { AddProductFormValues } from "../..";
 
 interface SectionStatsProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<AddProductFormValues>;
 }
 
 export function SectionStats({ form }: SectionStatsProps) {

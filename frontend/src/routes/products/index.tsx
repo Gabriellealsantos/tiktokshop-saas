@@ -184,7 +184,7 @@ export default function ProductsScreen() {
             {/* Fade à esquerda (aparece após rolagem) */}
             <div
               className={cn(
-                "absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[var(--bg-base)] to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                "absolute left-0 top-0 bottom-0 w-10 bg-linear-to-r from-[var(--bg-base)] to-transparent pointer-events-none z-10 transition-opacity duration-300",
                 canScrollLeft ? "opacity-100" : "opacity-0"
               )}
             />
@@ -211,7 +211,7 @@ export default function ProductsScreen() {
             {/* Fade à direita (indica que há mais itens a rolar) */}
             <div
               className={cn(
-                "absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[var(--bg-base)] to-transparent pointer-events-none z-10 transition-opacity duration-300",
+                "absolute right-0 top-0 bottom-0 w-10 bg-linear-to-l from-[var(--bg-base)] to-transparent pointer-events-none z-10 transition-opacity duration-300",
                 canScrollRight ? "opacity-100" : "opacity-0"
               )}
             />

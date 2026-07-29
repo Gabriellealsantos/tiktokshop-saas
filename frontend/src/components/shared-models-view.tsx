@@ -69,7 +69,7 @@ export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: Video
       } : undefined}
       aria-label={modelo.title}
       className={cn(
-        "group relative overflow-hidden rounded-[20px] bg-gradient-to-br from-surface-3 to-deep border border-white/5 transition-all focus-within:ring-2 focus-within:ring-brand-500/50 aspect-[9/16]",
+        "group relative overflow-hidden rounded-[20px] bg-linear-to-br from-surface-3 to-deep border border-white/5 transition-all focus-within:ring-2 focus-within:ring-brand-500/50 aspect-[9/16]",
         isPicker
           ? "hover:border-brand-500/50 hover:-translate-y-1 hover:shadow-[0_12px_24px_-12px_rgba(75,68,232,0.4)] cursor-pointer block w-full text-left"
           : "hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_12px_24px_-12px_rgba(139,92,246,0.3)]"

@@ -1,9 +1,10 @@
 import type { UseFormReturn } from "react-hook-form";
 import { Plus } from "lucide-react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch } from "@/components";
+import type { AddProductFormValues } from "../..";
 
 interface SectionOriginProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<AddProductFormValues>;
 }
 
 export function SectionOrigin({ form }: SectionOriginProps) {

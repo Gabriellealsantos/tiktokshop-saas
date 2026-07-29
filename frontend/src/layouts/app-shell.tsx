@@ -18,7 +18,7 @@ import {
 import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
-import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components";
+import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components";
 import { SignatureBackground } from "@/layouts/signature-background";
 import { NotificationsBell } from "@/layouts/notifications/notification-bell";
 import { useNotifications } from "@/layouts/notifications/store";
@@ -170,9 +170,70 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className="grid size-9 place-items-center rounded-full btn-3d-icon-neutral text-zinc-300 lg:hidden hover:text-white">
-              <Menu className="size-5" />
-            </button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="grid size-9 place-items-center rounded-full btn-3d-icon-neutral text-zinc-300 lg:hidden hover:text-white">
+                  <Menu className="size-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64 border-white/10 bg-zinc-950/95 backdrop-blur-xl p-0">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-1 px-4 pt-14">
+                  {toolbar.map(([to, Icon, label]) => {
+                    const active = to === "/" ? path === "/" : path.startsWith(to);
+                    return (
+                      <Link
+                        key={to}
+                        to={to}
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                          active
+                            ? "bg-white/10 text-white"
+                            : "text-zinc-400 hover:bg-white/5 hover:text-white",
+                        )}
+                      >
+                        <Icon className="size-4" />
+                        {label}
+                      </Link>
+                    );
+                  })}
+
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        path.startsWith("/admin")
+                          ? "bg-white/10 text-white"
+                          : "text-brand-400 hover:bg-white/5 hover:text-brand-300",
+                      )}
+                    >
+                      <ShieldCheck className="size-4" />
+                      Admin
+                    </Link>
+                  )}
+                </nav>
+
+                <div className="mt-auto border-t border-white/10 px-4 py-4 flex flex-col gap-1">
+                  <Link
+                    to="/referral"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
+                  >
+                    <Gift className="size-4 text-brand-400" />
+                    Indique e Ganhe
+                  </Link>
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
+                  >
+                    <Settings className="size-4" />
+                    Configurações
+                  </Link>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>

@@ -217,7 +217,7 @@ export function PoseSelector({
         </Button>
 
         {generatedImage && (
-          <div className="w-full max-w-[320px] overflow-hidden rounded-2xl border border-brand-500/30 shadow-lg">
+          <div className="w-full max-w-80 overflow-hidden rounded-2xl border border-brand-500/30 shadow-lg">
             <img
               src={generatedImage}
               alt="Imagem gerada"

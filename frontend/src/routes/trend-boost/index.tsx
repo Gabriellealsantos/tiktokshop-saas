@@ -69,13 +69,13 @@ function TrendTemplateCard({
           onError={() => setThumbError(true)}
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-deep to-surface-3 flex flex-col items-center justify-center p-6 text-center z-0">
+        <div className="absolute inset-0 bg-linear-to-br from-deep to-surface-3 flex flex-col items-center justify-center p-6 text-center z-0">
           <Play className="size-10 text-accent-400/50 mb-3" />
           <span className="text-text-3 text-sm">{title}</span>
         </div>
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(8,6,12,.92)] via-[rgba(8,6,12,.2)] to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-0 bg-linear-to-t from-[rgba(8,6,12,.92)] via-[rgba(8,6,12,.2)] to-transparent pointer-events-none z-10" />
 
       <div className="absolute top-4 left-4 z-20">
         <div className="glass-surface inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white/90">

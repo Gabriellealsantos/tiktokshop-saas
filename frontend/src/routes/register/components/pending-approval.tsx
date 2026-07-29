@@ -14,7 +14,7 @@ export function PendingApproval({
 }: Props) {
   return (
     <AuthShell>
-      <div className="relative mx-auto w-full max-w-[420px] rounded-[24px] p-[1px] overflow-hidden entrance">
+      <div className="relative mx-auto w-full max-w-[420px] rounded-[24px] p-px overflow-hidden entrance">
         <div
           className="absolute inset-0 z-0"
           style={{

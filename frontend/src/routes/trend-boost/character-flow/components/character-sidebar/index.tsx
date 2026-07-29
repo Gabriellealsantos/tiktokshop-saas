@@ -44,7 +44,7 @@ export function CharacterSidebar({ character, templateId, isStep3 }: CharacterSi
           className="absolute inset-0 w-full h-full object-cover z-10"
           onError={(e) => { e.currentTarget.style.opacity = "0"; }}
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 to-transparent pointer-events-none z-20" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-black/90 to-transparent pointer-events-none z-20" />
         <div className="absolute bottom-0 inset-x-0 p-4 z-30">
           <h3 className="font-bold text-white text-lg">{character.name}</h3>
         </div>

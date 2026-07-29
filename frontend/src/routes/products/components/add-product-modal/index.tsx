@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import axios from "axios";
 
 import { useMockSession } from "@/context/mock-session";
 import {
@@ -75,7 +76,9 @@ const formSchema = z.object({
     .or(z.literal("")),
 });
 
-const BLANK_DEFAULTS: z.infer<typeof formSchema> = {
+export type AddProductFormValues = z.infer<typeof formSchema>;
+
+const BLANK_DEFAULTS: AddProductFormValues = {
   image: "",
   images: "",
   name: "",
@@ -255,6 +258,8 @@ export function AddProductModal({
         // Modo edição (admin): atualiza o produto existente e fecha — sem passo de gerar conteúdo.
         const dto = toProductDTO({
           ...values,
+          image: values.image,
+          name: values.name,
           category: values.category ?? "",
         });
         await updateAdminProduct(productToEdit.id, dto);
@@ -270,6 +275,8 @@ export function AddProductModal({
         // Admin: cria produto no catálogo com todos os campos ricos.
         const dto = toProductDTO({
           ...values,
+          image: values.image,
+          name: values.name,
           category: values.category ?? "",
         });
         const res = await createAdminProduct(dto);
@@ -305,11 +312,12 @@ export function AddProductModal({
       });
       setStep(2);
       onCreated?.();
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        "Erro inesperado ao salvar.";
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Erro inesperado ao salvar."
+        : "Erro inesperado ao salvar.";
       toast.error("Falha ao salvar produto", { description: msg });
     } finally {
       setIsSubmitting(false);
@@ -402,7 +410,7 @@ export function AddProductModal({
                   <h3 className="text-sm font-bold text-white mb-4">
                     Preview em Tempo Real
                   </h3>
-                  <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-[320px]">
+                  <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-80">
                     <ProductCard product={previewProduct} />
                   </div>
 

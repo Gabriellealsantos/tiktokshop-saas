@@ -33,7 +33,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
             </div>
 
             {/* 3. Overlay em Gradiente */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#09080e] via-[#09080e]/50 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-t from-[#09080e] via-[#09080e]/50 to-transparent pointer-events-none" />
 
             {/* 4. Bloco de Texto ancorado na base-esquerda */}
             <div className="absolute bottom-0 left-0 flex w-full flex-col justify-end px-8 pb-10 pointer-events-none">

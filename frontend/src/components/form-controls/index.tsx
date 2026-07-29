@@ -20,7 +20,7 @@ export function Field({
           {...props}
           type={inputType}
           className={cn(
-            "h-11 w-full rounded-[12px] border border-border bg-deep/80 px-3.5 text-sm text-text-1 placeholder:text-text-3 focus:border-accent-400/50 focus:ring-4 focus:ring-accent-500/10",
+            "h-11 w-full rounded-xl border border-border bg-deep/80 px-3.5 text-sm text-text-1 placeholder:text-text-3 focus:border-accent-400/50 focus:ring-4 focus:ring-accent-500/10",
             isPassword && "pr-11",
             props.className,
           )}

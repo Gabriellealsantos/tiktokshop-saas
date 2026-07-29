@@ -104,7 +104,7 @@ const metricCardVariants = cva("transition-all", {
   variants: {
     surface: {
       default: "glass-surface is-data p-5 hover:border-white/10",
-      elevated: "relative overflow-hidden rounded-2xl p-5 min-h-[140px] flex flex-col justify-between bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 border border-dash-border shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-12px_oklch(0.62_0.19_285/0.40)] before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-gradient-to-b after:from-white/[0.07] after:via-transparent after:to-transparent",
+      elevated: "relative overflow-hidden rounded-2xl p-5 min-h-[140px] flex flex-col justify-between bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 border border-dash-border shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-12px_oklch(0.62_0.19_285/0.40)] before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent",
     },
     emphasis: {
       default: "",
@@ -200,7 +200,7 @@ export function MetricCard({
               {hint}
             </span>
           ) : (
-            <span className="inline-flex w-fit items-center gap-1 rounded-md bg-white/[0.06] px-2 py-1 text-xs font-medium text-white/60">
+            <span className="inline-flex w-fit items-center gap-1 rounded-md bg-white/6 px-2 py-1 text-xs font-medium text-white/60">
               {hint}
             </span>
           )}
@@ -218,10 +218,10 @@ export function LoadingScreen({
   subtitle?: string;
 }) {
   return (
-    <div className="glass-surface mx-auto flex min-h-[420px] max-w-2xl flex-col items-center justify-center p-10 text-center">
+    <div className="glass-surface mx-auto flex min-h-105 max-w-2xl flex-col items-center justify-center p-10 text-center">
       <div className="relative grid size-24 place-items-center">
         <span className="absolute inset-0 animate-ping rounded-full border border-accent-400/20" />
-        <span className="absolute inset-3 rounded-full border border-accent-400/30 [animation:soft-pulse_1.8s_ease-in-out_infinite]" />
+        <span className="absolute inset-3 rounded-full border border-accent-400/30 animate-[soft-pulse_1.8s_ease-in-out_infinite]" />
         <Sparkles className="size-8 text-accent-300" />
       </div>
       <h2 className="mt-7 text-2xl font-bold text-text-1">{title}</h2>
