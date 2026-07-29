@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/utils/utils";
@@ -10,7 +10,10 @@ import { PoseSelector } from "./components/pose-selector";
 
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { generateStudioImage } from "@/services/studioService";
+import {
+  generateStudioImage,
+  getPoseSuggestions,
+} from "@/services/studioService";
 import {
   SCENE_LOCATION,
   TIME_OF_DAY,
@@ -19,7 +22,6 @@ import {
 } from "@/models/studio";
 import { extractError } from "@/utils/api-error";
 import type { CreationSessionDTO } from "@/models/studio";
-import { SUGESTOES } from "./data";
 import { PONTOS_DE_VISTA } from "./pov-data";
 import { useQuery } from "@tanstack/react-query";
 import { getProductById } from "@/services/productService";
@@ -54,8 +56,6 @@ export default function PoseScreen() {
     voiceId: searchParams.get("voiceId") ?? undefined,
   };
 
-  const [isLoading, setIsLoading] = useState(true);
-
   const [poseSelecionada, setPoseSelecionada] = useState<string | null>(
     (search.pose as string) || null,
   );
@@ -68,6 +68,8 @@ export default function PoseScreen() {
     searchParams.get("pov") || "selfie",
   );
 
+  const [jaRegenerou, setJaRegenerou] = useState(false);
+
   const rawAvatar = searchParams.get("avatarId") ?? "";
   const isGallery = rawAvatar.startsWith("g");
   const avatarNumericId = Number(rawAvatar.slice(1));
@@ -76,13 +78,25 @@ export default function PoseScreen() {
   const customName = searchParams.get("customProductName") ?? undefined;
   const customImage = searchParams.get("customProductImageUrl") ?? undefined;
 
-  // Simulando loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  const productKey = rawProductId ?? customName ?? "none";
+
+  const {
+    data: sugestoes = [],
+    isFetching: loadingSugestoes,
+    refetch: refetchSugestoes,
+  } = useQuery({
+    queryKey: ["pose-suggestions", productKey],
+    queryFn: async () => {
+      const response = await getPoseSuggestions({
+        productId: rawProductId ? Number(rawProductId) : undefined,
+        customProductName: customName,
+      });
+      return response.data.poses as string[];
+    },
+    enabled: !!rawProductId || !!customName,
+    staleTime: Infinity,
+    gcTime: 30 * 60 * 1000,
+  });
 
   const { data: productData } = useQuery({
     queryKey: ["product", rawProductId],
@@ -134,7 +148,7 @@ export default function PoseScreen() {
       const poseText =
         poseSelecionada === "manual"
           ? manualPoseText.trim()
-          : (SUGESTOES.find((s) => s.id === poseSelecionada)?.text ?? "");
+          : (poseSelecionada ?? "");
 
       const response = await generateStudioImage({
         productId: rawProductId ? Number(rawProductId) : undefined,
@@ -264,7 +278,8 @@ export default function PoseScreen() {
 
         {/* CARD PRINCIPAL (Seleção da Pose) */}
         <PoseSelector
-          isLoading={isLoading}
+          isLoading={loadingSugestoes}
+          sugestoes={sugestoes}
           poseSelecionada={poseSelecionada}
           setPoseSelecionada={setPoseSelecionada}
           manualPoseText={manualPoseText}
@@ -273,6 +288,12 @@ export default function PoseScreen() {
           onGenerate={() => generate.mutate()}
           isGenerating={generate.isPending}
           generatedImage={(generate.data?.config?.imageUrl as string) ?? null}
+          onRegenerar={() => {
+            setJaRegenerou(true);
+            refetchSugestoes();
+          }}
+          podeRegenerar={!jaRegenerou}
+          isRegenerando={loadingSugestoes}
         />
 
         {/* RODAPÉ */}

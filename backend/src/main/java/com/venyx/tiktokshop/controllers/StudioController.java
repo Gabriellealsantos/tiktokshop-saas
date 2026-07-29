@@ -1,12 +1,10 @@
 package com.venyx.tiktokshop.controllers;
 
-import com.venyx.tiktokshop.dtos.CreationSessionDTO;
-import com.venyx.tiktokshop.dtos.DailyUsageDTO;
-import com.venyx.tiktokshop.dtos.StudioImageRequestDTO;
-import com.venyx.tiktokshop.dtos.StudioVideoRequestDTO;
+import com.venyx.tiktokshop.dtos.*;
 import com.venyx.tiktokshop.entities.CreationSession;
 import com.venyx.tiktokshop.entities.enums.FlowType;
 import com.venyx.tiktokshop.services.GenerationLimitService;
+import com.venyx.tiktokshop.services.generation.PoseSuggestionService;
 import com.venyx.tiktokshop.services.generation.ScenePoseImageService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +22,14 @@ public class StudioController {
 
     private final ScenePoseImageService imageService;
     private final GenerationLimitService limitService;
+    private final PoseSuggestionService suggestionService;
 
     public StudioController(ScenePoseImageService imageService,
-                            GenerationLimitService limitService) {
+                            GenerationLimitService limitService,
+                            PoseSuggestionService suggestionService) {
         this.imageService = imageService;
         this.limitService = limitService;
+        this.suggestionService = suggestionService;
     }
 
     @PostMapping("/image")
@@ -58,5 +59,12 @@ public class StudioController {
     @PreAuthorize(USER_ROLES)
     public ResponseEntity<CreationSessionDTO> generateVideoPrompt(@Valid @RequestBody StudioVideoRequestDTO dto) {
         return ResponseEntity.ok(new CreationSessionDTO(imageService.generateVideoPrompt(dto)));
+    }
+
+    @PostMapping("/pose-suggestions")
+    @PreAuthorize(USER_ROLES)
+    public ResponseEntity<PoseSuggestionResponseDTO> poseSuggestions(
+            @RequestBody PoseSuggestionRequestDTO dto) {
+        return ResponseEntity.ok(new PoseSuggestionResponseDTO(suggestionService.generate(dto)));
     }
 }

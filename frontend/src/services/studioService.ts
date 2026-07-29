@@ -23,3 +23,16 @@ export const getStudioSession = (id: number) =>
 
 export const getStudioUsage = () =>
     requestBackend({ method: "GET", url: "/api/studio/usage", withCredentials: true });
+
+
+export const getPoseSuggestions = (data: {
+    productId?: number;
+    customProductName?: string;
+    customProductDescription?: string;
+}) =>
+    requestBackend({
+        method: "POST",
+        url: "/api/studio/pose-suggestions",
+        data,
+        withCredentials: true,
+    });
