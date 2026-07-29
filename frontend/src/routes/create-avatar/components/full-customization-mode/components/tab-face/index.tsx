@@ -1,6 +1,6 @@
 import type { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl } from "@/components";
-import type { AvatarFormValues } from "../../index";
+import type { AvatarFormValues } from "../../avatar-schema";
 import { ImageOptionSelector } from "../image-option-selector";
 
 import {
@@ -9,7 +9,7 @@ import {
   pelosFaciaisOptions,
   bocaOptions,
   sobrancelhaOptions,
-  narizOptions
+  narizOptions,
 } from "../../data";
 export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
   const formatoRostoOptions = [
@@ -17,7 +17,7 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
     { name: "Redondo", image: "/redondo.jpeg" },
     { name: "Quadrado", image: "/quadrado.jpeg" },
     { name: "Coração", image: "/coracao.jpeg" },
-    { name: "Alongado", image: "/alongado.jpeg" }
+    { name: "Alongado", image: "/alongado.jpeg" },
   ];
 
   return (
@@ -27,7 +27,9 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="formatoRosto"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Formato do Rosto</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Formato do Rosto
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={formatoRostoOptions}
@@ -44,7 +46,9 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="corOlhos"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Cor dos Olhos</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Cor dos Olhos
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={corOlhosOptions}
@@ -63,7 +67,9 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="expressao"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Expressão</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Expressão
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={expressaoOptions}
@@ -80,7 +86,9 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="pelosFaciais"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Pelos Faciais</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Pelos Faciais
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={pelosFaciaisOptions}
@@ -96,7 +104,9 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="boca"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Boca</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Boca
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={bocaOptions}
@@ -115,7 +125,9 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="sobrancelha"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Sobrancelha</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Sobrancelha
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={sobrancelhaOptions}
@@ -135,7 +147,9 @@ export function TabRosto({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="nariz"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Nariz</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Nariz
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={narizOptions}

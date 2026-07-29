@@ -1,4 +1,5 @@
-import type { AvatarFormValues } from "@/routes/create-avatar/components/full-customization-mode";
+import type { AvatarFormValues } from "@/routes/create-avatar/components/full-customization-mode/avatar-schema";
+
 
 export type AvatarConfigDTO = {
     gender: string;

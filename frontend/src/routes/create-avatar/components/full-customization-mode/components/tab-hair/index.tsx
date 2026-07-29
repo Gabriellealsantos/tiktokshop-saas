@@ -1,6 +1,6 @@
 import type { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormLabel, FormControl } from "@/components";
-import type { AvatarFormValues } from "../../index";
+import type { AvatarFormValues } from "../../avatar-schema";
 import { ImageOptionSelector } from "../image-option-selector";
 import { estiloCabeloOptions, corCabeloOptions } from "../../data";
 
@@ -10,7 +10,7 @@ export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
 
   const dynamicCorCabeloOptions = corCabeloOptions.map((opt) => ({
     ...opt,
-    image: isFeminino ? opt.image : opt.image?.replace(".png", "-masc.png")
+    image: isFeminino ? opt.image : opt.image?.replace(".png", "-masc.png"),
   }));
 
   return (
@@ -20,7 +20,9 @@ export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="estiloCabelo"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Estilo de Cabelo</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Estilo de Cabelo
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={estiloCabeloOptions}
@@ -37,7 +39,9 @@ export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
         name="corCabelo"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Cor do Cabelo</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Cor do Cabelo
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={dynamicCorCabeloOptions}

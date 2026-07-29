@@ -1,10 +1,22 @@
 import type { UseFormReturn } from "react-hook-form";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, Input, Slider } from "@/components";
-import type { AvatarFormValues } from "../../index";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  Input,
+  Slider,
+} from "@/components";
+import type { AvatarFormValues } from "../../avatar-schema";
 import { ImageOptionSelector } from "../image-option-selector";
 import { generoOptions, etniaOptions, tomPeleOptions } from "../../data";
 
-export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> }) {
+export function TabIdentidade({
+  form,
+}: {
+  form: UseFormReturn<AvatarFormValues>;
+}) {
   const idadeVal = form.watch("idade");
 
   return (
@@ -14,9 +26,15 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
         name="nome"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider">Nome do Avatar</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider">
+              Nome do Avatar
+            </FormLabel>
             <FormControl>
-              <Input placeholder="Ex: Aurora, Marcus, Luna..." className="glass-container text-white h-12 rounded-xl focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all" {...field} />
+              <Input
+                placeholder="Ex: Aurora, Marcus, Luna..."
+                className="glass-container text-white h-12 rounded-xl focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -28,7 +46,9 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
         name="genero"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Gênero</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Gênero
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={generoOptions}
@@ -68,7 +88,9 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
         name="etnia"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Etnia / Origem</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Etnia / Origem
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 columns={4}
@@ -86,7 +108,9 @@ export function TabIdentidade({ form }: { form: UseFormReturn<AvatarFormValues> 
         name="tomPele"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">Tom de Pele</FormLabel>
+            <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider mb-2 block">
+              Tom de Pele
+            </FormLabel>
             <FormControl>
               <ImageOptionSelector
                 options={tomPeleOptions}
