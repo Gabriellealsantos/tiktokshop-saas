@@ -32,7 +32,8 @@ public class AvatarGenerationController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'AFFILIATE', 'CLIENT')")
     public ResponseEntity<ImageGenerationDTO> generate(@Valid @RequestBody AvatarGenerationRequestDTO dto) {
-        ImageGeneration job = service.generate(dto.config(), dto.referenceImageUrl());
+        ImageGeneration job = service.generate(dto.config(), dto.referenceImageUrl(),
+                dto.clothingImageUrl(), dto.clothingPart());
         return created(job);
     }
 

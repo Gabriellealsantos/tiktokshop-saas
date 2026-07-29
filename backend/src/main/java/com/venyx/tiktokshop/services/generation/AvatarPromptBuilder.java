@@ -1,6 +1,7 @@
 package com.venyx.tiktokshop.services.generation;
 
 import com.venyx.tiktokshop.dtos.AvatarConfigDTO;
+import com.venyx.tiktokshop.entities.enums.ClothingPart;
 import com.venyx.tiktokshop.entities.enums.HairStyle;
 import org.springframework.stereotype.Component;
 
@@ -54,5 +55,22 @@ public class AvatarPromptBuilder {
         if (clean != null) {
             prompt.append(" ").append(label).append(": ").append(clean).append(".");
         }
+    }
+
+    public String buildWithClothingReference(AvatarConfigDTO config, ClothingPart clothingPart) {
+        String base = build(config);
+        // Substitui a instrução de roupa textual pela referência de imagem.
+        int roupaIdx = base.indexOf(". Roupa: ");
+        String semRoupa = roupaIdx >= 0
+                ? base.substring(0, roupaIdx) + ". "
+                : base;
+
+        return new StringBuilder(semRoupa)
+                .append("A roupa é a peça da imagem de referência anexada: reproduza-a fielmente — ")
+                .append("mesmo modelo, corte, cor, estampa e tecido, sem inventar outra roupa. ")
+                .append("A pessoa veste ").append(clothingPart.getDescription()).append(" dessa imagem. ")
+                .append("Iluminação profissional de estúdio, foco nítido, alta qualidade, ")
+                .append("fundo branco puro (#FFFFFF). A pessoa não deve segurar câmera nem celular.")
+                .toString();
     }
 }

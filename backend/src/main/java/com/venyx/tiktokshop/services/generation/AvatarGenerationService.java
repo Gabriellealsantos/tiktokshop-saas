@@ -5,6 +5,7 @@ import com.venyx.tiktokshop.dtos.AvatarFromPhotoRequestDTO;
 import com.venyx.tiktokshop.entities.ImageGeneration;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.entities.enums.ClothingMode;
+import com.venyx.tiktokshop.entities.enums.ClothingPart;
 import com.venyx.tiktokshop.repositories.ImageGenerationRepository;
 import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.GenerationLimitService;
@@ -62,10 +63,11 @@ public class AvatarGenerationService {
         this.photoPromptBuilder = photoPromptBuilder;
     }
 
-    public ImageGeneration generate(AvatarConfigDTO config, String referenceImageUrl) {
+    public ImageGeneration generate(AvatarConfigDTO config, String referenceImageUrl,
+                                    String clothingImageUrl, ClothingPart clothingPart) {
         User user = authService.authenticated();
         limitService.assertCanGenerate(user.getUuid(), AVATAR);
-        return runAndPersist(user, config, null, referenceImageUrl);
+        return runAndPersist(user, config, null, referenceImageUrl, clothingImageUrl, clothingPart);
     }
 
     public ImageGeneration regenerate(Long parentId, String referenceImageUrl) {
@@ -87,7 +89,7 @@ public class AvatarGenerationService {
         limitService.assertCanRegenerate(parent);
 
         AvatarConfigDTO config = objectMapper.convertValue(parent.getConfig(), AvatarConfigDTO.class);
-        return runAndPersist(user, config, parent, referenceImageUrl);
+        return runAndPersist(user, config, parent, referenceImageUrl, null, null);
     }
 
     @Transactional(readOnly = true)
@@ -97,9 +99,26 @@ public class AvatarGenerationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Geração não encontrada: " + id));
     }
 
-    private ImageGeneration runAndPersist(User user, AvatarConfigDTO config,
-                                          ImageGeneration parent, String referenceImageUrl) {
-        String prompt = promptBuilder.build(config);
+    private ImageGeneration runAndPersist(User user, AvatarConfigDTO config, ImageGeneration parent,
+                                          String referenceImageUrl, String clothingImageUrl,
+                                          ClothingPart clothingPart) {
+        boolean roupaPorImagem = clothingImageUrl != null && !clothingImageUrl.isBlank();
+
+        List<String> references = new ArrayList<>();
+        if (referenceImageUrl != null && !referenceImageUrl.isBlank()) {
+            references.add(referenceImageUrl);
+        }
+        if (roupaPorImagem) {
+            if (clothingPart == null) {
+                throw new BusinessException("Informe o tipo da peça enviada.");
+            }
+            assertOwnedReference(clothingImageUrl, user.getUuid(), "A imagem da roupa");
+            references.add(clothingImageUrl);
+        }
+
+        String prompt = roupaPorImagem
+                ? promptBuilder.buildWithClothingReference(config, clothingPart)
+                : promptBuilder.build(config);
 
         ImageGeneration job = new ImageGeneration();
         job.setUser(user);
@@ -110,8 +129,7 @@ public class AvatarGenerationService {
         job.setCreatedAt(Instant.now());
 
         try {
-            ImageProviderResult result = imageProvider.generate(
-                    ImageProviderRequest.of(prompt, referenceImageUrl));
+            ImageProviderResult result = imageProvider.generate(new ImageProviderRequest(prompt, references));
 
             String folder = AVATAR_FOLDER + "/" + user.getUuid();
             job.setImageUrl(storageService.uploadWithRetry(result.content(), result.mimeType(), folder));

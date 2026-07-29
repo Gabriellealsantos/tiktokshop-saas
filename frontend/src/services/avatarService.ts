@@ -1,11 +1,21 @@
 import { requestBackend } from "@/utils/requests";
 import type { AvatarConfigDTO, AvatarFromPhotoRequest } from "@/models/avatar";
 
-export const generateAvatar = (config: AvatarConfigDTO, referenceImageUrl?: string | null) =>
+export const generateAvatar = (
+    config: AvatarConfigDTO,
+    referenceImageUrl?: string | null,
+    clothingImageUrl?: string | null,
+    clothingPart?: string | null,
+) =>
     requestBackend({
         method: "POST",
         url: "/api/avatars/generation",
-        data: { config, referenceImageUrl: referenceImageUrl ?? null },
+        data: {
+            config,
+            referenceImageUrl: referenceImageUrl ?? null,
+            clothingImageUrl: clothingImageUrl ?? null,
+            clothingPart: clothingPart ?? null,
+        },
         withCredentials: true,
     });
 
@@ -90,3 +100,4 @@ export const generateAvatarFromPhoto = (data: AvatarFromPhotoRequest) =>
         data,
         withCredentials: true,
     });
+

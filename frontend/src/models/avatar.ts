@@ -202,3 +202,9 @@ export const CLOTHING_PART: Record<string, "FULL_LOOK" | "TOP" | "BOTTOM"> = {
     "Parte de cima": "TOP",
     "Parte de baixo": "BOTTOM",
 };
+
+export const CLOTHING_PART_AVATAR: Record<string, "FULL_LOOK" | "TOP" | "BOTTOM"> = {
+    "Look completo": "FULL_LOOK",
+    "Parte de cima": "TOP",
+    "Parte de baixo": "BOTTOM",
+};

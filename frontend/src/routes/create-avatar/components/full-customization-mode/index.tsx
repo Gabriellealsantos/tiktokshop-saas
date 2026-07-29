@@ -19,7 +19,7 @@ import { TabCabelo } from "./components/tab-hair";
 import { TabEstilo } from "./components/tab-style";
 import { TabRenderizacao } from "./components/tab-rendering";
 
-import { buildAvatarConfig } from "@/models/avatar";
+import { buildAvatarConfig, CLOTHING_PART_AVATAR } from "@/models/avatar";
 import { useSaveAvatar } from "../../api/use-save-avatar";
 import { useAvatarUsage } from "../../api/use-avatars";
 import { toast } from "sonner";
@@ -142,6 +142,10 @@ export const avatarSchema = z.object({
   ),
   detalhesRoupa: z.string().max(120, "Máximo 120 caracteres.").optional(),
   detalhesExtras: z.string().max(150, "Máximo 150 caracteres.").optional(),
+  clothingImageUrl: z.string().optional(),
+  clothingPart: z
+    .enum(["Look completo", "Parte de cima", "Parte de baixo"])
+    .optional(),
 });
 
 const FIELD_TAB: Record<string, number> = {
@@ -231,7 +235,16 @@ export function FullCustomizationMode() {
       return;
     }
     form.handleSubmit(
-      (data) => generateAvatar.mutate(buildAvatarConfig(data)),
+      (data) =>
+        generateAvatar.mutate({
+          config: buildAvatarConfig(data),
+          clothingImageUrl:
+            data.roupa === "Enviar Imagem" ? data.clothingImageUrl : null,
+          clothingPart:
+            data.roupa === "Enviar Imagem" && data.clothingPart
+              ? CLOTHING_PART_AVATAR[data.clothingPart]
+              : null,
+        }),
       (errors) => {
         const first = Object.keys(errors)[0];
         const tab = FIELD_TAB[first];
