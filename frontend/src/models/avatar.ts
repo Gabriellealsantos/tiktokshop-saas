@@ -158,6 +158,7 @@ export const OUTFIT: Record<string, string> = {
     "Streetwear": "STREETWEAR",
     "Fitness": "FITNESS",
     "Corporativo": "CORPORATE",
+    "Geração Automática": "AUTO",
 };
 
 export const buildAvatarConfig = (form: AvatarFormValues): AvatarConfigDTO => ({

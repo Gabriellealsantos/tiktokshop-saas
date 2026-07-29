@@ -5,7 +5,8 @@ public enum Outfit {
     LUXURY("luxo"),
     STREETWEAR("streetwear"),
     FITNESS("fitness"),
-    CORPORATE("corporativo");
+    CORPORATE("corporativo"),
+    AUTO("uma roupa adequada ao personagem, escolhida com bom senso de estilo");
 
     private final String description;
 
