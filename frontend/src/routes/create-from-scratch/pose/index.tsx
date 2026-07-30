@@ -65,9 +65,8 @@ export default function PoseScreen() {
   );
 
   const [pontoDeVista, setPontoDeVista] = useState(
-    searchParams.get("pov") || "selfie",
+    searchParams.get("pov") || "close-up",
   );
-
   const [jaRegenerou, setJaRegenerou] = useState(false);
 
   const rawAvatar = searchParams.get("avatarId") ?? "";
