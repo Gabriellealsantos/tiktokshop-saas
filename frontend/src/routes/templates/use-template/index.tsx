@@ -6,6 +6,7 @@ import { AppShell } from "@/layouts/app-shell";
 import { Page } from "@/components/page";
 import { Stepper } from "@/components/stepper";
 import { Button } from "@/components/button";
+import { GlassPanel } from "@/components/glass-panel";
 
 import { VideoModel } from "./components/video-model";
 import { VideoPrint } from "./components/video-print";
@@ -449,6 +450,7 @@ export default function TemplateAssemblyScreen() {
             /* ── PASSOS DE MONTAGEM ───────────────────────────────────────── */
             <>
               <div className="mt-8 mb-6">
+                <GlassPanel>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
                   {/* CONTAINER 1 — MODELO */}
                   <VideoModel videoUrl={videoUrl} videoRef={videoRef} />
@@ -527,6 +529,7 @@ export default function TemplateAssemblyScreen() {
                     loading={swapClothesMutation.isPending}
                   />
                 </div>
+                </GlassPanel>
               </div>
 
               {/* NAVEGAÇÃO FOOTER */}
