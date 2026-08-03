@@ -480,7 +480,18 @@ export default function TemplateAssemblyScreen() {
                     ) : (
                       <div className="flex flex-col gap-3 mt-4">
                         <div className="flex flex-col gap-3 p-4 rounded-[16px] bg-surface-2 border border-white/5 shadow-lg">
-                          {/* LINHA SUPERIOR: Botões */}
+                          {/* LINHA SUPERIOR: Thumbnail e Textos */}
+                          <div className="flex items-center gap-3 min-w-0 w-full">
+                            <div className="size-10 rounded-[10px] overflow-hidden bg-black/50 border border-white/10 flex-shrink-0">
+                              <img src={avatarSelecionado} alt="Avatar" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase drop-shadow-sm flex-shrink-0">Avatar Selecionado</span>
+                              <span className="text-white font-semibold text-sm truncate" title="Modelo Customizado">Modelo Customizado</span>
+                            </div>
+                          </div>
+
+                          {/* LINHA INFERIOR: Botões */}
                           <div className="flex flex-row gap-2 w-full">
                             <Button variant="secondary" size="sm" className="flex-1 text-xs btn-3d-surface h-8" onClick={openCropModal}>
                               <Crop className="size-3.5 mr-1" />
@@ -490,17 +501,6 @@ export default function TemplateAssemblyScreen() {
                               <RefreshCw className="size-3.5 mr-1" />
                               Trocar
                             </Button>
-                          </div>
-
-                          {/* LINHA INFERIOR: Thumbnail e Textos */}
-                          <div className="flex items-center gap-3 min-w-0 w-full">
-                            <div className="size-10 rounded-[10px] overflow-hidden bg-black/50 border border-white/10 flex-shrink-0">
-                              <img src={avatarSelecionado} alt="Avatar" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase drop-shadow-sm flex-shrink-0">Avatar Selecionado</span>
-                              <span className="text-white font-semibold text-sm truncate" title="Modelo Customizado">Modelo Customizado</span>
-                            </div>
                           </div>
                         </div>
                         <Button

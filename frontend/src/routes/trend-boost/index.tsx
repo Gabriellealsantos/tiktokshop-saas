@@ -108,7 +108,7 @@ export default function TrendLanding() {
     <AppShell>
       <Page className="pt-0">
         <TrendHeader
-          title="Viralize"
+          title="Trend"
           subtitle="Turbine seu Engajamento"
           description="Escolha uma estrutura feita para retenção, comentário e compartilhamento."
         />

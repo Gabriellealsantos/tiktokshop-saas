@@ -1,10 +1,8 @@
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { ShoppingBag, Eye, TrendingUp, Target } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
 import type { Product } from "@/models/product";
-import { Pill } from "@/components";
 import { formatPtBr, type deriveProductMetrics } from "@/utils/utils";
 import { ContentGenerationOptions } from "../../../content-generation-options";
 
@@ -16,64 +14,79 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product, metrics, onNavigateToContent }: ProductInfoProps) {
   return (
-    <div className="flex flex-col w-full p-6 md:p-8 overflow-y-auto bg-surface-1">
-      {/* Header & Badges */}
-      <div className="flex items-center gap-2 mb-3">
-        <Pill className="border-white/10 bg-surface-2 text-text-2 text-xs">
-          {product.category}
-        </Pill>
-        {(product.viral || metrics.trendLabel) && (
-          <Pill className="border-orange-500/20 bg-orange-500/10 text-orange-500 text-xs">
-            🔥 {metrics.trendLabel}
-          </Pill>
-        )}
+    <div className="w-full p-5 md:px-7 md:py-5 flex flex-col justify-between overflow-x-hidden">
+      <div>
+        {/* Header Badges -> Illuminated Jewel Capsule Chips */}
+        <div className="flex items-center gap-2 mb-2.5 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/[0.07] border border-white/15 text-xs font-extrabold tracking-wide uppercase text-zinc-300 shadow-xs backdrop-blur-sm">
+            {product.category}
+          </span>
+          {(product.viral || metrics.trendLabel) && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-linear-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/40 text-xs font-black text-orange-400 shadow-[0_0_16px_-3px_rgba(249,115,22,0.4)] tracking-wide uppercase animate-pulse backdrop-blur-sm">
+              🔥 {metrics.trendLabel}
+            </span>
+          )}
+        </div>
+
+        {/* Title */}
+        <h2 className="text-2xl md:text-[26px] font-extrabold text-white tracking-tight leading-tight drop-shadow-xs">
+          {product.name}
+        </h2>
+
+        {/* Metadata with Real-Time Indicator Dot */}
+        <div className="mt-1.5 flex items-center gap-2 text-xs font-medium text-zinc-400 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <div className="size-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+            <span>
+              Atualizado{" "}
+              {formatDistanceToNow(new Date(metrics.lastUpdatedAt), {
+                locale: ptBR,
+                addSuffix: true,
+              })}
+            </span>
+          </div>
+          <span className="text-zinc-600 font-bold">·</span>
+          <span>Minerado na janela {metrics.miningWindow}</span>
+        </div>
       </div>
 
-      <h2 className="text-2xl md:text-3xl font-bold text-text-1 leading-tight">
-        {product.name}
-      </h2>
-
-      <div className="mt-2 text-xs text-text-3 font-medium flex items-center gap-1.5 flex-wrap">
-        <span>
-          Atualizado{" "}
-          {formatDistanceToNow(new Date(metrics.lastUpdatedAt), {
-            locale: ptBR,
-            addSuffix: true,
-          })}
-        </span>
-        <span>·</span>
-        <span>Minerado na janela {metrics.miningWindow}</span>
-      </div>
-
-      {/* Price & Earning */}
-      <div className="mt-6 flex flex-col gap-1">
-        <div className="flex items-end gap-3">
-          <strong className="text-4xl font-bold tabular-nums text-text-1">
+      {/* Price & Commission -> Ultra-transparent crystalline glass banner with overflow-hidden to prevent horizontal scrollbar */}
+      <div className="mt-4 p-4 md:px-5 rounded-[20px] bg-white/[0.03] border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)] flex flex-col gap-1 backdrop-blur-md relative group transition-all duration-300 hover:bg-white/[0.05] hover:border-white/20 overflow-hidden">
+        <div className="absolute -right-10 -bottom-10 size-36 rounded-full bg-brand-500/10 blur-2xl pointer-events-none group-hover:bg-brand-500/20 transition-colors duration-500" />
+        <div className="flex items-baseline gap-2 z-10">
+          <strong className="text-3xl md:text-[34px] font-black tabular-nums text-white tracking-tight drop-shadow-md">
             {product.price}
           </strong>
         </div>
-        <p className="text-sm text-text-2">
-          Comissão {metrics.commissionRate}% · ganhe{" "}
-          <span className="text-success font-medium">
-            ~{formatPtBr(metrics.earningPerSale, true)}/venda
+        <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-300 z-10 flex-wrap">
+          <span>Comissão {metrics.commissionRate}%</span>
+          <span className="text-zinc-500 font-bold">·</span>
+          <span>
+            ganhe{" "}
+            <span className="font-extrabold text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.5)]">
+              ~{formatPtBr(metrics.earningPerSale, true)}/venda
+            </span>
           </span>
-        </p>
+        </div>
       </div>
 
-      {/* KPI Grid */}
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      {/* KPI Stat Grid -> Ultra-transparent telemetry cards */}
+      <div className="mt-3.5 grid grid-cols-2 gap-2.5">
         {/* Vendas */}
-        <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-white/5 bg-surface-2/30">
-          <div className="flex items-center gap-2 text-[11px] font-semibold text-text-3 uppercase tracking-wider">
-            <ShoppingBag className="size-3.5" />
+        <div className="group relative flex flex-col gap-1.5 p-3.5 rounded-[16px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-brand-500/40 transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm hover:-translate-y-0.5 overflow-hidden">
+          <div className="absolute top-0 right-0 size-20 bg-brand-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div className="flex items-center gap-2 text-[11px] font-extrabold text-zinc-400 uppercase tracking-wider z-10">
+            <div className="grid size-5 place-items-center rounded-md bg-brand-500/20 text-brand-400 border border-brand-500/30 group-hover:scale-110 transition-transform shadow-xs shrink-0">
+              <ShoppingBag className="size-3" />
+            </div>
             <span>Vendas</span>
           </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-xl font-bold text-text-1">
+          <div className="flex items-baseline justify-between z-10">
+            <span className="text-xl font-extrabold text-white tracking-tight tabular-nums drop-shadow-xs">
               {formatPtBr(metrics.rawSales)}
             </span>
             {metrics.salesDelta7d > 0 && (
-              <span className="text-[10px] font-medium text-success">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-extrabold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 shadow-[0_0_10px_rgba(52,211,153,0.3)]">
                 +{metrics.salesDelta7d}%
               </span>
             )}
@@ -81,90 +94,61 @@ export function ProductInfo({ product, metrics, onNavigateToContent }: ProductIn
         </div>
 
         {/* Receita */}
-        <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-white/5 bg-surface-2/30">
-          <div className="flex items-center gap-2 text-[11px] font-semibold text-text-3 uppercase tracking-wider">
-            <TrendingUp className="size-3.5" />
+        <div className="group relative flex flex-col gap-1.5 p-3.5 rounded-[16px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-emerald-500/40 transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm hover:-translate-y-0.5 overflow-hidden">
+          <div className="absolute top-0 right-0 size-20 bg-emerald-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div className="flex items-center gap-2 text-[11px] font-extrabold text-zinc-400 uppercase tracking-wider z-10">
+            <div className="grid size-5 place-items-center rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 group-hover:scale-110 transition-transform shadow-xs shrink-0">
+              <TrendingUp className="size-3" />
+            </div>
             <span>
-              Receita <span className="text-white/30 lowercase normal-case">(est.)</span>
+              Receita <span className="text-zinc-500 lowercase normal-case font-semibold">(est.)</span>
             </span>
           </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-xl font-bold text-success">
+          <div className="flex items-baseline justify-between z-10">
+            <span className="text-xl font-extrabold text-emerald-400 tracking-tight tabular-nums drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]">
               {formatPtBr(metrics.revenueEstimate, true)}
             </span>
           </div>
         </div>
 
         {/* Views */}
-        <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-white/5 bg-surface-2/30">
-          <div className="flex items-center gap-2 text-[11px] font-semibold text-text-3 uppercase tracking-wider">
-            <Eye className="size-3.5" />
+        <div className="group relative flex flex-col gap-1.5 p-3.5 rounded-[16px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-blue-500/40 transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm hover:-translate-y-0.5 overflow-hidden">
+          <div className="absolute top-0 right-0 size-20 bg-blue-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div className="flex items-center gap-2 text-[11px] font-extrabold text-zinc-400 uppercase tracking-wider z-10">
+            <div className="grid size-5 place-items-center rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30 group-hover:scale-110 transition-transform shadow-xs shrink-0">
+              <Eye className="size-3" />
+            </div>
             <span>Views</span>
           </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-xl font-bold text-text-1">{formatPtBr(metrics.views)}</span>
+          <div className="flex items-baseline justify-between z-10">
+            <span className="text-xl font-extrabold text-white tracking-tight tabular-nums drop-shadow-xs">
+              {formatPtBr(metrics.views)}
+            </span>
           </div>
         </div>
 
         {/* Conversão */}
-        <div className="flex flex-col gap-1.5 p-3.5 rounded-xl border border-white/5 bg-surface-2/30">
-          <div className="flex items-center gap-2 text-[11px] font-semibold text-text-3 uppercase tracking-wider">
-            <Target className="size-3.5" />
+        <div className="group relative flex flex-col gap-1.5 p-3.5 rounded-[16px] bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 hover:border-purple-500/40 transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm hover:-translate-y-0.5 overflow-hidden">
+          <div className="absolute top-0 right-0 size-20 bg-purple-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          <div className="flex items-center gap-2 text-[11px] font-extrabold text-zinc-400 uppercase tracking-wider z-10">
+            <div className="grid size-5 place-items-center rounded-md bg-purple-500/20 text-purple-400 border border-purple-500/30 group-hover:scale-110 transition-transform shadow-xs shrink-0">
+              <Target className="size-3" />
+            </div>
             <span>Conversão</span>
           </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-xl font-bold text-text-1">
+          <div className="flex items-baseline justify-between z-10">
+            <span className="text-xl font-extrabold text-white tracking-tight tabular-nums drop-shadow-xs">
               {metrics.conversionRate.toFixed(2).replace(".", ",")}%
             </span>
           </div>
         </div>
       </div>
 
-      {/* Sales Pace + Trend Chart */}
-      <div className="mt-4 p-4 rounded-xl border border-white/5 bg-surface-2/30 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <div className="text-sm font-medium text-text-1">Ritmo de vendas</div>
-          <div className="text-xs text-text-3 text-right">
-            ≈ {formatPtBr(metrics.salesPerDay)} vendas/dia
-            <br />
-            <span className="text-[10px]">
-              1 a cada ~{Math.round(metrics.intervalMinutes)} min
-            </span>
-          </div>
-        </div>
-        <div className="h-14 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={metrics.salesHistory7d}>
-              <defs>
-                <linearGradient id="colorVendas" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="vendas"
-                stroke="#8b5cf6"
-                strokeWidth={2}
-                fillOpacity={1}
-                fill="url(#colorVendas)"
-                isAnimationActive={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="text-[10px] text-center text-text-3 uppercase tracking-wider font-semibold">
-          Vendas · Últimos 7 dias
-        </div>
-      </div>
-
-      {/* Description */}
-      {product.description && (
-        <p className="mt-6 text-sm text-text-2 leading-relaxed">{product.description}</p>
-      )}
-
-      {/* NEW Content Generation Actions */}
+      {/* Content Generation Actions */}
       <ContentGenerationOptions product={product} onNavigate={onNavigateToContent} />
     </div>
   );
 }
+
+
+

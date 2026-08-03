@@ -100,62 +100,64 @@ export default function VideoScreen() {
         {isLoading ? (
           <p className="text-text-3 text-sm">Carregando…</p>
         ) : (
-          <div className="grid gap-8 lg:grid-cols-[320px_1fr] items-start">
-            {/* IMAGEM */}
-            <div className="space-y-3">
-              {imageUrl && (
-                <div className="overflow-hidden rounded-2xl border border-white/10">
-                  <img
-                    src={imageUrl}
-                    alt="Imagem gerada"
-                    className="w-full h-auto"
-                  />
-                </div>
-              )}
-              <Button
-                variant="outline"
-                onClick={downloadImage}
-                className="w-full rounded-xl bg-surface-2 border-white/10 hover:bg-white/10 h-11"
-              >
-                <Download className="size-4 mr-2" />
-                Baixar imagem
-              </Button>
-            </div>
-
-            {/* PROMPT */}
-            <div className="space-y-4">
-              <div className="rounded-2xl glass-surface border border-white/10 p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-base font-semibold text-text-1">
-                    Prompt do vídeo (para o Flow)
-                  </h2>
-                  <Button
-                    size="sm"
-                    onClick={copyPrompt}
-                    className="btn-brand rounded-lg"
-                  >
-                    {copied ? (
-                      <Check className="size-4 mr-1" />
-                    ) : (
-                      <Copy className="size-4 mr-1" />
-                    )}
-                    {copied ? "Copiado" : "Copiar"}
-                  </Button>
-                </div>
-                <p className="max-h-80 overflow-y-auto rounded-xl bg-surface-2 border border-white/10 p-4 text-sm leading-relaxed text-text-2 whitespace-pre-wrap">
-                  {videoPrompt || "Prompt não disponível."}
-                </p>
+          <div className="rounded-[28px] bg-[linear-gradient(180deg,hsl(255_100%_95%/0.02),hsl(258_90%_70%/0.008))] backdrop-blur-sm border border-white/10 ring-1 ring-inset ring-white/[0.06] shadow-[0_20px_50px_-24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.10)] p-6 sm:p-8 mb-8">
+            <div className="grid gap-8 lg:grid-cols-[320px_1fr] items-start">
+              {/* IMAGEM */}
+              <div className="space-y-3">
+                {imageUrl && (
+                  <div className="overflow-hidden rounded-2xl border border-white/10">
+                    <img
+                      src={imageUrl}
+                      alt="Imagem gerada"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={downloadImage}
+                  className="w-full rounded-xl bg-surface-2 border-white/10 hover:bg-white/10 h-11"
+                >
+                  <Download className="size-4 mr-2" />
+                  Baixar imagem
+                </Button>
               </div>
 
-              <Button
-                asChild
-                className="btn-brand w-full h-12 rounded-xl font-semibold"
-              >
-                <a href={FLOW_URL} target="_blank" rel="noreferrer">
-                  <ExternalLink className="size-4 mr-2" />
-                  Abrir Google Flow
-                </a>
-              </Button>
+              {/* PROMPT */}
+              <div className="space-y-4">
+                <div className="rounded-2xl bg-white/[0.02] border border-white/10 p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base font-semibold text-text-1">
+                      Prompt do vídeo (para o Flow)
+                    </h2>
+                    <Button
+                      size="sm"
+                      onClick={copyPrompt}
+                      className="btn-brand rounded-lg"
+                    >
+                      {copied ? (
+                        <Check className="size-4 mr-1" />
+                      ) : (
+                        <Copy className="size-4 mr-1" />
+                      )}
+                      {copied ? "Copiado" : "Copiar"}
+                    </Button>
+                  </div>
+                  <p className="max-h-80 overflow-y-auto rounded-xl bg-surface-2 border border-white/10 p-4 text-sm leading-relaxed text-text-2 whitespace-pre-wrap">
+                    {videoPrompt || "Prompt não disponível."}
+                  </p>
+                </div>
+
+                <Button
+                  asChild
+                  className="btn-brand w-full h-12 rounded-xl font-semibold"
+                >
+                  <a href={FLOW_URL} target="_blank" rel="noreferrer">
+                    <ExternalLink className="size-4 mr-2" />
+                    Abrir Google Flow
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         )}

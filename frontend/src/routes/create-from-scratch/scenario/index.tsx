@@ -73,17 +73,19 @@ export default function ScenarioScreen() {
           </p>
         </div>
 
-        {/* 1. LOCAL */}
-        <LocalSelector localSelecionado={localSelecionado} setLocalSelecionado={setLocalSelecionado} />
+        <div className="rounded-[28px] bg-[linear-gradient(180deg,hsl(255_100%_95%/0.02),hsl(258_90%_70%/0.008))] backdrop-blur-sm border border-white/10 ring-1 ring-inset ring-white/[0.06] shadow-[0_20px_50px_-24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.10)] p-6 sm:p-8 pb-2 sm:pb-2 mb-8">
+          {/* 1. LOCAL */}
+          <LocalSelector localSelecionado={localSelecionado} setLocalSelecionado={setLocalSelecionado} />
 
-        {/* 2. HORA DO DIA */}
-        <TimeSelector timeOfDaySelected={timeOfDaySelected} setTimeOfDaySelected={setTimeOfDaySelected} />
+          {/* 2. HORA DO DIA */}
+          <TimeSelector timeOfDaySelected={timeOfDaySelected} setTimeOfDaySelected={setTimeOfDaySelected} />
 
-        {/* 3. ILUMINAÇÃO */}
-        <LightingSelector lightingSelected={lightingSelected} setLightingSelected={setLightingSelected} />
+          {/* 3. ILUMINAÇÃO */}
+          <LightingSelector lightingSelected={lightingSelected} setLightingSelected={setLightingSelected} />
 
-        {/* 4. ATMOSFERA */}
-        <AtmosphereSelector atmosphereSelected={atmosphereSelected} setAtmosphereSelected={setAtmosphereSelected} />
+          {/* 4. ATMOSFERA */}
+          <AtmosphereSelector atmosphereSelected={atmosphereSelected} setAtmosphereSelected={setAtmosphereSelected} />
+        </div>
 
         {/* BARRA DE RESUMO */}
         <SummaryBar

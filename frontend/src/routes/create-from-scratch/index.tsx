@@ -90,65 +90,67 @@ export default function CreateFromScratchScreen() {
         </div>
 
         {/* 2. INFLUENCER GRID */}
-        <div className="mb-6 flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-text-3">
-            2. Influencer
-          </span>
-        </div>
-
-        {avataresFiltrados.length === 0 ? (
-          <div className="py-12 flex flex-col items-center justify-center rounded-[20px] border border-white/5 border-dashed bg-white/[0.02]">
-            <p className="text-text-3 text-sm">Nenhum avatar encontrado.</p>
+        <div className="rounded-[28px] bg-[linear-gradient(180deg,hsl(255_100%_95%/0.02),hsl(258_90%_70%/0.008))] backdrop-blur-sm border border-white/10 ring-1 ring-inset ring-white/[0.06] shadow-[0_20px_50px_-24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.10)] p-6 sm:p-8 mb-8">
+          <div className="mb-6 flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-text-3">
+              2. Influencer
+            </span>
           </div>
-        ) : (
-          <div className="grid gap-2.5 sm:gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 mb-12">
-            {avataresFiltrados.map((avatar) => {
-              const isSelected = avatarSelecionado === avatar.id;
-              const isNeutro = avatar.isNeutro;
 
-              return (
-                <button
-                  key={avatar.id}
-                  onClick={() => setAvatarSelecionado(avatar.id)}
-                  className={cn(
-                    "group relative overflow-hidden rounded-2xl aspect-[2/3] text-left transition-all duration-300",
-                    isSelected
-                      ? "ring-2 ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.5)]"
-                      : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg",
-                  )}
-                >
-                  <img
-                    src={avatar.image}
-                    alt={avatar.name}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+          {avataresFiltrados.length === 0 ? (
+            <div className="py-12 flex flex-col items-center justify-center rounded-[20px] border border-white/5 border-dashed bg-white/[0.02]">
+              <p className="text-text-3 text-sm">Nenhum avatar encontrado.</p>
+            </div>
+          ) : (
+            <div className="grid gap-2.5 sm:gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 mb-2">
+              {avataresFiltrados.map((avatar) => {
+                const isSelected = avatarSelecionado === avatar.id;
+                const isNeutro = avatar.isNeutro;
 
-                  {isNeutro && (
-                    <div className="absolute top-2 left-2 z-10 pointer-events-none rounded-full bg-[#0a0810]/50 backdrop-blur-md border border-white/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white shadow-sm">
-                      Neutro
+                return (
+                  <button
+                    key={avatar.id}
+                    onClick={() => setAvatarSelecionado(avatar.id)}
+                    className={cn(
+                      "group relative overflow-hidden rounded-2xl aspect-[2/3] text-left transition-all duration-300",
+                      isSelected
+                        ? "ring-2 ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.5)]"
+                        : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg",
+                    )}
+                  >
+                    <img
+                      src={avatar.image}
+                      alt={avatar.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                    {isNeutro && (
+                      <div className="absolute top-2 left-2 z-10 pointer-events-none rounded-full bg-[#0a0810]/50 backdrop-blur-md border border-white/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white shadow-sm">
+                        Neutro
+                      </div>
+                    )}
+
+                    <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                      <p className="font-bold text-white text-sm drop-shadow-md truncate">
+                        {avatar.name}
+                      </p>
+                      <p className="text-[10px] text-white/70 truncate">
+                        {/* TODO: variação real do sistema se houver */}
+                        outfit padrão
+                      </p>
                     </div>
-                  )}
 
-                  <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                    <p className="font-bold text-white text-sm drop-shadow-md truncate">
-                      {avatar.name}
-                    </p>
-                    <p className="text-[10px] text-white/70 truncate">
-                      {/* TODO: variação real do sistema se houver */}
-                      outfit padrão
-                    </p>
-                  </div>
-
-                  {isSelected && (
-                    <div className="absolute inset-0 border-2 border-brand-500 rounded-2xl pointer-events-none" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
+                    {isSelected && (
+                      <div className="absolute inset-0 border-2 border-brand-500 rounded-2xl pointer-events-none" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* RODAPÉ */}
         <div className="flex items-center justify-between border-t border-white/10 pt-6">

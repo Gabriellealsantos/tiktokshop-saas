@@ -1,5 +1,5 @@
-import { Heart } from "lucide-react";
-import { Pill } from "@/components";
+import { useState } from "react";
+import { Heart, ImageOff, ChevronRight, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/utils/utils";
 import type { Product } from "@/models/product";
@@ -9,26 +9,44 @@ interface ProductMediaProps {
   onNavigateToCreate: () => void;
 }
 
-export function ProductMedia({ product, onNavigateToCreate }: ProductMediaProps) {
+export function ProductMedia({ product }: ProductMediaProps) {
+  const [imageError, setImageError] = useState(false);
+
   return (
-    <div className="relative flex flex-col w-full md:w-[44%] bg-surface-3 md:border-r md:border-white/10 shrink-0 overflow-y-auto p-6 md:p-8 gap-6">
-      {/* Image Card */}
-      <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 shrink-0">
-        <img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/0 to-black/30 pointer-events-none" />
+    <div className="relative flex flex-col w-full md:w-[44%] shrink-0 justify-between overflow-y-auto overflow-x-hidden p-6 md:p-7 gap-5">
+      {/* Image Card Container restored to full previous size with Premium Glow & Glass Feel */}
+      <div className="group relative w-full aspect-[4/5] rounded-[24px] overflow-hidden border border-white/15 bg-linear-to-b from-white/[0.07] to-white/[0.02] shadow-[0_20px_50px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.15)] shrink-0 transition-all duration-300">
+        {!product.image || imageError ? (
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-500/20 via-zinc-900/80 to-zinc-950 flex flex-col items-center justify-center p-6 text-center">
+            <div className="size-16 rounded-2xl bg-white/5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-md flex items-center justify-center mb-3 text-white/40 group-hover:text-brand-400 group-hover:scale-110 transition-all duration-500">
+              <ImageOff className="size-7" />
+            </div>
+            <span className="text-xs font-semibold tracking-wide text-zinc-400">Imagem indisponível</span>
+          </div>
+        ) : (
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            onError={() => setImageError(true)}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-black/30 pointer-events-none" />
 
-        <span className="absolute left-4 top-4">
-          <Pill className="border-white/10 bg-black/40 text-white shadow-sm backdrop-blur-md">
-            {product.category.split(" & ")[0]}
-          </Pill>
-        </span>
+        {/* Category Chip -> Illuminated Pulsing Jewel Capsule */}
+        <div className="absolute left-4 top-4 z-20">
+          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-white/20 shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] transition-transform duration-300 hover:scale-105">
+            <div className="size-1.5 rounded-full bg-brand-400 animate-pulse shadow-[0_0_8px_#8b5cf6]" />
+            <span className="text-[11px] font-extrabold text-white tracking-wide uppercase">
+              {product.category.split(" & ")[0]}
+            </span>
+          </div>
+        </div>
 
+        {/* Favorite Button -> Interactive Circular Jewel Button */}
         <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -37,23 +55,22 @@ export function ProductMedia({ product, onNavigateToCreate }: ProductMediaProps)
             );
           }}
           className={cn(
-            "absolute right-4 top-4 grid size-10 place-items-center rounded-full border border-white/10 backdrop-blur-md transition-colors hover:scale-110",
-            product.favorite
-              ? "bg-black/40 text-danger"
-              : "bg-black/40 text-white/70 hover:bg-black/60 hover:text-white"
+            "absolute right-4 top-4 z-20 size-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-110 hover:border-white/40 active:scale-95 cursor-pointer outline-none",
+            product.favorite ? "text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]" : "text-white/80 hover:text-white"
           )}
+          aria-label="Favoritar produto"
         >
-          <Heart className="size-5" fill={product.favorite ? "currentColor" : "none"} />
+          <Heart className="size-5 transition-transform duration-300 hover:scale-110" fill={product.favorite ? "currentColor" : "none"} />
         </button>
 
         {/* Thumbnails ONLY if there are multiple images */}
         {product.images &&
           product.images.length > 1 && (
-            <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto">
+            <div className="absolute bottom-4 left-4 right-4 flex gap-2.5 overflow-x-auto z-20 scrollbar-hide">
               {product.images.map((img, i) => (
                 <div
                   key={i}
-                  className="size-16 rounded-md border border-white/20 bg-black/40 overflow-hidden shrink-0"
+                  className="size-14 rounded-xl border border-white/30 bg-black/70 backdrop-blur-md overflow-hidden shrink-0 transition-all duration-300 hover:scale-110 hover:border-brand-400 shadow-md"
                 >
                   <img src={img} className="w-full h-full object-cover" alt="" />
                 </div>
@@ -62,32 +79,48 @@ export function ProductMedia({ product, onNavigateToCreate }: ProductMediaProps)
           )}
       </div>
 
-      {/* Actions Moved to Left */}
-      <div className="flex flex-col gap-3 mt-auto">
-        <div className="mb-1 text-center text-[11px] text-text-3 uppercase tracking-wider font-semibold">
-          Fluxo Recomendado: Descobrir &rarr; Afiliar &rarr; Criar
+      {/* Recommended Flow Stepper -> Framed ultra-transparent container with optimized padding */}
+      <div className="w-full p-4 md:py-4.5 md:px-5 rounded-[20px] bg-white/[0.03] border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)] flex flex-col items-center gap-3 backdrop-blur-md shrink-0">
+        <span className="text-[11px] font-black text-brand-400/90 uppercase tracking-[0.2em] drop-shadow-xs">
+          FLUXO RECOMENDADO
+        </span>
+        <div className="flex items-center justify-center gap-2 w-full">
+          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[11px] font-bold bg-[linear-gradient(135deg,rgba(75,68,232,0.25)_0%,rgba(75,68,232,0.10)_100%)] border border-brand-500 text-brand-300 shadow-[0_0_20px_-4px_rgba(75,68,232,0.45)] backdrop-blur-md">
+            DESCOBRIR
+          </span>
+          <ChevronRight className="size-4 text-brand-400/70 shrink-0" />
+          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[11px] font-medium bg-white/5 text-zinc-300 border border-white/10 hover:border-white/20 hover:text-white transition-colors">
+            AFILIAR
+          </span>
+          <ChevronRight className="size-4 text-zinc-600 shrink-0" />
+          <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-[11px] font-medium bg-white/5 text-zinc-300 border border-white/10 hover:border-white/20 hover:text-white transition-colors">
+            CRIAR
+          </span>
         </div>
-
-        <button
-          onClick={() => {
-            if (product.affiliateUrl) {
-              window.open(product.affiliateUrl, "_blank");
-            } else {
-              toast.success("Link de afiliado será gerado em breve!"); // TODO
-            }
-          }}
-          className="btn-brand flex h-12 w-full items-center justify-center rounded-[14px] text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          Afiliar no TikTok Shop
-        </button>
-
-        <button
-          onClick={onNavigateToCreate}
-          className="flex h-12 w-full items-center justify-center rounded-[14px] border border-border bg-surface-2 text-base font-semibold text-text-1 transition-colors hover:bg-surface-3 active:scale-[0.98]"
-        >
-          Criar conteúdo
-        </button>
       </div>
+
+      {/* Primary Action -> Hero-sized Vibrant 3D Gradient Glow Button to balance layout height without gaps */}
+      <button
+        type="button"
+        onClick={() => {
+          if (product.affiliateUrl) {
+            window.open(product.affiliateUrl, "_blank");
+          } else {
+            toast.success("Link de afiliado será gerado em breve!");
+          }
+        }}
+        className="group btn-brand gradient-brand luminous-glow relative w-full h-13 md:h-14 overflow-hidden rounded-[14px] font-bold text-white/90 drop-shadow-sm transition-all duration-200 hover:luminous-glow-hover hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] cursor-pointer outline-none shrink-0"
+      >
+        <div className="relative flex h-full w-full items-center justify-center gap-3 px-6">
+          <ShoppingBag className="size-5 text-white drop-shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110 shrink-0" />
+          <span className="text-[15px] tracking-wide drop-shadow-xs font-extrabold">Afiliar no TikTok Shop</span>
+        </div>
+      </button>
     </div>
   );
 }
+
+
+
+
+

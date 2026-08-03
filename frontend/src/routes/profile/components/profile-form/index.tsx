@@ -44,39 +44,50 @@ export function ProfileForm({ userName, userEmail }: ProfileFormProps) {
   };
 
   return (
-    <div className="panel p-6">
-      <SectionTitle title="Dados da conta" icon={<UserCircle className="size-4 text-zinc-400" />} />
+    <div className="rounded-[28px] bg-white/[0.02] backdrop-blur-[6px] border border-white/15 ring-1 ring-inset ring-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.25),inset_0_1px_1px_rgba(255,255,255,0.15)] p-6 sm:p-8">
+      <SectionTitle title="Dados da conta" icon={<UserCircle className="size-5 text-brand-400" />} />
+      <p className="text-xs sm:text-sm text-white/90 font-medium mt-1 mb-6">
+        Atualize suas informações de perfil e visualize o e-mail cadastrado na plataforma.
+      </p>
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
-        <div>
-          <Field
-            label="Nome completo"
-            maxLength={80}
-            {...form.register("name")}
-            aria-invalid={!!form.formState.errors.name}
-            aria-describedby="name-error"
-          />
-          {form.formState.errors.name && (
-            <p id="name-error" className="mt-1 text-xs text-red-400">
-              {form.formState.errors.name.message}
-            </p>
-          )}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <Field
+              label="Nome completo"
+              maxLength={80}
+              {...form.register("name")}
+              aria-invalid={!!form.formState.errors.name}
+              aria-describedby="name-error"
+            />
+            {form.formState.errors.name && (
+              <p id="name-error" className="mt-1.5 text-xs text-red-400 font-medium">
+                {form.formState.errors.name.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Field
+              label="E-mail"
+              value={userEmail}
+              readOnly
+              disabled
+              className="opacity-65 cursor-not-allowed border-white/10 bg-white/[0.02]"
+              hint="O e-mail não pode ser alterado por aqui."
+            />
+          </div>
         </div>
 
-        <div>
-          <Field
-            label="E-mail"
-            value={userEmail}
-            readOnly
-            disabled
-            className="opacity-70 cursor-not-allowed"
-            hint="O e-mail não pode ser alterado por aqui."
-          />
+        <div className="flex justify-start pt-2 border-t border-white/5">
+          <Button
+            type="submit"
+            className="btn-brand gradient-brand px-8 h-11 rounded-xl font-bold text-white shadow-[0_0_20px_-4px_rgba(75,68,232,0.5)] transition-all duration-300 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98]"
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Salvando..." : "Salvar alterações"}
+          </Button>
         </div>
-
-        <Button type="submit" variant="secondary" disabled={isUpdating}>
-          {isUpdating ? "Salvando..." : "Salvar alterações"}
-        </Button>
       </form>
     </div>
   );

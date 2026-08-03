@@ -231,7 +231,7 @@ export default function PoseScreen() {
         />
 
         {/* PONTO DE VISTA */}
-        <div className="mb-8 rounded-[20px] glass-surface p-5 sm:p-6 border border-white/10">
+        <div className="mb-8 rounded-[28px] bg-[linear-gradient(180deg,hsl(255_100%_95%/0.02),hsl(258_90%_70%/0.008))] backdrop-blur-sm border border-white/10 ring-1 ring-inset ring-white/[0.06] shadow-[0_20px_50px_-24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.10)] p-6 sm:p-8">
           <div className="mb-4">
             <h2 className="text-base font-bold text-text-1">Ponto de vista</h2>
             <p className="text-xs text-text-3">

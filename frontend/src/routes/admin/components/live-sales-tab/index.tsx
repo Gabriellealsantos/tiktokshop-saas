@@ -82,9 +82,7 @@ export function LiveSalesTab() {
   const handleFire = async () => {
     setFiring(true);
     try {
-      const res = await fireLiveSale();
-      const { productName, amount } = res.data;
-      toast.success(`Venda disparada: ${productName} (R$ ${amount}).`);
+      await fireLiveSale();
     } catch (e) {
       const msg = axios.isAxiosError(e)
         ? (e.response?.data as { message?: string })?.message

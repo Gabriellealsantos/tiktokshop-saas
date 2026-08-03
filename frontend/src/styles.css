@@ -543,37 +543,37 @@
 }
 
 @utility btn-brand {
-  background-color: var(--brand-purple, #3B33DE);
-  background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 100%);
-  color: #ffffff;
-  border: 1px solid color-mix(in srgb, var(--brand-purple, #3B33DE) 65%, white);
+  background-color: var(--brand-purple, #3B33DE) !important;
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 100%) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 700 !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05)) !important;
+  border: none !important;
+  border-color: transparent !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
     0 0 22px -6px var(--brand-purple, #3B33DE),
-    0 8px 22px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    0 8px 22px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
   &:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.08);
-    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 78%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, black) 100%);
+    transform: scale(1.02) !important;
+    filter: brightness(1.10) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 100%) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.25),
       0 0 32px -4px var(--brand-purple, #3B33DE),
-      0 12px 32px -8px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black);
+      0 12px 32px -8px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) !important;
   }
 
   &:active {
-    transform: translateY(1px);
-    filter: brightness(0.96);
-    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) 100%);
+    transform: scale(0.98) !important;
+    filter: brightness(0.96) !important;
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) 100%) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
       0 0 12px -6px var(--brand-purple, #3B33DE),
-      0 4px 12px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black);
+      0 4px 12px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) !important;
   }
 
   &:focus-visible {
@@ -583,37 +583,37 @@
 }
 
 @utility btn-3d-primary {
-  background-color: var(--brand-purple, #3B33DE);
-  background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 100%);
-  color: #ffffff;
-  border: 1px solid color-mix(in srgb, var(--brand-purple, #3B33DE) 65%, white);
+  background-color: var(--brand-purple, #3B33DE) !important;
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 100%) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 700 !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05)) !important;
+  border: none !important;
+  border-color: transparent !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
     0 0 22px -6px var(--brand-purple, #3B33DE),
-    0 8px 22px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    0 8px 22px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 
   &:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.08);
-    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 78%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, black) 100%);
+    transform: scale(1.02) !important;
+    filter: brightness(1.10) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 85%, white) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 100%) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.25),
       0 0 32px -4px var(--brand-purple, #3B33DE),
-      0 12px 32px -8px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black);
+      0 12px 32px -8px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) !important;
   }
 
   &:active {
-    transform: translateY(1px);
-    filter: brightness(0.96);
-    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) 100%);
+    transform: scale(0.98) !important;
+    filter: brightness(0.96) !important;
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--brand-purple, #3B33DE) 80%, black) 0%, var(--brand-purple, #3B33DE) 45%, color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) 100%) !important;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
       0 0 12px -6px var(--brand-purple, #3B33DE),
-      0 4px 12px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black);
+      0 4px 12px -10px color-mix(in srgb, var(--brand-purple, #3B33DE) 70%, black) !important;
   }
 }
 

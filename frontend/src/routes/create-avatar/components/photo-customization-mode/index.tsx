@@ -6,6 +6,7 @@ import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { cn } from "@/utils/utils";
 import { Button, Form } from "@/components";
+import { GlassPanel } from "@/components/glass-panel";
 import { PreviewPanel } from "../preview-panel";
 
 import { avatarPhotoSchema, type AvatarPhotoFormValues } from "./schema";
@@ -111,6 +112,7 @@ export function PhotoCustomizationMode() {
           })}
         </div>
 
+        <GlassPanel className="my-2">
         <Form {...form}>
           <form
             onSubmit={(e) => e.preventDefault()}
@@ -131,6 +133,7 @@ export function PhotoCustomizationMode() {
             </AnimatePresence>
           </form>
         </Form>
+        </GlassPanel>
 
         {usage && (
           <p className="text-xs text-text-3 px-1">
@@ -156,7 +159,7 @@ export function PhotoCustomizationMode() {
             disabled={generateAvatar.isPending || (activeTab === 2 && noQuota)}
             className={cn(
               activeTab === 2
-                ? "bg-brand-500 hover:bg-brand-600 text-white shadow-[0_0_24px_-6px_rgba(75,68,232,0.5)]"
+                ? "btn-brand gradient-brand luminous-glow text-white/90 drop-shadow-sm hover:luminous-glow-hover hover:brightness-110"
                 : "",
             )}
           >

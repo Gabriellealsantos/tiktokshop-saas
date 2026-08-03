@@ -46,7 +46,7 @@ export default function ProfileScreen() {
             onPhotoChange={reloadUser}
           />
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex flex-col gap-6">
             <ProfileForm userName={user.name} userEmail={user.email} />
             <SubscriptionCard plan={user.plan} status={user.status} planExpiresAt={user.planExpiresAt} />
             <PasswordForm onLogout={logout} />

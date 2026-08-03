@@ -58,10 +58,10 @@ export function MetricsTab() {
         const m = byRef.get(period.periodRef);
         next[period.periodRef] = m
           ? {
-              revenue: toStr(m.revenue), orders: toStr(m.orders), commission: toStr(m.commission),
-              itemsSold: toStr(m.itemsSold), commissionBase: toStr(m.commissionBase),
-              productViews: toStr(m.productViews), productClicks: toStr(m.productClicks),
-            }
+            revenue: toStr(m.revenue), orders: toStr(m.orders), commission: toStr(m.commission),
+            itemsSold: toStr(m.itemsSold), commissionBase: toStr(m.commissionBase),
+            productViews: toStr(m.productViews), productClicks: toStr(m.productClicks),
+          }
           : { ...EMPTY_SLOT };
       }
       setForms(next);

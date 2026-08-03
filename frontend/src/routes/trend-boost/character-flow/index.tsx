@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { AnimatePresence } from "motion/react";
-import { Check, Loader2, Zap } from "lucide-react";
+import { Check, Loader2, Rocket } from "lucide-react";
 import { toast } from "sonner";
 import { Page } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
@@ -158,7 +158,7 @@ export default function RouteComponent() {
           {/* Cabeçalho Compacto & Stepper no TOPO */}
           <div className="mb-8">
             <TrendHeader
-              title="Viralize"
+              title="Trend"
               subtitle="Turbine seu Engajamento"
               description=""
               compact
@@ -175,14 +175,14 @@ export default function RouteComponent() {
                 </div>
                 <div className="w-8 h-px bg-white/10" />
                 <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-brand-300" : "text-white")}>
-                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500/20 text-brand-400" : "bg-brand-500 text-white shadow-[0_0_12px_rgba(75,68,232,0.5)]")}>
+                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500/20 text-brand-400" : "bg-brand-500/25 border border-brand-500 text-brand-300 shadow-[0_0_15px_-2px_rgba(75,68,232,0.5)]")}>
                     {isStep3 ? <Check className="size-3.5" /> : "2"}
                   </div>
                   Tom & roteiro
                 </div>
                 <div className="w-8 h-px bg-white/10" />
                 <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-white" : "text-text-3")}>
-                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500 text-white shadow-[0_0_12px_rgba(75,68,232,0.5)]" : "bg-white/5")}>
+                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500/25 border border-brand-500 text-brand-300 shadow-[0_0_15px_-2px_rgba(75,68,232,0.5)]" : "bg-white/5")}>
                     3
                   </div>
                   Prompt + download
@@ -194,7 +194,7 @@ export default function RouteComponent() {
                   className="hidden sm:inline-flex items-center gap-1.5 shrink-0 rounded-full border border-white/10 bg-deep px-3 py-1 text-xs font-semibold text-text-2"
                   title="Prompts virais gerados hoje"
                 >
-                  <Zap className={cn("size-3.5", usage.remaining > 0 ? "text-brand-400" : "text-red-400")} />
+                  <Rocket className={cn("size-3.5", usage.remaining > 0 ? "text-brand-400" : "text-red-400")} />
                   {usage.remaining}/{usage.max} restantes hoje
                 </div>
               )}

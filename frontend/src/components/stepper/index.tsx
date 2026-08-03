@@ -23,7 +23,7 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
                 layout
                 className={cn(
                   "flex items-center gap-2.5 rounded-full px-4 py-2 sm:px-4 sm:py-2.5 transition-all duration-300",
-                  isCurrent && "btn-brand",
+                  isCurrent && "bg-[linear-gradient(135deg,rgba(75,68,232,0.25)_0%,rgba(75,68,232,0.10)_100%)] border border-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.45),inset_0_1px_0_rgba(255,255,255,0.2)] backdrop-blur-md",
                   isCompleted &&
                     "bg-white/5 border border-white/12 backdrop-blur-[14px]",
                   isFuture &&
@@ -32,8 +32,8 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
               >
                 <span
                   className={cn(
-                    "grid size-6 place-items-center rounded-full text-xs font-bold transition-colors",
-                    isCurrent && "bg-white text-brand-500 shadow-sm",
+                    "grid size-6 place-items-center rounded-full text-xs font-bold transition-all duration-300",
+                    isCurrent && "bg-brand-500/25 border border-brand-400/50 text-brand-300 shadow-[0_0_10px_rgba(75,68,232,0.4)]",
                     isCompleted && "bg-white/20 text-white",
                     isFuture && "bg-white/10 text-white/45"
                   )}
@@ -42,10 +42,10 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
                 </span>
                 <span
                   className={cn(
-                    "whitespace-nowrap text-sm font-medium transition-colors",
-                    isCurrent && "text-white",
-                    isCompleted && "text-white/60",
-                    isFuture && "text-white/45"
+                    "whitespace-nowrap text-sm transition-colors",
+                    isCurrent && "text-white font-bold tracking-wide drop-shadow-[0_0_8px_rgba(150,140,255,0.4)]",
+                    isCompleted && "font-medium text-white/60",
+                    isFuture && "font-medium text-white/45"
                   )}
                 >
                   {step}

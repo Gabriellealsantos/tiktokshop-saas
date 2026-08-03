@@ -4,7 +4,7 @@ import {
   Boxes,
   BadgeDollarSign,
   ChartNoAxesCombined,
-  Gauge,
+  Home,
   Gift,
   Menu,
   Moon,
@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   Sun,
   User,
-  Zap,
+  Rocket,
   Film,
 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -26,11 +26,11 @@ import { useAuth } from "@/context/auth";
 import { cn } from "@/utils/utils";
 
 const toolbar = [
-  ["/", Gauge, "Início"],
+  ["/", Home, "Início"],
   ["/products", Boxes, "Produtos"],
   ["/create-avatar", User, "Avatares"],
   ["/templates", Film, "Modelos"],
-  ["/trend-boost", Zap, "Boost"],
+  ["/trend-boost", Rocket, "Trend AI"],
 ] as const;
 
 const MotionLink = motion.create(Link);
@@ -240,7 +240,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className="pt-28">{children}</main>
 
-      <nav className="glass-surface glass-surface--floating fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3.5 sm:gap-4.5 rounded-full px-4 sm:px-5 py-2" style={{ backdropFilter: 'blur(24px) saturate(140%)' }}>
+      <nav className="glass-surface glass-surface--nav fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex h-14 -translate-x-1/2 items-center gap-3 sm:gap-4 rounded-2xl px-4 sm:px-5">
         <TooltipProvider delayDuration={100}>
           {toolbar.map(([to, Icon, label]) => {
             const active = to === "/" ? path === "/" : path.startsWith(to);
@@ -284,10 +284,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         {path !== "/login" && saleVisible && latestSale && (
           <motion.div
             key={latestSale.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 right-5 z-30 hidden max-w-xs rounded-[16px] border border-success/20 bg-elevated/95 p-4 shadow-2xl lg:block"
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-24 right-5 z-50 hidden max-w-xs rounded-[16px] border border-success/20 bg-elevated/95 p-4 shadow-2xl lg:block"
           >
             <div className="flex items-center gap-3">
               {latestSale.productImage ? (

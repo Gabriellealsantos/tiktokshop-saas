@@ -4,7 +4,7 @@ export const appRoutes = [
   { to: "/", label: "Início" },
   { to: "/dashboard", label: "Painel" },
   { to: "/products", label: "Produtos" },
-  { to: "/trend-boost", label: "Trend Boost" },
+  { to: "/trend-boost", label: "Trend AI" },
   { to: "/avatars", label: "Avatares" },
 ] as const;
 

@@ -29,12 +29,12 @@ export default function AvatarStudio() {
             <div className="flex flex-col sm:flex-row gap-3">
               <AvatarLibraryModal>
                 <Button
-                  variant="outline"
-                  className="cursor-pointer"
+                  variant="default"
+                  className="btn-brand cursor-pointer font-bold rounded-xl h-10 px-4"
                 >
                   <Library className="size-4 mr-2" />
                   Biblioteca
-                  <span className="ml-2 rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  <span className="ml-2 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-extrabold text-white shadow-xs">
                     12
                   </span>
                 </Button>
@@ -51,8 +51,8 @@ export default function AvatarStudio() {
               className={cn(
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "full"
-                  ? "btn-brand shadow-lg"
-                  : "btn-3d-neutral",
+                  ? "btn-brand"
+                  : "bg-white/[0.015] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.10] backdrop-blur-sm",
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">
@@ -93,8 +93,8 @@ export default function AvatarStudio() {
               className={cn(
                 "group relative flex flex-col items-start gap-1 overflow-hidden rounded-[20px] p-4 text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 mode === "photo"
-                  ? "btn-brand shadow-lg"
-                  : "btn-3d-neutral",
+                  ? "btn-brand"
+                  : "bg-white/[0.015] border border-white/[0.05] hover:bg-white/[0.04] hover:border-white/[0.10] backdrop-blur-sm",
               )}
             >
               <div className="flex w-full items-center justify-between mb-1">
