@@ -38,10 +38,10 @@ public class StorageConfig {
     @Value("${aws.s3.region}")
     private String region;
 
-    @Value("${aws.s3.access-key}")
+    @Value("${aws.s3.access-key:}")
     private String accessKey;
 
-    @Value("${aws.s3.secret-key}")
+    @Value("${aws.s3.secret-key:}")
     private String secretKey;
 
     @Value("${aws.s3.endpoint:}")
@@ -52,10 +52,14 @@ public class StorageConfig {
 
     @Bean
     public S3Client s3Client() {
-        S3ClientBuilder builder = S3Client.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)));
+        S3ClientBuilder builder = S3Client.builder().region(Region.of(region));
+
+        boolean hasStaticCreds = accessKey != null && !accessKey.isBlank()
+                && secretKey != null && !secretKey.isBlank();
+        if (hasStaticCreds) {
+            builder.credentialsProvider(StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(accessKey, secretKey)));
+        }
 
         if (endpoint != null && !endpoint.isBlank()) {
             builder.endpointOverride(URI.create(endpoint));
