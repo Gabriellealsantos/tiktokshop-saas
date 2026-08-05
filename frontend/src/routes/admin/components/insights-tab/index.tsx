@@ -146,11 +146,11 @@ export function InsightsTab() {
             <div
               key={item.id}
               className={cn(
-                "flex items-center gap-4 rounded-[16px] border p-4 transition-colors",
-                item.active ? "border-white/5 bg-white/[0.02]" : "border-white/5 bg-white/[0.01] opacity-60",
+                "relative overflow-hidden flex items-center gap-4 rounded-2xl border p-4 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] transition-all duration-200 before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent",
+                item.active ? "border-dash-border bg-dash-surface hover:bg-dash-surface-hover hover:border-dash-border-hover" : "border-dash-border/40 bg-dash-surface/40 opacity-60",
               )}
             >
-              <div className="flex-1 min-w-0">
+              <div className="relative z-10 flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-500/10 text-brand-400 border border-brand-500/20">
                     {KIND_LABEL[item.kind]}
@@ -165,7 +165,7 @@ export function InsightsTab() {
                 <p className="font-bold text-white truncate">{item.title}</p>
                 <p className="text-xs text-zinc-400 truncate">{item.content}</p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="relative z-10 flex items-center gap-2 shrink-0">
                 <Button size="sm" variant="ghost" className="h-9 px-3 text-zinc-300 hover:text-white hover:bg-white/10 border border-white/10" onClick={() => openEdit(item)}>
                   <Pencil className="size-3.5 mr-1.5" /> Editar
                 </Button>

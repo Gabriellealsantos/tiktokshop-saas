@@ -129,15 +129,15 @@ export function CharactersManager({ template, onBack }: CharactersManagerProps) 
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-4 rounded-[16px] border border-white/5 bg-white/[0.02] p-3">
-              <div className="size-14 shrink-0 rounded-lg overflow-hidden bg-surface-2 flex items-center justify-center">
+            <div key={item.id} className="relative overflow-hidden flex items-center gap-4 rounded-2xl border border-dash-border bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] p-3 transition-all duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+              <div className="relative z-10 size-14 shrink-0 rounded-lg overflow-hidden bg-surface-2 flex items-center justify-center">
                 {item.imageUrl ? (
                   <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
                 ) : (
                   <ImageIcon className="size-5 text-white/20" />
                 )}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="relative z-10 flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className="font-bold text-white truncate">{item.name}</p>
                   {!item.active && (
@@ -149,7 +149,7 @@ export function CharactersManager({ template, onBack }: CharactersManagerProps) 
                   {item.subcategory ? ` · seção ${item.subcategory}` : ""}
                 </p>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="relative z-10 flex items-center gap-1.5 shrink-0">
                 <Button size="sm" variant="ghost" className="h-8 px-2 text-zinc-300 hover:text-white hover:bg-white/10 border border-white/10" onClick={() => openEdit(item)}>
                   <Pencil className="size-3.5" />
                 </Button>

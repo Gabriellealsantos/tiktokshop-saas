@@ -111,8 +111,8 @@ export function LimitsTab() {
             const d = drafts[item.flowType] ?? { maxPerDay: String(item.maxPerDay), maxRegenerations: String(item.maxRegenerations) };
             const saving = savingType === item.flowType;
             return (
-              <div key={item.flowType} className="flex flex-col gap-4 rounded-[16px] border border-white/5 bg-white/[0.02] p-4">
-                <div className="flex items-center gap-2">
+              <div key={item.flowType} className="relative overflow-hidden flex flex-col gap-4 rounded-2xl border border-dash-border bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] p-4 transition-all duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+                <div className="relative z-10 flex items-center gap-2">
                   <span className="flex size-8 items-center justify-center rounded-full bg-brand-500/10 text-brand-400 shrink-0">
                     <Zap className="size-4" />
                   </span>
@@ -122,7 +122,7 @@ export function LimitsTab() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="relative z-10 grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs text-zinc-400">Gerações/dia</Label>
                     <Input
@@ -147,7 +147,7 @@ export function LimitsTab() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
+                <div className="relative z-10 flex items-center justify-between gap-3">
                   <span className="text-[11px] text-zinc-500 truncate">
                     {item.updatedBy ? `por ${item.updatedBy}` : "padrão do sistema"}
                   </span>

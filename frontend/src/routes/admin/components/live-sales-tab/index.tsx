@@ -115,7 +115,8 @@ export function LiveSalesTab() {
         </Button>
       </div>
 
-      <div className="rounded-[16px] border border-white/5 bg-white/[0.02] p-5 space-y-5 max-w-2xl">
+      <div className="relative overflow-hidden rounded-2xl border border-dash-border bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] p-5 max-w-2xl duration-200 before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+        <div className="relative z-10 space-y-5">
         <div className="space-y-1.5">
           <Label className="text-xs text-zinc-400">Modo de disparo</Label>
           <Select value={mode} onValueChange={(v: LiveSalesMode) => setMode(v)}>
@@ -186,6 +187,7 @@ export function LiveSalesTab() {
             {firing ? <Loader2 className="size-4 mr-1.5 animate-spin" /> : <Zap className="size-4 mr-1.5" />}
             Disparar venda agora
           </Button>
+        </div>
         </div>
       </div>
     </div>

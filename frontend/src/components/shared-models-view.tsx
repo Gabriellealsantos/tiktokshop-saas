@@ -12,7 +12,7 @@ import type { VideoTemplateSummary } from "@/models/videoTemplate";
 
 const CATEGORIAS = ["Todos", "Moda", "UGC", "Beleza"];
 
-export function SharedVideoCard({ modelo, isPicker, productId }: { modelo: VideoTemplateSummary; isPicker?: boolean; productId?: string }) {
+export function SharedVideoCard({ modelo, productId }: { modelo: VideoTemplateSummary; isPicker?: boolean; productId?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
 

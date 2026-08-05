@@ -44,13 +44,13 @@ export function UserCard({
   return (
     <div
       className={cn(
-        "flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 rounded-[16px] border p-5 transition-colors",
+        "relative overflow-hidden flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 rounded-2xl border p-5 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] transition-all duration-200 before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent",
         user.status === "pendente"
-          ? "border-brand-500/30 bg-brand-500/[0.03] hover:bg-brand-500/[0.05]"
-          : "border-white/5 bg-white/[0.02] hover:bg-white/[0.04]",
+          ? "border-brand-500/40 bg-dash-surface hover:bg-dash-surface-hover hover:border-brand-500/60"
+          : "border-dash-border bg-dash-surface hover:bg-dash-surface-hover hover:border-dash-border-hover",
       )}
     >
-      <div className="flex-1 min-w-0">
+      <div className="relative z-10 flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2 mb-2">
           <span className="font-bold text-white truncate">{user.email}</span>
           <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border", statusColors[user.status])}>
@@ -68,7 +68,7 @@ export function UserCard({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 lg:shrink-0 mt-3 lg:mt-0 pt-3 lg:pt-0 border-t border-white/5 lg:border-t-0">
+      <div className="relative z-10 flex flex-wrap items-center gap-3 lg:shrink-0 mt-3 lg:mt-0 pt-3 lg:pt-0 border-t border-white/5 lg:border-t-0">
         <Select value={selectedPlan} onValueChange={(val: UserPlan) => onPlanChange(user.id, val)}>
           <SelectTrigger className="w-[140px] h-9 bg-black/40 border-white/10 text-xs">
             <SelectValue placeholder="Plano" />

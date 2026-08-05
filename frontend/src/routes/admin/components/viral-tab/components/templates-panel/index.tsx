@@ -135,8 +135,8 @@ export function TemplatesPanel() {
       ) : (
         <div className="grid gap-3">
           {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-4 rounded-[16px] border border-white/5 bg-white/[0.02] p-4">
-              <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-2 flex items-center justify-center">
+            <div key={item.id} className="relative overflow-hidden flex items-center gap-4 rounded-2xl border border-dash-border bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] p-4 transition-all duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+              <div className="relative z-10 w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-2 flex items-center justify-center">
                 {item.previewVideoUrl ? (
                   <video src={item.previewVideoUrl} poster={item.thumbnailUrl ?? undefined} className="w-full h-full object-cover" muted loop autoPlay playsInline preload="metadata" />
                 ) : item.thumbnailUrl ? (
@@ -145,7 +145,7 @@ export function TemplatesPanel() {
                   <ImageIcon className="size-5 text-white/20" />
                 )}
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="relative z-10 flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <p className="font-bold text-white truncate">{item.title}</p>
                   {!item.active && (
@@ -155,7 +155,7 @@ export function TemplatesPanel() {
                 <p className="text-xs text-zinc-400 truncate">{item.slug}</p>
                 {item.subtitle && <p className="text-xs text-zinc-500 truncate mt-0.5">{item.subtitle}</p>}
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="relative z-10 flex items-center gap-2 shrink-0">
                 <Button size="sm" variant="ghost" className="h-9 px-3 text-brand-300 hover:text-brand-200 hover:bg-brand-500/10 border border-brand-500/20" onClick={() => setManaging(item)}>
                   <Users className="size-3.5 mr-1.5" /> Personagens
                 </Button>

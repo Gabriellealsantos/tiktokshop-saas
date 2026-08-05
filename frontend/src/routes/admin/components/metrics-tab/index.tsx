@@ -138,8 +138,8 @@ export function MetricsTab() {
           const f = forms[period.periodRef] ?? EMPTY_SLOT;
           const busy = savingRef === period.periodRef;
           return (
-            <div key={period.periodRef} className="rounded-[16px] border border-white/5 bg-white/[0.02] p-5">
-              <div className="flex items-center justify-between mb-4">
+            <div key={period.periodRef} className="relative overflow-hidden rounded-2xl border border-dash-border bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] p-5 transition-all duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+              <div className="relative z-10 flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-bold text-white">{period.label}</h3>
                   <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
@@ -158,7 +158,7 @@ export function MetricsTab() {
                 </Button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="relative z-10 grid grid-cols-2 gap-3">
                 {FIELDS.map((field) => {
                   const error = attempted[period.periodRef] ? fieldError(f[field.key]) : null;
                   return (
