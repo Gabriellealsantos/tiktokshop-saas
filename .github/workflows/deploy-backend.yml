@@ -1,0 +1,61 @@
+name: Build & Push Backend Docker Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+
+jobs:
+  build:
+    name: Build & Push Image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build e Push da imagem
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/gabriellealsantos/tiktokshop-saas-backend:latest
+            ghcr.io/gabriellealsantos/tiktokshop-saas-backend:${{ github.sha }}
+
+      - name: Deploy no EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 52.67.94.11
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/nyvorai
+            docker compose pull
+            docker compose up -d --force-recreate
+            echo "Aguardando aplicacao inicializar..."
+            for i in $(seq 1 18); do
+              sleep 10
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health)
+              echo "Tentativa $i - Status: $STATUS"
+              if [ "$STATUS" = "200" ]; then
+                echo "Aplicacao no ar em $(date)"
+                exit 0
+              fi
+            done
+            echo "AVISO: aplicacao demorou mais que 180s para inicializar"
+            exit 1

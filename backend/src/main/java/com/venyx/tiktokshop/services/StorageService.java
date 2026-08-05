@@ -24,6 +24,12 @@ import java.util.UUID;
 @Service
 public class StorageService {
 
+    @Value("${aws.s3.public-url:}")
+    private String publicUrl;
+
+    @Value("${aws.s3.region}")
+    private String region;
+
     private static final Logger logger = LoggerFactory.getLogger(StorageService.class);
     private static final int UPLOAD_ATTEMPTS = 3;
 
@@ -257,10 +263,13 @@ public class StorageService {
     }
 
     public String publicBaseUrl() {
+        if (publicUrl != null && !publicUrl.isBlank()) {
+            return publicUrl;
+        }
         if (endpoint != null && !endpoint.isBlank()) {
             return endpoint + "/" + bucket;
         }
-        return "https://" + bucket + ".s3.amazonaws.com";
+        return "https://" + bucket + ".s3." + region + ".amazonaws.com";
     }
 
     private void assertRealImage(byte[] content, String contentType) {
