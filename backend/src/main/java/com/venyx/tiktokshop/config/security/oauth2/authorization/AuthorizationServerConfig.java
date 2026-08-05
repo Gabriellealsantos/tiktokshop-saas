@@ -128,10 +128,11 @@ public class AuthorizationServerConfig {
                 http.authorizeHttpRequests(auth -> auth
                                 // Ignora requests do Chrome DevTools e outros well-known
                                 .requestMatchers(
-                                                "/.well-known/**",
-                                                "/favicon.ico",
-                                                "/error",
-                                                "/csrf")
+                                        "/.well-known/**",
+                                        "/favicon.ico",
+                                        "/error",
+                                        "/csrf",
+                                        "/actuator/health")
                                 .permitAll()
                                 // Recursos estáticos da página de login (CSS/logo/etc.)
                                 .requestMatchers(
