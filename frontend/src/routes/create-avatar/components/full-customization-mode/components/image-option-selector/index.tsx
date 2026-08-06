@@ -1,8 +1,29 @@
 import { useState } from "react";
 import { Check, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/utils/utils";
+import { asset } from "@/lib/media";
 
-export function ImageOptionCard({ name, label, image, color, isSelected, onClick, aspectRatio = "aspect-[4/5]", objectFit = "object-cover", hideLabel = false }: { name: string, label?: string, image?: string, color?: string, isSelected: boolean, onClick: () => void, aspectRatio?: string, objectFit?: string, hideLabel?: boolean }) {
+export function ImageOptionCard({
+  name,
+  label,
+  image,
+  color,
+  isSelected,
+  onClick,
+  aspectRatio = "aspect-[4/5]",
+  objectFit = "object-cover",
+  hideLabel = false,
+}: {
+  name: string;
+  label?: string;
+  image?: string;
+  color?: string;
+  isSelected: boolean;
+  onClick: () => void;
+  aspectRatio?: string;
+  objectFit?: string;
+  hideLabel?: boolean;
+}) {
   const [imgError, setImgError] = useState(false);
 
   return (
@@ -14,13 +35,24 @@ export function ImageOptionCard({ name, label, image, color, isSelected, onClick
         aspectRatio,
         isSelected
           ? "ring-2 ring-inset ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.4)]"
-          : "ring-1 ring-inset ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg bg-surface-2"
+          : "ring-1 ring-inset ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg bg-surface-2",
       )}
     >
       {image && !imgError ? (
-        <img src={image} alt={label || name} onError={() => setImgError(true)} className={cn("absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105", objectFit)} />
+        <img
+          src={asset(image)}
+          alt={label || name}
+          onError={() => setImgError(true)}
+          className={cn(
+            "absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105",
+            objectFit,
+          )}
+        />
       ) : (
-        <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-surface-3 text-text-3 transition-colors" style={color ? { background: color } : undefined}>
+        <div
+          className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-surface-3 text-text-3 transition-colors"
+          style={color ? { background: color } : undefined}
+        >
           <ImageIcon className="size-8 mb-4 opacity-30" />
         </div>
       )}
@@ -28,7 +60,9 @@ export function ImageOptionCard({ name, label, image, color, isSelected, onClick
         <>
           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
           <div className="absolute inset-x-0 bottom-0 p-3">
-            <p className="font-bold text-white text-sm drop-shadow-md truncate">{label || name}</p>
+            <p className="font-bold text-white text-sm drop-shadow-md truncate">
+              {label || name}
+            </p>
           </div>
         </>
       )}
@@ -52,18 +86,25 @@ export function ImageOptionSelector({
   aspectRatio = "aspect-[4/5]",
   objectFit = "object-cover",
   hideLabel = false,
-  children
+  children,
 }: {
-  options: { name: string, label?: string, image?: string, color?: string }[],
-  value: string,
-  onChange: (v: string) => void,
-  columns?: 2 | 3 | 4 | 5,
-  aspectRatio?: string,
-  objectFit?: string,
-  hideLabel?: boolean,
-  children?: React.ReactNode
+  options: { name: string; label?: string; image?: string; color?: string }[];
+  value: string;
+  onChange: (v: string) => void;
+  columns?: 2 | 3 | 4 | 5;
+  aspectRatio?: string;
+  objectFit?: string;
+  hideLabel?: boolean;
+  children?: React.ReactNode;
 }) {
-  const colClass = columns === 2 ? "sm:grid-cols-2" : columns === 3 ? "sm:grid-cols-3" : columns === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4";
+  const colClass =
+    columns === 2
+      ? "sm:grid-cols-2"
+      : columns === 3
+        ? "sm:grid-cols-3"
+        : columns === 5
+          ? "sm:grid-cols-5"
+          : "sm:grid-cols-4";
 
   return (
     <div className={cn("grid gap-3 grid-cols-2 p-2 -m-2", colClass)}>

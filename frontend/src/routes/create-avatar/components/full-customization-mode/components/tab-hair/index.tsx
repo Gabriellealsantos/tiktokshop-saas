@@ -3,6 +3,7 @@ import { FormField, FormItem, FormLabel, FormControl } from "@/components";
 import type { AvatarFormValues } from "../../avatar-schema";
 import { ImageOptionSelector } from "../image-option-selector";
 import { estiloCabeloOptions, corCabeloOptions } from "../../data";
+import { withGenderVariant } from "@/lib/media";
 
 export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
   const generoVal = form.watch("genero");
@@ -10,7 +11,7 @@ export function TabCabelo({ form }: { form: UseFormReturn<AvatarFormValues> }) {
 
   const dynamicCorCabeloOptions = corCabeloOptions.map((opt) => ({
     ...opt,
-    image: isFeminino ? opt.image : opt.image?.replace(".png", "-masc.png"),
+    image: withGenderVariant(opt.image ?? "", !isFeminino),
   }));
 
   return (

@@ -2,11 +2,22 @@ import { useState } from "react";
 import { Check, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/utils/utils";
 import { toSlug } from "../../data";
+import { asset } from "@/lib/media";
 
-export function OptionImageCard({ title, selected, onClick, compact }: { title: string; selected: boolean; onClick: () => void; compact?: boolean }) {
+export function OptionImageCard({
+  title,
+  selected,
+  onClick,
+  compact,
+}: {
+  title: string;
+  selected: boolean;
+  onClick: () => void;
+  compact?: boolean;
+}) {
   const [imgError, setImgError] = useState(false);
   const slug = toSlug(title);
-  const imageSrc = `/${slug}.png`;
+  const imageSrc = asset(`/${slug}.png`);
 
   return (
     <div
@@ -22,10 +33,16 @@ export function OptionImageCard({ title, selected, onClick, compact }: { title: 
       }}
       className={cn(
         "glass-surface is-interactive group relative overflow-hidden rounded-[14px] cursor-pointer text-left transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-accent-500",
-        selected && "border-accent-400/50 shadow-[0_0_0_2px_rgba(139,124,255,.12),0_0_20px_-4px_rgba(109,91,245,0.4)]"
+        selected &&
+          "border-accent-400/50 shadow-[0_0_0_2px_rgba(139,124,255,.12),0_0_20px_-4px_rgba(109,91,245,0.4)]",
       )}
     >
-      <div className={cn("w-full bg-deep relative", compact ? "aspect-[4/3]" : "aspect-[4/3]")}>
+      <div
+        className={cn(
+          "w-full bg-deep relative",
+          compact ? "aspect-[4/3]" : "aspect-[4/3]",
+        )}
+      >
         {!imgError ? (
           <img
             src={imageSrc}
@@ -41,12 +58,34 @@ export function OptionImageCard({ title, selected, onClick, compact }: { title: 
         )}
         <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
       </div>
-      <div className={cn("absolute bottom-0 inset-x-0 flex items-center justify-between bg-surface-2/80 backdrop-blur-md", compact ? "p-2" : "p-2.5")}>
-        <span className={cn("font-semibold text-text-1", compact ? "text-[10px] sm:text-xs" : "text-xs")}>{title}</span>
+      <div
+        className={cn(
+          "absolute bottom-0 inset-x-0 flex items-center justify-between bg-surface-2/80 backdrop-blur-md",
+          compact ? "p-2" : "p-2.5",
+        )}
+      >
+        <span
+          className={cn(
+            "font-semibold text-text-1",
+            compact ? "text-[10px] sm:text-xs" : "text-xs",
+          )}
+        >
+          {title}
+        </span>
       </div>
       {selected && (
-        <span className={cn("brand-gradient accent-glow absolute right-2 top-2 grid place-items-center rounded-full", compact ? "size-5" : "size-6")}>
-          <Check className={cn("text-primary-foreground", compact ? "size-3" : "size-3.5")} />
+        <span
+          className={cn(
+            "brand-gradient accent-glow absolute right-2 top-2 grid place-items-center rounded-full",
+            compact ? "size-5" : "size-6",
+          )}
+        >
+          <Check
+            className={cn(
+              "text-primary-foreground",
+              compact ? "size-3" : "size-3.5",
+            )}
+          />
         </span>
       )}
     </div>

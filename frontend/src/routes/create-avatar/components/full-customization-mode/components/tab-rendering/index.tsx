@@ -22,6 +22,7 @@ import {
   corCabeloOptions,
 } from "../../data";
 import { cn } from "@/utils/utils";
+import { asset, withGenderVariant } from "@/lib/media";
 
 const SUGESTOES_EXTRAS = [
   "Luz suave de estúdio",
@@ -169,13 +170,11 @@ export function TabRenderizacao({
         type = "image";
         const baseImg =
           corCabeloOptions.find((o) => o.name === val)?.image || "";
-        image =
-          (isMasculino ||
-            values.genero === "Andrógino" ||
-            values.genero === "Não-binário") &&
-          baseImg
-            ? baseImg.replace(".png", "-masc.png")
-            : baseImg;
+        const masc =
+          isMasculino ||
+          values.genero === "Andrógino" ||
+          values.genero === "Não-binário";
+        image = withGenderVariant(baseImg, masc);
         break;
       }
     }
@@ -187,7 +186,7 @@ export function TabRenderizacao({
       >
         {type === "image" && image && (
           <img
-            src={image}
+            src={asset(image)}
             alt={displayVal}
             className="size-6 rounded-full object-cover shrink-0 bg-surface-3"
           />

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { SignatureBackground } from "@/layouts/signature-background";
+import { asset } from "@/lib/media";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -9,7 +10,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <main className="relative grid min-h-screen place-items-center overflow-hidden px-4 py-6 md:py-10">
       <SignatureBackground />
-      
+
       {/* Container principal */}
       <div className="relative z-10 w-full max-w-[420px] lg:max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/30 shadow-2xl backdrop-blur-xl">
         <div className="relative z-[2] grid lg:grid-cols-2 rounded-[31px] overflow-hidden">
@@ -21,12 +22,12 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           {/* COLUNA DIREITA - IMAGEM (SÓLIDA) */}
           <div className="relative hidden lg:block bg-[#09080e]">
             {/* 1. Imagem Base */}
-            <img 
-              src="/imagem-login-cadastro.png" 
-              alt="Estúdio Criativo" 
+            <img
+              src={asset("/imagem-login-cadastro.png")}
+              alt="Estúdio Criativo"
               className="absolute inset-0 h-full w-full object-cover"
             />
-            
+
             {/* 2. Aura de Luz Roxa */}
             <div className="absolute inset-0 mix-blend-screen opacity-70 pointer-events-none">
               <div className="absolute top-1/2 left-2/3 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500 blur-[100px]" />
@@ -42,7 +43,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
                   Quebre as limitações criativas.
                 </h2>
                 <p className="mt-4 max-w-[380px] text-[15px] leading-relaxed text-zinc-300">
-                  A plataforma de criação visual com IA para transformar qualquer ideia de avatares, imagens e vídeos em realidade.
+                  A plataforma de criação visual com IA para transformar
+                  qualquer ideia de avatares, imagens e vídeos em realidade.
                 </p>
               </div>
             </div>

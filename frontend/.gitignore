@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Env local
+.env
+.env.*
+!.env.example
+
+# Assets otimizados (moram no S3, nao no Git)
+public/optimized/

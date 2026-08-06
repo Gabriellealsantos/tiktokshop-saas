@@ -206,12 +206,27 @@ function CardEnviarImagem({
   };
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       aria-label="Enviar Imagem"
-      onClick={() =>
-        preview ? onChange("Enviar Imagem") : inputRef.current?.click()
-      }
+      onClick={() => {
+        if (preview) {
+          onChange("Enviar Imagem");
+        } else {
+          inputRef.current?.click();
+        }
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          if (preview) {
+            onChange("Enviar Imagem");
+          } else {
+            inputRef.current?.click();
+          }
+        }
+      }}
       onDragOver={!preview ? onDragOver : undefined}
       onDragLeave={!preview ? onDragLeave : undefined}
       onDrop={!preview ? onDrop : undefined}
@@ -340,7 +355,7 @@ function CardEnviarImagem({
           </div>
         </>
       )}
-    </button>
+    </div>
   );
 }
 

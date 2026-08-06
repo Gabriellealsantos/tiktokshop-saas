@@ -1,11 +1,39 @@
 import { useRef, useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { ArrowRight, Camera, Film, Video, Volume2, VolumeX } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  Film,
+  Video,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 import { motion } from "motion/react";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, Page, PageHeader } from "@/components";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  Page,
+  PageHeader,
+} from "@/components";
 import { AppShell } from "@/layouts/app-shell";
+import { asset } from "@/lib/media";
 
-function StudioModeCard({ format, selected }: { format: { title: string; text: string; badge: string; videoSrc: string; poster: string; id: string }; selected?: boolean }) {
+function StudioModeCard({
+  format,
+  selected,
+}: {
+  format: {
+    title: string;
+    text: string;
+    badge: string;
+    videoSrc: string;
+    id: string;
+  };
+  selected?: boolean;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMuted, setIsMuted] = useState(true);
 
@@ -13,15 +41,17 @@ function StudioModeCard({ format, selected }: { format: { title: string; text: s
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          const prefersReducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
           if (entry.isIntersecting && !prefersReducedMotion) {
-            videoRef.current?.play().catch(() => { });
+            videoRef.current?.play().catch(() => {});
           } else {
             videoRef.current?.pause();
           }
         });
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     if (videoRef.current) {
@@ -47,15 +77,17 @@ function StudioModeCard({ format, selected }: { format: { title: string; text: s
     <motion.div
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.15 }}
-      className={`group relative overflow-hidden rounded-2xl aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] border ${selected ? "border-violet-500 shadow-[0_0_0_2px_rgba(139,92,246,0.4)]" : "border-border/50"
-        } hover:border-violet-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.2)] bg-card text-left flex flex-col justify-end w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2`}
+      className={`group relative overflow-hidden rounded-2xl aspect-[3/4] sm:aspect-[4/5] lg:aspect-[3/4] border ${
+        selected
+          ? "border-violet-500 shadow-[0_0_0_2px_rgba(139,92,246,0.4)]"
+          : "border-border/50"
+      } hover:border-violet-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.2)] bg-card text-left flex flex-col justify-end w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2`}
       role="button"
       tabIndex={0}
     >
       <video
         ref={videoRef}
         src={format.videoSrc}
-        poster={format.poster}
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         muted={isMuted}
         loop
@@ -80,7 +112,11 @@ function StudioModeCard({ format, selected }: { format: { title: string; text: s
           className="p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white hover:bg-black/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
           aria-label={isMuted ? "Ativar som" : "Desativar som"}
         >
-          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          {isMuted ? (
+            <VolumeX className="w-4 h-4" />
+          ) : (
+            <Volume2 className="w-4 h-4" />
+          )}
         </button>
       </div>
 
@@ -93,7 +129,8 @@ function StudioModeCard({ format, selected }: { format: { title: string; text: s
           {format.text}
         </p>
         <div className="flex items-center gap-1.5 text-sm font-semibold text-white/70 group-hover:text-white transition-colors">
-          Selecionar estilo <ArrowRight className="w-4 h-4 text-violet-400 group-hover:translate-x-1 group-hover:text-violet-300 transition-all" />
+          Selecionar estilo{" "}
+          <ArrowRight className="w-4 h-4 text-violet-400 group-hover:translate-x-1 group-hover:text-violet-300 transition-all" />
         </div>
       </div>
     </motion.div>
@@ -108,8 +145,7 @@ export default function StudioLanding() {
       text: "Avatar humanizado apresentando o produto com naturalidade.",
       icon: Camera,
       badge: "CRIATIVO UGC",
-      videoSrc: "/c-criar-seu-video1.mp4",
-      poster: "/videos/ugc-poster.jpg",
+      videoSrc: asset("/c-criar-seu-video1.mp4"),
     },
     {
       id: "imersivo",
@@ -117,8 +153,7 @@ export default function StudioLanding() {
       text: "Primeira pessoa, foco nas mãos, detalhes e produto.",
       icon: Video,
       badge: "POV IMERSIVO",
-      videoSrc: "/c-criar-seu-video2.mp4",
-      poster: "/videos/pov-poster.jpg",
+      videoSrc: asset("/c-criar-seu-video2.mp4"),
     },
     {
       id: "cinematografico",
@@ -126,10 +161,10 @@ export default function StudioLanding() {
       text: "Interação, cenário, pose e movimento com direção visual.",
       icon: Film,
       badge: "CINEMATOGRÁFICO",
-      videoSrc: "/c-criar-seu-video3.mp4",
-      poster: "/videos/cinema-poster.jpg",
+      videoSrc: asset("/c-criar-seu-video3.mp4"),
     },
   ];
+
   return (
     <AppShell>
       <Page>
@@ -137,7 +172,10 @@ export default function StudioLanding() {
           eyebrow="Estúdio de criação"
           title={
             <>
-              Escolha como criar <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-500 to-pink-500">seu vídeo</span>
+              Escolha como criar{" "}
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-500 to-pink-500">
+                seu vídeo
+              </span>
             </>
           }
           description="Três linguagens de produção, um fluxo guiado até os ativos finais."
@@ -146,7 +184,11 @@ export default function StudioLanding() {
         {/* Desktop Layout */}
         <div className="hidden lg:grid gap-8 grid-cols-3">
           {formats.map((format) => (
-            <NavLink key={format.id} to={`/studio/${format.id}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-2xl block">
+            <NavLink
+              key={format.id}
+              to={`/studio/${format.id}`}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-2xl block"
+            >
               {({ isActive }) => (
                 <StudioModeCard format={format} selected={isActive} />
               )}
@@ -156,11 +198,20 @@ export default function StudioLanding() {
 
         {/* Mobile/Tablet Layout */}
         <div className="block lg:hidden mt-4">
-          <Carousel opts={{ align: "start", dragFree: true }} className="w-full">
+          <Carousel
+            opts={{ align: "start", dragFree: true }}
+            className="w-full"
+          >
             <CarouselContent className="-ml-4">
               {formats.map((format) => (
-                <CarouselItem key={format.id} className="pl-4 basis-[85%] sm:basis-[60%]">
-                  <NavLink to={`/studio/${format.id}`} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-2xl block h-full">
+                <CarouselItem
+                  key={format.id}
+                  className="pl-4 basis-[85%] sm:basis-[60%]"
+                >
+                  <NavLink
+                    to={`/studio/${format.id}`}
+                    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-2xl block h-full"
+                  >
                     {({ isActive }) => (
                       <StudioModeCard format={format} selected={isActive} />
                     )}

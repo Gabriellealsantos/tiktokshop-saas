@@ -4,6 +4,7 @@ import { Coins, Edit3, Image, Store, WandSparkles } from "lucide-react";
 import { Button, Pill, Page, PageHeader } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
 import { useMockSession } from "@/context/mock-session";
+import { asset } from "@/lib/media";
 
 type ToolData = {
   id: string;
@@ -95,14 +96,17 @@ export default function ToolsScreen() {
 
                   {tool.imageSrc ? (
                     <img
-                      src={tool.imageSrc}
+                      src={asset(tool.imageSrc)}
                       alt={`Capa da ferramenta ${tool.title}`}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-surface-3 to-deep transition-transform duration-500 group-hover:scale-105">
-                      <Icon className="size-16 text-violet-500/20" strokeWidth={1} />
+                      <Icon
+                        className="size-16 text-violet-500/20"
+                        strokeWidth={1}
+                      />
                     </div>
                   )}
 
@@ -128,10 +132,16 @@ export default function ToolsScreen() {
                   <div className="mt-auto pt-6 flex flex-col gap-3">
                     <div className="flex items-center">
                       <Pill>
-                        {tool.cost !== null ? `${tool.cost} créditos` : tool.footerLabel}
+                        {tool.cost !== null
+                          ? `${tool.cost} créditos`
+                          : tool.footerLabel}
                       </Pill>
                     </div>
-                    <Button variant="secondary" onClick={tool.action} className="w-full focus:outline-none">
+                    <Button
+                      variant="secondary"
+                      onClick={tool.action}
+                      className="w-full focus:outline-none"
+                    >
                       {tool.ctaLabel}
                     </Button>
                   </div>
