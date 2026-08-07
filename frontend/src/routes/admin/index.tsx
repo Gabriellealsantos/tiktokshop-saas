@@ -11,6 +11,7 @@ import { NotificationSoundTab } from "./components/notification-sound-tab";
 import { CategoriesTab } from "./components/categories-tab";
 import { ViralTab } from "./components/viral-tab";
 import { VideoTemplatesTab } from "./components/video-templates-tab";
+import { GalleryAvatarsTab } from "./components/gallery-avatars-tab";
 import { LimitsTab } from "./components/limits-tab";
 import { UsersTab } from "./components/users-tab";
 import { SecurityTab } from "./components/security-tab";
@@ -60,6 +61,7 @@ export default function AdminScreen() {
             "Categorias",
             "Trend Boost",
             "Modelos de Vídeo",
+            "Avatares",
             "Prompt de Vídeo",
             "Limites",
             "Métricas",
@@ -83,6 +85,7 @@ export default function AdminScreen() {
         {tab === "Categorias" && <CategoriesTab />}
         {tab === "Trend Boost" && <ViralTab />}
         {tab === "Modelos de Vídeo" && <VideoTemplatesTab />}
+        {tab === "Avatares" && <GalleryAvatarsTab />}
         {tab === "Prompt de Vídeo" && <StudioPromptTab />}
         {tab === "Limites" && <LimitsTab />}
         {tab === "Métricas" && <MetricsTab />}

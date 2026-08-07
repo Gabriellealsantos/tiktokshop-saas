@@ -15,9 +15,11 @@ import java.util.List;
 public class GalleryAvatarService {
 
     private final GalleryAvatarRepository repository;
+    private final StorageService storageService;
 
-    public GalleryAvatarService(GalleryAvatarRepository repository) {
+    public GalleryAvatarService(GalleryAvatarRepository repository, StorageService storageService) {
         this.repository = repository;
+        this.storageService = storageService;
     }
 
     @Transactional(readOnly = true)
@@ -73,6 +75,11 @@ public class GalleryAvatarService {
         if (dto.imageUrl() == null || dto.imageUrl().isBlank()) {
             throw new BusinessException("URL da imagem é obrigatória.");
         }
+
+        if (!dto.imageUrl().startsWith(storageService.publicBaseUrl() + "/")) {
+            throw new BusinessException("URL da imagem fora do storage permitido.");
+        }
+        
         entity.setName(dto.name().trim());
         entity.setGender(dto.gender());
         entity.setType(dto.type());
