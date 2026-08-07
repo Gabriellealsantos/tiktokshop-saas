@@ -55,4 +55,5 @@ export * from "./textarea";
 export * from "./toggle-group";
 export * from "./tooltip";
 
+export { S3Image } from "./s3-image";
 export { toggleVariants } from "./toggle";

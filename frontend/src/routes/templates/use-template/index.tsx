@@ -12,23 +12,51 @@ import { VideoModel } from "./components/video-model";
 import { VideoPrint } from "./components/video-print";
 import { ClothSwapPanel } from "./components/cloth-swap-panel";
 import { ProductPickerModal } from "./components/product-picker-modal";
-import { User, Crop, RefreshCw, ArrowLeftRight, Copy, ArrowRight, Download, Sparkles, Loader2, Gauge } from "lucide-react";
+import {
+  User,
+  Crop,
+  RefreshCw,
+  ArrowLeftRight,
+  Copy,
+  ArrowRight,
+  Download,
+  Sparkles,
+  Loader2,
+  Gauge,
+} from "lucide-react";
 import { AvatarLibraryModal } from "@/routes/create-avatar/components/avatar-library-modal";
 import { CropModal } from "./components/crop-modal";
 
 import { captureVideoFrame } from "@/utils/captureFrame";
 import { downloadMedia } from "@/utils/download";
-import { uploadTemplateFrame, swapPerson, swapClothes, generateVideoPrompt, getTemplateUsage } from "@/services/videoTemplateService";
+import {
+  uploadTemplateFrame,
+  swapPerson,
+  swapClothes,
+  generateVideoPrompt,
+  getTemplateUsage,
+} from "@/services/videoTemplateService";
 import { getProductById } from "@/services/productService";
-import { mapBackendToProduct, type BackendProduct } from "@/models/product-mappers";
+import {
+  mapBackendToProduct,
+  type BackendProduct,
+} from "@/models/product-mappers";
 import type { Product } from "@/models/product";
-import type { ClothSwapMode, ImageGenerationResult, TemplateUsage, VideoPromptResponse } from "@/models/videoTemplate";
+import type {
+  ClothSwapMode,
+  ImageGenerationResult,
+  TemplateUsage,
+  VideoPromptResponse,
+} from "@/models/videoTemplate";
+import { S3Image } from "@/components";
 
 const STEPS = ["Templates", "Avatar", "Produto", "Prompt"];
 
 /** Extrai a mensagem de erro do backend (StandardError), com destaque para a cota (429). */
 function backendError(err: unknown, fallback: string): string {
-  const e = err as { response?: { status?: number; data?: { message?: string } } };
+  const e = err as {
+    response?: { status?: number; data?: { message?: string } };
+  };
   return e?.response?.data?.message ?? fallback;
 }
 
@@ -47,7 +75,9 @@ export default function TemplateAssemblyScreen() {
 
   useEffect(() => {
     // Respeita preferência de redução de movimento do sistema
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (prefersReducedMotion && videoRef.current) {
       videoRef.current.pause();
     }
@@ -67,7 +97,8 @@ export default function TemplateAssemblyScreen() {
     if (avatarHostedRef.current) return avatarHostedRef.current;
     if (!avatarSelecionado) throw new Error("Selecione um avatar primeiro.");
     const resp = await fetch(avatarSelecionado);
-    if (!resp.ok) throw new Error("Não foi possível carregar a imagem do avatar.");
+    if (!resp.ok)
+      throw new Error("Não foi possível carregar a imagem do avatar.");
     const blob = await resp.blob();
     const up = await uploadTemplateFrame(blob);
     const url = (up.data as { url: string }).url;
@@ -115,7 +146,9 @@ export default function TemplateAssemblyScreen() {
 
   // Estado do avatar e modal
   const [avatarOriginal, setAvatarOriginal] = useState<string | null>(null);
-  const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(null);
+  const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(
+    null,
+  );
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [avatarConfirmed, setAvatarConfirmed] = useState(false);
 
@@ -170,7 +203,6 @@ export default function TemplateAssemblyScreen() {
     mutationFn: async () => {
       if (!videoRef.current) throw new Error("Vídeo não está pronto.");
       if (!avatarSelecionado) throw new Error("Selecione um avatar primeiro.");
-      
       let frameUrl = thumbnailUrl;
       
       if (!frameUrl) {
@@ -180,12 +212,12 @@ export default function TemplateAssemblyScreen() {
         const frameRes = await uploadTemplateFrame(blob);
         frameUrl = (frameRes.data as { url: string }).url;
       }
-
       // Garante que o avatar seja uma URL hospedada (assets locais/data URLs não servem ao Gemini).
       const avatarImageUrl = await resolveHostedAvatarUrl();
       const res = await swapPerson({ frameUrl, avatarImageUrl });
       const gen = res.data as ImageGenerationResult;
-      if (gen.status === "FAILED" || !gen.imageUrl) throw new Error(gen.error ?? "Falha ao trocar a pessoa.");
+      if (gen.status === "FAILED" || !gen.imageUrl)
+        throw new Error(gen.error ?? "Falha ao trocar a pessoa.");
       return gen.imageUrl;
     },
     onSuccess: (imageUrl) => {
@@ -195,7 +227,8 @@ export default function TemplateAssemblyScreen() {
       queryClient.invalidateQueries({ queryKey: ["template-usage"] });
       toast.success("Pessoa trocada! Agora aplique a roupa ou gere o prompt.");
     },
-    onError: (err) => toast.error(backendError(err, "Não foi possível trocar a pessoa.")),
+    onError: (err) =>
+      toast.error(backendError(err, "Não foi possível trocar a pessoa.")),
   });
 
   // Trocar roupa: veste o produto sobre o resultado do swap de pessoa.
@@ -213,7 +246,8 @@ export default function TemplateAssemblyScreen() {
         avatarImageUrl
       });
       const gen = res.data as ImageGenerationResult;
-      if (gen.status === "FAILED" || !gen.imageUrl) throw new Error(gen.error ?? "Falha ao aplicar a roupa.");
+      if (gen.status === "FAILED" || !gen.imageUrl)
+        throw new Error(gen.error ?? "Falha ao aplicar a roupa.");
       return gen.imageUrl;
     },
     onSuccess: (imageUrl) => {
@@ -221,7 +255,8 @@ export default function TemplateAssemblyScreen() {
       queryClient.invalidateQueries({ queryKey: ["template-usage"] });
       toast.success("Roupa aplicada!");
     },
-    onError: (err) => toast.error(backendError(err, "Não foi possível aplicar a roupa.")),
+    onError: (err) =>
+      toast.error(backendError(err, "Não foi possível aplicar a roupa.")),
   });
 
   // Gerar prompt Veo3 (texto, não consome cota).
@@ -238,7 +273,8 @@ export default function TemplateAssemblyScreen() {
       return (res.data as VideoPromptResponse).prompt;
     },
     onSuccess: (prompt) => setPromptResult(prompt),
-    onError: (err) => toast.error(backendError(err, "Não foi possível gerar o prompt.")),
+    onError: (err) =>
+      toast.error(backendError(err, "Não foi possível gerar o prompt.")),
   });
 
   const handleCopyPrompt = async () => {
@@ -306,7 +342,7 @@ export default function TemplateAssemblyScreen() {
         imgLeft * scaleX,
         imgTop * scaleY,
         dims.dw * zoom * scaleX,
-        dims.dh * zoom * scaleY
+        dims.dh * zoom * scaleY,
       );
 
       try {
@@ -334,13 +370,13 @@ export default function TemplateAssemblyScreen() {
     const maxY = Math.max(0, (dims.dh * currentZoom - dims.ch) / 2);
     return {
       x: Math.max(-maxX, Math.min(maxX, newX)),
-      y: Math.max(-maxY, Math.min(maxY, newY))
+      y: Math.max(-maxY, Math.min(maxY, newY)),
     };
   };
 
   const handleZoomChange = (newZoom: number) => {
     setZoom(newZoom);
-    setPosition(prev => clampPosition(prev.x, prev.y, newZoom));
+    setPosition((prev) => clampPosition(prev.x, prev.y, newZoom));
   };
 
   const handleCropWheel = (e: React.WheelEvent) => {
@@ -373,23 +409,27 @@ export default function TemplateAssemblyScreen() {
     if (!containerRef.current) return;
     const { clientWidth, clientHeight } = containerRef.current;
 
-    const baseScale = Math.max(clientWidth / naturalWidth, clientHeight / naturalHeight);
+    const baseScale = Math.max(
+      clientWidth / naturalWidth,
+      clientHeight / naturalHeight,
+    );
     const dw = naturalWidth * baseScale;
     const dh = naturalHeight * baseScale;
 
     setDims({ cw: clientWidth, ch: clientHeight, dw, dh });
-    setPosition(prev => {
+    setPosition((prev) => {
       const maxX = Math.max(0, (dw * zoom - clientWidth) / 2);
       const maxY = Math.max(0, (dh * zoom - clientHeight) / 2);
       return {
         x: Math.max(-maxX, Math.min(maxX, prev.x)),
-        y: Math.max(-maxY, Math.min(maxY, prev.y))
+        y: Math.max(-maxY, Math.min(maxY, prev.y)),
       };
     });
   };
 
   const currentStep = promptResult ? 3 : produto ? 2 : 1;
-  const swapLoading = swapPersonMutation.isPending || swapClothesMutation.isPending;
+  const swapLoading =
+    swapPersonMutation.isPending || swapClothesMutation.isPending;
 
   return (
     <AppShell>
@@ -413,9 +453,17 @@ export default function TemplateAssemblyScreen() {
                 {printSrc && (
                   <div className="flex flex-col gap-3 w-full md:w-[280px] shrink-0">
                     <div className="relative overflow-hidden rounded-xl border border-white/10 bg-deep aspect-[9/16]">
-                      <img src={printSrc} alt="Imagem final" className="h-full w-full object-cover" />
+                      <S3Image
+                        src={printSrc}
+                        alt="Imagem final"
+                        className="h-full w-full object-cover"
+                      />
                     </div>
-                    <Button variant="outline" className="w-full h-10 text-sm rounded-xl" onClick={handleDownloadImage}>
+                    <Button
+                      variant="outline"
+                      className="w-full h-10 text-sm rounded-xl"
+                      onClick={handleDownloadImage}
+                    >
                       <Download className="size-4 mr-2" />
                       Baixar imagem
                     </Button>
@@ -425,7 +473,9 @@ export default function TemplateAssemblyScreen() {
                 {/* PROMPT */}
                 <div className="flex-1 min-w-0 w-full rounded-xl border border-white/10 bg-deep p-5">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-white text-[15px]">Prompt gerado (em inglês)</h3>
+                    <h3 className="font-bold text-white text-[15px]">
+                      Prompt gerado (em inglês)
+                    </h3>
                     <button
                       onClick={handleCopyPrompt}
                       className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-2 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-md"
@@ -467,84 +517,107 @@ export default function TemplateAssemblyScreen() {
             <>
               <div className="mt-8 mb-6">
                 <GlassPanel>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
-                  {/* CONTAINER 1 — MODELO */}
-                  <VideoModel videoUrl={videoUrl} videoRef={videoRef} />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-start">
+                    {/* CONTAINER 1 — MODELO */}
+                    <VideoModel videoUrl={videoUrl} videoRef={videoRef} />
 
-                  {/* CONTAINER 2 — PRINT DO VÍDEO + CONTROLES AVATAR */}
-                  <div className="flex flex-col gap-6">
-                    <VideoPrint src={printSrc} loading={swapLoading} />
+                    {/* CONTAINER 2 — PRINT DO VÍDEO + CONTROLES AVATAR */}
+                    <div className="flex flex-col gap-6">
+                      <VideoPrint src={printSrc} loading={swapLoading} />
 
-                    {/* CONTROLES DO AVATAR */}
-                    {!avatarSelecionado ? (
-                      <div className="flex flex-col gap-3 mt-4">
-                        <Button
-                          className="w-full btn-3d-surface border border-dashed border-white/20 rounded-[14px]"
-                          onClick={handleAvatarClick}
-                        >
-                          <User className="size-4 mr-2 text-white/50" />
-                          Selecionar avatar
-                        </Button>
-                        <Button
-                          className="w-full rounded-[14px] btn-3d-primary cursor-not-allowed opacity-50 shadow-none hover:bg-brand-500 hover:scale-100"
-                          disabled
-                        >
-                          <ArrowLeftRight className="size-4 mr-2" />
-                          Trocar pessoa
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-3 mt-4">
-                        <div className="flex flex-col gap-3 p-4 rounded-[16px] bg-surface-2 border border-white/5 shadow-lg">
-                          {/* LINHA SUPERIOR: Thumbnail e Textos */}
-                          <div className="flex items-center gap-3 min-w-0 w-full">
-                            <div className="size-10 rounded-[10px] overflow-hidden bg-black/50 border border-white/10 flex-shrink-0">
-                              <img src={avatarSelecionado} alt="Avatar" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="flex flex-col min-w-0 flex-1">
-                              <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase drop-shadow-sm flex-shrink-0">Avatar Selecionado</span>
-                              <span className="text-white font-semibold text-sm truncate" title="Modelo Customizado">Modelo Customizado</span>
-                            </div>
-                          </div>
-
-                          {/* LINHA INFERIOR: Botões */}
-                          <div className="flex flex-row gap-2 w-full">
-                            <Button variant="secondary" size="sm" className="flex-1 text-xs btn-3d-surface h-8" onClick={openCropModal}>
-                              <Crop className="size-3.5 mr-1" />
-                              Recortar
-                            </Button>
-                            <Button variant="secondary" size="sm" className="flex-1 text-xs btn-3d-surface h-8" onClick={() => setAvatarPickerOpen(true)}>
-                              <RefreshCw className="size-3.5 mr-1" />
-                              Trocar
-                            </Button>
-                          </div>
-                        </div>
-                        <Button
-                          className="w-full btn-3d-primary rounded-[14px] font-semibold disabled:opacity-50"
-                          disabled={swapPersonMutation.isPending}
-                          onClick={() => swapPersonMutation.mutate()}
-                        >
-                          {swapPersonMutation.isPending ? (
-                            <Loader2 className="size-4 mr-2 animate-spin" />
-                          ) : (
+                      {/* CONTROLES DO AVATAR */}
+                      {!avatarSelecionado ? (
+                        <div className="flex flex-col gap-3 mt-4">
+                          <Button
+                            className="w-full btn-3d-surface border border-dashed border-white/20 rounded-[14px]"
+                            onClick={handleAvatarClick}
+                          >
+                            <User className="size-4 mr-2 text-white/50" />
+                            Selecionar avatar
+                          </Button>
+                          <Button
+                            className="w-full rounded-[14px] btn-3d-primary cursor-not-allowed opacity-50 shadow-none hover:bg-brand-500 hover:scale-100"
+                            disabled
+                          >
                             <ArrowLeftRight className="size-4 mr-2" />
-                          )}
-                          {avatarConfirmed ? "Trocar pessoa novamente" : "Trocar pessoa"}
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                            Trocar pessoa
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3 mt-4">
+                          <div className="flex flex-col gap-3 p-4 rounded-[16px] bg-surface-2 border border-white/5 shadow-lg">
+                            {/* LINHA SUPERIOR: Thumbnail e Textos */}
+                            <div className="flex items-center gap-3 min-w-0 w-full">
+                              <div className="size-10 rounded-[10px] overflow-hidden bg-black/50 border border-white/10 flex-shrink-0">
+                                <S3Image
+                                  src={avatarSelecionado}
+                                  alt="Avatar"
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase drop-shadow-sm flex-shrink-0">
+                                  Avatar Selecionado
+                                </span>
+                                <span
+                                  className="text-white font-semibold text-sm truncate"
+                                  title="Modelo Customizado"
+                                >
+                                  Modelo Customizado
+                                </span>
+                              </div>
+                            </div>
 
-                  {/* CONTAINER 3 — PAINEL DE ROUPA */}
-                  <ClothSwapPanel
-                    isBlocked={!avatarConfirmed}
-                    produto={produto}
-                    onEscolherProduto={() => setProductPickerOpen(true)}
-                    onAplicar={(mode) => swapClothesMutation.mutate(mode)}
-                    onManterLook={() => setFinalImageUrl(personResultUrl)}
-                    loading={swapClothesMutation.isPending}
-                  />
-                </div>
+                            {/* LINHA INFERIOR: Botões */}
+                            <div className="flex flex-row gap-2 w-full">
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="flex-1 text-xs btn-3d-surface h-8"
+                                onClick={openCropModal}
+                              >
+                                <Crop className="size-3.5 mr-1" />
+                                Recortar
+                              </Button>
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                className="flex-1 text-xs btn-3d-surface h-8"
+                                onClick={() => setAvatarPickerOpen(true)}
+                              >
+                                <RefreshCw className="size-3.5 mr-1" />
+                                Trocar
+                              </Button>
+                            </div>
+                          </div>
+                          <Button
+                            className="w-full btn-3d-primary rounded-[14px] font-semibold disabled:opacity-50"
+                            disabled={swapPersonMutation.isPending}
+                            onClick={() => swapPersonMutation.mutate()}
+                          >
+                            {swapPersonMutation.isPending ? (
+                              <Loader2 className="size-4 mr-2 animate-spin" />
+                            ) : (
+                              <ArrowLeftRight className="size-4 mr-2" />
+                            )}
+                            {avatarConfirmed
+                              ? "Trocar pessoa novamente"
+                              : "Trocar pessoa"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* CONTAINER 3 — PAINEL DE ROUPA */}
+                    <ClothSwapPanel
+                      isBlocked={!avatarConfirmed}
+                      produto={produto}
+                      onEscolherProduto={() => setProductPickerOpen(true)}
+                      onAplicar={(mode) => swapClothesMutation.mutate(mode)}
+                      onManterLook={() => setFinalImageUrl(personResultUrl)}
+                      loading={swapClothesMutation.isPending}
+                    />
+                  </div>
                 </GlassPanel>
               </div>
 
@@ -559,7 +632,12 @@ export default function TemplateAssemblyScreen() {
                 </Button>
 
                 <Button
-                  disabled={!slug || !produto || !avatarConfirmed || promptMutation.isPending}
+                  disabled={
+                    !slug ||
+                    !produto ||
+                    !avatarConfirmed ||
+                    promptMutation.isPending
+                  }
                   className="bg-accent-500 hover:bg-accent-600 text-white shadow-[0_0_24px_-6px_rgba(109,91,245,0.5)] px-8 disabled:opacity-50"
                   onClick={() => promptMutation.mutate()}
                 >

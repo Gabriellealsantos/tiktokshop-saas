@@ -1,14 +1,21 @@
 import { type PointerEvent, type SyntheticEvent, type RefObject } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/dialog";
 import { Slider } from "@/components/slider";
 import { Button } from "@/components/button";
 import { cn } from "@/utils/utils";
+import { S3Image } from "@/components";
 
 interface CropModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   avatarOriginal: string | null;
-  containerRef: RefObject<HTMLDivElement>;
+  containerRef: RefObject<HTMLDivElement | null>;
   dims: { cw: number; ch: number; dw: number; dh: number };
   position: { x: number; y: number };
   zoom: number;
@@ -37,15 +44,18 @@ export function CropModal({
   handleZoomChange,
   resetCrop,
   saveCrop,
-  handleCropWheel
+  handleCropWheel,
 }: CropModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md bg-surface-1/95 border-white/10 backdrop-blur-xl shadow-2xl">
         <DialogHeader className="px-1 text-left pb-4 border-b border-white/5">
-          <DialogTitle className="text-xl font-bold text-white">Recortar avatar</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-white">
+            Recortar avatar
+          </DialogTitle>
           <DialogDescription className="text-white/60">
-            Dê zoom e arraste para enquadrar. O formato 9:16 é fixo. Este recorte é usado apenas neste uso e não altera sua biblioteca.
+            Dê zoom e arraste para enquadrar. O formato 9:16 é fixo. Este
+            recorte é usado apenas neste uso e não altera sua biblioteca.
           </DialogDescription>
         </DialogHeader>
 
@@ -60,24 +70,33 @@ export function CropModal({
             onPointerCancel={handleCropPointerUp}
             onWheel={handleCropWheel}
           >
-            <img
+            <S3Image
               src={avatarOriginal || ""}
               alt="Avatar Crop"
-              className={cn("absolute max-w-none origin-center pointer-events-none", dims.cw === 0 ? "opacity-0" : "opacity-100")}
+              className={cn(
+                "absolute max-w-none origin-center pointer-events-none",
+                dims.cw === 0 ? "opacity-0" : "opacity-100",
+              )}
               onLoad={onImgLoad}
-              style={dims.cw > 0 ? {
-                width: `${dims.dw}px`,
-                height: `${dims.dh}px`,
-                left: `${(dims.cw - dims.dw) / 2}px`,
-                top: `${(dims.ch - dims.dh) / 2}px`,
-                transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`
-              } : { width: "100%", height: "100%", objectFit: "cover" }}
+              style={
+                dims.cw > 0
+                  ? {
+                      width: `${dims.dw}px`,
+                      height: `${dims.dh}px`,
+                      left: `${(dims.cw - dims.dw) / 2}px`,
+                      top: `${(dims.ch - dims.dh) / 2}px`,
+                      transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+                    }
+                  : { width: "100%", height: "100%", objectFit: "cover" }
+              }
             />
           </div>
 
           {/* Slider Zoom */}
           <div className="w-full flex items-center gap-4 px-2">
-            <span className="text-xs font-medium text-white/50 w-10 text-right">{zoom.toFixed(2)}x</span>
+            <span className="text-xs font-medium text-white/50 w-10 text-right">
+              {zoom.toFixed(2)}x
+            </span>
             <Slider
               value={[zoom]}
               min={1}
@@ -91,12 +110,25 @@ export function CropModal({
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-white/5">
-          <Button variant="ghost" onClick={resetCrop} className="text-white/70 hover:text-white">
+          <Button
+            variant="ghost"
+            onClick={resetCrop}
+            className="text-white/70 hover:text-white"
+          >
             Resetar
           </Button>
           <div className="flex gap-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)} className="text-white/70 hover:text-white">Cancelar</Button>
-            <Button onClick={saveCrop} className="bg-accent-500 hover:bg-accent-600 text-white shadow-[0_0_24px_-6px_rgba(109,91,245,0.5)]">
+            <Button
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              className="text-white/70 hover:text-white"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={saveCrop}
+              className="bg-accent-500 hover:bg-accent-600 text-white shadow-[0_0_24px_-6px_rgba(109,91,245,0.5)]"
+            >
               Salvar recorte
             </Button>
           </div>
