@@ -1,7 +1,13 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Loader2, Pencil, Trash2, Users, X } from "lucide-react";
-import { Dialog, DialogHeader, DialogTitle, DialogTrigger } from "@/components";
+import {
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  S3Image,
+} from "@/components";
 import { cn } from "@/utils/utils";
 import {
   useMyAvatars,
@@ -82,7 +88,7 @@ function AvatarCard({
         }
       }}
     >
-      <img
+      <S3Image
         src={avatar.image}
         alt={avatar.name}
         className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"

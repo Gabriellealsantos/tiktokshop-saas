@@ -1,3 +1,4 @@
+import { S3Image } from "@/components";
 import { Image as ImageIcon, Loader2 } from "lucide-react";
 
 interface VideoPrintProps {
@@ -14,7 +15,7 @@ export function VideoPrint({ src, loading }: VideoPrintProps) {
       </span>
       <div className="group relative overflow-hidden rounded-[20px] bg-linear-to-br from-surface-3 to-deep border border-white/5 aspect-[9/16] flex flex-col items-center justify-center">
         {src ? (
-          <img
+          <S3Image
             src={src}
             alt="Print do vídeo"
             crossOrigin="anonymous"

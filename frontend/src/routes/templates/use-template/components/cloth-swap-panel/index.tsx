@@ -5,6 +5,7 @@ import { cn } from "@/utils/utils";
 import { AnimatePresence, motion } from "motion/react";
 import type { Product } from "@/models/product";
 import type { ClothSwapMode } from "@/models/videoTemplate";
+import { S3Image } from "@/components";
 
 interface ClothSwapPanelProps {
   isBlocked?: boolean;
@@ -122,7 +123,7 @@ export function ClothSwapPanel({
                 >
                   <div className="size-16 rounded-[10px] overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative flex items-center justify-center">
                     {produto?.image && !imgError ? (
-                      <img
+                      <S3Image
                         src={produto.image}
                         alt={produto.name}
                         className="w-full h-full object-cover"

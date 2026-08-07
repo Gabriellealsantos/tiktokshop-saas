@@ -3,13 +3,15 @@ import { Play } from "lucide-react";
 
 interface VideoModelProps {
   videoUrl?: string;
-  videoRef: RefObject<HTMLVideoElement>;
+  videoRef: RefObject<HTMLVideoElement | null>;
 }
 
 export function VideoModel({ videoUrl, videoRef }: VideoModelProps) {
   return (
     <div className="flex flex-col gap-3">
-      <span className="text-sm font-semibold tracking-wide text-white/50 uppercase pl-1">Modelo</span>
+      <span className="text-sm font-semibold tracking-wide text-white/50 uppercase pl-1">
+        Modelo
+      </span>
       <div className="group relative overflow-hidden rounded-[20px] bg-linear-to-br from-surface-3 to-deep border border-white/5 aspect-[9/16] flex flex-col items-center justify-center">
         {videoUrl ? (
           <>
@@ -27,8 +29,10 @@ export function VideoModel({ videoUrl, videoRef }: VideoModelProps) {
               playsInline
               preload="metadata"
               onError={(e) => {
-                (e.target as HTMLVideoElement).style.display = 'none';
-                (e.target as HTMLVideoElement).nextElementSibling?.classList.remove('hidden');
+                (e.target as HTMLVideoElement).style.display = "none";
+                (
+                  e.target as HTMLVideoElement
+                ).nextElementSibling?.classList.remove("hidden");
               }}
             />
             {/* Fallback caso erro ao carregar o vídeo */}
@@ -36,7 +40,9 @@ export function VideoModel({ videoUrl, videoRef }: VideoModelProps) {
               <div className="size-16 rounded-full bg-white/5 flex items-center justify-center backdrop-blur-md border border-white/10">
                 <Play className="size-6 ml-1" />
               </div>
-              <span className="text-sm font-medium">Erro ao carregar vídeo</span>
+              <span className="text-sm font-medium">
+                Erro ao carregar vídeo
+              </span>
             </div>
           </>
         ) : (
