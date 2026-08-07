@@ -9,6 +9,9 @@ import jakarta.validation.constraints.NotBlank;
 public record SwapClothesRequestDTO(
         @NotBlank String baseImageUrl,
         @NotBlank String productImageUrl,
-        @NotBlank String mode
+        @NotBlank String mode,
+        String productName,
+        String productDescription,
+        String avatarImageUrl
 ) {
 }

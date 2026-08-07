@@ -81,13 +81,7 @@ public class RegistrationService {
                 user, Instant.now().plus(24, ChronoUnit.HOURS));
         emailConfirmationRepository.save(confirmation);
 
-        // Em dev sem SMTP real, não derruba o cadastro — registra o link nos logs.
-        try {
-            emailService.sendConfirmationEmail(user.getEmail(), confirmation.getToken());
-        } catch (Exception e) {
-            logger.warn("Falha ao enviar e-mail de confirmação para {} (token={}): {}",
-                    user.getEmail(), confirmation.getToken(), e.getMessage());
-        }
+        logger.info("Conta criada para {}. Token de confirmação: {}", user.getEmail(), confirmation.getToken());
     }
 
     @Transactional

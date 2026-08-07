@@ -48,6 +48,7 @@ export function SharedVideoCard({ modelo, productId }: { modelo: VideoTemplateSu
     const params = new URLSearchParams();
     params.set("slug", modelo.slug);
     params.set("video", modelo.videoUrl);
+    if (modelo.thumbnailUrl) params.set("thumbnail", modelo.thumbnailUrl);
     if (productId) params.set("productId", productId);
     navigate(`/templates/use?${params.toString()}`);
   };

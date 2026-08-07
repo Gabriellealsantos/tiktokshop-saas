@@ -36,6 +36,11 @@ public class GenerationLimitService {
     @Transactional
     public void assertCanGenerate(UUID userId, FlowType flowType) {
         DailyLimit limit = loadLimit(flowType);
+        
+        if (limit.getMaxPerDay() == -1) {
+            return;
+        }
+        
         long used = generationRepository.countFinalsToday(
                 userId, flowType.name(), dayStart(), dayEnd());
 
@@ -49,6 +54,11 @@ public class GenerationLimitService {
     @Transactional
     public void assertCanRegenerate(ImageGeneration parent) {
         DailyLimit limit = loadLimit(parent.getFlowType());
+        
+        if (limit.getMaxRegenerations() == -1) {
+            return;
+        }
+        
         long used = generationRepository.countRegenerations(parent.getId());
 
         if (used >= limit.getMaxRegenerations()) {

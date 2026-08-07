@@ -36,17 +36,20 @@ public class VideoTemplateImageService {
     private final ImageProvider imageProvider;
     private final AuthService authService;
     private final StorageService storageService;
+    private final SwapPromptComposer promptComposer;
 
     public VideoTemplateImageService(ImageGenerationRepository repository,
                                      GenerationLimitService limitService,
                                      ImageProvider imageProvider,
                                      AuthService authService,
-                                     StorageService storageService) {
+                                     StorageService storageService,
+                                     SwapPromptComposer promptComposer) {
         this.repository = repository;
         this.limitService = limitService;
         this.imageProvider = imageProvider;
         this.authService = authService;
         this.storageService = storageService;
+        this.promptComposer = promptComposer;
     }
 
     /** Sobe o frame capturado no cliente (canvas) para servir de referência aos swaps. */
@@ -65,7 +68,7 @@ public class VideoTemplateImageService {
         config.put("avatarImageUrl", req.avatarImageUrl());
 
         // Ordem das referências: image 1 = frame (cena/pose), image 2 = avatar (pessoa).
-        return runAndPersist(user, SwapPromptTemplates.PERSON, config,
+        return runAndPersist(user, SwapPromptComposer.PERSON, config,
                 req.frameUrl(), req.avatarImageUrl());
     }
 
@@ -75,15 +78,33 @@ public class VideoTemplateImageService {
 
         ClothSwapMode mode = ClothSwapMode.fromValue(req.mode());
 
+        boolean hasAvatar = org.springframework.util.StringUtils.hasText(req.avatarImageUrl());
+
         Map<String, Object> config = new LinkedHashMap<>();
         config.put("op", "swap-clothes");
         config.put("mode", mode.name());
         config.put("baseImageUrl", req.baseImageUrl());
         config.put("productImageUrl", req.productImageUrl());
+        if (org.springframework.util.StringUtils.hasText(req.productName())) {
+            config.put("productName", req.productName());
+        }
+        if (org.springframework.util.StringUtils.hasText(req.productDescription())) {
+            config.put("productDescription", req.productDescription());
+        }
+        if (hasAvatar) {
+            config.put("avatarImageUrl", req.avatarImageUrl());
+        }
 
-        // Ordem das referências: image 1 = pessoa (base), image 2 = produto.
-        return runAndPersist(user, SwapPromptTemplates.clothes(mode), config,
-                req.baseImageUrl(), req.productImageUrl());
+        String prompt = promptComposer.buildClothesPrompt(mode, req.productName(), req.productDescription(), hasAvatar);
+
+        // Ordem das referências: image 1 = pessoa (base), image 2 = produto. (Opcional image 3 = avatar)
+        if (hasAvatar) {
+            return runAndPersist(user, prompt, config,
+                    req.baseImageUrl(), req.productImageUrl(), req.avatarImageUrl());
+        } else {
+            return runAndPersist(user, prompt, config,
+                    req.baseImageUrl(), req.productImageUrl());
+        }
     }
 
     private ImageGeneration runAndPersist(User user, String prompt,

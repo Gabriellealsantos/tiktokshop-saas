@@ -10,7 +10,9 @@ public enum ClothSwapMode {
     /** Troca apenas a peça indicada, mantendo o restante do look. */
     SUBSTITUIR,
     /** Acrescenta a peça de referência ao look atual. */
-    ADICIONAR;
+    ADICIONAR,
+    /** Mantém a roupa e coloca o objeto na mão ou próximo à pessoa. */
+    SEGURAR_OBJETO;
 
     public static ClothSwapMode fromValue(String value) {
         if (value == null) {

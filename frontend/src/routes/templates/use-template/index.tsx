@@ -41,6 +41,7 @@ export default function TemplateAssemblyScreen() {
   const slug = searchParams.get("slug") ?? undefined;
   const videoUrl = searchParams.get("video") ?? undefined;
   const productId = searchParams.get("productId") ?? undefined;
+  const thumbnailUrl = searchParams.get("thumbnail") ?? undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -80,6 +81,7 @@ export default function TemplateAssemblyScreen() {
 
     let cancelled = false;
     const capture = async () => {
+      if (thumbnailUrl) return; // Se já tem thumbnail, não precisa capturar do vídeo para preview/swap
       try {
         const blob = await captureVideoFrame(video);
         if (cancelled) return;
@@ -158,8 +160,8 @@ export default function TemplateAssemblyScreen() {
     },
   });
 
-  // Imagem exibida no "Print do vídeo": resultado da roupa > resultado da pessoa > frame cru capturado ao carregar.
-  const printSrc = finalImageUrl ?? personResultUrl ?? rawFramePreview;
+  // Imagem exibida no "Print do vídeo": resultado da roupa > resultado da pessoa > thumbnail > frame cru capturado ao carregar.
+  const printSrc = finalImageUrl ?? personResultUrl ?? thumbnailUrl ?? rawFramePreview;
 
   // ── Mutations ───────────────────────────────────────────────────────────────
 
@@ -168,11 +170,17 @@ export default function TemplateAssemblyScreen() {
     mutationFn: async () => {
       if (!videoRef.current) throw new Error("Vídeo não está pronto.");
       if (!avatarSelecionado) throw new Error("Selecione um avatar primeiro.");
-      // Reaproveita o frame já capturado ao carregar a tela (mesmo que o usuário vê no preview);
-      // só recaptura se por algum motivo isso ainda não rodou.
-      const blob = frameBlobRef.current ?? await captureVideoFrame(videoRef.current);
-      const frameRes = await uploadTemplateFrame(blob);
-      const frameUrl = (frameRes.data as { url: string }).url;
+      
+      let frameUrl = thumbnailUrl;
+      
+      if (!frameUrl) {
+        // Reaproveita o frame já capturado ao carregar a tela (mesmo que o usuário vê no preview);
+        // só recaptura se por algum motivo isso ainda não rodou.
+        const blob = frameBlobRef.current ?? await captureVideoFrame(videoRef.current);
+        const frameRes = await uploadTemplateFrame(blob);
+        frameUrl = (frameRes.data as { url: string }).url;
+      }
+
       // Garante que o avatar seja uma URL hospedada (assets locais/data URLs não servem ao Gemini).
       const avatarImageUrl = await resolveHostedAvatarUrl();
       const res = await swapPerson({ frameUrl, avatarImageUrl });
@@ -195,7 +203,15 @@ export default function TemplateAssemblyScreen() {
     mutationFn: async (mode: ClothSwapMode) => {
       if (!personResultUrl) throw new Error("Faça a troca de pessoa antes.");
       if (!produto?.image) throw new Error("Selecione um produto com imagem.");
-      const res = await swapClothes({ baseImageUrl: personResultUrl, productImageUrl: produto.image, mode });
+      const avatarImageUrl = await resolveHostedAvatarUrl();
+      const res = await swapClothes({ 
+        baseImageUrl: personResultUrl, 
+        productImageUrl: produto.image, 
+        mode,
+        productName: produto.name,
+        productDescription: produto.description,
+        avatarImageUrl
+      });
       const gen = res.data as ImageGenerationResult;
       if (gen.status === "FAILED" || !gen.imageUrl) throw new Error(gen.error ?? "Falha ao aplicar a roupa.");
       return gen.imageUrl;

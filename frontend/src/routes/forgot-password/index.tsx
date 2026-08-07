@@ -4,6 +4,7 @@ import { BrandMark } from "@/components";
 import { AuthLayout } from "@/layouts/auth-layout";
 import { useDocumentTitle } from "@/utils/use-document-title";
 import { BASE_URL } from "@/utils/system";
+import { requestBackend } from "@/utils/requests";
 import { ForgotPasswordForm } from "./components/forgot-password-form";
 import type { ForgotPasswordFormValues } from "./components/forgot-password-form";
 
@@ -15,9 +16,11 @@ export default function ForgotPasswordRoute() {
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     setSubmitting(true);
     try {
-      // Como solicitado na instrução: preservar a lógica existente ou 
-      // manter um comportamento base sem inventar chamadas novas.
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await requestBackend({
+        method: "POST",
+        url: "/auth/recover-token",
+        data: { email: data.email },
+      });
       setSuccess(true);
       toast.success("Link de recuperação enviado para " + data.email);
     } catch (error) {

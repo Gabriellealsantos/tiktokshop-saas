@@ -48,7 +48,6 @@ export * from "./skeleton";
 export * from "./slider";
 export * from "./sonner";
 export * from "./stepper";
-export * from "./studio-components";
 export * from "./switch";
 export * from "./table";
 export * from "./tabs";

@@ -6,6 +6,7 @@ import IndexRoute from "@/routes/home";
 import LoginRoute from "@/routes/login";
 import RegisterRoute from "@/routes/register";
 import ForgotPasswordRoute from "@/routes/forgot-password";
+import RecoverPasswordRoute from "@/routes/recover-password";
 import AuthorizedRoute from "@/routes/authorized";
 import AccessPendingRoute from "@/routes/access-pending";
 import DashboardRoute from "@/routes/dashboard";
@@ -19,8 +20,7 @@ import ProfileScreen from "@/routes/profile";
 import PromptsScreen from "@/routes/prompts";
 import ReferralScreen from "@/routes/referral";
 import SettingsScreen from "@/routes/settings";
-import StudioLanding from "@/routes/studio";
-import StudioRoute from "@/routes/studio/creation-wizard";
+
 import TemplatesScreen from "@/routes/templates";
 import TemplateAssemblyScreen from "@/routes/templates/use-template";
 import ToolsScreen from "@/routes/tools";
@@ -40,6 +40,7 @@ function App() {
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/register" element={<RegisterRoute />} />
         <Route path="/forgot-password" element={<ForgotPasswordRoute />} />
+        <Route path="/recover-password/:token" element={<RecoverPasswordRoute />} />
         <Route path="/authorized" element={<AuthorizedRoute />} />
         <Route path="/acesso-pendente" element={<AccessPendingRoute />} />
 
@@ -59,8 +60,7 @@ function App() {
           <Route path="/prompts" element={<PromptsScreen />} />
           <Route path="/referral" element={<ReferralScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
-          <Route path="/studio" element={<StudioLanding />} />
-          <Route path="/studio/:format" element={<StudioRoute />} />
+
           <Route path="/templates" element={<TemplatesScreen />} />
           <Route path="/templates/use" element={<TemplateAssemblyScreen />} />
           <Route path="/tools" element={<ToolsScreen />} />

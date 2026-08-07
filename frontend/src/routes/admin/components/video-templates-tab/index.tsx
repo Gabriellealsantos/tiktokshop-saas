@@ -225,7 +225,7 @@ export function VideoTemplatesTab() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs text-zinc-400">Thumbnail</Label>
-                <ImageUpload value={form.thumbnailUrl} folder="video-templates" onChange={(url) => setForm((p) => ({ ...p, thumbnailUrl: url }))} />
+                <ImageUpload value={form.thumbnailUrl} fallbackVideoUrl={form.videoUrl} folder="video-templates" onChange={(url) => setForm((p) => ({ ...p, thumbnailUrl: url }))} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs text-zinc-400">Vídeo *</Label>

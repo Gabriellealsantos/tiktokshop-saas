@@ -5,6 +5,7 @@ import { cn } from "@/utils/utils";
 import { AnimatePresence, motion } from "motion/react";
 import type { Product } from "@/models/product";
 import type { ClothSwapMode } from "@/models/videoTemplate";
+import { useEffect } from "react";
 
 interface ClothSwapPanelProps {
   isBlocked?: boolean;
@@ -23,22 +24,50 @@ export function ClothSwapPanel({
   onManterLook,
   loading,
 }: ClothSwapPanelProps) {
+  const [productType, setProductType] = useState<"roupa" | "objeto">("roupa");
   const [activeTab, setActiveTab] = useState<ClothSwapMode>("completo");
   const [imgError, setImgError] = useState(false);
 
-  const OPCOES: { value: ClothSwapMode; label: string }[] = [
+  // Auto-detect product type based on category
+  useEffect(() => {
+    if (produto) {
+      const isObject =
+        produto.categorySlug === "beleza-cuidados" ||
+        produto.categorySlug === "tecnologia" ||
+        produto.categorySlug === "casa-decoracao" ||
+        produto.categorySlug === "acessorios";
+      
+      const newType = isObject ? "objeto" : "roupa";
+      setProductType(newType);
+      
+      // Auto-select tab
+      if (newType === "objeto") {
+        setActiveTab("segurar_objeto");
+      } else if (activeTab === "segurar_objeto") {
+        setActiveTab("completo");
+      }
+    }
+  }, [produto]);
+
+  const ROUPA_OPCOES: { value: ClothSwapMode; label: string }[] = [
     { value: "completo", label: "Look completo" },
     { value: "substituir", label: "Substituir peça" },
     { value: "adicionar", label: "Adicionar peça" },
   ];
 
+  const OBJETO_OPCOES: { value: ClothSwapMode; label: string }[] = [
+    { value: "segurar_objeto", label: "Segurar na mão" },
+  ];
+
+  const OPCOES = productType === "roupa" ? ROUPA_OPCOES : OBJETO_OPCOES;
+
   return (
     <div className="flex flex-col gap-3">
       <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase pl-1 drop-shadow-sm">
-        Etapa 3 &middot; Troca de roupa
+        Etapa 3 &middot; Aplicar Produto
       </span>
       <span className="text-xs text-white/50 pl-1 mb-1">
-        Substitua, adicione ou mantenha o look.
+        Insira o produto no vídeo ou mantenha o visual.
       </span>
 
       <div
@@ -73,6 +102,39 @@ export function ClothSwapPanel({
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="flex flex-col"
             >
+              {/* Product Type Toggle */}
+              <div className="flex gap-2 mb-4 bg-white/[0.03] p-1 rounded-xl border border-white/5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProductType("roupa");
+                    setActiveTab("completo");
+                  }}
+                  className={cn(
+                    "flex-1 h-8 rounded-lg text-xs font-semibold transition-all",
+                    productType === "roupa"
+                      ? "bg-white/10 text-white shadow-sm"
+                      : "text-white/40 hover:text-white/70"
+                  )}
+                >
+                  É uma Roupa
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProductType("objeto");
+                    setActiveTab("segurar_objeto");
+                  }}
+                  className={cn(
+                    "flex-1 h-8 rounded-lg text-xs font-semibold transition-all",
+                    productType === "objeto"
+                      ? "bg-white/10 text-white shadow-sm"
+                      : "text-white/40 hover:text-white/70"
+                  )}
+                >
+                  É um Objeto
+                </button>
+              </div>
               {/* Segmented Control */}
               <div className="grid w-full grid-cols-2 gap-2 rounded-xl bg-white/[0.04] p-2 ring-1 ring-white/10 mb-6">
                 {OPCOES.map((opcao, index) => {
@@ -106,6 +168,8 @@ export function ClothSwapPanel({
                     "Troca apenas a peça indicada, mantendo o restante do look."}
                   {activeTab === "adicionar" &&
                     "Acrescenta a peça de referência ao look atual."}
+                  {activeTab === "segurar_objeto" &&
+                    "A pessoa segurará o produto na mão, sem mudar de roupa."}
                 </p>
               </div>
 

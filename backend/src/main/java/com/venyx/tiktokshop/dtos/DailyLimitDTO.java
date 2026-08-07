@@ -12,12 +12,12 @@ public record DailyLimitDTO(
         FlowType flowType,
 
         @NotNull(message = "Limite diário é obrigatório")
-        @Min(value = 0, message = "Limite diário não pode ser negativo")
+        @Min(value = -1, message = "Limite diário não pode ser menor que -1")
         @Max(value = 100, message = "Limite diário não pode passar de 100")
         Integer maxPerDay,
 
         @NotNull(message = "Limite de correções é obrigatório")
-        @Min(value = 0, message = "Limite de correções não pode ser negativo")
+        @Min(value = -1, message = "Limite de correções não pode ser menor que -1")
         @Max(value = 20, message = "Limite de correções não pode passar de 20")
         Integer maxRegenerations,
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Loader2, RefreshCw, Save, Zap } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button, Input, Label } from "@/components";
+import { Button, Input, Label, Switch } from "@/components";
 import { errMessage } from "@/routes/admin/components/viral-tab/components/image-upload";
 import { listDailyLimits, updateDailyLimit } from "@/services/dailyLimitService";
 import {
@@ -19,6 +19,7 @@ const labelFor = (flow: FlowType) => flowTypeLabels[flow] ?? flow;
 
 /** Máscara de inteiro: só dígitos, sem zero à esquerda, teto = max. "" é permitido. */
 const maskInt = (raw: string, max: number) => {
+  if (raw === "-1") return "-1";
   const digits = raw.replace(/\D/g, "");
   if (digits === "") return "";
   return String(Math.min(Number(digits), max));
@@ -35,6 +36,8 @@ export function LimitsTab() {
     try {
       const res = await listDailyLimits();
       const list = (res.data ?? []) as DailyLimit[];
+      // Sort alphabetically so cards don't shuffle when updated (PostgreSQL might return in different order)
+      list.sort((a, b) => a.flowType.localeCompare(b.flowType));
       setItems(list);
       setDrafts(
         Object.fromEntries(
@@ -57,9 +60,15 @@ export function LimitsTab() {
     max: number,
   ) => {
     const masked = maskInt(e.target.value, max);
-    // Corrige o DOM quando o React não re-renderiza (ex.: "010" -> "10" com mesmo valor).
-    if (e.target.value !== masked) e.target.value = masked;
+    if (e.target.value !== masked && masked !== "-1") e.target.value = masked;
     setDrafts((prev) => ({ ...prev, [flow]: { ...prev[flow], [field]: masked } }));
+  };
+
+  const toggleUnlimited = (flow: string, field: keyof Draft) => {
+    setDrafts((prev) => {
+      const current = prev[flow][field];
+      return { ...prev, [flow]: { ...prev[flow], [field]: current === "-1" ? "0" : "-1" } };
+    });
   };
 
   const isDirty = (item: DailyLimit) => {
@@ -124,25 +133,39 @@ export function LimitsTab() {
 
                 <div className="relative z-10 grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-zinc-400">Gerações/dia</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-zinc-400">Gerações/dia</Label>
+                      <div className="flex items-center gap-1.5">
+                        <Label className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 cursor-pointer" onClick={() => toggleUnlimited(item.flowType, "maxPerDay")}>Ilimitado</Label>
+                        <Switch checked={d.maxPerDay === "-1"} onCheckedChange={() => toggleUnlimited(item.flowType, "maxPerDay")} className="scale-75 origin-right" />
+                      </div>
+                    </div>
                     <Input
                       type="text"
                       inputMode="numeric"
-                      value={d.maxPerDay}
+                      value={d.maxPerDay === "-1" ? "∞" : d.maxPerDay}
                       onChange={(e) => handleChange(item.flowType, "maxPerDay", e, LIMIT_BOUNDS.maxPerDay.max)}
+                      disabled={d.maxPerDay === "-1"}
                       placeholder="0"
-                      className="h-9 bg-black/40 border-white/10 text-sm tabular-nums"
+                      className="h-9 bg-black/40 border-white/10 text-sm tabular-nums disabled:opacity-50 disabled:text-brand-400"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-zinc-400">Correções/dia</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-zinc-400">Correções/dia</Label>
+                      <div className="flex items-center gap-1.5">
+                        <Label className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 cursor-pointer" onClick={() => toggleUnlimited(item.flowType, "maxRegenerations")}>Ilimitado</Label>
+                        <Switch checked={d.maxRegenerations === "-1"} onCheckedChange={() => toggleUnlimited(item.flowType, "maxRegenerations")} className="scale-75 origin-right" />
+                      </div>
+                    </div>
                     <Input
                       type="text"
                       inputMode="numeric"
-                      value={d.maxRegenerations}
+                      value={d.maxRegenerations === "-1" ? "∞" : d.maxRegenerations}
                       onChange={(e) => handleChange(item.flowType, "maxRegenerations", e, LIMIT_BOUNDS.maxRegenerations.max)}
+                      disabled={d.maxRegenerations === "-1"}
                       placeholder="0"
-                      className="h-9 bg-black/40 border-white/10 text-sm tabular-nums"
+                      className="h-9 bg-black/40 border-white/10 text-sm tabular-nums disabled:opacity-50 disabled:text-brand-400"
                     />
                   </div>
                 </div>

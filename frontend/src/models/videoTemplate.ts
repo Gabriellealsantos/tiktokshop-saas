@@ -14,7 +14,7 @@ export interface VideoTemplateSummary {
 }
 
 /** Modo de troca de roupa (casa com o backend ClothSwapMode). */
-export type ClothSwapMode = "completo" | "substituir" | "adicionar";
+export type ClothSwapMode = "completo" | "substituir" | "adicionar" | "segurar_objeto";
 
 /** Camada de áudio/fala do prompt gerado (casa com o backend VideoAudioMode). */
 export type VideoAudioMode = "NARRACAO" | "MUSICA" | "SILENCIO";
@@ -30,6 +30,9 @@ export interface SwapClothesRequest {
   baseImageUrl: string;
   productImageUrl: string;
   mode: ClothSwapMode;
+  productName?: string;
+  productDescription?: string;
+  avatarImageUrl?: string;
 }
 
 /** Resposta dos swaps — ImageGenerationDTO (aqui `imageUrl` traz a imagem gerada). */

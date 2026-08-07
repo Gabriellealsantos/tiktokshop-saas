@@ -12,6 +12,7 @@ export const errMessage = (e: unknown, fallback: string): string =>
 
 interface ImageUploadProps {
   value: string | null | undefined;
+  fallbackVideoUrl?: string;
   /** Pasta de destino no storage (ex.: "viral/templates"). */
   folder: string;
   onChange: (url: string) => void;
@@ -22,7 +23,7 @@ interface ImageUploadProps {
  * Campo de upload de imagem: sobe pro storage (POST /api/admin/storage/upload)
  * e devolve a URL pública. Reaproveita o mesmo mecanismo dos produtos/avatares.
  */
-export function ImageUpload({ value, folder, onChange, className }: ImageUploadProps) {
+export function ImageUpload({ value, fallbackVideoUrl, folder, onChange, className }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -42,8 +43,8 @@ export function ImageUpload({ value, folder, onChange, className }: ImageUploadP
   return (
     <div
       className={cn(
-        "relative w-full h-40 rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-colors overflow-hidden",
-        value ? "border-transparent bg-surface-2" : "border-white/10 bg-black/20 hover:border-brand-500/50",
+        "relative w-full h-40 rounded-xl border-2 flex flex-col items-center justify-center transition-colors overflow-hidden",
+        (value || fallbackVideoUrl) ? "border-transparent bg-surface-2" : "border-dashed border-white/10 bg-black/20 hover:border-brand-500/50",
         !value && !uploading && "cursor-pointer",
         className,
       )}
@@ -84,6 +85,15 @@ export function ImageUpload({ value, folder, onChange, className }: ImageUploadP
             <X className="size-4" />
           </button>
         </>
+      ) : fallbackVideoUrl ? (
+        <div className="relative w-full h-full group">
+          <video src={fallbackVideoUrl + "#t=0.1"} className="w-full h-full object-cover pointer-events-none" preload="metadata" />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+            <p className="text-sm font-medium text-white flex items-center gap-1.5">
+              <Upload className="size-4" /> Alterar
+            </p>
+          </div>
+        </div>
       ) : (
         <div className="text-center p-4">
           <div className="size-10 rounded-full bg-brand-500/10 flex items-center justify-center mx-auto mb-2 text-brand-400">

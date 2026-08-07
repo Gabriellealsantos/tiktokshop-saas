@@ -21,7 +21,6 @@ export const PERIODS = [
   "15 dias",
   "Este mês",
   "30 dias",
-  "Personalizado",
 ];
 
 export function useDashboardData(canSeeRevenue: boolean, selectedPeriod: string) {

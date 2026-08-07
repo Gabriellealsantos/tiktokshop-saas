@@ -54,7 +54,7 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
             <Pill
               key={period}
               active={selectedPeriod === period}
-              onClick={() => period !== "Personalizado" && setSelectedPeriod(period)}
+              onClick={() => setSelectedPeriod(period)}
             >
               {period}
             </Pill>

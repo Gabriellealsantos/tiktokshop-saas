@@ -147,6 +147,11 @@ axios.interceptors.request.use(
 );
 
 // RESPONSE INTERCEPTOR — refresh automático em 401.
+// Fila de refresh: quando múltiplas requisições recebem 401 ao mesmo tempo
+// (ex: reload da página), apenas a primeira faz o refresh e as demais esperam
+// o resultado, evitando consumir um refresh_token já rotacionado.
+let refreshPromise: Promise<string> | null = null;
+
 axios.interceptors.response.use(
   (response) => response,
   async (error: unknown) => {
@@ -175,16 +180,33 @@ axios.interceptors.response.use(
 
         if (authData.refresh_token) {
           try {
-            const response = await requestRefresh(authData.refresh_token);
-            saveAuthData(response.data);
+            // Se já há um refresh em andamento, espera por ele em vez de
+            // disparar outro com o mesmo (já consumido) refresh_token.
+            if (!refreshPromise) {
+              refreshPromise = requestRefresh(authData.refresh_token)
+                .then((response) => {
+                  saveAuthData(response.data);
+                  return response.data.access_token as string;
+                })
+                .catch((refreshError) => {
+                  removeAuthData();
+                  history.replace("/login");
+                  throw refreshError;
+                })
+                .finally(() => {
+                  refreshPromise = null;
+                });
+            }
+
+            const newAccessToken = await refreshPromise;
             if (originalRequest.headers) {
               originalRequest.headers["Authorization"] =
-                "Bearer " + response.data.access_token;
+                "Bearer " + newAccessToken;
             }
             return axios.request(originalRequest);
           } catch {
-            removeAuthData();
-            history.replace("/login");
+            // Refresh falhou — já tratado acima (removeAuthData + redirect).
+            return Promise.reject(error);
           }
         } else {
           removeAuthData();
@@ -196,3 +218,4 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
