@@ -1,11 +1,14 @@
 package com.venyx.tiktokshop.config.websocket;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+import java.util.Arrays;
 
 /**
  * Broker STOMP em memória (uma instância). Se o backend escalar
@@ -16,6 +19,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${cors.origins}")
+    private String corsOrigins;
+
     private final WebSocketAuthChannelInterceptor authChannelInterceptor;
 
     public WebSocketConfig(WebSocketAuthChannelInterceptor authChannelInterceptor) {
@@ -24,8 +30,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        String[] origins = Arrays.stream(corsOrigins.split(","))
+                .map(String::trim)
+                .filter(o -> !o.isBlank())
+                .toArray(String[]::new);
+
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("https://nyvorai.com.br", "https://www.nyvorai.com.br")
+                .setAllowedOrigins(origins)
                 .withSockJS();
     }
 
