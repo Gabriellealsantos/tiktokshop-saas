@@ -16,6 +16,7 @@ import { TabRoupa } from "./components/tab-clothing";
 import { useGenerateAvatarFromPhoto } from "../../api/use-generate-avatar-from-photo";
 import { useSaveAvatar } from "../../api/use-save-avatar";
 import { useAvatarUsage } from "../../api/use-avatars";
+import { hasQuota, isUnlimited } from "@/utils/limit-display";
 import { toast } from "sonner";
 
 const TABS = [
@@ -29,7 +30,7 @@ export function PhotoCustomizationMode() {
   const generateAvatar = useGenerateAvatarFromPhoto();
   const saveAvatar = useSaveAvatar();
   const { data: usage } = useAvatarUsage();
-  const noQuota = usage ? usage.remaining <= 0 : false;
+  const noQuota = usage ? !hasQuota(usage.max, usage.remaining) : false;
 
   const form = useForm<AvatarPhotoFormValues>({
     resolver: zodResolver(avatarPhotoSchema),
@@ -137,9 +138,11 @@ export function PhotoCustomizationMode() {
 
         {usage && (
           <p className="text-xs text-text-3 px-1">
-            {noQuota
-              ? "Você atingiu o limite de gerações de hoje."
-              : `Restam ${usage.remaining} de ${usage.max} gerações hoje.`}
+            {isUnlimited(usage.max)
+              ? "Gerações ilimitadas."
+              : noQuota
+                ? "Você atingiu o limite de gerações de hoje."
+                : `Restam ${usage.remaining} de ${usage.max} gerações hoje.`}
           </p>
         )}
 

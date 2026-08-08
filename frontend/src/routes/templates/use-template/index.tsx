@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { AvatarLibraryModal } from "@/routes/create-avatar/components/avatar-library-modal";
 import { CropModal } from "./components/crop-modal";
+import { isUnlimited } from "@/utils/limit-display";
 
 import { captureVideoFrame } from "@/utils/captureFrame";
 import { downloadMedia } from "@/utils/download";
@@ -440,7 +441,7 @@ export default function TemplateAssemblyScreen() {
             {usage && (
               <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60">
                 <Gauge className="size-3.5 text-brand-400" />
-                {usage.remaining}/{usage.max} gerações hoje
+                {isUnlimited(usage.max) ? "∞ gerações hoje" : `${usage.remaining}/${usage.max} gerações hoje`}
               </div>
             )}
           </div>

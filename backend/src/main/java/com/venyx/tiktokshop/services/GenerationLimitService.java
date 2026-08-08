@@ -92,6 +92,10 @@ public class GenerationLimitService {
         int used = (int) generationRepository.countFinalsToday(userId, flowType.name(), dayStart(), dayEnd());
         int max = limit.getMaxPerDay();
 
+        if (max == -1) {
+            return new DailyUsageDTO(used, -1, -1);
+        }
+
         return new DailyUsageDTO(used, max, Math.max(0, max - used));
     }
 }

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Page } from "@/components";
 import { AppShell } from "@/layouts/app-shell";
 import { cn } from "@/utils/utils";
+import { isUnlimited } from "@/utils/limit-display";
 import {
   generateViralPrompt,
   generateViralScripts,
@@ -91,7 +92,7 @@ export default function RouteComponent() {
     onError: (err) => {
       if (axios.isAxiosError(err) && err.response?.status === 429) {
         toast.error(
-          `Você atingiu o limite diário${usage ? ` (${usage.max})` : ""} de prompts virais. Tente novamente amanhã.`
+          `Você atingiu o limite diário${usage && !isUnlimited(usage.max) ? ` (${usage.max})` : ""} de prompts virais. Tente novamente amanhã.`
         );
       } else {
         toast.error("Erro ao gerar o prompt. Tente novamente.");
@@ -194,8 +195,8 @@ export default function RouteComponent() {
                   className="hidden sm:inline-flex items-center gap-1.5 shrink-0 rounded-full border border-white/10 bg-deep px-3 py-1 text-xs font-semibold text-text-2"
                   title="Prompts virais gerados hoje"
                 >
-                  <Rocket className={cn("size-3.5", usage.remaining > 0 ? "text-brand-400" : "text-red-400")} />
-                  {usage.remaining}/{usage.max} restantes hoje
+                  <Rocket className={cn("size-3.5", isUnlimited(usage.max) || usage.remaining > 0 ? "text-brand-400" : "text-red-400")} />
+                  {isUnlimited(usage.max) ? "∞ restantes hoje" : `${usage.remaining}/${usage.max} restantes hoje`}
                 </div>
               )}
             </div>
