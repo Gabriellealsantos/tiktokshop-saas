@@ -24,14 +24,27 @@ public class SwapPromptComposer {
             — body type, build, and proportions (match the avatar's physique — slim, heavy, muscular, etc.)
             — height and overall physical frame
 
+            CRITICAL FULL-BODY SKIN RULE:
+            The skin on the ENTIRE body (hands, arms, neck, chest, legs — every visible area, NOT just the face)
+            MUST match image 2's skin exactly. This includes:
+            — Exact skin tone and color from image 2
+            — Age-appropriate skin texture: if image 2 shows an elderly person, the hands, arms, neck, and
+              all exposed skin MUST show wrinkles, age spots, visible veins, thin skin, and natural sagging
+              consistent with that age — do NOT leave young smooth skin on the body
+            — If image 2 shows a young person, the body skin must also look young and match that skin tone
+            — Visible pores, natural skin grain, and subtle imperfections matching image 2
+            The body and the face MUST look like they belong to the SAME person from image 2.
+            Do NOT swap only the face while keeping a different body skin.
+
             TATTOOS & SKIN MARKINGS RULE:
             — FIRST: Remove ALL tattoos, scars, birthmarks, and skin markings from the person in image 1. Start with completely clean skin.
             — THEN: If image 2 (the avatar) has any tattoos or skin markings, reproduce ONLY those exact tattoos with their exact designs and in the exact same body locations as shown on the avatar.
             — The result must show ONLY the avatar's tattoos. Never keep any tattoo from image 1.
 
-            Preserve photorealism and natural anatomy.
+            Preserve photorealism, natural anatomy, unretouched raw skin texture.
             Avoid: deformed or extra fingers and hands, warped faces, on-screen text, captions,
-            watermarks, logos, distorted anatomy, plastic AI look.
+            watermarks, logos, distorted anatomy, plastic AI look, smooth airbrushed skin,
+            beauty filter, over-smoothed skin, waxy skin, CGI look.
             """;
 
     // Use a default label if no product name is provided.
