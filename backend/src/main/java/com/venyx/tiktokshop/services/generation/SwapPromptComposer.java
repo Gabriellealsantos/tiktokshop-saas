@@ -12,9 +12,24 @@ public class SwapPromptComposer {
     /** image 1 = frame do vídeo (cena/pose base); image 2 = avatar (pessoa a inserir). */
     public static final String PERSON = """
             Replace the person in image 1 with the person shown in image 2.
-            Keep EXACTLY the same pose, body position, framing, camera angle, background,
-            clothing and lighting from image 1 — only the identity, face and skin of the person
-            must match image 2. Preserve photorealism and natural anatomy.
+
+            KEEP from image 1 (the original scene):
+            — pose, body position, framing, camera angle, background, and lighting
+            — clothing / outfit worn in the scene
+
+            COPY from image 2 (the avatar reference) onto the result:
+            — face, facial features, and skin tone
+            — hair style and hair color (ALWAYS match the avatar's hair exactly)
+            — apparent age (if image 2 shows an elderly person, the ENTIRE result MUST look elderly; if young, young)
+            — body type, build, and proportions (match the avatar's physique — slim, heavy, muscular, etc.)
+            — height and overall physical frame
+
+            TATTOOS & SKIN MARKINGS RULE:
+            — FIRST: Remove ALL tattoos, scars, birthmarks, and skin markings from the person in image 1. Start with completely clean skin.
+            — THEN: If image 2 (the avatar) has any tattoos or skin markings, reproduce ONLY those exact tattoos with their exact designs and in the exact same body locations as shown on the avatar.
+            — The result must show ONLY the avatar's tattoos. Never keep any tattoo from image 1.
+
+            Preserve photorealism and natural anatomy.
             Avoid: deformed or extra fingers and hands, warped faces, on-screen text, captions,
             watermarks, logos, distorted anatomy, plastic AI look.
             """;

@@ -78,7 +78,9 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
     setActioningId(user.id);
     try {
       let newStatus = user.status;
+      let statusUpdatedToActive = false;
 
+      // Handle subscription/plan logic
       if (plan !== user.plan || (user.status === "pendente" && plan !== "sem_plano")) {
         if (plan === "sem_plano") {
           await cancelSubscription(user.id);
@@ -88,15 +90,28 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
         }
       }
 
-      if (role !== user.role) {
+      // Se for admin, a aprovação é liberada sem exigir plano
+      if (role === "admin" && user.status === "pendente") {
+        newStatus = "aprovado";
+        statusUpdatedToActive = true;
+      }
+
+      // Atualiza os dados no backend caso tenha mudado a role OU caso precise ativar a conta do admin
+      if (role !== user.role || statusUpdatedToActive) {
          const roleIdMap: Record<UserRole, number> = { admin: 1, afiliado: 2, user: 3 };
          const roleNameMap: Record<UserRole, string> = { admin: "ROLE_ADMIN", afiliado: "ROLE_AFFILIATE", user: "ROLE_CLIENT" };
          
-         await updateUser(user.id, {
+         const payload: any = {
             name: user.name,
             email: user.email,
             roles: [{ id: roleIdMap[role], authority: roleNameMap[role] }],
-         });
+         };
+         
+         if (statusUpdatedToActive) {
+            payload.userStatus = "ACTIVE";
+         }
+         
+         await updateUser(user.id, payload);
       }
 
       setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, plan, role, status: newStatus } : u)));
