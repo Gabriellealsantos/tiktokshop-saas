@@ -3,6 +3,8 @@ import { Heart, ImageOff, ChevronRight, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/utils/utils";
 import type { Product } from "@/models/product";
+import { favoriteProduct, unfavoriteProduct } from "@/services/productService";
+import { useEffect } from "react";
 
 interface ProductMediaProps {
   product: Product;
@@ -11,6 +13,34 @@ interface ProductMediaProps {
 
 export function ProductMedia({ product }: ProductMediaProps) {
   const [imageError, setImageError] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(product.favorite);
+
+  useEffect(() => {
+    setIsFavorite(product.favorite);
+  }, [product.favorite]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const previousState = isFavorite;
+    setIsFavorite(!previousState);
+    product.favorite = !previousState; // optimistic mutation on the prop as well just in case
+    
+    try {
+      if (previousState) {
+        await unfavoriteProduct(product.id);
+        toast.success("Removido dos favoritos");
+      } else {
+        await favoriteProduct(product.id);
+        toast.success("Adicionado aos favoritos!");
+      }
+    } catch (error) {
+      setIsFavorite(previousState);
+      product.favorite = previousState;
+      toast.error("Erro ao atualizar favorito");
+    }
+  };
 
   return (
     <div className="relative flex flex-col w-full md:w-[44%] shrink-0 justify-between overflow-y-auto overflow-x-hidden p-6 md:p-7 gap-5">
@@ -47,20 +77,14 @@ export function ProductMedia({ product }: ProductMediaProps) {
         {/* Favorite Button -> Interactive Circular Jewel Button */}
         <button
           type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toast.success(
-              product.favorite ? "Removido dos favoritos" : "Adicionado aos favoritos!"
-            );
-          }}
+          onClick={handleToggleFavorite}
           className={cn(
             "absolute right-4 top-4 z-20 size-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.25)] hover:scale-110 hover:border-white/40 active:scale-95 cursor-pointer outline-none",
-            product.favorite ? "text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]" : "text-white/80 hover:text-white"
+            isFavorite ? "text-red-500 shadow-[0_0_20px_rgba(239,68,68,0.5)]" : "text-white/80 hover:text-white"
           )}
           aria-label="Favoritar produto"
         >
-          <Heart className="size-5 transition-transform duration-300 hover:scale-110" fill={product.favorite ? "currentColor" : "none"} />
+          <Heart className="size-5 transition-transform duration-300 hover:scale-110" fill={isFavorite ? "currentColor" : "none"} />
         </button>
 
         {/* Thumbnails ONLY if there are multiple images */}
