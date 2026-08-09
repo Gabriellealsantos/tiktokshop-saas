@@ -139,6 +139,7 @@ public class AuthorizationServerConfig {
                                                 "/css/**",
                                                 "/js/**",
                                                 "/images/**",
+                                                "/logo-Sfundo.webp",
                                                 "/logo-Sfundo.png",
                                                 "/favicon.svg")
                                 .permitAll()
