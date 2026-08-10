@@ -18,7 +18,7 @@ import {
 import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
-import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components";
+import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, ReferralModal } from "@/components";
 import { SignatureBackground } from "@/layouts/signature-background";
 import { NotificationsBell } from "@/layouts/notifications/notification-bell";
 import { useNotifications } from "@/layouts/notifications/store";
@@ -28,7 +28,7 @@ import { cn } from "@/utils/utils";
 const toolbar = [
   ["/", Home, "Início"],
   ["/products", Boxes, "Produtos"],
-  ["/create-avatar", User, "Avatares"],
+  ["/create-avatar", User, "Influencers"],
   ["/templates", Film, "Modelos"],
   ["/trend-boost", Rocket, "Trend AI"],
 ] as const;
@@ -49,6 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { isAdmin, user } = useAuth();
   const [isDark, setIsDark] = useState(true);
   const { latestSale } = useNotifications();
+  const [isReferralOpen, setIsReferralOpen] = useState(false);
   // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
   const [saleVisible, setSaleVisible] = useState(false);
   const saleId = latestSale?.id ?? null;
@@ -90,8 +91,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
-            <MotionLink
-              to="/referral"
+            <motion.button
+              onClick={() => setIsReferralOpen(true)}
               className="hidden sm:block"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -101,7 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Gift className="size-3.5 text-brand-400" />
                 Indique e Ganhe
               </div>
-            </MotionLink>
+            </motion.button>
 
             <NotificationsBell />
 
@@ -217,13 +218,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </nav>
 
                 <div className="mt-auto border-t border-white/10 px-4 py-4 flex flex-col gap-1">
-                  <Link
-                    to="/referral"
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
+                  <button
+                    onClick={() => setIsReferralOpen(true)}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors text-left"
                   >
                     <Gift className="size-4 text-brand-400" />
                     Indique e Ganhe
-                  </Link>
+                  </button>
                   <Link
                     to="/settings"
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors"
@@ -243,7 +244,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="glass-surface glass-surface--nav fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex h-14 -translate-x-1/2 items-center gap-3 sm:gap-4 rounded-2xl px-4 sm:px-5">
         <TooltipProvider delayDuration={100}>
           {toolbar.map(([to, Icon, label]) => {
-            const active = to === "/" ? path === "/" : path.startsWith(to);
+            const isRouteActive = to === "/" ? path === "/" : path.startsWith(to);
+            const active = isRouteActive && !isReferralOpen;
             return (
               <Tooltip key={to}>
                 <TooltipTrigger asChild>
@@ -277,6 +279,38 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Tooltip>
             );
           })}
+
+          {/* Botão de presente (Indique e ganhe) no menu inferior */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setIsReferralOpen(true)}
+                aria-label="Indique e Ganhe"
+                className="relative grid size-11 place-items-center rounded-full transition-colors hover:bg-white/5"
+              >
+                {isReferralOpen && (
+                  <motion.div
+                    layoutId="dock-indicator"
+                    className="absolute inset-0 rounded-full btn-brand"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
+                  />
+                )}
+                <Gift
+                  className={cn(
+                    "relative z-10 size-5 transition-colors duration-300",
+                    isReferralOpen ? "text-white" : "text-zinc-400",
+                  )}
+                />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              sideOffset={12}
+              className="border border-white/10 bg-zinc-900 text-xs text-white"
+            >
+              <p>Indique e Ganhe</p>
+            </TooltipContent>
+          </Tooltip>
         </TooltipProvider>
       </nav>
 
@@ -310,6 +344,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </motion.div>
         )}
       </AnimatePresence>
+      <ReferralModal open={isReferralOpen} onOpenChange={setIsReferralOpen} />
     </div>
   );
 }

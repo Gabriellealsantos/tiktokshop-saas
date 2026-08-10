@@ -146,8 +146,8 @@ export function InsightsTab() {
             <div
               key={item.id}
               className={cn(
-                "relative overflow-hidden flex items-center gap-4 rounded-2xl border p-4 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] transition-all duration-200 before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent",
-                item.active ? "border-dash-border bg-dash-surface hover:bg-dash-surface-hover hover:border-dash-border-hover" : "border-dash-border/40 bg-dash-surface/40 opacity-60",
+                "glass-premium-purple relative overflow-hidden flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 shadow-lg",
+                item.active ? "border-white/10 hover:border-white/20" : "border-white/5 opacity-60",
               )}
             >
               <div className="relative z-10 flex-1 min-w-0">

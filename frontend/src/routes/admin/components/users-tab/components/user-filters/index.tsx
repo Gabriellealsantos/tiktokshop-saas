@@ -30,22 +30,22 @@ export function UserFilters({
     <div className="flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
             placeholder="Buscar por email ou nome..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="h-11 w-full rounded-[12px] border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-500 focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 outline-none transition-all"
+            className="h-12 w-full rounded-2xl border border-white/10 glass-premium-purple pl-10 pr-4 text-sm text-white placeholder:text-zinc-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all shadow-lg"
           />
         </div>
 
         <div className="flex flex-wrap sm:flex-nowrap gap-3 shrink-0">
           <Select value={roleFilter} onValueChange={(val: string) => onRoleFilterChange(val as UserRole | "todas")}>
-            <SelectTrigger className="w-full sm:w-[160px] h-11 bg-white/5 border-white/10 text-sm">
+            <SelectTrigger className="w-full sm:w-[160px] h-12 rounded-2xl glass-premium-purple border-white/10 text-sm shadow-lg text-white">
               <SelectValue placeholder="Roles" />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
+            <SelectContent className="bg-zinc-950/90 backdrop-blur-xl border-white/10 text-zinc-300 rounded-xl shadow-2xl">
               <SelectItem value="todas">Todas Roles</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
               <SelectItem value="afiliado">Afiliado</SelectItem>
@@ -54,10 +54,10 @@ export function UserFilters({
           </Select>
 
           <Select value={planFilter} onValueChange={(val: string) => onPlanFilterChange(val as UserPlan | "todos")}>
-            <SelectTrigger className="w-full sm:w-[160px] h-11 bg-white/5 border-white/10 text-sm">
+            <SelectTrigger className="w-full sm:w-[160px] h-12 rounded-2xl glass-premium-purple border-white/10 text-sm shadow-lg text-white">
               <SelectValue placeholder="Planos" />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
+            <SelectContent className="bg-zinc-950/90 backdrop-blur-xl border-white/10 text-zinc-300 rounded-xl shadow-2xl">
               <SelectItem value="todos">Todos Planos</SelectItem>
               <SelectItem value="mensal">Mensal</SelectItem>
               <SelectItem value="trimestral">Trimestral</SelectItem>
@@ -69,7 +69,7 @@ export function UserFilters({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center rounded-2xl glass-premium-purple border border-white/10 p-2 shadow-lg">
         <Pill active={statusFilter === "todos"} onClick={() => onStatusFilterChange("todos")}>
           Todos <span className="ml-1.5 opacity-50">{statusCounts.total}</span>
         </Pill>

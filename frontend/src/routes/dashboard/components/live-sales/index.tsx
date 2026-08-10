@@ -28,7 +28,7 @@ export function LiveSales({ sales = [], total = 0 }: LiveSalesProps) {
   }, [total]);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl p-5 bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 border border-dash-border shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] duration-200 before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+    <div className="relative overflow-hidden rounded-2xl p-5 bg-[#1c1b26]/20 backdrop-blur-md border border-white/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.25),0_8px_20px_-10px_rgba(0,0,0,0.5)] duration-200">
       <div className="relative z-10">
         <div className="inline-flex items-center gap-2 rounded-full border border-danger/20 bg-danger/10 px-3 py-1.5 text-xs font-medium text-danger transition-all">
           <motion.span

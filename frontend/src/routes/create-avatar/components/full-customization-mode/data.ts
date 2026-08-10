@@ -1,10 +1,10 @@
 export const TABS = [
-  { id: 1, label: "Identidade" },
-  { id: 2, label: "Corpo" },
-  { id: 3, label: "Rosto" },
+  { id: 1, label: "Características" },
+  { id: 2, label: "Silhueta" },
+  { id: 3, label: "Fisionomia" },
   { id: 4, label: "Cabelo" },
-  { id: 5, label: "Estilo" },
-  { id: 6, label: "Renderização" },
+  { id: 5, label: "Estética" },
+  { id: 6, label: "Geração" },
 ];
 
 export const generoOptions = [

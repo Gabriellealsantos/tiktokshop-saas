@@ -120,7 +120,7 @@ export function LimitsTab() {
             const d = drafts[item.flowType] ?? { maxPerDay: String(item.maxPerDay), maxRegenerations: String(item.maxRegenerations) };
             const saving = savingType === item.flowType;
             return (
-              <div key={item.flowType} className="relative overflow-hidden flex flex-col gap-4 rounded-2xl border border-dash-border bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] p-4 transition-all duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+              <div key={item.flowType} className="glass-premium-purple relative overflow-hidden flex flex-col gap-4 rounded-2xl border border-white/10 p-4 transition-all duration-200 hover:border-white/20 shadow-lg">
                 <div className="relative z-10 flex items-center gap-2">
                   <span className="flex size-8 items-center justify-center rounded-full bg-brand-500/10 text-brand-400 shrink-0">
                     <Zap className="size-4" />

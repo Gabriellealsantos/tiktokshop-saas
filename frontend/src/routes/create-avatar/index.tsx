@@ -23,8 +23,8 @@ export default function AvatarStudio() {
       <Page>
         <PageHeader
           eyebrow="Influencers"
-          title="Crie seu avatar de IA"
-          description="Personalize cada detalhe — aparência, estilo e personalidade. O avatar será usado em suas gerações de imagem e vídeo."
+          title="Crie seu Influencer de IA"
+          description="Personalize cada detalhe — aparência, estilo e personalidade. O influencer será usado em suas gerações de imagem e vídeo."
           actions={
             <div className="flex flex-col sm:flex-row gap-3">
               <AvatarLibraryModal>

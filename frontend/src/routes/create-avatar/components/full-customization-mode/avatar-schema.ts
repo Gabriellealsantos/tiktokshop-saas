@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const avatarSchema = z.object({
-    nome: z.string().min(1, "O nome do avatar é obrigatório."),
+    nome: z.string().min(1, "O nome do influencer é obrigatório."),
     genero: z.enum(["Feminino", "Masculino", "Andrógino", "Não-binário"], {
         required_error: "Selecione o gênero.",
     }),

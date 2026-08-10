@@ -48,7 +48,7 @@ export function RegisterForm({
           <Input
             {...form.register("name")}
             placeholder="Seu nome"
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
+            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 text-white focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
           />
         </div>
         {form.formState.errors.name && (
@@ -65,7 +65,7 @@ export function RegisterForm({
             {...form.register("email")}
             type="email"
             placeholder="voce@exemplo.com"
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
+            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 text-white focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
           />
         </div>
         {form.formState.errors.email && (
@@ -82,7 +82,7 @@ export function RegisterForm({
             {...form.register("password")}
             type={showPassword ? "text" : "password"}
             placeholder="Senha"
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-10 focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
+            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-10 text-white focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
           />
           <button
             type="button"
@@ -106,7 +106,7 @@ export function RegisterForm({
             {...form.register("confirmPassword")}
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirmar senha"
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-10 focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
+            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-10 text-white focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
           />
           <button
             type="button"
@@ -132,7 +132,7 @@ export function RegisterForm({
         whileTap={submitting ? undefined : { scale: 0.98 }}
         type="submit"
         disabled={submitting}
-        className="relative mt-6 flex h-12 w-full items-center justify-center rounded-[11px] gradient-brand luminous-glow text-sm font-bold text-white/90 drop-shadow-sm transition-all hover:luminous-glow-hover hover:brightness-110 disabled:opacity-60"
+        className="relative mt-6 flex h-12 w-full items-center justify-center rounded-full gradient-brand luminous-glow text-sm font-bold text-white/90 drop-shadow-sm transition-all hover:luminous-glow-hover hover:brightness-110 disabled:opacity-60"
       >
         {submitting ? "Criando…" : "Criar conta"}
       </motion.button>

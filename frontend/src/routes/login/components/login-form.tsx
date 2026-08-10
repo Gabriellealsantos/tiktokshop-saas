@@ -42,7 +42,7 @@ export function LoginForm() {
             {...form.register("email")}
             type="email"
             placeholder="voce@exemplo.com"
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
+            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 text-white focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
           />
         </div>
         {form.formState.errors.email && (
@@ -59,7 +59,7 @@ export function LoginForm() {
             {...form.register("password")}
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
-            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-10 focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
+            className="h-12 w-full rounded-xl border border-white/10 bg-white/5 px-10 text-white focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500"
           />
           <button
             type="button"
@@ -79,7 +79,7 @@ export function LoginForm() {
           )}
           <Link
             to="/forgot-password"
-            className="text-[11px] font-medium text-[var(--brand-purple)] hover:underline"
+            className="text-[11px] font-medium text-white hover:underline"
           >
             Esqueci minha senha
           </Link>
@@ -90,7 +90,7 @@ export function LoginForm() {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         type="submit"
-        className="relative mt-6 flex h-12 w-full items-center justify-center rounded-[11px] gradient-brand luminous-glow text-sm font-bold text-white/90 drop-shadow-sm transition-all hover:luminous-glow-hover hover:brightness-110"
+        className="relative mt-6 flex h-12 w-full items-center justify-center rounded-full gradient-brand luminous-glow text-sm font-bold text-white/90 drop-shadow-sm transition-all hover:luminous-glow-hover hover:brightness-110"
       >
         Entrar
       </motion.button>

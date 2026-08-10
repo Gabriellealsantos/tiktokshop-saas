@@ -12,9 +12,9 @@ import { cn } from "@/utils/utils";
 
 // Campos efetivamente lidos pelo getSummary. avgTicket fica de fora: o back o recalcula.
 const FIELDS = [
-  { key: "revenue", label: "Faturamento (R$)", step: "0.01" },
+  { key: "revenue", label: "GMV (R$)", step: "0.01" },
   { key: "orders", label: "Pedidos", step: "1" },
-  { key: "commission", label: "Comissão (R$)", step: "0.01" },
+  { key: "commission", label: "Comissão estimada (R$)", step: "0.01" },
   { key: "itemsSold", label: "Itens vendidos", step: "1" },
   { key: "commissionBase", label: "Base de comissão (R$)", step: "0.01" },
   { key: "productViews", label: "Visualizações", step: "1" },
@@ -138,7 +138,7 @@ export function MetricsTab() {
           const f = forms[period.periodRef] ?? EMPTY_SLOT;
           const busy = savingRef === period.periodRef;
           return (
-            <div key={period.periodRef} className="relative overflow-hidden rounded-2xl border border-dash-border bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] p-5 transition-all duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent">
+            <div key={period.periodRef} className="glass-premium-purple relative overflow-hidden rounded-2xl border border-white/10 p-5 transition-all duration-200 hover:border-white/20 shadow-lg">
               <div className="relative z-10 flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-bold text-white">{period.label}</h3>

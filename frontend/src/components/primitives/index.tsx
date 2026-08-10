@@ -104,7 +104,7 @@ const metricCardVariants = cva("transition-all", {
   variants: {
     surface: {
       default: "glass-surface is-data p-5 hover:border-white/10",
-      elevated: "relative overflow-hidden rounded-2xl p-5 min-h-[140px] flex flex-col justify-between bg-dash-surface backdrop-blur-2xl backdrop-saturate-150 border border-dash-border shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] duration-200 hover:bg-dash-surface-hover hover:border-dash-border-hover hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-12px_oklch(0.62_0.19_285/0.40)] before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent",
+      elevated: "relative overflow-hidden rounded-2xl p-5 min-h-[140px] flex flex-col justify-between bg-[#1c1b26]/20 backdrop-blur-md border border-white/[0.12] shadow-[inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(0,0,0,0.25),0_8px_20px_-10px_rgba(0,0,0,0.5)] duration-200 hover:bg-[#1c1b26]/30 hover:border-white/[0.18] hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(0,0,0,0.3),0_12px_26px_-8px_rgba(0,0,0,0.7)]",
     },
     emphasis: {
       default: "",

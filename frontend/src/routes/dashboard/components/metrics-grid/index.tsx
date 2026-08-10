@@ -26,44 +26,36 @@ export function MetricsGrid({ summary }: MetricsGridProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard
-        label="Faturamento total"
+        label="GMV"
         value={summary ? brl(summary.revenue) : "—"}
         hint="Base + vendas ao vivo"
-        tone="positive"
+        tone="neutral"
         icon={Banknote}
         surface="elevated"
         emphasis="primary"
       />
       <MetricCard
-        label="Pedidos confirmados"
-        value={summary ? int(summary.orders) : "—"}
+        label="Itens Vendidos"
+        value={summary ? int(summary.itemsSold) : "—"}
         hint="No período"
         tone="neutral"
-        icon={PackageCheck}
-        surface="elevated"
-      />
-      <MetricCard
-        label="Ganhos em comissão"
-        value={summary ? brl(summary.commission) : "—"}
-        hint="Sobre as vendas"
-        tone="positive"
-        icon={CircleDollarSign}
+        icon={ShoppingCart}
         surface="elevated"
       />
       <MetricCard
         label="Ticket médio"
         value={summary ? brl(summary.avgTicket, 2) : "—"}
         hint="Faturamento / pedidos"
-        tone="positive"
+        tone="neutral"
         icon={ReceiptText}
         surface="elevated"
       />
       <MetricCard
-        label="Itens Vendidos"
-        value={summary ? int(summary.itemsSold) : "—"}
-        hint="No período"
-        tone="positive"
-        icon={ShoppingCart}
+        label="Comissão estimada"
+        value={summary ? brl(summary.commission) : "—"}
+        hint="Sobre as vendas"
+        tone="neutral"
+        icon={CircleDollarSign}
         surface="elevated"
       />
       <MetricCard
@@ -78,8 +70,16 @@ export function MetricsGrid({ summary }: MetricsGridProps) {
         label="Visualizações do Produto"
         value={summary ? compact(summary.productViews) : "—"}
         hint="Em tempo real"
-        tone="positive"
+        tone="neutral"
         icon={Eye}
+        surface="elevated"
+      />
+      <MetricCard
+        label="Pedidos confirmados"
+        value={summary ? int(summary.orders) : "—"}
+        hint="No período"
+        tone="neutral"
+        icon={PackageCheck}
         surface="elevated"
       />
       <MetricCard

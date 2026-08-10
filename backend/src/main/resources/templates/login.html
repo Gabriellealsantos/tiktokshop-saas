@@ -68,44 +68,8 @@
             z-index: 3;
         }
 
-        /* FEIXE — sai do centro estreito e alarga até a borda (lanterna) */
-        .auth-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: conic-gradient(
-                from var(--angle) at 50% 50%,
-                transparent 0%,
-                transparent 56%,
-                rgba(59, 51, 222, 0.14) 66%,
-                rgba(59, 51, 222, 0.38) 76%,
-                rgba(59, 51, 222, 0.60) 86%,
-                rgba(59, 51, 222, 0.28) 95%,
-                transparent 100%
-            );
-            filter: blur(30px);
-            mix-blend-mode: screen;
-            opacity: 0.95;
-            -webkit-mask: radial-gradient(
-                circle at 50% 50%,
-                transparent 0%,
-                rgba(0, 0, 0, 0.55) 5%,
-                #000 14%,
-                #000 100%
-            );
-                    mask: radial-gradient(
-                circle at 50% 50%,
-                transparent 0%,
-                rgba(0, 0, 0, 0.55) 5%,
-                #000 14%,
-                #000 100%
-            );
-            animation: auth-border-spin 8s linear infinite;
-            pointer-events: none;
-            z-index: 1;
-        }
-
+        /* FEIXE — sai do centro estreito e alarga até a borda (lanterna) REMOVED */
+        
         @keyframes auth-border-spin {
             to { --angle: 360deg; }
         }
@@ -128,13 +92,21 @@
                 min-height: fit-content !important;
                 padding: 2.5rem 1.5rem !important;
             }
-            .auth-card::after {
-                filter: blur(16px);
-            }
         }
 
+        /* Fix for dynamically added tailwind classes not present in auth.css */
+        @media (min-width: 1024px) {
+            .lg\:max-w-\[1000px\] { max-width: 1000px; }
+        }
+        @media (min-width: 1280px) {
+            .xl\:max-w-\[1100px\] { max-width: 1100px; }
+        }
+        .max-w-\[480px\] { max-width: 480px; }
+        .pb-6 { padding-bottom: 1.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+
         @media (prefers-reduced-motion: reduce) {
-            .auth-card::before, .auth-card::after { animation: none; }
+            .auth-card::before { animation: none; }
         }
     </style>
 </head>
@@ -150,25 +122,33 @@
         <div id="sig-meteors"></div>
     </div>
 
+    <!-- Custom Cursor -->
+    <div id="custom-cursor" class="pointer-events-none fixed top-0 left-0 z-[99999] flex items-center justify-center mix-blend-difference opacity-0 transition-opacity duration-300" style="width: 36px; height: 36px; will-change: transform;">
+        <div class="absolute inset-0 rounded-full border border-white/30 transition-transform duration-200" id="cursor-ring-out"></div>
+        <div class="absolute inset-[4px] rounded-full border border-white/80 transition-transform duration-200" id="cursor-ring-in"></div>
+        <div class="absolute inset-[15px] rounded-full bg-white transition-transform duration-200" id="cursor-dot"></div>
+    </div>
+
     <main class="relative grid min-h-screen place-items-center overflow-hidden px-4 py-6 md:py-10">
-        <div
-            class="relative z-10 w-full max-w-6xl auth-card rounded-[32px] border border-white/10 bg-black/30 shadow-2xl backdrop-blur-xl mobile-container" style="border-radius: 32px;">
-            <div class="relative z-[2] grid lg:grid-cols-2 rounded-[31px] overflow-hidden mobile-grid" style="border-radius: 31px; overflow: hidden; transform: translateZ(0);">
+        <div class="relative z-10 w-full max-w-[420px] lg:max-w-[1000px] xl:max-w-[1100px] auth-card rounded-[32px] border border-white/10 bg-black/30 shadow-2xl backdrop-blur-xl mobile-container"
+            style="border-radius: 32px;">
+            <div class="relative z-[2] grid lg:grid-cols-2 rounded-[31px] overflow-hidden mobile-grid"
+                style="border-radius: 31px; overflow: hidden; transform: translateZ(0);">
                 <!-- COLUNA ESQUERDA - FORMULÁRIO -->
                 <div
-                    class="relative flex min-h-[600px] flex-col items-center justify-center bg-zinc-950/40 p-6 md:p-10 lg:p-14 backdrop-blur-xl border-r border-white/5 mobile-form-col">
+                    class="relative flex min-h-[640px] flex-col items-center justify-center bg-zinc-950/40 p-6 md:p-10 lg:p-10 backdrop-blur-xl border-r border-white/5 mobile-form-col">
 
                     <div class="w-full max-w-[400px] mx-auto flex flex-col">
                         <div class="flex flex-col items-center text-center">
                             <img src="/logo-Sfundo.webp" alt="Logo do sistema"
                                 class="h-20 w-auto object-contain drop-shadow-[0_0_15px_rgba(109,91,245,0.6)]" />
                             <h1 class="mt-5 text-3xl font-extrabold tracking-tight text-white">Bem-vindo à <span
-                                    style="color: var(--brand-purple);">NYVOR!</span></h1>
+                                    style="background-image: linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px var(--brand-purple)); display: inline-block;">NYVOR</span></h1>
                             <p class="mt-2 text-sm text-zinc-400">Entre para continuar criando.</p>
                         </div>
 
                         <!-- Tabs Entrar / Criar conta -->
-                        <div class="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1">
+                        <div class="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1 auth-card">
                             <div
                                 class="relative flex h-full flex-1 items-center justify-center rounded-full text-sm font-semibold text-white/90">
                                 <div
@@ -217,7 +197,7 @@
                                     </svg>
                                     <input type="text" id="username" name="username" autofocus required
                                         placeholder="voce@exemplo.com"
-                                        class="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-brand-500 focus:ring-1 focus:ring-brand-500" />
+                                        class="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white placeholder:text-zinc-500 outline-none transition-colors focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500" />
                                 </div>
                             </div>
 
@@ -231,7 +211,7 @@
                                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                                     </svg>
                                     <input type="password" id="password" name="password" required placeholder="••••••••"
-                                        class="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-11 text-sm text-white placeholder:text-zinc-500 outline-none transition-colors focus:border-brand-500 focus:ring-1 focus:ring-brand-500" />
+                                        class="h-12 w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-11 text-sm text-white placeholder:text-zinc-500 outline-none transition-colors focus-visible:border-brand-500 focus-visible:ring-1 focus-visible:ring-brand-500" />
                                     <button type="button" id="togglePwd" aria-label="Mostrar senha"
                                         class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24"
@@ -245,8 +225,7 @@
                                 </div>
                                 <div class="flex items-center justify-end pt-1">
                                     <a th:href="|${appDomain}/forgot-password|"
-                                        class="text-[11px] font-medium hover:underline"
-                                        style="color: var(--brand-purple);">
+                                        class="text-[11px] font-bold text-white hover:opacity-80 transition-opacity">
                                         Esqueci minha senha
                                     </a>
                                 </div>
@@ -255,7 +234,7 @@
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
                             <button type="submit"
-                                class="relative mt-6 flex h-12 w-full items-center justify-center rounded-[11px] gradient-purple-override glow-purple-override text-sm font-bold text-white/90 drop-shadow-sm transition-all cursor-pointer border-0">
+                                class="relative mt-6 flex h-12 w-full items-center justify-center rounded-full gradient-purple-override glow-purple-override text-sm font-bold text-white/90 drop-shadow-sm transition-all hover:brightness-110 disabled:opacity-60">
                                 Entrar
                             </button>
                         </form>
@@ -263,11 +242,11 @@
                         <div class="mt-8 text-center">
                             <p class="text-[11px] text-zinc-500 leading-relaxed px-4">
                                 Ao continuar, você concorda com nossos
-                                <a href="#"
-                                    class="text-zinc-400 hover:text-white hover:underline transition-colors">Termos</a>
+                                <a href="#" class="font-bold hover:opacity-80 transition-opacity"
+                                    style="background-image: linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px var(--brand-purple)); display: inline-block;">Termos</a>
                                 e
-                                <a href="#"
-                                    class="text-zinc-400 hover:text-white hover:underline transition-colors">Política de
+                                <a href="#" class="font-bold hover:opacity-80 transition-opacity"
+                                    style="background-image: linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px var(--brand-purple)); display: inline-block;">Política de
                                     Privacidade</a>.
                             </p>
                         </div>
@@ -278,15 +257,8 @@
                 <!-- COLUNA DIREITA - IMAGEM (SÓLIDA) -->
                 <div class="relative hidden lg:block bg-[#09080e] mobile-hidden">
                     <!-- 1. Imagem Base -->
-                    <img src="/images/imagem-login-cadastro.png?v=4" alt="Estúdio Criativo"
-                        class="absolute inset-0 h-full w-full object-cover" />
-
-                    <!-- 2. Aura de Luz Roxa -->
-                    <div class="absolute inset-0 mix-blend-screen opacity-70 pointer-events-none">
-                        <div
-                            class="absolute top-1/2 left-2/3 h-[450px] w-[450px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-500 blur-[100px]">
-                        </div>
-                    </div>
+                    <img src="/images/imagem-login-cadastro.jpeg?v=4" alt="Estúdio Criativo"
+                        class="absolute inset-0 h-full w-full object-cover object-[60%_10%]" />
 
                     <!-- 3. Overlay em Gradiente -->
                     <div
@@ -295,15 +267,15 @@
 
                     <!-- 4. Bloco de Texto ancorado na base-esquerda -->
                     <div
-                        class="absolute bottom-0 left-0 flex w-full flex-col justify-end px-8 pb-[3.1rem] pointer-events-none" style="padding-bottom: 3.1rem;">
-                        <div class="w-full max-w-[420px] overflow-hidden pr-4">
+                        class="absolute bottom-0 left-0 flex w-full flex-col justify-end px-8 pb-6 pointer-events-none">
+                        <div class="w-full max-w-[480px] pr-4">
                             <h2
                                 class="whitespace-nowrap text-[26px] xl:text-[28px] font-extrabold leading-tight tracking-tight text-white drop-shadow-lg">
                                 Quebre as limitações criativas.
                             </h2>
-                            <p class="mt-4 max-w-[380px] text-[15px] leading-relaxed text-zinc-300">
-                                A plataforma de criação visual com IA para transformar qualquer ideia de avatares,
-                                imagens e vídeos em realidade.
+                            <p class="mt-3 text-[15px] leading-relaxed text-zinc-300">
+                                A plataforma de criação visual com IA para transformar<br/>
+                                qualquer ideia de avatares, imagens e vídeos em realidade.
                             </p>
                         </div>
                     </div>
@@ -356,6 +328,43 @@
                     pwd.type = pwd.type === 'password' ? 'text' : 'password';
                 });
             }
+        })();
+
+        // Custom Cursor
+        (function () {
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) return;
+            var cursor = document.getElementById('custom-cursor');
+            var ringOut = document.getElementById('cursor-ring-out');
+            var ringIn = document.getElementById('cursor-ring-in');
+            var dot = document.getElementById('cursor-dot');
+            if (!cursor) return;
+
+            var pos = { x: 0, y: 0 };
+            var isHovering = false;
+
+            document.addEventListener('mousemove', function (e) {
+                pos.x = e.clientX;
+                pos.y = e.clientY;
+                cursor.style.transform = 'translate(' + (pos.x - 18) + 'px, ' + (pos.y - 18) + 'px)';
+                cursor.style.opacity = '1';
+
+                var target = e.target;
+                var isClickable = target.closest('a, button, input, select, textarea, [role="button"], .cursor-pointer') !== null;
+                if (isClickable !== isHovering) {
+                    isHovering = isClickable;
+                    var scale = isHovering ? 'scale(1.4)' : 'scale(1)';
+                    ringOut.style.transform = scale;
+                    ringIn.style.transform = scale;
+                    dot.style.transform = scale;
+                }
+            });
+
+            document.addEventListener('mouseleave', function () {
+                cursor.style.opacity = '0';
+            });
+            document.addEventListener('mouseenter', function () {
+                cursor.style.opacity = '1';
+            });
         })();
     </script>
 </body>

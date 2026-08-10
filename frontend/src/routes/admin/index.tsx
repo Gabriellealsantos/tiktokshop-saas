@@ -55,44 +55,48 @@ export default function AdminScreen() {
           </div>
         </div>
 
-        <div className="-mt-2 -mx-1 mb-6 flex gap-2 overflow-x-auto py-2 px-1 scrollbar-hide entrance">
-          {[
-            "Usuários",
-            "Categorias",
-            "Trend Boost",
-            "Modelos de Vídeo",
-            "Avatares",
-            "Prompt de Vídeo",
-            "Limites",
-            "Métricas",
-            "Tendências",
-            "Vendas ao Vivo",
-            "Notificações",
-            "Segurança",
-          ].map((x) => (
-            <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
-              {x}
-            </Pill>
-          ))}
+        <div className="-mt-2 -mx-1 mb-6">
+          <div className="flex gap-2 overflow-x-auto py-3 px-4 scrollbar-hide entrance rounded-2xl glass-premium-purple border border-white/10 shadow-lg">
+            {[
+              "Usuários",
+              "Categorias",
+              "Trend Boost",
+              "Modelos de Vídeo",
+              "Avatares",
+              "Prompt de Vídeo",
+              "Limites",
+              "Métricas",
+              "Tendências",
+              "Vendas ao Vivo",
+              "Notificações",
+              "Segurança",
+            ].map((x) => (
+              <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
+                {x}
+              </Pill>
+            ))}
+          </div>
         </div>
 
-        {tab === "Usuários" && (
-          <UsersTab
-            pendingCount={pendingCount}
-            onPendingCountChange={setPendingCount}
-          />
-        )}
-        {tab === "Categorias" && <CategoriesTab />}
-        {tab === "Trend Boost" && <ViralTab />}
-        {tab === "Modelos de Vídeo" && <VideoTemplatesTab />}
-        {tab === "Avatares" && <GalleryAvatarsTab />}
-        {tab === "Prompt de Vídeo" && <StudioPromptTab />}
-        {tab === "Limites" && <LimitsTab />}
-        {tab === "Métricas" && <MetricsTab />}
-        {tab === "Tendências" && <InsightsTab />}
-        {tab === "Vendas ao Vivo" && <LiveSalesTab />}
-        {tab === "Notificações" && <NotificationSoundTab />}
-        {tab === "Segurança" && <SecurityTab />}
+        <div className="glass-premium-purple rounded-[24px] p-4 md:p-6 mb-5 border border-white/10 shadow-lg entrance relative z-10">
+          {tab === "Usuários" && (
+            <UsersTab
+              pendingCount={pendingCount}
+              onPendingCountChange={setPendingCount}
+            />
+          )}
+          {tab === "Categorias" && <CategoriesTab />}
+          {tab === "Trend Boost" && <ViralTab />}
+          {tab === "Modelos de Vídeo" && <VideoTemplatesTab />}
+          {tab === "Avatares" && <GalleryAvatarsTab />}
+          {tab === "Prompt de Vídeo" && <StudioPromptTab />}
+          {tab === "Limites" && <LimitsTab />}
+          {tab === "Métricas" && <MetricsTab />}
+          {tab === "Tendências" && <InsightsTab />}
+          {tab === "Vendas ao Vivo" && <LiveSalesTab />}
+          {tab === "Notificações" && <NotificationSoundTab />}
+          {tab === "Segurança" && <SecurityTab />}
+        </div>
       </Page>
     </AppShell>
   );

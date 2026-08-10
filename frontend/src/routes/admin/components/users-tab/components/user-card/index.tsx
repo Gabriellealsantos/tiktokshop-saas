@@ -44,10 +44,10 @@ export function UserCard({
   return (
     <div
       className={cn(
-        "relative overflow-hidden flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 rounded-2xl border p-5 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_-8px_oklch(0_0_0/0.5),inset_0_1px_0_0_oklch(1_0_0/0.10)] transition-all duration-200 before:absolute before:inset-0 before:pointer-events-none before:bg-dash-tint after:absolute after:inset-0 after:pointer-events-none after:bg-linear-to-b after:from-white/[0.07] after:via-transparent after:to-transparent",
+        "glass-premium-purple relative overflow-hidden flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 rounded-2xl p-5 transition-all duration-200 shadow-lg border",
         user.status === "pendente"
-          ? "border-brand-500/40 bg-dash-surface hover:bg-dash-surface-hover hover:border-brand-500/60"
-          : "border-dash-border bg-dash-surface hover:bg-dash-surface-hover hover:border-dash-border-hover",
+          ? "border-brand-500/40 hover:border-brand-500/60"
+          : "border-white/10 hover:border-white/20",
       )}
     >
       <div className="relative z-10 flex-1 min-w-0">

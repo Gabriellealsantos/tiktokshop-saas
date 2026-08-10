@@ -133,7 +133,7 @@ export function ProductMedia({ product }: ProductMediaProps) {
             toast.success("Link de afiliado será gerado em breve!");
           }
         }}
-        className="group btn-brand gradient-brand luminous-glow relative w-full h-13 md:h-14 overflow-hidden rounded-[14px] font-bold text-white/90 drop-shadow-sm transition-all duration-200 hover:luminous-glow-hover hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] cursor-pointer outline-none shrink-0"
+        className="group btn-brand gradient-brand luminous-glow relative w-full h-13 md:h-14 overflow-hidden rounded-full font-bold text-white/90 drop-shadow-sm transition-all duration-200 hover:luminous-glow-hover hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] cursor-pointer outline-none shrink-0"
       >
         <div className="relative flex h-full w-full items-center justify-center gap-3 px-6">
           <ShoppingBag className="size-5 text-white drop-shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-110 shrink-0" />

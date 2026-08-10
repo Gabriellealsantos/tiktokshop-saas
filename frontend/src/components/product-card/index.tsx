@@ -93,7 +93,7 @@ export function ProductCard({
             e.stopPropagation();
             toast("Redirecionando para a loja..."); // TODO: Affiliate URL action
           }}
-          className="btn-brand mt-1 flex h-10 w-full items-center justify-center gap-2 rounded-[12px] text-sm font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="btn-brand mt-1 flex h-10 w-full items-center justify-center gap-2 rounded-full text-sm font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           <span className="text-lg leading-none mb-0.5">+</span> Afiliar-se
         </button>

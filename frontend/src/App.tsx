@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { PrivateRoute } from "@/components/private-route";
-import { Toaster } from "@/components";
+import { Toaster, CustomCursor } from "@/components";
 
 import IndexRoute from "@/routes/home";
 import LoginRoute from "@/routes/login";
@@ -36,6 +36,7 @@ import VideoScreen from "./routes/create-from-scratch/video";
 function App() {
   return (
     <>
+      <CustomCursor />
       <Routes>
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/register" element={<RegisterRoute />} />

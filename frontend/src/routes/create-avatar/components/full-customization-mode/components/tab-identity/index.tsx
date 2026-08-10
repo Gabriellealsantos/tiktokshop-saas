@@ -27,7 +27,7 @@ export function TabIdentidade({
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-text-2 text-xs font-bold uppercase tracking-wider">
-              Nome do Avatar
+              Nome do Influencer
             </FormLabel>
             <FormControl>
               <Input

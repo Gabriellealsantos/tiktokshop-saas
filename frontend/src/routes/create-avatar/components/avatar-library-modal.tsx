@@ -335,7 +335,7 @@ export function AvatarLibraryModal({
           <Input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Nome do avatar"
+            placeholder="Nome do influencer"
             className="bg-surface-2 border-white/10 text-white placeholder:text-text-3"
             onKeyDown={(e) => {
               if (e.key === "Enter" && newName.trim() && toRename) {

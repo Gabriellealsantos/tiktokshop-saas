@@ -43,7 +43,7 @@ export default function RegisterRoute() {
         <div className="flex flex-col items-center text-center">
           <BrandMark className="h-20 drop-shadow-[0_0_15px_rgba(109,91,245,0.6)]" />
           <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-white">
-            Bem-vindo à <span className="text-[var(--brand-purple)]">NYVOR</span>
+            Bem-vindo à <span style={{ backgroundImage: "linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 15px var(--brand-purple))", display: "inline-block" }}>NYVOR</span>
           </h1>
           <p className="mt-2 text-sm text-zinc-400">
             Crie sua conta e comece a criar.
@@ -51,7 +51,7 @@ export default function RegisterRoute() {
         </div>
 
         {/* Toggle Entrar / Criar conta */}
-        <div className="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1">
+        <div className="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1 auth-card">
           <a
             href={`${BASE_URL}/login`}
             className="relative flex h-full flex-1 items-center justify-center rounded-full text-sm font-semibold transition-colors text-zinc-400 hover:text-zinc-200"
@@ -86,14 +86,16 @@ export default function RegisterRoute() {
             Ao continuar, você concorda com nossos{" "}
             <a
               href={`${BASE_URL}/login`}
-              className="text-zinc-400 hover:text-white hover:underline transition-colors"
+              className="font-bold hover:opacity-80 transition-opacity"
+              style={{ backgroundImage: "linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 15px var(--brand-purple))", display: "inline-block" }}
             >
               Termos
             </a>{" "}
             e{" "}
             <a
               href={`${BASE_URL}/login`}
-              className="text-zinc-400 hover:text-white hover:underline transition-colors"
+              className="font-bold hover:opacity-80 transition-opacity"
+              style={{ backgroundImage: "linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 15px var(--brand-purple))", display: "inline-block" }}
             >
               Política de Privacidade
             </a>

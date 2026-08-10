@@ -100,9 +100,9 @@
   --color-brand-500: var(--brand-500);
   --color-brand-600: var(--brand-600);
   --color-brand-700: var(--brand-700);
-  --color-dash-surface: oklch(0.30 0.055 275 / 0.04);
-  --color-dash-surface-hover: oklch(0.34 0.065 275 / 0.10);
-  --color-dash-tint: oklch(0.55 0.14 285 / 0.03);
+  --color-dash-surface: oklch(0.30 0.055 275 / 0.03);
+  --color-dash-surface-hover: oklch(0.34 0.065 275 / 0.07);
+  --color-dash-tint: oklch(0.55 0.14 285 / 0.02);
   --color-dash-border: oklch(1 0 0 / 0.10);
   --color-dash-border-hover: oklch(0.62 0.19 285 / 0.35);
   --color-dash-accent: oklch(0.62 0.19 285);
@@ -340,8 +340,38 @@
     border-color: rgba(255, 255, 255, 0.26);
     transform: translateY(-2px);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.24),
       0 20px 46px -14px rgba(0, 0, 0, 0.65);
+  }
+
+  .glass-premium-purple {
+    background: linear-gradient(135deg, rgba(75,68,232,0.12) 0%, rgba(75,68,232,0.02) 50%, rgba(75,68,232,0.05) 100%);
+    border: 1px solid rgba(75,68,232,0.35);
+    box-shadow: 0 12px 40px -12px rgba(75,68,232,0.3), inset 0 1px 1px rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .glass-premium-purple::before {
+    content: "";
+    position: absolute;
+    top: -6rem;
+    left: -6rem;
+    width: 18rem;
+    height: 18rem;
+    background: rgba(75,68,232,0.2);
+    filter: blur(80px);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .glass-premium-purple.is-interactive:hover {
+    border-color: rgba(75,68,232,0.5);
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.24),
+      0 20px 46px -14px rgba(75,68,232, 0.4);
   }
 }
 
@@ -490,56 +520,13 @@
   z-index: 3;
 }
 
-/* FEIXE — sai do centro estreito e alarga até a borda (lanterna) */
-.auth-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: conic-gradient(
-    from var(--angle) at 50% 50%,
-    transparent 0%,
-    transparent 56%,
-    rgba(59, 51, 222, 0.14) 66%,
-    rgba(59, 51, 222, 0.38) 76%,
-    rgba(59, 51, 222, 0.60) 86%,
-    rgba(59, 51, 222, 0.28) 95%,
-    transparent 100%
-  );
-  filter: blur(30px);
-  mix-blend-mode: screen;
-  opacity: 0.95;
-  -webkit-mask: radial-gradient(
-    circle at 50% 50%,
-    transparent 0%,
-    rgba(0, 0, 0, 0.55) 5%,
-    #000 14%,
-    #000 100%
-  );
-          mask: radial-gradient(
-    circle at 50% 50%,
-    transparent 0%,
-    rgba(0, 0, 0, 0.55) 5%,
-    #000 14%,
-    #000 100%
-  );
-  animation: auth-border-spin 8s linear infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
 @keyframes auth-border-spin {
   to { --angle: 360deg; }
 }
 
-@media (max-width: 1023px) {
-  .auth-card::after {
-    filter: blur(16px);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
-  .auth-card::before, .auth-card::after { animation: none; }
+  .auth-card::before { animation: none; }
 }
 
 @utility btn-brand {
