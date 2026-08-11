@@ -104,8 +104,13 @@ export function FullCustomizationMode() {
     saveAvatar.mutate({ generationId: generation.id, name: nome });
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (activeTab < 6) {
+      if (activeTab === 1 && !(await form.trigger("nome"))) {
+        form.setFocus("nome");
+        return;
+      }
+
       setActiveTab((prev) => prev + 1);
       return;
     }
@@ -162,30 +167,30 @@ export function FullCustomizationMode() {
         </div>
 
         <GlassPanel className="my-2">
-        <Form {...form}>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="relative overflow-hidden min-h-[500px] p-4 -mx-4"
-          >
-            <AnimatePresence>
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col gap-8 w-full"
-              >
-                {activeTab === 1 && <TabIdentidade form={form} />}
-                {activeTab === 2 && <TabCorpo form={form} />}
-                {activeTab === 3 && <TabRosto form={form} />}
-                {activeTab === 4 && <TabCabelo form={form} />}
-                {activeTab === 5 && <TabEstilo form={form} />}
-                {activeTab === 6 && <TabRenderizacao form={form} />}
-              </motion.div>
-            </AnimatePresence>
-          </form>
-        </Form>
+          <Form {...form}>
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="relative overflow-hidden min-h-[500px] p-4 -mx-4"
+            >
+              <AnimatePresence>
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-8 w-full"
+                >
+                  {activeTab === 1 && <TabIdentidade form={form} />}
+                  {activeTab === 2 && <TabCorpo form={form} />}
+                  {activeTab === 3 && <TabRosto form={form} />}
+                  {activeTab === 4 && <TabCabelo form={form} />}
+                  {activeTab === 5 && <TabEstilo form={form} />}
+                  {activeTab === 6 && <TabRenderizacao form={form} />}
+                </motion.div>
+              </AnimatePresence>
+            </form>
+          </Form>
         </GlassPanel>
 
         {usage && (
