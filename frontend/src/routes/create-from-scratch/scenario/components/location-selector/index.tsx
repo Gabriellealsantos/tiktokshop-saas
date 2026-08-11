@@ -1,13 +1,18 @@
 import { Check } from "lucide-react";
 import { cn } from "@/utils/utils";
 import { LOCAIS } from "../../data";
+import { S3Image } from "@/components";
+import { asset } from "@/lib/media";
 
 interface LocalSelectorProps {
   localSelecionado: string | null;
   setLocalSelecionado: (id: string) => void;
 }
 
-export function LocalSelector({ localSelecionado, setLocalSelecionado }: LocalSelectorProps) {
+export function LocalSelector({
+  localSelecionado,
+  setLocalSelecionado,
+}: LocalSelectorProps) {
   return (
     <div className="mb-10">
       <div className="mb-5 flex items-center gap-3">
@@ -31,16 +36,15 @@ export function LocalSelector({ localSelecionado, setLocalSelecionado }: LocalSe
                 "group relative overflow-hidden rounded-2xl aspect-[16/10] text-left transition-all duration-300",
                 isSelected
                   ? "ring-2 ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.5)]"
-                  : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg"
+                  : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg",
               )}
             >
-              <img
-                src={local.image}
+              <S3Image
+                src={asset(local.image)}
                 alt={local.label}
                 loading="lazy"
-                // Evita imagem quebrada, fallback via bg-color css (abaixo)
                 onError={(e) => {
-                  (e.target as HTMLImageElement).style.opacity = '0';
+                  (e.target as HTMLImageElement).style.opacity = "0";
                 }}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />

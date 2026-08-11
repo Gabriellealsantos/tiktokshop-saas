@@ -2,18 +2,18 @@ import { Sun, Sunset, Moon, Sparkles, Lightbulb, Clapperboard, Circle, Flame, Ac
 
 // TODO: confirmar o rótulo do 9º item ("Estúdio neutro" ou "Estúdio"), e os slugs de imagem de cada local.
 export const LOCAIS = [
-  { id: "quarto", label: "Quarto", image: "/placeholder-cenario-quarto.jpg" },
-  { id: "sala-loft", label: "Sala/Loft", image: "/placeholder-cenario-sala.jpg" },
-  { id: "cozinha", label: "Cozinha", image: "/placeholder-cenario-cozinha.jpg" },
-  { id: "closet", label: "Closet", image: "/placeholder-cenario-closet.jpg" },
-  { id: "home-office", label: "Home office", image: "/placeholder-cenario-office.jpg" },
-  { id: "rua-urbana", label: "Rua urbana", image: "/placeholder-cenario-rua.jpg" },
-  { id: "cafe", label: "Café", image: "/placeholder-cenario-cafe.jpg" },
-  { id: "restaurante", label: "Restaurante", image: "/placeholder-cenario-restaurante.jpg" },
-  { id: "estudio", label: "Estúdio neutro", image: "/placeholder-cenario-estudio.jpg" },
-  { id: "praia", label: "Praia", image: "/placeholder-cenario-praia.jpg" },
-  { id: "parque", label: "Parque", image: "/placeholder-cenario-parque.jpg" },
-  { id: "academia", label: "Academia", image: "/placeholder-cenario-academia.jpg" },
+  { id: "quarto", label: "Quarto", image: "/quarto.webp" },
+  { id: "sala-loft", label: "Sala/Loft", image: "/sala-loft.webp" },
+  { id: "cozinha", label: "Cozinha", image: "/cozinha.webp" },
+  { id: "closet", label: "Closet", image: "/closet-maquiagem.webp" },
+  { id: "home-office", label: "Home office", image: "/home-office.webp" },
+  { id: "rua-urbana", label: "Rua urbana", image: "/rua-urbana.webp" },
+  { id: "cafe", label: "Café", image: "/cafe.webp" },
+  { id: "restaurante", label: "Restaurante", image: "/restaurante.webp" },
+  { id: "estudio", label: "Estúdio neutro", image: "/estudio.webp" },
+  { id: "praia", label: "Praia", image: "/praia.webp" },
+  { id: "parque", label: "Parque", image: "/parque.webp" },
+  { id: "academia", label: "Academia", image: "/academia.webp" },
 ];
 
 export const HORARIOS = [
