@@ -14,13 +14,16 @@ import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionSynchronization;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+
 
 @Service
 public class ScenePoseImageService {
@@ -41,6 +44,7 @@ public class ScenePoseImageService {
     private final AuthService authService;
     private final StudioVideoPromptComposer videoComposer;
     private final TextProvider textProvider;
+    private final StudioGenerationProcessor processor;
 
     public ScenePoseImageService(ObjectMapper objectMapper,
                                  ProductRepository productRepository,
@@ -54,7 +58,8 @@ public class ScenePoseImageService {
                                  StorageService storageService,
                                  AuthService authService,
                                  StudioVideoPromptComposer videoComposer,
-                                 TextProvider textProvider) {
+                                 TextProvider textProvider,
+                                 StudioGenerationProcessor processor) {
         this.objectMapper = objectMapper;
         this.productRepository = productRepository;
         this.avatarRepository = avatarRepository;
@@ -68,6 +73,7 @@ public class ScenePoseImageService {
         this.authService = authService;
         this.videoComposer = videoComposer;
         this.textProvider = textProvider;
+        this.processor = processor;
     }
 
     @Transactional
@@ -96,34 +102,21 @@ public class ScenePoseImageService {
         ImageGeneration job = new ImageGeneration();
         job.setUser(user);
         job.setFlowType(FlowType.STUDIO);
+        job.setStatus(ImageGenerationStatus.PENDING);
         job.getConfig().putAll(session.getConfig());
         job.setPrompt(prompt);
         job.setCreatedAt(Instant.now());
+        job.setUpdatedAt(Instant.now());
+        job = generationRepository.save(job);
 
-        try {
-            ImageProviderResult result = imageProvider.generate(new ImageProviderRequest(
-                    prompt, List.of(avatarImageUrl, product.imageUrl())));
+        session.getConfig().put("generationId", job.getId());
+        session = sessionRepository.save(session);
 
-            String folder = STUDIO_FOLDER + "/" + user.getUuid();
-            String imageUrl = storageService.uploadWithRetry(result.content(), result.mimeType(), folder);
+        Long sessionId = session.getId();
+        Long jobId = job.getId();
+        registerAsyncDispatch(sessionId, jobId);
 
-            job.setImageUrl(imageUrl);
-            job.setStatus(ImageGenerationStatus.COMPLETED);
-            generationRepository.save(job);
-
-            session.getConfig().put("generationId", job.getId());
-            session.getConfig().put("imageUrl", imageUrl);
-            session.setStatus(CreationStatus.COMPLETED);
-        } catch (Exception e) {
-            job.setStatus(ImageGenerationStatus.FAILED);
-            job.setError(e.getMessage());
-            generationRepository.save(job);
-
-            session.setStatus(CreationStatus.FAILED);
-            session.getConfig().put("error", e.getMessage());
-        }
-
-        return sessionRepository.save(session);
+        return session;
     }
 
     @Transactional(readOnly = true)
@@ -207,5 +200,15 @@ public class ScenePoseImageService {
         if (!imageUrl.startsWith(storageService.publicBaseUrl() + "/" + folder + "/")) {
             throw new BusinessException(label + " deve ser enviada pela plataforma.");
         }
+    }
+
+    private void registerAsyncDispatch(Long sessionId, Long jobId) {
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        processor.process(sessionId, jobId);
+                    }
+                });
     }
 }

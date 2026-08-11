@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.venyx.tiktokshop.entities.enums.FlowType.AVATAR;
-import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.COMPLETED;
-import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.FAILED;
+import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,14 +24,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
+
+import org.springframework.transaction.support.TransactionSynchronization;
 
 
 @Service
 public class AvatarGenerationService {
-
-    private static final String AVATAR_FOLDER = "avatars";
 
     private static final String REFERENCE_FOLDER = "references";
 
@@ -40,29 +40,30 @@ public class AvatarGenerationService {
     private final ImageGenerationRepository repository;
     private final GenerationLimitService limitService;
     private final AvatarPromptBuilder promptBuilder;
-    private final ImageProvider imageProvider;
     private final AuthService authService;
     private final StorageService storageService;
     private final AvatarPhotoPromptBuilder photoPromptBuilder;
+    private final AvatarGenerationProcessor processor;
 
     public AvatarGenerationService(ImageGenerationRepository repository,
                                    GenerationLimitService limitService,
                                    AvatarPromptBuilder promptBuilder,
-                                   ImageProvider imageProvider,
                                    AuthService authService,
                                    StorageService storageService,
                                    ObjectMapper objectMapper,
-                                   AvatarPhotoPromptBuilder photoPromptBuilder) {
+                                   AvatarPhotoPromptBuilder photoPromptBuilder,
+                                   AvatarGenerationProcessor processor) {
         this.repository = repository;
         this.limitService = limitService;
         this.promptBuilder = promptBuilder;
-        this.imageProvider = imageProvider;
         this.authService = authService;
         this.storageService = storageService;
         this.objectMapper = objectMapper;
         this.photoPromptBuilder = photoPromptBuilder;
+        this.processor = processor;
     }
 
+    @Transactional
     public ImageGeneration generate(AvatarConfigDTO config, String referenceImageUrl,
                                     String clothingImageUrl, ClothingPart clothingPart) {
         User user = authService.authenticated();
@@ -70,6 +71,7 @@ public class AvatarGenerationService {
         return runAndPersist(user, config, null, referenceImageUrl, clothingImageUrl, clothingPart);
     }
 
+    @Transactional
     public ImageGeneration regenerate(Long parentId, String referenceImageUrl) {
         User user = authService.authenticated();
 
@@ -99,9 +101,10 @@ public class AvatarGenerationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Geração não encontrada: " + id));
     }
 
+
     private ImageGeneration runAndPersist(User user, AvatarConfigDTO config, ImageGeneration parent,
-                                          String referenceImageUrl, String clothingImageUrl,
-                                          ClothingPart clothingPart) {
+                                            String referenceImageUrl, String clothingImageUrl,
+                                            ClothingPart clothingPart) {
         boolean roupaPorImagem = clothingImageUrl != null && !clothingImageUrl.isBlank();
 
         List<String> references = new ArrayList<>();
@@ -128,18 +131,14 @@ public class AvatarGenerationService {
         job.setPrompt(prompt);
         job.setCreatedAt(Instant.now());
 
-        try {
-            ImageProviderResult result = imageProvider.generate(new ImageProviderRequest(prompt, references));
+        job.setStatus(PENDING);
+        job.getConfig().put("references", references);
+        job.setUpdatedAt(Instant.now());
+        ImageGeneration saved = repository.save(job);
 
-            String folder = AVATAR_FOLDER + "/" + user.getUuid();
-            job.setImageUrl(storageService.uploadWithRetry(result.content(), result.mimeType(), folder));
-            job.setStatus(COMPLETED);
-        } catch (Exception e) {
-            job.setStatus(FAILED);
-            job.setError(e.getMessage());
-        }
+        registerAsyncDispatch(saved.getId());
 
-        return repository.save(job);
+        return saved;
     }
 
 
@@ -171,18 +170,23 @@ public class AvatarGenerationService {
         job.setPrompt(prompt);
         job.setCreatedAt(Instant.now());
 
-        try {
-            ImageProviderResult result = imageProvider.generate(new ImageProviderRequest(prompt, references));
+        job.setStatus(PENDING);
+        job.getConfig().put("references", references);
+        job.setUpdatedAt(Instant.now());
+        ImageGeneration saved = repository.save(job);
 
-            String folder = AVATAR_FOLDER + "/" + user.getUuid();
-            job.setImageUrl(storageService.uploadWithRetry(result.content(), result.mimeType(), folder));
-            job.setStatus(COMPLETED);
-        } catch (Exception e) {
-            job.setStatus(FAILED);
-            job.setError(e.getMessage());
-        }
+        registerAsyncDispatch(saved.getId());
+        return saved;
+    }
 
-        return repository.save(job);
+    private void registerAsyncDispatch(Long jobId) {
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        processor.process(jobId);
+                    }
+                });
     }
 
     private void assertOwnedReference(String imageUrl, UUID userId, String label) {

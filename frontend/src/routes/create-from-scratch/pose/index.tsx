@@ -8,20 +8,13 @@ import { Page, Button, Stepper } from "@/components";
 import { SummaryGrid } from "./components/summary-grid";
 import { PoseSelector } from "./components/pose-selector";
 
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
-import {
-  generateStudioImage,
-  getPoseSuggestions,
-} from "@/services/studioService";
+import { getPoseSuggestions } from "@/services/studioService";
 import {
   SCENE_LOCATION,
   TIME_OF_DAY,
   SCENE_LIGHTING,
   SCENE_ATMOSPHERE,
 } from "@/models/studio";
-import { extractError } from "@/utils/api-error";
-import type { CreationSessionDTO } from "@/models/studio";
 import { PONTOS_DE_VISTA } from "./pov-data";
 import { useQuery } from "@tanstack/react-query";
 import { getProductById } from "@/services/productService";
@@ -29,6 +22,7 @@ import {
   useMyAvatars,
   useGalleryAvatars,
 } from "@/routes/create-avatar/api/use-avatars";
+import { useStudioGenerationStatus } from "../api/use-studio-generation-status";
 
 const steps = [
   "Produto",
@@ -40,6 +34,7 @@ const steps = [
 ];
 
 export default function PoseScreen() {
+  const generate = useStudioGenerationStatus();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const search = {
@@ -141,40 +136,6 @@ export default function PoseScreen() {
   const isPoseValid =
     poseSelecionada !== null &&
     (poseSelecionada !== "manual" || manualPoseText.trim().length > 0);
-
-  const generate = useMutation({
-    mutationFn: async () => {
-      const poseText =
-        poseSelecionada === "manual"
-          ? manualPoseText.trim()
-          : (poseSelecionada ?? "");
-
-      const response = await generateStudioImage({
-        productId: rawProductId ? Number(rawProductId) : undefined,
-        customProductName: customName,
-        customProductImageUrl: customImage,
-        avatarId: isGallery ? undefined : avatarNumericId,
-        galleryAvatarId: isGallery ? avatarNumericId : undefined,
-        format: "UGC",
-        location: SCENE_LOCATION[search.local ?? ""],
-        timeOfDay: TIME_OF_DAY[search.timeOfDay ?? ""],
-        lighting: SCENE_LIGHTING[search.lighting ?? ""],
-        atmosphere: SCENE_ATMOSPHERE[search.atmosphere ?? ""],
-        pointOfView:
-          PONTOS_DE_VISTA.find((p) => p.id === pontoDeVista)?.enum ?? "SELFIE",
-        pose: poseText,
-      });
-
-      const session = response.data as CreationSessionDTO;
-      if (session.status === "FAILED") {
-        throw new Error(
-          (session.config?.error as string) ?? "A geração falhou.",
-        );
-      }
-      return session;
-    },
-    onError: (err) => toast.error(extractError(err, "Erro ao gerar a imagem.")),
-  });
 
   return (
     <AppShell>
@@ -284,9 +245,29 @@ export default function PoseScreen() {
           manualPoseText={manualPoseText}
           setManualPoseText={setManualPoseText}
           isPoseValid={isPoseValid}
-          onGenerate={() => generate.mutate()}
-          isGenerating={generate.isPending}
-          generatedImage={(generate.data?.config?.imageUrl as string) ?? null}
+          onGenerate={() =>
+            generate.generate({
+              productId: rawProductId ? Number(rawProductId) : undefined,
+              customProductName: customName,
+              customProductImageUrl: customImage,
+              avatarId: isGallery ? undefined : avatarNumericId,
+              galleryAvatarId: isGallery ? avatarNumericId : undefined,
+              format: "UGC",
+              location: SCENE_LOCATION[search.local ?? ""],
+              timeOfDay: TIME_OF_DAY[search.timeOfDay ?? ""],
+              lighting: SCENE_LIGHTING[search.lighting ?? ""],
+              atmosphere: SCENE_ATMOSPHERE[search.atmosphere ?? ""],
+              pointOfView:
+                PONTOS_DE_VISTA.find((p) => p.id === pontoDeVista)?.enum ??
+                "SELFIE",
+              pose:
+                poseSelecionada === "manual"
+                  ? manualPoseText.trim()
+                  : (poseSelecionada ?? ""),
+            })
+          }
+          isGenerating={generate.isGenerating}
+          generatedImage={generate.generatedImage}
           onRegenerar={() => {
             setJaRegenerou(true);
             refetchSugestoes();
@@ -312,7 +293,7 @@ export default function PoseScreen() {
             Voltar
           </Button>
           <Button
-            disabled={!generate.data}
+            disabled={generate.session?.status !== "COMPLETED"}
             onClick={() => {
               const params = new URLSearchParams();
               if (search.productId) params.set("productId", search.productId);
@@ -327,8 +308,8 @@ export default function PoseScreen() {
               if (poseSelecionada) params.set("pose", poseSelecionada);
               if (manualPoseText) params.set("manualPose", manualPoseText);
               params.set("pov", pontoDeVista);
-              if (generate.data)
-                params.set("sessionId", String(generate.data.id));
+              if (generate.session)
+                params.set("sessionId", String(generate.session.id));
               navigate(`/create-from-scratch/speech?${params.toString()}`);
             }}
           >
