@@ -73,7 +73,7 @@ export function ScriptSelector({
               </div>
 
               {isSelected && (
-                <div className="brand-gradient accent-glow absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full z-10">
+                <div className="brand-gradient accent-glow absolute top-2 right-2 flex size-5 items-center justify-center rounded-full z-10">
                   <Check className="size-3 text-white" />
                 </div>
               )}

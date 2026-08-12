@@ -14,15 +14,15 @@ export function NotificationsBell() {
 
   const bellButton = (
     <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
       transition={{ duration: 0.15 }}
-      className="relative grid size-9 place-items-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="relative grid size-9 place-items-center rounded-full btn-3d-neutral text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label="Notificações"
       aria-haspopup="dialog"
       aria-expanded={open}
     >
-      <Bell className="size-4" />
+      <Bell className="size-4 text-white" />
       {unreadCount > 0 && (
         <motion.span
           initial={{ scale: 0 }}
