@@ -11,8 +11,6 @@ import AuthorizedRoute from "@/routes/authorized";
 import AccessPendingRoute from "@/routes/access-pending";
 import DashboardRoute from "@/routes/dashboard";
 import AdminScreen from "@/routes/admin";
-import NotFoundRoute from "@/routes/not-found";
-import TermsRoute from "@/routes/terms";
 import AvatarStudio from "@/routes/create-avatar";
 import CreditsScreen from "@/routes/credits";
 import EditorScreen from "@/routes/editor";
@@ -46,8 +44,6 @@ function App() {
         <Route path="/recover-password/:token" element={<RecoverPasswordRoute />} />
         <Route path="/authorized" element={<AuthorizedRoute />} />
         <Route path="/acesso-pendente" element={<AccessPendingRoute />} />
-        <Route path="/termos-de-uso" element={<TermsRoute />} />
-        <Route path="*" element={<NotFoundRoute />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<IndexRoute />} />

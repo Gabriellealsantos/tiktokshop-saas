@@ -61,7 +61,6 @@ export const avatarSchema = z.object({
     clothingPart: z
         .enum(["Look completo", "Parte de cima", "Parte de baixo"])
         .optional(),
-    customPrompt: z.string().max(5000, "Máximo 5000 caracteres.").optional(),
 });
 
 export type AvatarFormValues = z.infer<typeof avatarSchema>;

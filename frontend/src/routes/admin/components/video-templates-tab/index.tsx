@@ -22,7 +22,7 @@ const SEM_CATEGORIA = "__none__";
 const emptyForm = (): VideoTemplateForm => ({
   slug: "", title: "", category: null, thumbnailUrl: "", videoUrl: "",
   videoStyle: "", objective: "", tone: "", energy: "", duration: "",
-  motionInstruction: "", imagePrompt: "", audioMode: "NARRACAO", sortOrder: 0, active: true,
+  motionInstruction: "", audioMode: "NARRACAO", sortOrder: 0, active: true,
 });
 
 /** Opções do dropdown de áudio/fala (casa com o enum VideoAudioMode do backend). */
@@ -70,7 +70,7 @@ export function VideoTemplatesTab() {
       thumbnailUrl: item.thumbnailUrl ?? "", videoUrl: item.videoUrl,
       videoStyle: item.videoStyle ?? "", objective: item.objective ?? "",
       tone: item.tone ?? "", energy: item.energy ?? "", duration: item.duration ?? "",
-      motionInstruction: item.motionInstruction ?? "", imagePrompt: item.imagePrompt ?? "", audioMode: item.audioMode ?? "NARRACAO",
+      motionInstruction: item.motionInstruction ?? "", audioMode: item.audioMode ?? "NARRACAO",
       sortOrder: item.sortOrder, active: item.active,
     });
     setDialogOpen(true);
@@ -286,7 +286,7 @@ export function VideoTemplatesTab() {
                 value={form.motionInstruction ?? ""}
                 onChange={(e) => setForm((p) => ({ ...p, motionInstruction: e.target.value }))}
                 placeholder={"Cole aqui o script de movimento COMPLETO, batida por batida com timestamps — a IA de vídeo segue exatamente este texto.\nEx.: 0.0s–0.8s: the subject looks at the camera and smiles...\n0.8s–1.8s: turns the body slightly and raises the product to chest height...\n\nDeixe vazio para usar um movimento genérico padrão."}
-                className="min-h-40 font-mono text-xs text-white bg-black/40 border-white/10"
+                className="min-h-40 font-mono text-xs bg-black/40 border-white/10"
               />
               <p className="text-[10px] text-zinc-500 leading-relaxed">
                 Este texto é anexado ao prompt <strong className="text-zinc-400">sem passar pela IA</strong> —
@@ -297,19 +297,6 @@ export function VideoTemplatesTab() {
                 <strong className="text-zinc-400">"the product"</strong> — sem esses beats o produto
                 não aparece no vídeo. O pronome do sujeito ("she", "he", "the subject") deve casar com
                 o público do template, porque ele vale para todos os avatares que o usarem.
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Prompt da Imagem (Thumbnail / Geração)</Label>
-              <Textarea
-                value={form.imagePrompt ?? ""}
-                onChange={(e) => setForm((p) => ({ ...p, imagePrompt: e.target.value }))}
-                placeholder={"Ex: mulher negra de vestido verde, braços cruzados..."}
-                className="min-h-20 text-sm text-white bg-black/40 border-white/10"
-              />
-              <p className="text-[10px] text-zinc-500 leading-relaxed">
-                Este comando é enviado para a IA gerar a imagem da pose (referência de vestuário e posição). Será somado ao comando do Avatar do usuário.
               </p>
             </div>
 

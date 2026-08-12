@@ -8,7 +8,7 @@ import { cn } from "@/utils/utils";
 import { Button, Form } from "@/components";
 import { GlassPanel } from "@/components/glass-panel";
 
-import { useAvatarGenerationStatus } from "../../api/use-avatar-generation-status";
+import { useGenerateAvatar } from "../../api/use-generate-avatar";
 import { PreviewPanel } from "../preview-panel";
 
 import { TABS } from "./data";
@@ -49,7 +49,7 @@ const FIELD_TAB: Record<string, number> = {
 
 export function FullCustomizationMode() {
   const [activeTab, setActiveTab] = useState(1);
-  const generateAvatar = useAvatarGenerationStatus();
+  const generateAvatar = useGenerateAvatar();
   const saveAvatar = useSaveAvatar();
 
   const { data: usage } = useAvatarUsage();
@@ -90,7 +90,7 @@ export function FullCustomizationMode() {
   const metadata = `${genero} · ${idade} anos · ${etnia}`;
 
   const handleSave = () => {
-    const generation = generateAvatar.generation;
+    const generation = generateAvatar.data;
     if (!generation || generation.status !== "COMPLETED") return;
 
     const nome = form.getValues("nome").trim();
@@ -101,8 +101,7 @@ export function FullCustomizationMode() {
       setActiveTab(1);
       return;
     }
-    const customPrompt = form.getValues("customPrompt")?.trim();
-    saveAvatar.mutate({ generationId: generation.id, name: nome, customPrompt });
+    saveAvatar.mutate({ generationId: generation.id, name: nome });
   };
 
   const handleNext = async () => {
@@ -117,7 +116,7 @@ export function FullCustomizationMode() {
     }
     form.handleSubmit(
       (data) =>
-        generateAvatar.generate({
+        generateAvatar.mutate({
           config: buildAvatarConfig(data),
           clothingImageUrl:
             data.roupa === "Enviar Imagem" ? data.clothingImageUrl : null,
@@ -217,9 +216,7 @@ export function FullCustomizationMode() {
 
           <Button
             onClick={handleNext}
-            disabled={
-              generateAvatar.isGenerating || (activeTab === 6 && noQuota)
-            }
+            disabled={generateAvatar.isPending || (activeTab === 6 && noQuota)}
             className={cn(
               activeTab === 6
                 ? "btn-brand gradient-brand luminous-glow text-white/90 drop-shadow-sm hover:luminous-glow-hover hover:brightness-110"
@@ -244,12 +241,11 @@ export function FullCustomizationMode() {
       <PreviewPanel
         nome={nome}
         metadata={metadata}
-        isGenerating={generateAvatar.isGenerating}
-        generatedImage={generateAvatar.generatedImage}
-        prompt={generateAvatar.generation?.prompt ?? null}
+        isGenerating={generateAvatar.isPending}
+        generatedImage={generateAvatar.data?.imageUrl ?? null}
+        prompt={generateAvatar.data?.prompt ?? null}
         canSave={
-          generateAvatar.generation?.status === "COMPLETED" &&
-          !saveAvatar.isSuccess
+          generateAvatar.data?.status === "COMPLETED" && !saveAvatar.isSuccess
         }
         isSaving={saveAvatar.isPending}
         onSave={handleSave}

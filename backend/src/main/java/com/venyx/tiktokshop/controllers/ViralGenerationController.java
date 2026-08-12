@@ -49,14 +49,15 @@ public class ViralGenerationController {
 
     @PostMapping("/scripts")
     @PreAuthorize("hasAnyRole('ADMIN', 'AFFILIATE', 'CLIENT')")
-    public ResponseEntity<PendingJobDTO> generateScripts(@RequestBody @Valid ViralScriptsRequestDTO dto) {
-        return ResponseEntity.accepted().body(service.generateScripts(dto));
+    public ResponseEntity<ViralScriptsResponseDTO> scripts(@Valid @RequestBody ViralScriptsRequestDTO dto) {
+        return ResponseEntity.ok(new ViralScriptsResponseDTO(service.generateScripts(dto)));
     }
 
     @PostMapping("/prompt")
     @PreAuthorize("hasAnyRole('ADMIN', 'AFFILIATE', 'CLIENT')")
-    public ResponseEntity<PendingJobDTO> generatePrompt(@RequestBody @Valid ViralPromptRequestDTO dto) {
-        return ResponseEntity.accepted().body(service.generatePrompt(dto));
+    public ResponseEntity<ImageGenerationDTO> prompt(@Valid @RequestBody ViralPromptRequestDTO dto) {
+        ImageGeneration job = service.generatePrompt(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ImageGenerationDTO(job));
     }
 
     @GetMapping("/usage")

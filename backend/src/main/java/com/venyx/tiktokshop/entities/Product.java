@@ -81,9 +81,6 @@ public class Product {
     @Column(name = "created_by_admin")
     private boolean createdByAdmin = true;
 
-    @Column(nullable = false)
-    private boolean active = true;
-
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
 
@@ -261,14 +258,6 @@ public class Product {
 
     public void setImages(List<String> images) {
         this.images = images;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     @Override

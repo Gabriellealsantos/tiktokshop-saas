@@ -71,7 +71,6 @@ function AvatarCard({
     id: string | number;
     name: string;
     image: string;
-    customPrompt?: string | null;
   }) => void;
   onDelete?: (id: number) => void;
   onRename?: (id: number, name: string) => void;
@@ -154,7 +153,6 @@ export function AvatarLibraryModal({
     id: string | number;
     name: string;
     image: string;
-    customPrompt?: string | null;
   }) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -178,14 +176,12 @@ export function AvatarLibraryModal({
     id: a.id,
     name: a.name,
     image: a.imageUrl,
-    customPrompt: a.customPrompt,
   }));
 
   const systemAvatars = (gallery ?? []).map((a) => ({
     id: a.id,
     name: a.name,
     image: a.imageUrl,
-    customPrompt: a.customPrompt,
   }));
 
   return (

@@ -1,6 +1,5 @@
 package com.venyx.tiktokshop.services.generation;
 
-import com.venyx.tiktokshop.dtos.PendingJobDTO;
 import com.venyx.tiktokshop.dtos.SwapClothesRequestDTO;
 import com.venyx.tiktokshop.dtos.SwapPersonRequestDTO;
 import com.venyx.tiktokshop.entities.ImageGeneration;
@@ -18,39 +17,39 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.venyx.tiktokshop.entities.enums.FlowType.VIDEO_TEMPLATE;
-import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.PENDING;
+import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.COMPLETED;
+import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.FAILED;
 
 /**
- * Swaps de imagem do fluxo de extração de movimento (tela /templates) — agora assíncrono.
- * <p>
- * Os métodos públicos resolvem User, cota e prompt sincronamente, persistem o job como PENDING,
- * e delegam a chamada ao Gemini/storage ao {@link VideoTemplateSwapWorker} via @Async.
- * </p>
+ * Swaps de imagem do fluxo de extração de movimento (tela /templates): trocar a pessoa
+ * do frame pelo avatar e vestir o produto. Cada geração consome a cota VIDEO_TEMPLATE.
+ * Espelha {@code AvatarGenerationService.runAndPersist} (provider de imagem + storage + persistência).
  */
 @Service
 public class VideoTemplateImageService {
 
     private static final String FRAME_FOLDER = "templates/frames";
+    private static final String RESULT_FOLDER = "templates";
 
     private final ImageGenerationRepository repository;
     private final GenerationLimitService limitService;
+    private final ImageProvider imageProvider;
     private final AuthService authService;
     private final StorageService storageService;
     private final SwapPromptComposer promptComposer;
-    private final VideoTemplateSwapWorker swapWorker;
 
     public VideoTemplateImageService(ImageGenerationRepository repository,
                                      GenerationLimitService limitService,
+                                     ImageProvider imageProvider,
                                      AuthService authService,
                                      StorageService storageService,
-                                     SwapPromptComposer promptComposer,
-                                     VideoTemplateSwapWorker swapWorker) {
+                                     SwapPromptComposer promptComposer) {
         this.repository = repository;
         this.limitService = limitService;
+        this.imageProvider = imageProvider;
         this.authService = authService;
         this.storageService = storageService;
         this.promptComposer = promptComposer;
-        this.swapWorker = swapWorker;
     }
 
     /** Sobe o frame capturado no cliente (canvas) para servir de referência aos swaps. */
@@ -59,7 +58,7 @@ public class VideoTemplateImageService {
         return storageService.upload(file, FRAME_FOLDER + "/" + user.getUuid());
     }
 
-    public PendingJobDTO swapPerson(SwapPersonRequestDTO req) {
+    public ImageGeneration swapPerson(SwapPersonRequestDTO req) {
         User user = authService.authenticated();
         limitService.assertCanGenerate(user.getUuid(), VIDEO_TEMPLATE);
 
@@ -68,19 +67,17 @@ public class VideoTemplateImageService {
         config.put("frameUrl", req.frameUrl());
         config.put("avatarImageUrl", req.avatarImageUrl());
 
-        ImageGeneration job = createPendingJob(user, config, SwapPromptComposer.PERSON);
-
         // Ordem das referências: image 1 = frame (cena/pose), image 2 = avatar (pessoa).
-        swapWorker.runSwapPerson(user, job.getId(), SwapPromptComposer.PERSON,
+        return runAndPersist(user, SwapPromptComposer.PERSON, config,
                 req.frameUrl(), req.avatarImageUrl());
-        return new PendingJobDTO(job.getId());
     }
 
-    public PendingJobDTO swapClothes(SwapClothesRequestDTO req) {
+    public ImageGeneration swapClothes(SwapClothesRequestDTO req) {
         User user = authService.authenticated();
         limitService.assertCanGenerate(user.getUuid(), VIDEO_TEMPLATE);
 
         ClothSwapMode mode = ClothSwapMode.fromValue(req.mode());
+
         boolean hasAvatar = org.springframework.util.StringUtils.hasText(req.avatarImageUrl());
 
         Map<String, Object> config = new LinkedHashMap<>();
@@ -100,27 +97,35 @@ public class VideoTemplateImageService {
 
         String prompt = promptComposer.buildClothesPrompt(mode, req.productName(), req.productDescription(), hasAvatar);
 
-        ImageGeneration job = createPendingJob(user, config, prompt);
-
         // Ordem das referências: image 1 = pessoa (base), image 2 = produto. (Opcional image 3 = avatar)
         if (hasAvatar) {
-            swapWorker.runSwapClothes(user, job.getId(), prompt,
+            return runAndPersist(user, prompt, config,
                     req.baseImageUrl(), req.productImageUrl(), req.avatarImageUrl());
         } else {
-            swapWorker.runSwapClothes(user, job.getId(), prompt,
+            return runAndPersist(user, prompt, config,
                     req.baseImageUrl(), req.productImageUrl());
         }
-        return new PendingJobDTO(job.getId());
     }
 
-    private ImageGeneration createPendingJob(User user, Map<String, Object> config, String prompt) {
+    private ImageGeneration runAndPersist(User user, String prompt,
+                                          Map<String, Object> config, String... references) {
         ImageGeneration job = new ImageGeneration();
         job.setUser(user);
         job.setFlowType(VIDEO_TEMPLATE);
         job.getConfig().putAll(config);
         job.setPrompt(prompt);
-        job.setStatus(PENDING);
         job.setCreatedAt(Instant.now());
+
+        try {
+            ImageProviderResult result = imageProvider.generate(ImageProviderRequest.of(prompt, references));
+            String folder = RESULT_FOLDER + "/" + user.getUuid();
+            job.setImageUrl(storageService.uploadWithRetry(result.content(), result.mimeType(), folder));
+            job.setStatus(COMPLETED);
+        } catch (Exception e) {
+            job.setStatus(FAILED);
+            job.setError(e.getMessage());
+        }
+
         return repository.save(job);
     }
 }

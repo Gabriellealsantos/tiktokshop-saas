@@ -16,14 +16,12 @@ import {
   getViralUsage,
 } from "@/services/viralService";
 import type {
-  PendingJob,
   ViralImageGeneration,
   ViralScript,
   ViralScriptsResponse,
   ViralTemplateDetail,
   ViralUsage,
 } from "@/models/viral";
-import { useGenerationWs } from "@/hooks/useGenerationWs";
 import { TrendHeader } from "../components/trend-header";
 
 import { LoadingScreen } from "./components/loading-screen";
@@ -59,7 +57,6 @@ export default function RouteComponent() {
   const [selectedTone, setSelectedTone] = useState<string | null>(null);
   const [selectedScript, setSelectedScript] = useState<string | null>(null);
   const [loadingStage, setLoadingStage] = useState(0);
-  const { waitForJob } = useGenerationWs();
 
   const { mutate: generateScripts, data: scripts, isPending: isGeneratingScripts } = useMutation({
     mutationFn: async (tone: string) => {
@@ -68,10 +65,7 @@ export default function RouteComponent() {
         characterSlug: characterId,
         tone,
       });
-      const { jobId } = res.data as PendingJob;
-      const result = await waitForJob(jobId);
-      if (result.status === "FAILED") throw new Error(result.error || "Erro");
-      return result.data as ViralScript[];
+      return (res.data as ViralScriptsResponse).scripts;
     },
     onSuccess: () => setSelectedScript(null),
     onError: () => {
@@ -89,10 +83,7 @@ export default function RouteComponent() {
         tone: selectedTone!,
         script,
       });
-      const { jobId } = res.data as PendingJob;
-      const result = await waitForJob(jobId);
-      if (result.status === "FAILED") throw new Error(result.error || "Erro");
-      return result.data as string;
+      return (res.data as ViralImageGeneration).prompt;
     },
     onSuccess: () => {
       // A cota do dia mudou — refetch do badge de uso.
