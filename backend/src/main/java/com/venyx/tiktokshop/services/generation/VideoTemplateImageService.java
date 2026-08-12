@@ -10,6 +10,7 @@ import com.venyx.tiktokshop.repositories.ImageGenerationRepository;
 import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.StorageService;
+import com.venyx.tiktokshop.services.VideoTemplateCatalogService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,19 +39,22 @@ public class VideoTemplateImageService {
     private final StorageService storageService;
     private final SwapPromptComposer promptComposer;
     private final VideoTemplateSwapWorker swapWorker;
+    private final VideoTemplateCatalogService catalogService;
 
     public VideoTemplateImageService(ImageGenerationRepository repository,
                                      GenerationLimitService limitService,
                                      AuthService authService,
                                      StorageService storageService,
                                      SwapPromptComposer promptComposer,
-                                     VideoTemplateSwapWorker swapWorker) {
+                                     VideoTemplateSwapWorker swapWorker,
+                                     VideoTemplateCatalogService catalogService) {
         this.repository = repository;
         this.limitService = limitService;
         this.authService = authService;
         this.storageService = storageService;
         this.promptComposer = promptComposer;
         this.swapWorker = swapWorker;
+        this.catalogService = catalogService;
     }
 
     /** Sobe o frame capturado no cliente (canvas) para servir de referência aos swaps. */
@@ -68,10 +72,21 @@ public class VideoTemplateImageService {
         config.put("frameUrl", req.frameUrl());
         config.put("avatarImageUrl", req.avatarImageUrl());
 
-        ImageGeneration job = createPendingJob(user, config, SwapPromptComposer.PERSON);
+        String basePrompt = SwapPromptComposer.PERSON;
+        if (org.springframework.util.StringUtils.hasText(req.templateSlug())) {
+            var template = catalogService.requireVisible(req.templateSlug());
+            if (org.springframework.util.StringUtils.hasText(template.getImagePrompt())) {
+                basePrompt += "\n\nTEMPLATE CUSTOM INSTRUCTION:\n" + template.getImagePrompt();
+            }
+        }
+        if (org.springframework.util.StringUtils.hasText(req.customPrompt())) {
+            basePrompt += "\n\nAVATAR CUSTOM INSTRUCTION:\n" + req.customPrompt();
+        }
+
+        ImageGeneration job = createPendingJob(user, config, basePrompt);
 
         // Ordem das referências: image 1 = frame (cena/pose), image 2 = avatar (pessoa).
-        swapWorker.runSwapPerson(user, job.getId(), SwapPromptComposer.PERSON,
+        swapWorker.runSwapPerson(user, job.getId(), basePrompt,
                 req.frameUrl(), req.avatarImageUrl());
         return new PendingJobDTO(job.getId());
     }
@@ -99,6 +114,15 @@ public class VideoTemplateImageService {
         }
 
         String prompt = promptComposer.buildClothesPrompt(mode, req.productName(), req.productDescription(), hasAvatar);
+        if (org.springframework.util.StringUtils.hasText(req.templateSlug())) {
+            var template = catalogService.requireVisible(req.templateSlug());
+            if (org.springframework.util.StringUtils.hasText(template.getImagePrompt())) {
+                prompt += "\n\nTEMPLATE CUSTOM INSTRUCTION:\n" + template.getImagePrompt();
+            }
+        }
+        if (org.springframework.util.StringUtils.hasText(req.customPrompt())) {
+            prompt += "\n\nAVATAR CUSTOM INSTRUCTION:\n" + req.customPrompt();
+        }
 
         ImageGeneration job = createPendingJob(user, config, prompt);
 

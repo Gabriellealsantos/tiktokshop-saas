@@ -25,57 +25,65 @@ public class SwapPromptComposer {
             on-screen text, captions, watermarks, logos, distorted anatomy, plastic AI look.
             """;
 
+    private static final String PERSON_INTEGRATION = """
+            ENVIRONMENTAL INTEGRATION RULE:
+            The inserted person MUST be perfectly integrated into the scene's lighting and environment.
+            Match the scene's lighting direction, intensity, and color temperature exactly.
+            The person must cast realistic shadows onto the floor, walls, or surrounding objects consistent with the scene's light sources.
+            Add natural ambient occlusion (contact shadows) where the person touches the ground or other surfaces.
+            If the scene has warm/golden lighting, the person's skin, hair, and clothing highlights must also be warm.
+            Do NOT leave a bright, flat studio-lighting look on the person. Erode any harsh cut-out edges;
+            the boundary between the person and the background must blend naturally with the camera focus.
+            
+            IMAGE QUALITY RULE:
+            Preserve the EXACT resolution, sharpness, grain, and noise pattern from image 1.
+            Do NOT sharpen, smooth, denoise, or enhance the overall image quality.
+            The final result must have the same photographic characteristics as image 1 (ISO grain, depth of field).
+            Do NOT add any new visual elements not present in image 1 (borders, overlays, watermarks).
+            """;
+
     /** image 1 = frame do vídeo (cena/pose base); image 2 = avatar (pessoa a inserir). */
     public static final String PERSON = """
             Replace the person in image 1 with the person shown in image 2.
 
             KEEP from image 1 (the original scene):
-            — ONLY the scene elements (background, lighting, framing) are kept from image 1.
-            — The ENTIRE person (head, torso, both arms, hands, legs — every body part) MUST be replaced by the person from image 2. Do NOT leave any body part of the original person from image 1 in the result. If image 1 shows two people, replace ONLY the main/primary subject — keep secondary people unchanged.
-            — pose, body position, framing, camera angle, background, and lighting
-            — clothing / outfit worn in the scene
-            — facial expression (The avatar's face is used for IDENTITY ONLY — the emotional expression MUST match the mood, context, and exact muscle movements of the scene in image 1)
+            — pose, body position, framing, camera angle, background, and lighting.
+            — facial expression (The avatar's face is used for IDENTITY ONLY — the emotional expression MUST match the mood, context, and exact muscle movements of the scene in image 1).
 
+            CRITICAL CLOTHING RULE:
+            You MUST KEEP the exact clothing and outfit worn by the person in image 1.
+            Preserve the EXACT color, style, fabric, shape, and texture of the original outfit from image 1.
+            Do NOT change the clothing color. Do NOT copy any clothing from image 2.
+            
             COPY from image 2 (the avatar reference) onto the result:
             — face, facial features, and skin tone
             — hair style and hair color (ALWAYS match the avatar's hair exactly. Include hair volume, texture, natural movement, and flyaway strands consistent with image 2. Match the hairline shape exactly)
             — apparent age (if image 2 shows an elderly person, the ENTIRE result MUST look elderly; if young, young)
-            — body type, build, and proportions (Match the EXACT body proportions from image 2: shoulder width relative to head size, waist-to-hip ratio, arm length, hand/foot size, neck thickness. The person must have the SAME silhouette as image 2)
-            — height and overall physical frame
-
+            — body type and build (Match the general body type from image 2, but adapt the scale and proportions so the head size fits perfectly and naturally with the pose and framing of image 1. Do NOT make the head oversized or disproportionate to the environment)
+            
             FACIAL IDENTITY LOCK:
             The face from image 2 MUST be reproduced with near-100% photographic likeness.
             Copy EXACTLY: eye shape and color, eyebrow shape and thickness, nose shape and size,
             lip shape, jawline, chin, forehead proportions, ear shape (if visible),
             facial bone structure, and any unique facial features (beauty marks, dimples, etc.).
-            The result face MUST be instantly recognizable as the SAME person from image 2.
+            Even if the avatar looks similar to the original person, you MUST forcefully apply all specific facial features from image 2 to ensure a complete identity swap.
             Do NOT average, blend, or approximate the facial features — reproduce them exactly.
-
+            
             CRITICAL FULL-BODY SKIN RULE:
             The skin on the ENTIRE body (hands, arms, neck, chest, legs — every visible area, NOT just the face)
             MUST match image 2's skin exactly. This includes:
             — Exact skin tone and color from image 2
-            — Age-appropriate skin texture: if image 2 shows an elderly person, the hands, arms, neck, and
-              all exposed skin MUST show wrinkles, age spots, visible veins, thin skin, and natural sagging
-              consistent with that age — do NOT leave young smooth skin on the body
-            — If image 2 shows a young person, the body skin must also look young and match that skin tone
+            — Age-appropriate skin texture
             — Visible pores, natural skin grain, and subtle imperfections matching image 2
             The body and the face MUST look like they belong to the SAME person from image 2.
-            Do NOT swap only the face while keeping a different body skin.
-
+            
             TATTOOS & SKIN MARKINGS RULE:
             Look VERY closely at image 2 (the avatar reference).
-            — If image 2 CLEARLY shows tattoos: Reproduce ONLY the avatar's exact tattoos
-              in their EXACT locations, size, and design. Match line weight, shading, and color.
-            — If image 2 does NOT show tattoos, or if tattoos are NOT clearly visible/identifiable:
-              The final result MUST have ZERO tattoos. Completely erase and paint over any
-              tattoo, scar, or mark that was on the person in image 1.
-            — If you are UNCERTAIN whether image 2 has tattoos: DEFAULT to NO tattoos.
-              It is safer to have no tattoos than to invent incorrect ones.
-            NEVER invent, add, or hallucinate tattoos that are not clearly present in image 2.
-            Image 1's original tattoos are strictly forbidden in the final image.
-
-            """ + VISUAL_CONSISTENCY + "\n" + AVOID_RULES;
+            — If image 2 CLEARLY shows tattoos: Reproduce ONLY the avatar's exact tattoos.
+            — If image 2 does NOT show tattoos: The final result MUST have ZERO tattoos. Completely erase and paint over any tattoo, scar, or mark that was on the person in image 1.
+            — NEVER invent, add, or hallucinate tattoos that are not clearly present in image 2.
+            
+            """ + PERSON_INTEGRATION + "\n" + VISUAL_CONSISTENCY + "\n" + AVOID_RULES;
 
     // Use a default label if no product name is provided.
     private static final String DEFAULT_PRODUCT = "the product";
@@ -84,17 +92,25 @@ public class SwapPromptComposer {
     private static final String CLOTHES_COMPLETO = """
             Dress the person in image 1 with the '%s' shown in image 2.
             The original outfit must be completely replaced by the '%s'.
-            Keep the person, pose, framing, background and lighting exactly the same.
+            CRITICAL ANATOMY RULE: You MUST preserve the person's original hands, fingers, arms, and legs.
+            Do NOT cover the hands with the dress or sleeves unless image 2 has long sleeves.
+            Even if the dress has a long skirt, the person's hands and arms MUST remain visible and anatomically correct.
+            CRITICAL PROPORTION RULE: The clothing must fit the person's existing body type and proportions.
+            Do NOT enlarge the person's head or change the body shape to match the mannequin in image 2.
+            Keep the person's face, hair, pose, framing, background and lighting exactly the same.
             """;
 
     private static final String CLOTHES_SUBSTITUIR = """
             Replace only the matching garment worn by the person in image 1 with the '%s' shown in image 2,
             keeping the rest of the outfit, person, pose, framing, background and lighting.
+            CRITICAL ANATOMY RULE: Preserve the person's original hands, fingers, and body proportions.
+            Do NOT enlarge the head or alter the body shape. The garment must fit the person's existing silhouette.
             """;
 
     private static final String CLOTHES_ADICIONAR = """
             Add the '%s' shown in image 2 to the current outfit of the person in image 1,
             layering it naturally. Keep the person, pose, framing, background and lighting.
+            CRITICAL ANATOMY RULE: Preserve the person's original hands, fingers, and body proportions.
             """;
 
     private static final String HOLD_OBJECT = """
@@ -132,6 +148,24 @@ public class SwapPromptComposer {
             compression where fingertips press against the surface. Add subtle color bleed
             between the skin and the product where they touch. The wrist angle must be
             ergonomically natural for holding the specific product shape and weight.
+            """;
+
+    private static final String CLOTHING_INTEGRATION = """
+            CLOTHING INTEGRATION & FABRIC PHYSICS RULE:
+            The garment MUST NOT look like a flat 2D sticker. It MUST wrap realistically around the person's body in 3D space.
+            Generate natural folds, creases, tension lines, and wrinkles that respond to the person's specific pose, body curves, and gravity.
+            The fabric texture must be visibly photorealistic and interact with light naturally.
+            The clothing MUST adopt the exact same ambient lighting, directional shadows, and color temperature of the room/environment from image 1.
+            Add soft contact shadows (ambient occlusion) where the clothing rests on the body or skin.
+            Blend the edges of the clothing seamlessly with the background and the person's skin to remove any "cut-out" or pasted look.
+            """;
+
+    private static final String HAND_PROTECTION_RULE = """
+            CRITICAL HAND & FINGER PRESERVATION RULE:
+            You MUST perfectly preserve the person's original hands, fingers, wrists, and arms from image 1.
+            The new clothing MUST NOT bleed into, distort, or cover any part of the hands or fingers.
+            If a hand is resting on the body or hips, the new fabric MUST flow UNDER the hand, leaving the original fingers 100% intact and clearly visible ON TOP of the fabric.
+            Do NOT merge skin pixels with fabric pixels. Ensure absolute anatomical correctness for all 10 fingers.
             """;
 
     // The legacy contract for 2 images
@@ -255,10 +289,16 @@ public class SwapPromptComposer {
 
         if (mode == ClothSwapMode.COMPLETO) {
             promptBuilder.append(String.format(CLOTHES_COMPLETO, productContext, productContext));
+            promptBuilder.append(CLOTHING_INTEGRATION);
+            promptBuilder.append(HAND_PROTECTION_RULE);
         } else if (mode == ClothSwapMode.SUBSTITUIR) {
             promptBuilder.append(String.format(CLOTHES_SUBSTITUIR, productContext));
+            promptBuilder.append(CLOTHING_INTEGRATION);
+            promptBuilder.append(HAND_PROTECTION_RULE);
         } else if (mode == ClothSwapMode.ADICIONAR) {
             promptBuilder.append(String.format(CLOTHES_ADICIONAR, productContext));
+            promptBuilder.append(CLOTHING_INTEGRATION);
+            promptBuilder.append(HAND_PROTECTION_RULE);
         } else if (mode == ClothSwapMode.SEGURAR_OBJETO) {
             promptBuilder.append(String.format(HOLD_OBJECT, productContext));
             promptBuilder.append("\nThis is a hand-held object. It must be grasped firmly with a natural grip.\n");

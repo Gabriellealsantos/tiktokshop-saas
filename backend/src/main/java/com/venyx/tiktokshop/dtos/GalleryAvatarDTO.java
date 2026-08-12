@@ -8,7 +8,8 @@ public record GalleryAvatarDTO(
     String gender,
     String type,
     String imageUrl,
-    Integer orderIndex
+    Integer orderIndex,
+    String customPrompt
 ) {
     public GalleryAvatarDTO(GalleryAvatar entity) {
         this(
@@ -17,7 +18,8 @@ public record GalleryAvatarDTO(
             entity.getGender(),
             entity.getType(),
             entity.getImageUrl(),
-            entity.getOrderIndex()
+            entity.getOrderIndex(),
+            entity.getConfig() != null ? (String) entity.getConfig().get("customPrompt") : null
         );
     }
 }
