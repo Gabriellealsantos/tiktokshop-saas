@@ -16,7 +16,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    boolean existsByCategoryId(Long categoryId);
+    boolean existsByCategoryIdAndActiveTrue(Long categoryId);
 
     /**
      * Carrega o produto já com a {@code category} inicializada (eager via join fetch).
@@ -27,16 +27,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p LEFT JOIN FETCH p.category WHERE p.id = :id")
     Optional<Product> findByIdWithCategory(@Param("id") Long id);
 
-    List<Product> findByCategoryOrderByRankPositionAsc(Category category);
+    List<Product> findByActiveTrue();
 
-    long countByCreatedAtAfter(Instant since);
+    List<Product> findByCategoryAndActiveTrueOrderByRankPositionAsc(Category category);
 
-    @Query("SELECT COALESCE(SUM(p.estimatedRevenue), 0) FROM Product p")
+    long countByActiveTrueAndCreatedAtAfter(Instant since);
+
+    @Query("SELECT COALESCE(SUM(p.estimatedRevenue), 0) FROM Product p WHERE p.active = true")
     BigDecimal sumEstimatedRevenue();
 
     @Query("""
             SELECT p FROM Product p
-            WHERE (:searchPattern IS NULL OR LOWER(p.name) LIKE :searchPattern)
+            WHERE p.active = true
+              AND (:searchPattern IS NULL OR LOWER(p.name) LIKE :searchPattern)
               AND (:category IS NULL OR p.category = :category)
               AND (:miningWindow IS NULL OR p.miningWindow = :miningWindow)
             """)

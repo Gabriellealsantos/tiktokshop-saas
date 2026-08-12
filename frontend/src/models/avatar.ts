@@ -39,6 +39,7 @@ export type AvatarDTO = {
     imageUrl: string;
     generationId: number | null;
     createdAt: string;
+    customPrompt?: string;
 };
 
 export const GENDER: Record<string, string> = {

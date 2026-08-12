@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { ShieldCheck, Infinity as InfinityIcon, Sparkles, Crown } from "lucide-react";
+import { ShieldCheck, Crown } from "lucide-react";
 
 import { SectionTitle } from "@/components";
 import type { UserStatus, UserPlan } from "@/models/user";
@@ -103,39 +103,35 @@ export function SubscriptionCard({ plan, status, planExpiresAt }: Pick<AccountIn
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] md:w-[500px] h-[200px] bg-brand-500/20 blur-[90px] rounded-full pointer-events-none -z-10" />
 
         <div className="size-20 rounded-[24px] bg-[linear-gradient(135deg,rgba(75,68,232,0.35)_0%,rgba(75,68,232,0.10)_100%)] border border-brand-400/50 shadow-[0_0_35px_-4px_rgba(75,68,232,0.7),inset_0_1px_1px_rgba(255,255,255,0.35)] flex items-center justify-center mb-5 transition-transform duration-500 hover:scale-105">
-          <InfinityIcon className="size-10 text-brand-300 drop-shadow-[0_0_15px_rgba(150,140,255,0.9)]" />
+          <Crown className="size-10 text-brand-300 drop-shadow-[0_0_15px_rgba(150,140,255,0.9)]" />
         </div>
 
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight drop-shadow-sm">
-          Gerações Ilimitadas
-        </h3>
-        <p className="text-base sm:text-lg text-white mt-3 max-w-lg font-bold leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-          Você possui <span className="text-brand-300 font-extrabold drop-shadow-[0_0_10px_rgba(75,68,232,0.8)]">gerações ilimitadas disponíveis</span> para criar avatares e conteúdos virais sem restrições.
-        </p>
-
-        <div className="w-full max-w-xl mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs sm:text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-white font-semibold">Plano Atual:</span>
-            <span className="font-bold text-white bg-white/10 px-3.5 py-1 rounded-full border border-white/15 shadow-xs">
-              {planLabels[plan]}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-white font-semibold">Moeda da Plataforma:</span>
-            <span className="font-bold text-brand-300 flex items-center gap-1.5">
-              <Sparkles className="size-3.5 text-brand-400 animate-pulse" />
-              Gerações Ilimitadas (∞)
-            </span>
-          </div>
-          {plan !== "sem_plano" && plan !== "vitalicio" && planExpires && (
-            <div className="flex items-center gap-2">
-              <span className="text-white font-semibold">Renovação prevista em:</span>
-              <span className="font-semibold text-white bg-brand-500/20 text-brand-300 px-3 py-0.5 rounded-full border border-brand-500/30">
-                {planExpires}
-              </span>
-            </div>
-          )}
+        <p className="text-sm font-semibold text-brand-400 uppercase tracking-widest mb-3">Plano Atual</p>
+        <div className="inline-flex items-center justify-center px-8 py-3 rounded-full bg-[linear-gradient(135deg,rgba(109,91,245,0.2)_0%,rgba(109,91,245,0.05)_100%)] border border-brand-400/30 shadow-[0_0_20px_rgba(109,91,245,0.2)]">
+          <h3 
+            className="text-3xl sm:text-4xl font-extrabold tracking-tight"
+            style={{ 
+              backgroundImage: "linear-gradient(180deg, #FFFFFF 0%, #D4D3FF 100%)", 
+              WebkitBackgroundClip: "text", 
+              WebkitTextFillColor: "transparent", 
+              filter: "drop-shadow(0 0 10px rgba(255,255,255,0.3))" 
+            }}
+          >
+            {planLabels[plan]}
+          </h3>
         </div>
+        
+        {plan !== "sem_plano" && plan !== "vitalicio" && planExpires && (
+          <p className="text-base text-zinc-300 mt-4 font-medium">
+            Sua assinatura será renovada em <span className="text-brand-300 font-bold">{planExpires}</span>.
+          </p>
+        )}
+        
+        {(plan === "sem_plano" || plan === "vitalicio") && (
+          <p className="text-base text-zinc-300 mt-4 font-medium">
+            {plan === "sem_plano" ? "Você não possui um plano ativo no momento." : "Você possui acesso vitalício à plataforma."}
+          </p>
+        )}
       </div>
     </div>
   );

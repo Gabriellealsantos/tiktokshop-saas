@@ -12,6 +12,7 @@ export type GalleryAvatarDTO = {
     imageUrl: string;
     gender?: string;
     type?: string;
+    customPrompt?: string | null;
 };
 
 export type DailyUsageDTO = {
