@@ -50,6 +50,9 @@ public class ImageGeneration {
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private Instant createdAt;
 
+    @Column(name = "updated_at", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant updatedAt;
+
     public ImageGeneration() {
     }
 
@@ -131,5 +134,13 @@ public class ImageGeneration {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

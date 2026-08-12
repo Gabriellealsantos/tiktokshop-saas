@@ -279,7 +279,7 @@ export function TabRoupa({
         )}
       </AnimatePresence>
 
-      <div className="pt-4 border-t border-white/5">
+      <div className="pt-4 border-t border-white/5 space-y-8">
         <FormField
           control={form.control}
           name="opcoesAdicionais"
@@ -293,6 +293,34 @@ export function TabRoupa({
                   placeholder="Ex: tatuagem no braço, brinco prateado, piercing no nariz..."
                   className="bg-surface-2 border-white/10 text-white rounded-xl min-h-20 resize-none"
                   {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="customPrompt"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex justify-between items-end mb-2">
+                <FormLabel className="text-brand-400 text-xs font-bold uppercase tracking-wider mb-0 block flex items-center gap-1.5">
+                  <Sparkles className="size-3" />
+                  Comando Customizado (Avatar)
+                </FormLabel>
+              </div>
+              <p className="text-[11px] text-text-3 mb-3 leading-relaxed">
+                Esse comando será salvo no banco e aplicado <strong className="text-white">toda vez que você usar este avatar no futuro</strong>.
+              </p>
+              <FormControl>
+                <Textarea
+                  placeholder="Ex: mulher com olhos azuis profundos, sardas, pele clara natural..."
+                  className="bg-brand-500/5 border-brand-500/30 text-white rounded-xl min-h-[100px] resize-none focus-visible:ring-brand-500 focus-visible:border-brand-500"
+                  maxLength={1000}
+                  {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />

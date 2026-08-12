@@ -33,6 +33,7 @@ export type BackendProduct = {
   rankPosition: number | null;
   images: string[] | null;
   createdByAdmin: boolean;
+  active: boolean;
   createdAt: string | null;
 };
 
@@ -165,5 +166,6 @@ export function toProductDTO(values: ProductFormValues) {
     rankPosition: values.rankInCategory ?? null,
     images: parseStringList(values.images),
     createdByAdmin: true,
+    active: true,
   };
 }

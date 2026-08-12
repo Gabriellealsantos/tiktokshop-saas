@@ -7,10 +7,8 @@ import {
   Home,
   Gift,
   Menu,
-  Moon,
   Settings,
   ShieldCheck,
-  Sun,
   User,
   Rocket,
   Film,
@@ -47,7 +45,6 @@ let lastShownSaleId: string | null = null;
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
   const { isAdmin, user } = useAuth();
-  const [isDark, setIsDark] = useState(true);
   const { latestSale } = useNotifications();
   const [isReferralOpen, setIsReferralOpen] = useState(false);
   // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
@@ -105,16 +102,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             </motion.button>
 
             <NotificationsBell />
-
-            <motion.button
-              onClick={() => setIsDark(!isDark)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-              className="grid size-9 place-items-center rounded-full btn-3d-icon-neutral text-zinc-300 hover:text-white"
-            >
-              {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
-            </motion.button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

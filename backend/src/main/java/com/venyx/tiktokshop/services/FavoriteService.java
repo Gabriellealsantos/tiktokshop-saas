@@ -47,7 +47,7 @@ public class FavoriteService {
 
     @Transactional(readOnly = true)
     public List<ProductDTO> listMine(User user) {
-        return favoriteRepository.findByUser_UuidOrderByCreatedAtDesc(user.getUuid()).stream()
+        return favoriteRepository.findByUser_UuidAndProduct_ActiveTrueOrderByCreatedAtDesc(user.getUuid()).stream()
                 .map(favorite -> new ProductDTO(favorite.getProduct()))
                 .toList();
     }
