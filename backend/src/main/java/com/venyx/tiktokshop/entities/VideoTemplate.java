@@ -64,6 +64,9 @@ public class VideoTemplate {
     @Column(name = "motion_instruction", columnDefinition = "TEXT")
     private String motionInstruction;
 
+    @Column(name = "image_prompt", columnDefinition = "TEXT")
+    private String imagePrompt;
+
     /** Camada de áudio/fala do prompt gerado (narração falada / música / silêncio). */
     @Enumerated(EnumType.STRING)
     @Column(name = "audio_mode", nullable = false, length = 20)
@@ -191,6 +194,14 @@ public class VideoTemplate {
 
     public void setMotionInstruction(String motionInstruction) {
         this.motionInstruction = motionInstruction;
+    }
+
+    public String getImagePrompt() {
+        return imagePrompt;
+    }
+
+    public void setImagePrompt(String imagePrompt) {
+        this.imagePrompt = imagePrompt;
     }
 
     public VideoAudioMode getAudioMode() {

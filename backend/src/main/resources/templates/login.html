@@ -148,7 +148,7 @@
                         </div>
 
                         <!-- Tabs Entrar / Criar conta -->
-                        <div class="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1 auth-card">
+                        <div class="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1">
                             <div
                                 class="relative flex h-full flex-1 items-center justify-center rounded-full text-sm font-semibold text-white/90">
                                 <div
@@ -239,15 +239,18 @@
                             </button>
                         </form>
 
+                        <div class="mt-4 text-center">
+                            <p class="text-[13px] text-zinc-400">
+                                Não tem conta? <a th:href="|${appDomain}/register|" class="font-bold text-white hover:opacity-80 transition-opacity">Criar conta</a>
+                            </p>
+                        </div>
+
                         <div class="mt-8 text-center">
                             <p class="text-[11px] text-zinc-500 leading-relaxed px-4">
                                 Ao continuar, você concorda com nossos
-                                <a href="#" class="font-bold hover:opacity-80 transition-opacity"
-                                    style="background-image: linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px var(--brand-purple)); display: inline-block;">Termos</a>
+                                <a th:href="|${appDomain}/termos-de-uso|" target="_blank" class="font-bold text-white hover:opacity-80 transition-opacity">Termos</a>
                                 e
-                                <a href="#" class="font-bold hover:opacity-80 transition-opacity"
-                                    style="background-image: linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px var(--brand-purple)); display: inline-block;">Política de
-                                    Privacidade</a>.
+                                <a href="#" class="font-bold text-white hover:opacity-80 transition-opacity">Política de Privacidade</a>.
                             </p>
                         </div>
                     </div>
@@ -256,8 +259,7 @@
 
                 <!-- COLUNA DIREITA - IMAGEM (SÓLIDA) -->
                 <div class="relative hidden lg:block bg-[#09080e] mobile-hidden">
-                    <!-- 1. Imagem Base -->
-                    <img src="/images/imagem-login-cadastro.jpeg?v=4" alt="Estúdio Criativo"
+                    <img src="/images/imagem-login-cadastro.png?v=4" alt="Estúdio Criativo"
                         class="absolute inset-0 h-full w-full object-cover object-[60%_10%]" />
 
                     <!-- 3. Overlay em Gradiente -->

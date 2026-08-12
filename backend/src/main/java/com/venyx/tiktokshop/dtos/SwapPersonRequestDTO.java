@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record SwapPersonRequestDTO(
         @NotBlank String frameUrl,
-        @NotBlank String avatarImageUrl
+        @NotBlank String avatarImageUrl,
+        String customPrompt,
+        String templateSlug
 ) {
 }

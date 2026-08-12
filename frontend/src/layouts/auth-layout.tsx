@@ -23,7 +23,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           <div className="relative hidden lg:block bg-[#09080e]">
             {/* 1. Imagem Base */}
             <img
-              src={asset("/imagem-login-cadastro.jpeg")}
+              src={asset("/imagem-login-cadastro.png")}
               alt="Estúdio Criativo"
               className="absolute inset-0 h-full w-full object-cover object-[60%_10%]"
             />

@@ -9,7 +9,8 @@ public record AvatarDTO(
         String name,
         String imageUrl,
         Long generationId,
-        Instant createdAt
+        Instant createdAt,
+        String customPrompt
 ) {
     public AvatarDTO(Avatar entity) {
         this(
@@ -17,7 +18,8 @@ public record AvatarDTO(
                 entity.getName(),
                 entity.getImageUrl(),
                 entity.getGeneration() != null ? entity.getGeneration().getId() : null,
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                entity.getConfig() != null ? (String) entity.getConfig().get("customPrompt") : null
         );
     }
 }

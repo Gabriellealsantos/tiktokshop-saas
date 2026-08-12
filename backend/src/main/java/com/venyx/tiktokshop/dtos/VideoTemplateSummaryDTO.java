@@ -13,7 +13,8 @@ public record VideoTemplateSummaryDTO(
         String category,
         String thumbnailUrl,
         String videoUrl,
-        boolean owned
+        boolean owned,
+        String imagePrompt
 ) {
     public VideoTemplateSummaryDTO(VideoTemplate entity) {
         this(
@@ -22,7 +23,8 @@ public record VideoTemplateSummaryDTO(
                 entity.getCategory(),
                 entity.getThumbnailUrl(),
                 entity.getVideoUrl(),
-                !entity.isPublicTemplate()
+                !entity.isPublicTemplate(),
+                entity.getImagePrompt()
         );
     }
 }

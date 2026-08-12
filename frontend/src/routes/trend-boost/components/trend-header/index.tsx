@@ -18,7 +18,7 @@ export function TrendHeader({
 }) {
   return (
     <header className={cn(
-      "entrance relative z-10 flex flex-col mb-8",
+      "entrance relative z-10 flex flex-col mb-2",
       compact ? "items-start text-left max-w-xl" : "items-center text-center max-w-3xl mx-auto"
     )}>
       {/* Atmosphere Glow */}

@@ -12,6 +12,8 @@ public record SwapClothesRequestDTO(
         @NotBlank String mode,
         String productName,
         String productDescription,
-        String avatarImageUrl
+        String avatarImageUrl,
+        String customPrompt,
+        String templateSlug
 ) {
 }

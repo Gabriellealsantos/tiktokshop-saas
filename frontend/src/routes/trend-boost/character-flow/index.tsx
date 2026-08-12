@@ -153,11 +153,11 @@ export default function RouteComponent() {
 
   return (
     <AppShell>
-      <Page className="pt-4 md:pt-6 pb-36">
+      <Page className="pt-0 -mt-6 pb-36 px-4 md:px-6">
         <div className="mx-auto max-w-6xl">
 
           {/* Cabeçalho Compacto & Stepper no TOPO */}
-          <div className="mb-8">
+          <div className="rounded-[24px] bg-[#0F0D15]/20 backdrop-blur-3xl border border-white/5 py-5 px-6 mb-6">
             <TrendHeader
               title="Trend"
               subtitle="Turbine seu Engajamento"
@@ -202,50 +202,52 @@ export default function RouteComponent() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
+          <div className="rounded-[24px] bg-[#0F0D15]/20 backdrop-blur-3xl border border-white/5 p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
 
-            {/* COLUNA ESQUERDA - STICKY */}
-            <CharacterSidebar character={character} templateId={templateId} isStep3={isStep3} />
+              {/* COLUNA ESQUERDA - STICKY */}
+              <CharacterSidebar character={character} templateId={templateId} isStep3={isStep3} />
 
-            {/* COLUNA DIREITA - PAINEL DE TRABALHO */}
-            <div className="flex flex-col glass-container rounded-2xl p-5 sm:p-6">
-              {!isStep3 ? (
-                <>
-                  {/* ETAPA 2A: Escolha o tom */}
-                  <ToneSelector
-                    tones={tones}
-                    selectedTone={selectedTone}
-                    setSelectedTone={setSelectedTone}
-                    isGeneratingScripts={isGeneratingScripts}
-                    generateScripts={(tone: string) => generateScripts(tone)}
-                    hasScripts={!!scripts}
-                  />
+              {/* COLUNA DIREITA - PAINEL DE TRABALHO */}
+              <div className="flex flex-col rounded-2xl">
+                {!isStep3 ? (
+                  <>
+                    {/* ETAPA 2A: Escolha o tom */}
+                    <ToneSelector
+                      tones={tones}
+                      selectedTone={selectedTone}
+                      setSelectedTone={setSelectedTone}
+                      isGeneratingScripts={isGeneratingScripts}
+                      generateScripts={(tone: string) => generateScripts(tone)}
+                      hasScripts={!!scripts}
+                    />
 
-                  {/* ETAPA 2B: Roteiros (Revelada suavemente) */}
-                  <AnimatePresence>
-                    {scripts && (
-                      <ScriptSelector
-                        scripts={scripts}
-                        selectedScript={selectedScript}
-                        setSelectedScript={setSelectedScript}
-                        selectedTone={selectedTone}
-                        isGeneratingScripts={isGeneratingScripts}
-                        generateScripts={(tone: string) => generateScripts(tone)}
-                        generatePrompt={generatePrompt}
-                      />
-                    )}
-                  </AnimatePresence>
-                </>
-              ) : (
-                /* ETAPA 3: PROMPT GERADO */
-                finalPrompt && (
-                  <PromptResult
-                    finalPrompt={finalPrompt}
-                    handleCopy={handleCopy}
-                    resetPrompt={resetPrompt}
-                  />
-                )
-              )}
+                    {/* ETAPA 2B: Roteiros (Revelada suavemente) */}
+                    <AnimatePresence>
+                      {scripts && (
+                        <ScriptSelector
+                          scripts={scripts}
+                          selectedScript={selectedScript}
+                          setSelectedScript={setSelectedScript}
+                          selectedTone={selectedTone}
+                          isGeneratingScripts={isGeneratingScripts}
+                          generateScripts={(tone: string) => generateScripts(tone)}
+                          generatePrompt={generatePrompt}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </>
+                ) : (
+                  /* ETAPA 3: PROMPT GERADO */
+                  finalPrompt && (
+                    <PromptResult
+                      finalPrompt={finalPrompt}
+                      handleCopy={handleCopy}
+                      resetPrompt={resetPrompt}
+                    />
+                  )
+                )}
+              </div>
             </div>
           </div>
         </div>

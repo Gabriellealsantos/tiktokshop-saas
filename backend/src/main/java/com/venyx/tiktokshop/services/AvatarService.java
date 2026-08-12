@@ -77,6 +77,9 @@ public class AvatarService {
         avatar.setImageUrl(generation.getImageUrl());
         avatar.setGeneration(generation);
         avatar.getConfig().putAll(generation.getConfig());
+        if (org.springframework.util.StringUtils.hasText(dto.customPrompt())) {
+            avatar.getConfig().put("customPrompt", dto.customPrompt().trim());
+        }
         avatar.setCreatedAt(Instant.now());
 
         return new AvatarDTO(repository.save(avatar));
@@ -94,6 +97,9 @@ public class AvatarService {
         avatar.setUser(user);
         avatar.setName(dto.name().trim());
         avatar.setImageUrl(dto.imageUrl());
+        if (org.springframework.util.StringUtils.hasText(dto.customPrompt())) {
+            avatar.getConfig().put("customPrompt", dto.customPrompt().trim());
+        }
         avatar.setCreatedAt(Instant.now());
 
         return new AvatarDTO(repository.save(avatar));

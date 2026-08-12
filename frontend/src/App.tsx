@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { PrivateRoute } from "@/components/private-route";
 import { Toaster, CustomCursor } from "@/components";
 
@@ -34,9 +34,12 @@ import SpeechScreen from "@/routes/create-from-scratch/speech";
 import VideoScreen from "./routes/create-from-scratch/video";
 
 function App() {
+  const location = useLocation();
+  const isPublicRoute = ['/login', '/register', '/forgot-password', '/recover-password', '/acesso-pendente', '/authorized'].some(path => location.pathname.startsWith(path));
+
   return (
     <>
-      <CustomCursor />
+      {!isPublicRoute && <CustomCursor />}
       <Routes>
         <Route path="/login" element={<LoginRoute />} />
         <Route path="/register" element={<RegisterRoute />} />

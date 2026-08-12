@@ -29,25 +29,34 @@ export function LightingSelector({ lightingSelected, setLightingSelected }: Ligh
               key={item.id}
               onClick={() => setLightingSelected(item.id)}
               className={cn(
-                "group relative overflow-hidden rounded-2xl aspect-[16/10] flex flex-col items-center justify-center gap-2 transition-all duration-300",
-                `bg-linear-to-br ${item.gradient}`,
+                "group relative overflow-hidden rounded-2xl aspect-[16/10] flex flex-col items-center justify-center transition-all duration-300 bg-[#0F0D15]",
                 isSelected
                   ? "ring-2 ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.4)]"
                   : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg"
               )}
             >
-              <Icon className={cn("size-6 mb-1 transition-transform group-hover:scale-110", item.iconColor)} />
-              {/* Para ícones claros (ex.: ring-light), a faixa do label tem fundo escuro por contraste, padrão igual. */}
-              <div className="absolute inset-x-0 bottom-0 p-2 sm:p-3 bg-[#0a0810]/50 backdrop-blur-md">
-                <span className="font-bold text-white text-[11px] drop-shadow-md">
+              {/* Background Color Glow */}
+              <div className={cn("absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-500 bg-linear-to-br", item.gradient)} />
+              
+              {/* Smooth Overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#09080E]/90 via-[#09080E]/20 to-transparent pointer-events-none" />
+
+              {/* Centered Icon */}
+              <div className="relative z-10 flex flex-1 items-center justify-center w-full pt-4">
+                <Icon className={cn("size-7 transition-all duration-500 group-hover:scale-110 group-hover:-translate-y-1", item.iconColor)} />
+              </div>
+
+              {/* Bottom Label */}
+              <div className="relative z-10 w-full p-3 text-center">
+                <span className="font-bold text-white text-[11px] uppercase tracking-wider drop-shadow-md">
                   {item.label}
                 </span>
               </div>
 
               {isSelected && (
                 <>
-                  <div className="absolute inset-0 border-2 border-brand-500 rounded-2xl pointer-events-none" />
-                  <div className="absolute right-2 top-2 grid size-5 place-items-center rounded-full bg-brand-500 text-white shadow-sm z-10">
+                  <div className="absolute inset-0 border-2 border-brand-500 rounded-2xl pointer-events-none z-20" />
+                  <div className="absolute right-2 top-2 grid size-5 place-items-center rounded-full bg-brand-500 text-white shadow-sm z-20">
                     <Check className="size-3" />
                   </div>
                 </>
