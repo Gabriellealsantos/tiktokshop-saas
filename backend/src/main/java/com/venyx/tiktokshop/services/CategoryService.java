@@ -59,7 +59,7 @@ public class CategoryService {
         if (entity.isSystem()) {
             throw new BusinessException("Categorias padrão não podem ser excluídas.");
         }
-        if (productRepository.existsByCategoryId(id)) {
+        if (productRepository.existsByCategoryIdAndActiveTrue(id)) {
             throw new BusinessException("Não é possível excluir: há produtos usando esta categoria.");
         }
         repository.deleteById(id);

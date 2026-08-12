@@ -101,7 +101,8 @@ export function FullCustomizationMode() {
       setActiveTab(1);
       return;
     }
-    saveAvatar.mutate({ generationId: generation.id, name: nome });
+    const customPrompt = form.getValues("customPrompt")?.trim();
+    saveAvatar.mutate({ generationId: generation.id, name: nome, customPrompt });
   };
 
   const handleNext = async () => {

@@ -27,6 +27,13 @@ public interface ImageGenerationRepository extends JpaRepository<ImageGeneration
 
     Optional<ImageGeneration> findByIdAndUser_Uuid(Long id, UUID userId);
 
+    @Modifying
+    @Query(nativeQuery = true, value = """
+    UPDATE image_generations SET status = 'FAILED', error = 'Job órfão (timeout)'
+    WHERE status IN ('PENDING', 'RUNNING') AND created_at < :threshold
+    """)
+    int markOrphansAsFailed(Instant threshold);
+
     @Query("""
     SELECT g FROM ImageGeneration g
     JOIN FETCH g.user

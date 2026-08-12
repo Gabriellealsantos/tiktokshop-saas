@@ -43,20 +43,18 @@ public class TemplateGenerationController {
     }
 
     @PostMapping("/swap-person")
-    public ResponseEntity<ImageGenerationDTO> swapPerson(@Valid @RequestBody SwapPersonRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ImageGenerationDTO(imageService.swapPerson(dto)));
+    public ResponseEntity<PendingJobDTO> swapPerson(@Valid @RequestBody SwapPersonRequestDTO dto) {
+        return ResponseEntity.accepted().body(imageService.swapPerson(dto));
     }
 
     @PostMapping("/swap-clothes")
-    public ResponseEntity<ImageGenerationDTO> swapClothes(@Valid @RequestBody SwapClothesRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ImageGenerationDTO(imageService.swapClothes(dto)));
+    public ResponseEntity<PendingJobDTO> swapClothes(@Valid @RequestBody SwapClothesRequestDTO dto) {
+        return ResponseEntity.accepted().body(imageService.swapClothes(dto));
     }
 
     @PostMapping("/prompt")
-    public ResponseEntity<VideoPromptResponseDTO> prompt(@Valid @RequestBody VideoPromptRequestDTO dto) {
-        return ResponseEntity.ok(promptService.generate(dto));
+    public ResponseEntity<PendingJobDTO> prompt(@Valid @RequestBody VideoPromptRequestDTO dto) {
+        return ResponseEntity.accepted().body(promptService.generate(dto));
     }
 
     @GetMapping("/usage")

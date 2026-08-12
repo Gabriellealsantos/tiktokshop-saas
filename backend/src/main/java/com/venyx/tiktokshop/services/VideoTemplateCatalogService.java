@@ -127,6 +127,7 @@ public class VideoTemplateCatalogService {
         template.setEnergy(form.energy());
         template.setDuration(form.duration());
         template.setMotionInstruction(form.motionInstruction());
+        template.setImagePrompt(form.imagePrompt());
         template.setAudioMode(VideoAudioMode.fromValue(form.audioMode()));
         template.setSortOrder(form.sortOrder() == null ? 0 : form.sortOrder());
         template.setActive(form.active() == null || form.active());

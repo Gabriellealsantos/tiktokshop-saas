@@ -3,6 +3,11 @@
 // Espelham os DTOs do backend em com.venyx.tiktokshop.dtos.VideoTemplate* / Swap* / VideoPrompt*.
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface PendingJob {
+  jobId: string;
+  status: "PENDING";
+}
+
 /** Card da galeria — GET /api/video-templates. `owned` = vídeo privado (upload manual do usuário). */
 export interface VideoTemplateSummary {
   slug: string;
@@ -11,6 +16,7 @@ export interface VideoTemplateSummary {
   thumbnailUrl: string | null;
   videoUrl: string;
   owned: boolean;
+  imagePrompt?: string | null;
 }
 
 /** Modo de troca de roupa (casa com o backend ClothSwapMode). */
@@ -23,6 +29,8 @@ export type VideoAudioMode = "NARRACAO" | "MUSICA" | "SILENCIO";
 export interface SwapPersonRequest {
   frameUrl: string;
   avatarImageUrl: string;
+  customPrompt?: string;
+  templateSlug?: string;
 }
 
 /** POST /api/templates/swap-clothes */
@@ -33,6 +41,8 @@ export interface SwapClothesRequest {
   productName?: string;
   productDescription?: string;
   avatarImageUrl?: string;
+  customPrompt?: string;
+  templateSlug?: string;
 }
 
 /** Resposta dos swaps — ImageGenerationDTO (aqui `imageUrl` traz a imagem gerada). */
@@ -86,6 +96,7 @@ export interface VideoTemplateAdmin {
   energy: string | null;
   duration: string | null;
   motionInstruction: string | null;
+  imagePrompt: string | null;
   audioMode: VideoAudioMode;
   active: boolean;
   sortOrder: number;
@@ -104,6 +115,7 @@ export interface VideoTemplateForm {
   energy?: string | null;
   duration?: string | null;
   motionInstruction?: string | null;
+  imagePrompt?: string | null;
   audioMode?: VideoAudioMode;
   sortOrder?: number;
   active?: boolean;

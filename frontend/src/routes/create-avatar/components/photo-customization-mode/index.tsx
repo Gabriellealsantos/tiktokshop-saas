@@ -90,7 +90,8 @@ export function PhotoCustomizationMode() {
       setActiveTab(1);
       return;
     }
-    saveAvatar.mutate({ generationId: generation.id, name: nomeAtual });
+    const customPrompt = form.getValues("customPrompt")?.trim();
+    saveAvatar.mutate({ generationId: generation.id, name: nomeAtual, customPrompt });
   };
 
   const handlePrev = () => {

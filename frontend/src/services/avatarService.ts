@@ -33,19 +33,19 @@ export const getGeneration = (id: number) =>
 export const getAvatarUsage = () =>
     requestBackend({ method: "GET", url: "/api/avatars/generation/usage", withCredentials: true });
 
-export const saveAvatarFromGeneration = (generationId: number, name: string) =>
+export const saveAvatarFromGeneration = (generationId: number, name: string, customPrompt?: string) =>
     requestBackend({
         method: "POST",
         url: "/api/avatars/from-generation",
-        data: { generationId, name },
+        data: { generationId, name, customPrompt },
         withCredentials: true,
     });
 
-export const saveAvatarFromUpload = (imageUrl: string, name: string) =>
+export const saveAvatarFromUpload = (imageUrl: string, name: string, customPrompt?: string) =>
     requestBackend({
         method: "POST",
         url: "/api/avatars/from-upload",
-        data: { imageUrl, name },
+        data: { imageUrl, name, customPrompt },
         withCredentials: true,
     });
 
