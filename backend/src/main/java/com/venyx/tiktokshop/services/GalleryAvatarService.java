@@ -86,6 +86,10 @@ public class GalleryAvatarService {
         entity.setImageUrl(dto.imageUrl());
         entity.setOrderIndex(dto.orderIndex());
 
+        if (entity.getConfig() == null) {
+            entity.setConfig(new java.util.HashMap<>());
+        }
+
         if (org.springframework.util.StringUtils.hasText(dto.customPrompt())) {
             entity.getConfig().put("customPrompt", dto.customPrompt().trim());
         } else {
