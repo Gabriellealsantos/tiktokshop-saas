@@ -5,6 +5,7 @@ export type GalleryAvatarAdmin = {
     type: string | null;
     imageUrl: string;
     orderIndex: number | null;
+    customPrompt?: string | null;
 };
 
 export type GalleryAvatarForm = {
@@ -13,4 +14,5 @@ export type GalleryAvatarForm = {
     type: string;
     imageUrl: string;
     orderIndex: number;
+    customPrompt?: string | null;
 };

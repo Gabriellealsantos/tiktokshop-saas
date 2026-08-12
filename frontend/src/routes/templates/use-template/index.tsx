@@ -149,9 +149,8 @@ export default function TemplateAssemblyScreen() {
 
   // Estado do avatar e modal
   const [avatarOriginal, setAvatarOriginal] = useState<string | null>(null);
-  const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(
-    null,
-  );
+  const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(null);
+  const [avatarCustomPrompt, setAvatarCustomPrompt] = useState<string | null>(null);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [avatarConfirmed, setAvatarConfirmed] = useState(false);
 
@@ -219,7 +218,12 @@ export default function TemplateAssemblyScreen() {
       }
       // Garante que o avatar seja uma URL hospedada (assets locais/data URLs não servem ao Gemini).
       const avatarImageUrl = await resolveHostedAvatarUrl();
-      const res = await swapPerson({ frameUrl, avatarImageUrl });
+      const res = await swapPerson({ 
+        frameUrl, 
+        avatarImageUrl, 
+        customPrompt: avatarCustomPrompt ?? undefined,
+        templateSlug: slug
+      });
       
       const { jobId } = res.data as PendingJob;
       const result = await waitForJob(jobId);
@@ -252,7 +256,9 @@ export default function TemplateAssemblyScreen() {
         mode,
         productName: produto.name,
         productDescription: produto.description,
-        avatarImageUrl
+        avatarImageUrl,
+        customPrompt: avatarCustomPrompt ?? undefined,
+        templateSlug: slug
       });
       
       const { jobId } = res.data as PendingJob;
@@ -315,9 +321,10 @@ export default function TemplateAssemblyScreen() {
   };
 
   // Handlers para o modal de avatar
-  const handleAvatarSelect = (avatarImage: string) => {
-    setAvatarOriginal(avatarImage);
-    setAvatarSelecionado(avatarImage);
+  const handleAvatarSelect = (avatar: { image: string, customPrompt?: string | null }) => {
+    setAvatarOriginal(avatar.image);
+    setAvatarSelecionado(avatar.image);
+    setAvatarCustomPrompt(avatar.customPrompt ?? null);
     setAvatarPickerOpen(false);
     setAvatarConfirmed(false); // Reset confirmation if avatar changes
     setPersonResultUrl(null);
@@ -678,7 +685,7 @@ export default function TemplateAssemblyScreen() {
           open={avatarPickerOpen}
           onOpenChange={setAvatarPickerOpen}
           mode="select"
-          onSelect={(avatar) => handleAvatarSelect(avatar.image)}
+          onSelect={handleAvatarSelect}
           title="Selecione o avatar"
           subtitle="Escolha quem apresentará o vídeo."
         />

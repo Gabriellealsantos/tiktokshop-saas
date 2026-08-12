@@ -90,14 +90,15 @@ export default function RegisterRoute() {
           <p className="text-[11px] text-zinc-500 leading-relaxed px-4">
             Ao continuar, você concorda com nossos{" "}
             <a
-              href={`${BASE_URL}/login`}
+              href={`${BASE_URL}/termos-de-uso`}
+              target="_blank"
               className="font-bold text-white hover:opacity-80 transition-opacity"
             >
               Termos
             </a>{" "}
             e{" "}
             <a
-              href={`${BASE_URL}/login`}
+              href="#"
               className="font-bold text-white hover:opacity-80 transition-opacity"
             >
               Política de Privacidade

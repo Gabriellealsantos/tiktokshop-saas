@@ -16,7 +16,7 @@ export function useGenerationWs() {
       string,
       {
         resolve: (val: GenerationResultMessage) => void;
-        reject: (reason?: any) => void;
+        reject: (reason?: unknown) => void;
         timer: ReturnType<typeof setTimeout>;
         pollTimer?: ReturnType<typeof setInterval>;
       }
