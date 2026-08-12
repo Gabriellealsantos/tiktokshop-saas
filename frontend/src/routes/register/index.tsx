@@ -51,7 +51,7 @@ export default function RegisterRoute() {
         </div>
 
         {/* Toggle Entrar / Criar conta */}
-        <div className="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1 auth-card">
+        <div className="mt-8 flex h-12 w-full items-center rounded-full bg-white/5 p-1">
           <a
             href={`${BASE_URL}/login`}
             className="relative flex h-full flex-1 items-center justify-center rounded-full text-sm font-semibold transition-colors text-zinc-400 hover:text-zinc-200"
@@ -79,6 +79,11 @@ export default function RegisterRoute() {
 
         <div className="mt-6">
           <RegisterForm onSubmit={onSubmit} submitting={submitting} />
+          <div className="mt-4 text-center">
+            <p className="text-[13px] text-zinc-400">
+              Já tem conta? <a href={`${BASE_URL}/login`} className="font-bold text-white hover:opacity-80 transition-opacity">Entrar</a>
+            </p>
+          </div>
         </div>
 
         <div className="mt-8 text-center">
@@ -86,16 +91,14 @@ export default function RegisterRoute() {
             Ao continuar, você concorda com nossos{" "}
             <a
               href={`${BASE_URL}/login`}
-              className="font-bold hover:opacity-80 transition-opacity"
-              style={{ backgroundImage: "linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 15px var(--brand-purple))", display: "inline-block" }}
+              className="font-bold text-white hover:opacity-80 transition-opacity"
             >
               Termos
             </a>{" "}
             e{" "}
             <a
               href={`${BASE_URL}/login`}
-              className="font-bold hover:opacity-80 transition-opacity"
-              style={{ backgroundImage: "linear-gradient(180deg, #D4D3FF 0%, var(--brand-purple) 60%, #1a1661 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", filter: "drop-shadow(0 0 15px var(--brand-purple))", display: "inline-block" }}
+              className="font-bold text-white hover:opacity-80 transition-opacity"
             >
               Política de Privacidade
             </a>

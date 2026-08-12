@@ -13,11 +13,12 @@ import { avatarPhotoSchema, type AvatarPhotoFormValues } from "./schema";
 import { TabSuaFoto } from "./components/tab-your-photo";
 import { TabRoupa } from "./components/tab-clothing";
 
-import { useGenerateAvatarFromPhoto } from "../../api/use-generate-avatar-from-photo";
+import { useAvatarGenerationStatus } from "../../api/use-avatar-generation-status";
 import { useSaveAvatar } from "../../api/use-save-avatar";
 import { useAvatarUsage } from "../../api/use-avatars";
 import { hasQuota, isUnlimited } from "@/utils/limit-display";
 import { toast } from "sonner";
+import { useGenerateAvatarFromPhoto } from "../../api/use-generate-avatar-from-photo";
 
 const TABS = [
   { id: 1, label: "Sua foto" },
@@ -27,7 +28,9 @@ const TABS = [
 export function PhotoCustomizationMode() {
   const [activeTab, setActiveTab] = useState(1);
 
-  const generateAvatar = useGenerateAvatarFromPhoto();
+  const uploadAndGenerate = useGenerateAvatarFromPhoto();
+  const generateAvatar = useAvatarGenerationStatus();
+
   const saveAvatar = useSaveAvatar();
   const { data: usage } = useAvatarUsage();
   const noQuota = usage ? !hasQuota(usage.max, usage.remaining) : false;
@@ -53,7 +56,14 @@ export function PhotoCustomizationMode() {
       return;
     }
     form.handleSubmit(
-      (data) => generateAvatar.mutate(data),
+      async (data) => {
+        try {
+          const job = await uploadAndGenerate.mutateAsync(data);
+          generateAvatar.track(job);
+        } catch {
+          // erro de upload/geração já é tratado no onError do hook
+        }
+      },
       (errors) => {
         const first = Object.keys(errors)[0];
         if (first === "nome" || first === "fotoPrincipal") setActiveTab(1);
@@ -69,7 +79,7 @@ export function PhotoCustomizationMode() {
   };
 
   const handleSave = () => {
-    const generation = generateAvatar.data;
+    const generation = generateAvatar.generation;
     if (!generation || generation.status !== "COMPLETED") return;
 
     const nomeAtual = form.getValues("nome").trim();
@@ -114,26 +124,26 @@ export function PhotoCustomizationMode() {
         </div>
 
         <GlassPanel className="my-2">
-        <Form {...form}>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="relative overflow-hidden min-h-[500px]"
-          >
-            <AnimatePresence>
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col gap-8 w-full"
-              >
-                {activeTab === 1 && <TabSuaFoto form={form} />}
-                {activeTab === 2 && <TabRoupa form={form} />}
-              </motion.div>
-            </AnimatePresence>
-          </form>
-        </Form>
+          <Form {...form}>
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="relative overflow-hidden min-h-[500px]"
+            >
+              <AnimatePresence>
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-8 w-full"
+                >
+                  {activeTab === 1 && <TabSuaFoto form={form} />}
+                  {activeTab === 2 && <TabRoupa form={form} />}
+                </motion.div>
+              </AnimatePresence>
+            </form>
+          </Form>
         </GlassPanel>
 
         {usage && (
@@ -159,7 +169,11 @@ export function PhotoCustomizationMode() {
 
           <Button
             onClick={handleNext}
-            disabled={generateAvatar.isPending || (activeTab === 2 && noQuota)}
+            disabled={
+              uploadAndGenerate.isPending ||
+              generateAvatar.isGenerating ||
+              (activeTab === 2 && noQuota)
+            }
             className={cn(
               activeTab === 2
                 ? "btn-brand gradient-brand luminous-glow text-white/90 drop-shadow-sm hover:luminous-glow-hover hover:brightness-110"
@@ -184,11 +198,14 @@ export function PhotoCustomizationMode() {
       <PreviewPanel
         nome={nome}
         metadata={metadata}
-        isGenerating={generateAvatar.isPending}
-        generatedImage={generateAvatar.data?.imageUrl ?? null}
-        prompt={generateAvatar.data?.prompt ?? null}
+        isGenerating={
+          uploadAndGenerate.isPending || generateAvatar.isGenerating
+        }
+        generatedImage={generateAvatar.generatedImage}
+        prompt={generateAvatar.generation?.prompt ?? null}
         canSave={
-          generateAvatar.data?.status === "COMPLETED" && !saveAvatar.isSuccess
+          generateAvatar.generation?.status === "COMPLETED" &&
+          !saveAvatar.isSuccess
         }
         isSaving={saveAvatar.isPending}
         onSave={handleSave}
