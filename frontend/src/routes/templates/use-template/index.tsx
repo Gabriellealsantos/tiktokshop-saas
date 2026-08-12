@@ -46,10 +46,12 @@ import type { Product } from "@/models/product";
 import type {
   ClothSwapMode,
   ImageGenerationResult,
+  PendingJob,
   TemplateUsage,
   VideoPromptResponse,
 } from "@/models/videoTemplate";
 import { S3Image } from "@/components";
+import { useGenerationWs } from "@/hooks/useGenerationWs";
 
 const STEPS = ["Templates", "Avatar", "Produto", "Prompt"];
 
@@ -181,6 +183,8 @@ export default function TemplateAssemblyScreen() {
     enabled: !!productId,
   });
 
+  const { waitForJob } = useGenerationWs();
+
   useEffect(() => {
     if (productFromUrl) setProduto(productFromUrl);
   }, [productFromUrl]);
@@ -216,10 +220,14 @@ export default function TemplateAssemblyScreen() {
       // Garante que o avatar seja uma URL hospedada (assets locais/data URLs não servem ao Gemini).
       const avatarImageUrl = await resolveHostedAvatarUrl();
       const res = await swapPerson({ frameUrl, avatarImageUrl });
-      const gen = res.data as ImageGenerationResult;
-      if (gen.status === "FAILED" || !gen.imageUrl)
-        throw new Error(gen.error ?? "Falha ao trocar a pessoa.");
-      return gen.imageUrl;
+      
+      const { jobId } = res.data as PendingJob;
+      const result = await waitForJob(jobId);
+      
+      if (result.status === "FAILED") {
+        throw new Error(result.error ?? "Falha ao trocar a pessoa.");
+      }
+      return (result.data as ImageGenerationResult).imageUrl;
     },
     onSuccess: (imageUrl) => {
       setPersonResultUrl(imageUrl);
@@ -246,10 +254,14 @@ export default function TemplateAssemblyScreen() {
         productDescription: produto.description,
         avatarImageUrl
       });
-      const gen = res.data as ImageGenerationResult;
-      if (gen.status === "FAILED" || !gen.imageUrl)
-        throw new Error(gen.error ?? "Falha ao aplicar a roupa.");
-      return gen.imageUrl;
+      
+      const { jobId } = res.data as PendingJob;
+      const result = await waitForJob(jobId);
+      
+      if (result.status === "FAILED") {
+        throw new Error(result.error ?? "Falha ao aplicar a roupa.");
+      }
+      return (result.data as ImageGenerationResult).imageUrl;
     },
     onSuccess: (imageUrl) => {
       setFinalImageUrl(imageUrl);
@@ -271,7 +283,14 @@ export default function TemplateAssemblyScreen() {
         finalImageUrl: finalImageUrl ?? personResultUrl,
         avatarImageUrl: avatarHostedRef.current ?? avatarSelecionado,
       });
-      return (res.data as VideoPromptResponse).prompt;
+      
+      const { jobId } = res.data as PendingJob;
+      const result = await waitForJob(jobId);
+      
+      if (result.status === "FAILED") {
+          throw new Error(result.error ?? "Não foi possível gerar o prompt.");
+      }
+      return result.data as string;
     },
     onSuccess: (prompt) => setPromptResult(prompt),
     onError: (err) =>

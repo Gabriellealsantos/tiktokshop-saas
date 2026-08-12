@@ -2,6 +2,7 @@ package com.venyx.tiktokshop.repositories;
 
 import com.venyx.tiktokshop.entities.ImageGeneration;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
@@ -25,4 +26,11 @@ public interface ImageGenerationRepository extends JpaRepository<ImageGeneration
     long countRegenerations(Long parentId);
 
     Optional<ImageGeneration> findByIdAndUser_Uuid(Long id, UUID userId);
+
+    @Modifying
+    @Query(nativeQuery = true, value = """
+    UPDATE image_generations SET status = 'FAILED', error = 'Job órfão (timeout)'
+    WHERE status IN ('PENDING', 'RUNNING') AND created_at < :threshold
+    """)
+    int markOrphansAsFailed(Instant threshold);
 }

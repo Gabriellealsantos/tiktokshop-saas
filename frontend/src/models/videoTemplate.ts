@@ -3,6 +3,11 @@
 // Espelham os DTOs do backend em com.venyx.tiktokshop.dtos.VideoTemplate* / Swap* / VideoPrompt*.
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface PendingJob {
+  jobId: string;
+  status: "PENDING";
+}
+
 /** Card da galeria — GET /api/video-templates. `owned` = vídeo privado (upload manual do usuário). */
 export interface VideoTemplateSummary {
   slug: string;
