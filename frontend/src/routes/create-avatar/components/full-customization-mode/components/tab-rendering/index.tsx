@@ -264,37 +264,6 @@ export function TabRenderizacao({
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="customPrompt"
-        render={({ field }) => (
-          <FormItem>
-            <div className="flex justify-between items-end mb-2 mt-6">
-              <FormLabel className="text-brand-400 text-xs font-bold uppercase tracking-wider mb-0 block flex items-center gap-1.5">
-                <Sparkles className="size-3" />
-                Comando Customizado (Avatar)
-              </FormLabel>
-            </div>
-            <p className="text-[11px] text-text-3 mb-3 leading-relaxed">
-              Esse comando será salvo no banco e aplicado <strong className="text-white">toda vez que você usar este avatar no futuro</strong>. Ideal para forçar detalhes como "cabelo crespo e sardas" ou "rosto virado de lado".
-            </p>
-            <FormControl>
-              <div className="relative group">
-                <Textarea
-                  placeholder="Ex: mulher negra com sardas, pele natural, cabelo raspado dos lados..."
-                  className="glass-container border-brand-500/30 text-white rounded-xl min-h-[100px] resize-none pl-12 pt-4 focus-visible:ring-brand-500 focus-visible:border-brand-500 transition-all bg-brand-500/5"
-                  maxLength={1000}
-                  {...field}
-                  value={field.value || ""}
-                />
-                <PenLine className="absolute left-4 top-4 size-5 text-brand-400/60 group-focus-within:text-brand-400 transition-colors pointer-events-none z-10" />
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       <div className="glass-container p-6 rounded-[24px]">
         <h3 className="text-sm font-semibold text-text-1 mb-4 flex items-center gap-2">
           <Sparkles className="size-4 text-brand-400" /> Resumo do Avatar

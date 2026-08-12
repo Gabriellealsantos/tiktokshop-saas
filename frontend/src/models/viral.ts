@@ -3,19 +3,6 @@
 // com.venyx.tiktokshop.dtos.Viral*  (/api/viral/**).
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface PendingJob {
-  jobId: string;
-  status: "PENDING";
-}
-
-export interface GenerationResultMessage {
-  jobId: string;
-  type: string;
-  status: "COMPLETED" | "FAILED";
-  data: unknown;
-  error: string | null;
-}
-
 /** Item da listagem de templates — GET /api/viral/templates */
 export interface ViralTemplateSummary {
   slug: string;

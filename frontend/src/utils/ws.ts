@@ -42,30 +42,3 @@ export function subscribeTopic<T = unknown>(
     void client.deactivate();
   };
 }
-
-/**
- * Assina um tópico STOMP PRIVADO e chama onMessage a cada evento.
- * O Spring Security (via Principal UUID) intercepta e roteia a fila /user/{uuid}/...
- */
-export function subscribeUser<T = unknown>(
-  destination: string,
-  onMessage: (payload: T) => void,
-): () => void {
-  const client = createStompClient();
-
-  client.onConnect = () => {
-    client.subscribe(`/user${destination}`, (message) => {
-      try {
-        onMessage(JSON.parse(message.body) as T);
-      } catch {
-        // frame não-JSON: ignora
-      }
-    });
-  };
-
-  client.activate();
-
-  return () => {
-    void client.deactivate();
-  };
-}

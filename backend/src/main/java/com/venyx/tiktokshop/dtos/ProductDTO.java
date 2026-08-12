@@ -32,7 +32,6 @@ public record ProductDTO(
     Integer rankPosition,
     List<String> images,
     boolean createdByAdmin,
-    boolean active,
     Instant createdAt
 ) {
     public ProductDTO(Product entity) {
@@ -59,7 +58,6 @@ public record ProductDTO(
             entity.getRankPosition(),
             entity.getImages(),
             entity.isCreatedByAdmin(),
-            entity.isActive(),
             entity.getCreatedAt()
         );
     }

@@ -8,7 +8,6 @@ export const avatarPhotoSchema = z.object({
   fotoRoupa: z.any().optional(),
   instrucoesRoupa: z.string().optional(),
   opcoesAdicionais: z.string().optional(),
-  customPrompt: z.string().max(5000, "Máximo 5000 caracteres.").optional(),
 }).superRefine((data, ctx) => {
   if (data.modoRoupa === "Upload de imagem" && !data.fotoRoupa) {
     ctx.addIssue({

@@ -32,10 +32,15 @@ export function useGenerateAvatarFromPhoto() {
                 extraOptions: data.opcoesAdicionais?.trim() || undefined,
             });
 
-            return response.data as ImageGenerationDTO;
+            const job = response.data as ImageGenerationDTO;
+            if (job.status === "FAILED") {
+                throw new Error(job.error ?? "A geração falhou. Tente novamente.");
+            }
+            return job;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["avatar-usage"] });
+            toast.success("Avatar gerado com sucesso!");
         },
         onError: (err) => toast.error(extractError(err, "Erro ao gerar avatar. Tente novamente.")),
     });

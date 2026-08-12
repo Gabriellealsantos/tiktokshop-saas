@@ -46,12 +46,10 @@ import type { Product } from "@/models/product";
 import type {
   ClothSwapMode,
   ImageGenerationResult,
-  PendingJob,
   TemplateUsage,
   VideoPromptResponse,
 } from "@/models/videoTemplate";
 import { S3Image } from "@/components";
-import { useGenerationWs } from "@/hooks/useGenerationWs";
 
 const STEPS = ["Templates", "Avatar", "Produto", "Prompt"];
 
@@ -149,8 +147,9 @@ export default function TemplateAssemblyScreen() {
 
   // Estado do avatar e modal
   const [avatarOriginal, setAvatarOriginal] = useState<string | null>(null);
-  const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(null);
-  const [avatarCustomPrompt, setAvatarCustomPrompt] = useState<string | null>(null);
+  const [avatarSelecionado, setAvatarSelecionado] = useState<string | null>(
+    null,
+  );
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [avatarConfirmed, setAvatarConfirmed] = useState(false);
 
@@ -181,8 +180,6 @@ export default function TemplateAssemblyScreen() {
     },
     enabled: !!productId,
   });
-
-  const { waitForJob } = useGenerationWs();
 
   useEffect(() => {
     if (productFromUrl) setProduto(productFromUrl);
@@ -218,20 +215,11 @@ export default function TemplateAssemblyScreen() {
       }
       // Garante que o avatar seja uma URL hospedada (assets locais/data URLs não servem ao Gemini).
       const avatarImageUrl = await resolveHostedAvatarUrl();
-      const res = await swapPerson({ 
-        frameUrl, 
-        avatarImageUrl, 
-        customPrompt: avatarCustomPrompt ?? undefined,
-        templateSlug: slug
-      });
-      
-      const { jobId } = res.data as PendingJob;
-      const result = await waitForJob(jobId);
-      
-      if (result.status === "FAILED") {
-        throw new Error(result.error ?? "Falha ao trocar a pessoa.");
-      }
-      return (result.data as ImageGenerationResult).imageUrl;
+      const res = await swapPerson({ frameUrl, avatarImageUrl });
+      const gen = res.data as ImageGenerationResult;
+      if (gen.status === "FAILED" || !gen.imageUrl)
+        throw new Error(gen.error ?? "Falha ao trocar a pessoa.");
+      return gen.imageUrl;
     },
     onSuccess: (imageUrl) => {
       setPersonResultUrl(imageUrl);
@@ -256,18 +244,12 @@ export default function TemplateAssemblyScreen() {
         mode,
         productName: produto.name,
         productDescription: produto.description,
-        avatarImageUrl,
-        customPrompt: avatarCustomPrompt ?? undefined,
-        templateSlug: slug
+        avatarImageUrl
       });
-      
-      const { jobId } = res.data as PendingJob;
-      const result = await waitForJob(jobId);
-      
-      if (result.status === "FAILED") {
-        throw new Error(result.error ?? "Falha ao aplicar a roupa.");
-      }
-      return (result.data as ImageGenerationResult).imageUrl;
+      const gen = res.data as ImageGenerationResult;
+      if (gen.status === "FAILED" || !gen.imageUrl)
+        throw new Error(gen.error ?? "Falha ao aplicar a roupa.");
+      return gen.imageUrl;
     },
     onSuccess: (imageUrl) => {
       setFinalImageUrl(imageUrl);
@@ -289,14 +271,7 @@ export default function TemplateAssemblyScreen() {
         finalImageUrl: finalImageUrl ?? personResultUrl,
         avatarImageUrl: avatarHostedRef.current ?? avatarSelecionado,
       });
-      
-      const { jobId } = res.data as PendingJob;
-      const result = await waitForJob(jobId);
-      
-      if (result.status === "FAILED") {
-          throw new Error(result.error ?? "Não foi possível gerar o prompt.");
-      }
-      return result.data as string;
+      return (res.data as VideoPromptResponse).prompt;
     },
     onSuccess: (prompt) => setPromptResult(prompt),
     onError: (err) =>
@@ -321,10 +296,9 @@ export default function TemplateAssemblyScreen() {
   };
 
   // Handlers para o modal de avatar
-  const handleAvatarSelect = (avatar: { image: string, customPrompt?: string | null }) => {
-    setAvatarOriginal(avatar.image);
-    setAvatarSelecionado(avatar.image);
-    setAvatarCustomPrompt(avatar.customPrompt ?? null);
+  const handleAvatarSelect = (avatarImage: string) => {
+    setAvatarOriginal(avatarImage);
+    setAvatarSelecionado(avatarImage);
     setAvatarPickerOpen(false);
     setAvatarConfirmed(false); // Reset confirmation if avatar changes
     setPersonResultUrl(null);
@@ -685,7 +659,7 @@ export default function TemplateAssemblyScreen() {
           open={avatarPickerOpen}
           onOpenChange={setAvatarPickerOpen}
           mode="select"
-          onSelect={handleAvatarSelect}
+          onSelect={(avatar) => handleAvatarSelect(avatar.image)}
           title="Selecione o avatar"
           subtitle="Escolha quem apresentará o vídeo."
         />

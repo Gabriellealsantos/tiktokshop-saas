@@ -37,6 +37,10 @@ const validateVideo = (file: File): Promise<string | null> =>
         resolve(`O vídeo tem ${duration.toFixed(1)}s. O limite é ${MAX_DURATION_S}s.`);
         return;
       }
+      if (Math.min(videoWidth, videoHeight) < MIN_SHORT_SIDE) {
+        resolve(`Resolução baixa (${videoWidth}×${videoHeight}). Use no mínimo 720p — ideal 1080×1920.`);
+        return;
+      }
       resolve(null);
     };
     video.onerror = () => {

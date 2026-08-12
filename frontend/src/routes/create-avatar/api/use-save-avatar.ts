@@ -11,8 +11,8 @@ export function useSaveAvatar() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async ({ generationId, name, customPrompt }: { generationId: number; name: string; customPrompt?: string }) => {
-            const response = await saveAvatarFromGeneration(generationId, name, customPrompt);
+        mutationFn: async ({ generationId, name }: { generationId: number; name: string }) => {
+            const response = await saveAvatarFromGeneration(generationId, name);
             return response.data as AvatarDTO;
         },
         onSuccess: (avatar) => {

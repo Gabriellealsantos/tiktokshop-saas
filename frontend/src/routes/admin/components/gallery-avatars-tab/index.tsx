@@ -53,7 +53,6 @@ const emptyForm = (): GalleryAvatarForm => ({
   type: GALLERY_TYPE,
   imageUrl: "",
   orderIndex: 0,
-  customPrompt: "",
 });
 
 export function GalleryAvatarsTab() {
@@ -99,7 +98,6 @@ export function GalleryAvatarsTab() {
       type: item.type ?? GALLERY_TYPE,
       imageUrl: item.imageUrl,
       orderIndex: item.orderIndex ?? 0,
-      customPrompt: item.customPrompt ?? "",
     });
     setDialogOpen(true);
   };
@@ -273,18 +271,6 @@ export function GalleryAvatarsTab() {
                     orderIndex: Number(e.target.value) || 0,
                   }))
                 }
-                className="h-9 bg-black/40 border-white/10 text-sm"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Prompt Customizado (Aparência, rosto, cabelo)</Label>
-              <Input
-                value={form.customPrompt ?? ""}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, customPrompt: e.target.value }))
-                }
-                placeholder="Ex: A 25-year-old latina woman, brown hair..."
                 className="h-9 bg-black/40 border-white/10 text-sm"
               />
             </div>

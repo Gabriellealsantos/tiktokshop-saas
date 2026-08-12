@@ -52,7 +52,7 @@ public class ProductService {
         long lastBoundary = nowEpoch - (nowEpoch % stepSec);
         long nextBoundary = lastBoundary + stepSec;
 
-        long newCount = repository.countByActiveTrueAndCreatedAtAfter(Instant.ofEpochSecond(lastBoundary));
+        long newCount = repository.countByCreatedAtAfter(Instant.ofEpochSecond(lastBoundary));
         BigDecimal detected = repository.sumEstimatedRevenue();
         return new MiningStatusDTO(newCount, detected, nextBoundary - nowEpoch, true);
     }
@@ -60,11 +60,11 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductDTO> findAll(String category) {
         if (category == null || category.isBlank()) {
-            return repository.findByActiveTrue().stream().map(ProductDTO::new).toList();
+            return repository.findAll().stream().map(ProductDTO::new).toList();
         }
         Category cat = categoryRepository.findBySlug(category)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada: " + category));
-        return repository.findByCategoryAndActiveTrueOrderByRankPositionAsc(cat)
+        return repository.findByCategoryOrderByRankPositionAsc(cat)
                 .stream().map(ProductDTO::new).toList();
     }
 
@@ -144,10 +144,10 @@ public class ProductService {
 
     @Transactional
     public void delete(Long id) {
-        Product product = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + id));
-        product.setActive(false);
-        repository.save(product);
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Produto não encontrado: " + id);
+        }
+        repository.deleteById(id);
     }
 
     private void copyDtoToEntity(ProductDTO dto, Product entity) {
