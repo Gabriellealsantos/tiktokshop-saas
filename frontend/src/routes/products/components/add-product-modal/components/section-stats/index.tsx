@@ -22,7 +22,33 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem>
               <FormLabel className="text-xs">Texto de Vendas *</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: 4.5 mil vendas" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input placeholder="Ex: 4.5 mil vendas" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
+              </FormControl>
+              <FormMessage className="text-xs" />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="rating"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-xs">Avaliação (Rating)</FormLabel>
+              <FormControl>
+                <Input type="number" step="0.1" min="0" max="5" placeholder="Ex: 5.0" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
+              </FormControl>
+              <FormMessage className="text-xs" />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="reviewsCount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-xs">Qtd. Avaliações</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="Ex: 24" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>
@@ -35,7 +61,7 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem>
               <FormLabel className="text-xs">Visualizações</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Ex: 150000" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input type="number" placeholder="Ex: 150000" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>
@@ -48,7 +74,7 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem>
               <FormLabel className="text-xs">Receita (R$)</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Auto" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input type="number" placeholder="Auto" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>
@@ -61,7 +87,7 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem>
               <FormLabel className="text-xs">Conversão (%)</FormLabel>
               <FormControl>
-                <Input type="number" step="0.1" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input type="number" step="0.1" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>
@@ -74,7 +100,7 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem>
               <FormLabel className="text-xs">Comissão (%)</FormLabel>
               <FormControl>
-                <Input type="number" step="0.1" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input type="number" step="0.1" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>
@@ -87,7 +113,7 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem>
               <FormLabel className="text-xs">Vendas/dia</FormLabel>
               <FormControl>
-                <Input type="number" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input type="number" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>
@@ -100,7 +126,7 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem>
               <FormLabel className="text-xs">Label Tendência</FormLabel>
               <FormControl>
-                <Input placeholder="Em alta" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input placeholder="Em alta" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>
@@ -113,7 +139,7 @@ export function SectionStats({ form }: SectionStatsProps) {
             <FormItem className="col-span-2">
               <FormLabel className="text-xs">Histórico 7 Dias (ex: 10,12,15)</FormLabel>
               <FormControl>
-                <Input placeholder="12, 15, 20, 18, 25, 30, 45" className="h-10 text-sm bg-surface-1 border-white/10" {...field} />
+                <Input placeholder="12, 15, 20, 18, 25, 30, 45" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage className="text-xs" />
             </FormItem>

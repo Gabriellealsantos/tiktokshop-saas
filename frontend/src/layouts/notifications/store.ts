@@ -7,6 +7,8 @@ import type { BackendNotificationType, NotificationResponse } from "@/models/not
 import {
   getNotifications, getUnreadCount, markAllNotificationsRead, markNotificationRead,
 } from "@/services/notificationService";
+import { requestBackend } from "@/utils/requests";
+import type { LiveSaleEventDTO } from "@/models/dashboard";
 
 export type NotificationType = "venda" | "sistema" | "indicacao" | "info";
 
@@ -134,6 +136,44 @@ class NotificationsStore {
       // silencioso — mantém o estado vazio
     }
     subscribeTopic<NotificationResponse>("/topic/notifications", (dto) => this.onWs(dto));
+    subscribeTopic<Record<string, unknown>>("/topic/live-sales", (dto) => this.onLiveSalesWs(dto));
+  }
+
+  private onLiveSalesWs(payload: Record<string, unknown>) {
+    if (payload?.action === "PING") {
+      if (!canSeeSales()) return;
+      // Requisita a venda customizada (fonte escolhida no painel admin)
+      requestBackend({ method: "GET", url: "/api/live-sales/generate", withCredentials: true })
+        .then(res => {
+           const sale: LiveSaleEventDTO = res.data;
+           const dto: NotificationResponse = {
+             id: sale.id ?? null,
+             type: "SALE",
+             title: "Venda ao vivo",
+             body: `${sale.productName} — R$ ${sale.amount}`,
+             imageUrl: sale.imageUrl ?? null,
+             clickUrl: null,
+             read: false,
+             createdAt: new Date().toISOString()
+           };
+           this.onWs(dto);
+        })
+        .catch(() => {});
+    } else if (payload?.type === "SALE" || payload?.amount != null) {
+      // Disparo manual legado que já vinha com os dados
+      if (!canSeeSales()) return;
+      const dto: NotificationResponse = {
+         id: payload.id ? Number(payload.id) : null,
+         type: "SALE",
+         title: "Venda ao vivo",
+         body: `${payload.productName} — R$ ${payload.amount}`,
+         imageUrl: payload.imageUrl ? String(payload.imageUrl) : null,
+         clickUrl: null,
+         read: false,
+         createdAt: new Date().toISOString()
+      };
+      this.onWs(dto);
+    }
   }
 
   private onWs(dto: NotificationResponse) {

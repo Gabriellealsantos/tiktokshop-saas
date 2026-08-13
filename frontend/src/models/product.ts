@@ -9,6 +9,8 @@ export type Product = {
   image: string;
   favorite: boolean;
   // KPI / Stats Extension
+  rating?: number;
+  reviewsCount?: number;
   views?: number;
   revenueEstimate?: number;
   conversionRate?: number;

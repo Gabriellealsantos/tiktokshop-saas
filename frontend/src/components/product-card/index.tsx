@@ -83,7 +83,7 @@ export function ProductCard({
           </Pill>
           <Pill className="border-white/10 bg-surface-2 text-text-2 text-[11px] px-2 py-1 flex items-center gap-1 whitespace-nowrap min-w-0 overflow-hidden shrink">
             <span className="text-warning text-[10px]">★</span>
-            <span className="font-medium truncate">5.0 (24)</span>
+            <span className="font-medium truncate">{product.rating ? Number(product.rating).toFixed(1) : "5.0"} ({product.reviewsCount ?? 24})</span>
           </Pill>
         </div>
 

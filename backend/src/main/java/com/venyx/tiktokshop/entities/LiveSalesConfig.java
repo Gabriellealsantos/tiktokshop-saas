@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.List;
+import java.util.ArrayList;
+import com.venyx.tiktokshop.entities.enums.LiveSalesSource;
 
 /**
  * Configuração global dos pop-ups de "vendas ao vivo" (prova social) (OPC-4).
@@ -25,6 +28,21 @@ public class LiveSalesConfig {
 
     @Column(name = "interval_seconds")
     private Integer intervalSeconds;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_type", nullable = false)
+    private LiveSalesSource sourceType = LiveSalesSource.RANDOM;
+
+    @Column(name = "category_id")
+    private Long categoryId;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "live_sales_config_products",
+        joinColumns = @JoinColumn(name = "config_id"),
+        inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private List<Product> adminProducts = new ArrayList<>();
 
     @Column(name = "random_interval", nullable = false)
     private boolean randomInterval = false;
@@ -97,6 +115,30 @@ public class LiveSalesConfig {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public LiveSalesSource getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(LiveSalesSource sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public List<Product> getAdminProducts() {
+        return adminProducts;
+    }
+
+    public void setAdminProducts(List<Product> adminProducts) {
+        this.adminProducts = adminProducts;
     }
 
     @Override
