@@ -175,6 +175,8 @@ public class ProductService {
         }
         entity.setSales(dto.sales() != null ? dto.sales() : 0);
         entity.setViews(dto.views() != null ? dto.views() : 0);
+        entity.setRating(dto.rating());
+        entity.setReviewsCount(dto.reviewsCount());
         entity.setAffiliateLink(dto.affiliateLink());
         entity.setPrice(dto.price());
         entity.setCommissionPct(dto.commissionPct());

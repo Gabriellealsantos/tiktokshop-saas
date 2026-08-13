@@ -5,11 +5,16 @@ import axios from "axios";
 
 import {
   Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch,
+  Checkbox, ScrollArea
 } from "@/components";
-import type { LiveSalesConfig, LiveSalesMode } from "@/models/live-sales";
+import type { LiveSalesConfig, LiveSalesMode, LiveSalesSource } from "@/models/live-sales";
+import type { Category } from "@/models/category";
+import type { Product } from "@/models/product";
 import {
   fireLiveSale, getLiveSalesConfig, updateLiveSalesConfig,
 } from "@/services/liveSalesAdminService";
+import { getCategories } from "@/services/categoryService";
+import { searchProducts } from "@/services/productService";
 
 const MODE_HINT: Record<LiveSalesMode, string> = {
   DISABLED: "Desligado — nenhuma venda ao vivo é disparada.",
@@ -17,26 +22,52 @@ const MODE_HINT: Record<LiveSalesMode, string> = {
   AUTOMATIC: "Automático — dispara uma venda sozinho no intervalo definido.",
 };
 
+const SOURCE_HINT: Record<LiveSalesSource, string> = {
+  RANDOM: "Aleatório — escolhe qualquer produto do banco.",
+  CATEGORY: "Categoria — escolhe aleatoriamente dentro de uma categoria.",
+  ADMIN_LIST: "Lista Específica — escolhe apenas dos produtos que você marcar.",
+  USER_FAVORITES: "Favoritos — para o afiliado, exibe apenas os favoritos DELE.",
+};
+
 export function LiveSalesTab() {
   const [mode, setMode] = useState<LiveSalesMode>("DISABLED");
+  const [sourceType, setSourceType] = useState<LiveSalesSource>("RANDOM");
+  const [categoryId, setCategoryId] = useState<number | null>(null);
+  const [adminProductIds, setAdminProductIds] = useState<number[]>([]);
+  
   const [interval, setInterval] = useState<string>("");
   const [random, setRandom] = useState(false);
   const [minInterval, setMinInterval] = useState<string>("");
   const [maxInterval, setMaxInterval] = useState<string>("");
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [firing, setFiring] = useState(false);
+  
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await getLiveSalesConfig();
-      const config: LiveSalesConfig = res.data;
+      const [resConfig, resCat, resProd] = await Promise.all([
+        getLiveSalesConfig(),
+        getCategories(),
+        searchProducts({ size: 100 })
+      ]);
+      const config: LiveSalesConfig = resConfig.data;
       setMode(config.mode ?? "DISABLED");
+      setSourceType(config.sourceType ?? "RANDOM");
+      setCategoryId(config.categoryId ?? null);
+      setAdminProductIds(config.adminProductIds ?? []);
+      
       setInterval(config.intervalSeconds != null ? String(config.intervalSeconds) : "");
       setRandom(config.randomInterval ?? false);
       setMinInterval(config.intervalMinSeconds != null ? String(config.intervalMinSeconds) : "");
       setMaxInterval(config.intervalMaxSeconds != null ? String(config.intervalMaxSeconds) : "");
+      
+      setCategories(resCat.data);
+      setProducts(resProd.data.content || []);
     } catch {
       toast.error("Falha ao carregar a configuração.");
     } finally {
@@ -62,10 +93,21 @@ export function LiveSalesTab() {
         return;
       }
     }
+    if (sourceType === "CATEGORY" && !categoryId) {
+       toast.error("Selecione uma categoria.");
+       return;
+    }
+    if (sourceType === "ADMIN_LIST" && adminProductIds.length === 0) {
+       toast.error("Selecione ao menos um produto.");
+       return;
+    }
     setSaving(true);
     try {
       await updateLiveSalesConfig({
         mode,
+        sourceType,
+        categoryId,
+        adminProductIds: adminProductIds.length > 0 ? adminProductIds : null,
         intervalSeconds: interval.trim() === "" ? null : Number(interval),
         randomInterval: random,
         intervalMinSeconds: minInterval.trim() === "" ? null : Number(minInterval),
@@ -93,6 +135,12 @@ export function LiveSalesTab() {
     }
   };
 
+  const toggleProduct = (id: number) => {
+    setAdminProductIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-sm text-zinc-500">
@@ -117,20 +165,78 @@ export function LiveSalesTab() {
 
       <div className="glass-premium-purple relative overflow-hidden rounded-2xl border border-white/10 p-5 max-w-2xl duration-200 shadow-lg">
         <div className="relative z-10 space-y-5">
-        <div className="space-y-1.5">
-          <Label className="text-xs text-zinc-400">Modo de disparo</Label>
-          <Select value={mode} onValueChange={(v: LiveSalesMode) => setMode(v)}>
-            <SelectTrigger className="h-9 bg-black/40 border-white/10 text-sm max-w-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
-              <SelectItem value="DISABLED">Desligado</SelectItem>
-              <SelectItem value="MANUAL">Manual</SelectItem>
-              <SelectItem value="AUTOMATIC">Automático</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-zinc-500">{MODE_HINT[mode]}</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-zinc-400">Modo de disparo</Label>
+            <Select value={mode} onValueChange={(v: LiveSalesMode) => setMode(v)}>
+              <SelectTrigger className="h-9 bg-black/40 border-white/10 text-sm w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
+                <SelectItem value="DISABLED">Desligado</SelectItem>
+                <SelectItem value="MANUAL">Manual</SelectItem>
+                <SelectItem value="AUTOMATIC">Automático</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-zinc-500">{MODE_HINT[mode]}</p>
+          </div>
+          
+          <div className="space-y-1.5">
+            <Label className="text-xs text-zinc-400">Fonte dos Produtos</Label>
+            <Select value={sourceType} onValueChange={(v: LiveSalesSource) => setSourceType(v)}>
+              <SelectTrigger className="h-9 bg-black/40 border-white/10 text-sm w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300">
+                <SelectItem value="RANDOM">Todos / Aleatório</SelectItem>
+                <SelectItem value="CATEGORY">Por Categoria</SelectItem>
+                <SelectItem value="ADMIN_LIST">Lista Específica</SelectItem>
+                <SelectItem value="USER_FAVORITES">Favoritos do Usuário</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-zinc-500">{SOURCE_HINT[sourceType]}</p>
+          </div>
         </div>
+
+        {sourceType === "CATEGORY" && (
+          <div className="space-y-1.5 border border-white/5 bg-black/20 p-4 rounded-xl">
+            <Label className="text-xs text-zinc-400">Selecione a Categoria</Label>
+            <Select value={categoryId ? String(categoryId) : ""} onValueChange={(v) => setCategoryId(Number(v))}>
+              <SelectTrigger className="h-9 bg-black/40 border-white/10 text-sm max-w-xs">
+                <SelectValue placeholder="Escolha..." />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-950 border-white/10 text-zinc-300 max-h-60">
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {sourceType === "ADMIN_LIST" && (
+           <div className="space-y-2 border border-white/5 bg-black/20 p-4 rounded-xl">
+             <Label className="text-xs text-zinc-400">Marque os produtos que aparecerão nas vendas</Label>
+             <ScrollArea className="h-48 rounded-md border border-white/10 bg-black/40 p-2">
+               {products.length === 0 ? (
+                 <p className="text-sm text-zinc-500 p-2">Nenhum produto cadastrado.</p>
+               ) : (
+                 products.map(p => (
+                   <div key={p.id} className="flex items-center space-x-2 py-1.5 px-2 hover:bg-white/5 rounded-md">
+                     <Checkbox 
+                       id={`p-${p.id}`} 
+                       checked={adminProductIds.includes(p.id)}
+                       onCheckedChange={() => toggleProduct(p.id)}
+                     />
+                     <label htmlFor={`p-${p.id}`} className="text-sm text-zinc-300 cursor-pointer flex-1 truncate">
+                       {p.name}
+                     </label>
+                   </div>
+                 ))
+               )}
+             </ScrollArea>
+           </div>
+        )}
 
         {showInterval && (
           <div className="space-y-4 rounded-[12px] border border-white/5 bg-black/20 p-4">

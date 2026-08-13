@@ -54,6 +54,8 @@ const formSchema = z.object({
 
   // 3. Estatísticas
   sales: z.string().optional(),
+  rating: z.coerce.number().min(0).max(5).optional(),
+  reviewsCount: z.coerce.number().min(0).optional(),
   views: z.coerce.number().min(0).optional(),
   revenueEstimate: z.coerce.number().min(0).optional(),
   conversionRate: z.coerce.number().min(0).max(100).optional(),
@@ -85,6 +87,8 @@ const BLANK_DEFAULTS: AddProductFormValues = {
   category: "",
   price: 0,
   sales: "0 vendas",
+  rating: 5.0,
+  reviewsCount: 0,
   views: 0,
   revenueEstimate: 0,
   conversionRate: 0,
@@ -168,6 +172,8 @@ export function AddProductModal({
     image:
       watchAllFields.image ||
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
+    rating: watchAllFields.rating || undefined,
+    reviewsCount: watchAllFields.reviewsCount || undefined,
     favorite: watchAllFields.favorite,
     views: watchAllFields.views || undefined,
     revenueEstimate: watchAllFields.revenueEstimate || undefined,
@@ -418,10 +424,6 @@ export function AddProductModal({
                     <button
                       type="button"
                       onClick={form.handleSubmit(onSubmit, (errors) => {
-                        console.log(
-                          ">>> ERRO DE VALIDAÇÃO IMPEDIU O SUBMIT:",
-                          errors,
-                        );
                         toast.error("Confira os campos destacados.");
                       })}
                       disabled={isSubmitting || !canSubmit}

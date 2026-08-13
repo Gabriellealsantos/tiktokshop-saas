@@ -5,6 +5,7 @@ import com.venyx.tiktokshop.dtos.LiveSaleEventDTO;
 import com.venyx.tiktokshop.dtos.LiveSalesConfigDTO;
 import com.venyx.tiktokshop.dtos.LiveSalesFeedDTO;
 import com.venyx.tiktokshop.entities.RoleConstants;
+import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.LiveSalesService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,15 +20,23 @@ import org.springframework.web.bind.annotation.*;
 public class LiveSalesController {
 
     private final LiveSalesService service;
+    private final AuthService authService;
 
-    public LiveSalesController(LiveSalesService service) {
+    public LiveSalesController(LiveSalesService service, AuthService authService) {
         this.service = service;
+        this.authService = authService;
     }
 
     @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/live-sales")
     public ResponseEntity<LiveSalesFeedDTO> getFeed() {
         return ResponseEntity.ok(service.getFeed());
+    }
+
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
+    @GetMapping("/api/live-sales/generate")
+    public ResponseEntity<LiveSaleEventDTO> generateSale() {
+        return ResponseEntity.ok(service.generateSaleForUser(authService.authenticated()));
     }
 
     @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")

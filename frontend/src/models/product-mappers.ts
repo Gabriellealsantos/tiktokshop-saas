@@ -20,6 +20,8 @@ export type BackendProduct = {
   categorySlug: string | null;
   sales: number | null;
   views: number | null;
+  rating: number | null;
+  reviewsCount: number | null;
   affiliateLink: string | null;
   price: number | null;
   commissionPct: number | null;
@@ -68,6 +70,8 @@ export function mapBackendToProduct(dto: BackendProduct, favorite = false): Prod
     sales: `${dto.sales ?? 0} vendas`,
     image: dto.imageUrl ?? "",
     favorite,
+    rating: dto.rating ?? undefined,
+    reviewsCount: dto.reviewsCount ?? undefined,
     views: dto.views ?? undefined,
     revenueEstimate: dto.estimatedRevenue ?? undefined,
     conversionRate: dto.conversionRate ?? undefined,
@@ -94,6 +98,8 @@ export type ProductFormValues = {
   category: string;
   price?: number;
   sales?: string;
+  rating?: number;
+  reviewsCount?: number;
   views?: number;
   revenueEstimate?: number;
   conversionRate?: number;
@@ -118,6 +124,8 @@ export function productToFormValues(p: Product): ProductFormValues & { viral: bo
     category: p.categoryId != null ? String(p.categoryId) : "",
     price: priceNum,
     sales: p.sales,
+    rating: p.rating,
+    reviewsCount: p.reviewsCount,
     views: p.views ?? 0,
     revenueEstimate: p.revenueEstimate ?? 0,
     conversionRate: p.conversionRate ?? 0,
@@ -153,6 +161,8 @@ export function toProductDTO(values: ProductFormValues) {
     imageUrl: values.image,
     categoryId: values.category ? Number(values.category) : null,
     sales: isNaN(salesInt) ? 0 : salesInt,
+    rating: values.rating ?? null,
+    reviewsCount: values.reviewsCount ?? null,
     views: values.views ?? 0,
     affiliateLink: values.affiliateUrl || null,
     price: values.price ?? 0,

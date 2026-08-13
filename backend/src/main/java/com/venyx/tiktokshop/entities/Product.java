@@ -60,6 +60,12 @@ public class Product {
     @Column(name = "delta_7d", precision = 6, scale = 2)
     private BigDecimal delta7d;
 
+    @Column(precision = 3, scale = 1)
+    private BigDecimal rating;
+
+    @Column(name = "reviews_count")
+    private Integer reviewsCount;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "history_7d", columnDefinition = "jsonb")
     private List<Integer> history7d;
@@ -229,6 +235,22 @@ public class Product {
 
     public void setHistory7d(List<Integer> history7d) {
         this.history7d = history7d;
+    }
+
+    public BigDecimal getRating() {
+        return rating;
+    }
+
+    public void setRating(BigDecimal rating) {
+        this.rating = rating;
+    }
+
+    public Integer getReviewsCount() {
+        return reviewsCount;
+    }
+
+    public void setReviewsCount(Integer reviewsCount) {
+        this.reviewsCount = reviewsCount;
     }
 
     public MiningWindow getMiningWindow() {
