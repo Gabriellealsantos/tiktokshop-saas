@@ -1,5 +1,7 @@
 package com.venyx.tiktokshop.services;
 
+import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.webp.WebpWriter;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import org.springframework.stereotype.Component;
 
@@ -18,11 +20,18 @@ public class ImageNormalizer {
     private static final int MAX_DIMENSION = 2048;
     private static final long MAX_PIXELS = 40_000_000L;
     private static final float JPEG_QUALITY = 0.88f;
+    private static final int WEBP_QUALITY = 80;
 
     public byte[] toJpeg(byte[] content) {
         BufferedImage source = read(content);
         BufferedImage scaled = downscale(source);
         return write(flatten(scaled));
+    }
+
+    public byte[] toWebp(byte[] content) {
+        BufferedImage source = read(content);
+        BufferedImage scaled = downscale(source);
+        return writeWebp(flatten(scaled));
     }
 
     private BufferedImage read(byte[] content) {
@@ -99,5 +108,13 @@ public class ImageNormalizer {
             writer.dispose();
         }
         return output.toByteArray();
+    }
+
+    private byte[] writeWebp(BufferedImage image) {
+        try {
+            return ImmutableImage.wrapAwt(image).bytes(WebpWriter.DEFAULT.withQ(WEBP_QUALITY));
+        } catch (Exception e) {
+            throw new BusinessException("Falha ao converter a imagem.");
+        }
     }
 }

@@ -92,7 +92,7 @@ public class StorageService {
         }
 
         try {
-            return upload(imageNormalizer.toJpeg(file.getBytes()), "image/jpeg", folder);
+            return upload(imageNormalizer.toWebp(file.getBytes()), "image/webp", folder);
         } catch (IOException e) {
             throw new BusinessException("Falha ao ler o arquivo enviado.");
         }
