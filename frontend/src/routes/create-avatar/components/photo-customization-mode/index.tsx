@@ -50,8 +50,12 @@ export function PhotoCustomizationMode() {
   const nome = form.watch("nome");
   const metadata = "Criado a partir de foto";
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (activeTab < 2) {
+      if (activeTab === 1 && !(await form.trigger("nome"))) {
+        form.setFocus("nome");
+        return;
+      }
       setActiveTab((prev) => prev + 1);
       return;
     }

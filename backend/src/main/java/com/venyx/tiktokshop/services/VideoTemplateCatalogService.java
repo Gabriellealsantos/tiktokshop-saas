@@ -8,6 +8,10 @@ import com.venyx.tiktokshop.entities.enums.VideoAudioMode;
 import com.venyx.tiktokshop.repositories.VideoTemplateRepository;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +48,16 @@ public class VideoTemplateCatalogService {
         return repository.findGallery(uuid, filter).stream()
                 .map(VideoTemplateSummaryDTO::new)
                 .toList();
+    }
+
+    /** Versão paginada da galeria — usada pelo endpoint público com infinite scroll. */
+    @Transactional(readOnly = true)
+    public Page<VideoTemplateSummaryDTO> listGalleryPaged(String category, int page, int size) {
+        UUID uuid = authService.authenticated().getUuid();
+        String filter = (category == null || category.isBlank()) ? null : category;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "sortOrder").and(Sort.by(Sort.Direction.ASC, "id")));
+        return repository.findGalleryPaged(uuid, filter, pageable)
+                .map(VideoTemplateSummaryDTO::new);
     }
 
     @Transactional(readOnly = true)

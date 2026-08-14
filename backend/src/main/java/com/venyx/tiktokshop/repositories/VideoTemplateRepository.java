@@ -1,6 +1,8 @@
 package com.venyx.tiktokshop.repositories;
 
 import com.venyx.tiktokshop.entities.VideoTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +25,20 @@ public interface VideoTemplateRepository extends JpaRepository<VideoTemplate, Lo
             ORDER BY t.sortOrder ASC, t.id ASC
             """)
     List<VideoTemplate> findGallery(@Param("uuid") UUID uuid, @Param("category") String category);
+
+    /**
+     * Versão paginada da galeria — mesma regra de visibilidade (públicos + privados
+     * do usuário), mas com suporte a {@link Pageable} para infinite scroll.
+     */
+    @Query("""
+            SELECT t FROM VideoTemplate t
+            WHERE t.active = true
+              AND (t.owner IS NULL OR t.owner.uuid = :uuid)
+              AND (:category IS NULL OR t.category = :category)
+            """)
+    Page<VideoTemplate> findGalleryPaged(@Param("uuid") UUID uuid,
+                                         @Param("category") String category,
+                                         Pageable pageable);
 
     Optional<VideoTemplate> findBySlugAndActiveTrue(String slug);
 
