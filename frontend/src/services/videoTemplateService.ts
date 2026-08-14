@@ -14,12 +14,16 @@ import type {
 
 // Catálogo (/api/video-templates)
 
-/** GET /api/video-templates — públicos + privados do usuário. `category` filtra (opcional). */
-export const listVideoTemplates = (category?: string) =>
+/** GET /api/video-templates — públicos + privados do usuário (paginado). */
+export const listVideoTemplates = (params: { category?: string; page?: number; size?: number } = {}) =>
   requestBackend({
     method: "GET",
     url: "/api/video-templates",
-    params: category ? { category } : undefined,
+    params: {
+      category: params.category || undefined,
+      page: params.page ?? 0,
+      size: params.size ?? 20,
+    },
     withCredentials: true,
   });
 

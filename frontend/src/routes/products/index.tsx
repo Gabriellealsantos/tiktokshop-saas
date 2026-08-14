@@ -24,6 +24,7 @@ import { cn } from "@/utils/utils";
 
 // Abas fixas (não são categorias do backend): Favoritos e Top Produtos.
 const FIXED_TABS = ["Favoritos", "Top Produtos"];
+const PAGE_SIZE = 20;
 
 export default function ProductsScreen() {
   useDocumentTitle("Produtos Virais");
@@ -37,11 +38,16 @@ export default function ProductsScreen() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [list, setList] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
   // Ids favoritados, para marcar o coração em qualquer aba (não só na de Favoritos).
   const [favIds, setFavIds] = useState<Set<number>>(new Set());
   // Categorias reais do backend (viram abas dinâmicas depois das fixas).
   const [cats, setCats] = useState<Category[]>([]);
+  // Paginação
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -103,31 +109,42 @@ export default function ProductsScreen() {
     }
   }, []);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (pageToLoad: number, append: boolean) => {
+    if (!append) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
     setError(false);
     try {
       if (category === "Favoritos") {
+        // Favoritos não são paginados no backend, filtragem local.
         const res = await getFavorites();
         const items = (res.data as BackendProduct[]).map((p) => mapBackendToProduct(p, true));
         const term = search.trim().toLowerCase();
-        setList(term ? items.filter((p) => p.name.toLowerCase().includes(term)) : items);
+        const filtered = term ? items.filter((p) => p.name.toLowerCase().includes(term)) : items;
+        setList(filtered);
+        setHasMore(false); // favoritos vêm todos de uma vez
       } else {
         // "Top Produtos" = todas (sem filtro). Categoria real → filtra pelo slug.
         const slug = cats.find((c) => c.name === category)?.slug;
         const res = await searchProducts({
           category: category === "Top Produtos" ? undefined : slug,
           search: search.trim() || undefined,
-          size: 40,
+          size: PAGE_SIZE,
+          page: pageToLoad,
         });
         const content = (res.data?.content ?? []) as BackendProduct[];
-        setList(content.map((p) => mapBackendToProduct(p, favIds.has(p.id))));
+        const mapped = content.map((p) => mapBackendToProduct(p, favIds.has(p.id)));
+        setList((prev) => (append ? [...prev, ...mapped] : mapped));
+        setHasMore(!res.data?.last);
       }
     } catch {
       setError(true);
-      setList([]);
+      if (!append) setList([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [category, search, favIds, cats]);
 
@@ -138,12 +155,51 @@ export default function ProductsScreen() {
   // Debounce simples da busca + recarrega ao trocar de categoria.
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
+    // Reset pagination when filters change
+    setPage(0);
+    setHasMore(true);
     if (debounce.current) clearTimeout(debounce.current);
-    debounce.current = setTimeout(load, 250);
+    debounce.current = setTimeout(() => load(0, false), 250);
     return () => {
       if (debounce.current) clearTimeout(debounce.current);
     };
   }, [load]);
+
+  // Carrega mais quando `page` muda (e é > 0)
+  useEffect(() => {
+    if (page > 0) {
+      load(page, true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  // Estado mutável para o observer (evita recriar e causar loop infinito)
+  const observerState = useRef({ hasMore, loading, loadingMore });
+  useEffect(() => {
+    observerState.current = { hasMore, loading, loadingMore };
+  }, [hasMore, loading, loadingMore]);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const setSentinelRef = useCallback((node: HTMLDivElement | null) => {
+    if (observer.current) {
+      observer.current.disconnect();
+    }
+    if (node) {
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            const state = observerState.current;
+            if (state.hasMore && !state.loading && !state.loadingMore) {
+              setPage((prev) => prev + 1);
+            }
+          }
+        },
+        { rootMargin: "200px" }
+      );
+      observer.current.observe(node);
+    }
+  }, []);
 
   const handleToggleFavorite = async (product: Product) => {
     const currentlyFav = favIds.has(product.id);
@@ -165,7 +221,7 @@ export default function ProductsScreen() {
     } catch {
       toast.error("Não foi possível atualizar os favoritos.");
       loadFavIds();
-      load();
+      load(0, false);
     }
   };
 
@@ -248,7 +304,7 @@ export default function ProductsScreen() {
         ) : error ? (
           <div className="mt-16 text-center text-sm text-text-3">
             Não foi possível carregar os produtos.{" "}
-            <button onClick={load} className="text-brand-400 underline">Tentar novamente</button>
+            <button onClick={() => load(0, false)} className="text-brand-400 underline">Tentar novamente</button>
           </div>
         ) : list.length === 0 ? (
           <div className="mt-16 text-center text-sm text-text-3">
@@ -257,16 +313,29 @@ export default function ProductsScreen() {
               : "Nenhum produto encontrado."}
           </div>
         ) : (
-          <div className="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-            {list.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onClick={() => setSelectedProduct(product)}
-                onToggleFavorite={handleToggleFavorite}
-              />
-            ))}
-          </div>
+          <>
+            <div className="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              {list.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onClick={() => setSelectedProduct(product)}
+                  onToggleFavorite={handleToggleFavorite}
+                />
+              ))}
+            </div>
+
+            {/* Sentinel para infinite scroll */}
+            {hasMore && (
+              <div ref={setSentinelRef} className="flex justify-center py-8">
+                {loadingMore && (
+                  <div className="flex items-center gap-2 text-sm text-text-3">
+                    <Loader2 className="size-4 animate-spin" /> Carregando mais…
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         )}
 
         <ProductDetailsModal
@@ -275,7 +344,7 @@ export default function ProductsScreen() {
           onOpenChange={(open) => !open && setSelectedProduct(null)}
           onDeleted={() => {
             setSelectedProduct(null);
-            load();
+            load(0, false);
           }}
           onEdit={(product) => {
             setSelectedProduct(null);
@@ -292,10 +361,11 @@ export default function ProductsScreen() {
           productToEdit={productToEdit}
           onCreated={() => {
             loadFavIds();
-            load();
+            load(0, false);
           }}
         />
       </Page>
     </AppShell>
   );
 }
+

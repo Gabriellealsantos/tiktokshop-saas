@@ -91,12 +91,13 @@ public class ProductService {
 
     private Sort resolveSort(String sort) {
         if (sort == null) {
-            return Sort.by(Sort.Direction.ASC, "rankPosition");
+            return Sort.by(Sort.Direction.DESC, "createdAt");
         }
         return switch (sort.toLowerCase()) {
             case "top" -> Sort.by(Sort.Direction.DESC, "salesPerDay");
             case "recent" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            default -> Sort.by(Sort.Direction.ASC, "rankPosition");
+            case "rank" -> Sort.by(Sort.Direction.ASC, "rankPosition");
+            default -> Sort.by(Sort.Direction.DESC, "createdAt");
         };
     }
 

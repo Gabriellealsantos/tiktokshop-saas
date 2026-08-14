@@ -36,7 +36,7 @@ export function ProductCard({
           src={product.image || undefined}
           alt={product.name}
           loading="lazy"
-          className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105 text-transparent"
         />
 
         <span className="absolute left-3 top-3">

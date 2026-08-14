@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Sparkles, Play, Film, Settings, Loader2, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { Page, PageHeader } from "./page";
 import { Button } from "./button";
 import { AppShell } from "@/layouts/app-shell";
@@ -11,6 +10,7 @@ import { listVideoTemplates } from "@/services/videoTemplateService";
 import type { VideoTemplateSummary } from "@/models/videoTemplate";
 
 const CATEGORIAS = ["Todos", "Moda", "UGC", "Beleza"];
+const PAGE_SIZE = 20;
 
 export function SharedVideoCard({ modelo, productId }: { modelo: VideoTemplateSummary; isPicker?: boolean; productId?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -117,17 +117,77 @@ export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, 
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
 
-  const { data: templates, isLoading } = useQuery({
-    queryKey: ["video-templates"],
-    queryFn: async () => {
-      const res = await listVideoTemplates();
-      return res.data as VideoTemplateSummary[];
-    },
-  });
+  const [templates, setTemplates] = useState<VideoTemplateSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  const modelosFiltrados = (templates ?? []).filter(
-    m => categoriaAtiva === "Todos" || m.category === categoriaAtiva
-  );
+  const load = useCallback(async (pageToLoad: number, append: boolean) => {
+    if (!append) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+    try {
+      const res = await listVideoTemplates({
+        category: categoriaAtiva === "Todos" ? undefined : categoriaAtiva,
+        page: pageToLoad,
+        size: PAGE_SIZE,
+      });
+      const content = (res.data?.content ?? []) as VideoTemplateSummary[];
+      setTemplates((prev) => (append ? [...prev, ...content] : content));
+      setHasMore(!res.data?.last);
+    } catch {
+      if (!append) setTemplates([]);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [categoriaAtiva]);
+
+  // Reset pagination and reload when category changes
+  useEffect(() => {
+    setPage(0);
+    setHasMore(true);
+    load(0, false);
+  }, [load]);
+
+  // Load more when page increments
+  useEffect(() => {
+    if (page > 0) {
+      load(page, true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  // Estado mutável para o observer (evita recriar e causar loop infinito)
+  const observerState = useRef({ hasMore, loading, loadingMore });
+  useEffect(() => {
+    observerState.current = { hasMore, loading, loadingMore };
+  }, [hasMore, loading, loadingMore]);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+
+  const setSentinelRef = useCallback((node: HTMLDivElement | null) => {
+    if (observer.current) {
+      observer.current.disconnect();
+    }
+    if (node) {
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            const state = observerState.current;
+            if (state.hasMore && !state.loading && !state.loadingMore) {
+              setPage((prev) => prev + 1);
+            }
+          }
+        },
+        { rootMargin: "200px" }
+      );
+      observer.current.observe(node);
+    }
+  }, []);
 
   return (
     <AppShell>
@@ -186,20 +246,34 @@ export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, 
           )}
         </div>
 
-        {isLoading ? (
+        {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="size-6 animate-spin text-brand-400" />
           </div>
-        ) : modelosFiltrados.length === 0 ? (
+        ) : templates.length === 0 ? (
           <p className="text-center text-text-3 py-20">Nenhum modelo disponível nesta categoria.</p>
         ) : (
-          <div className="grid gap-2.5 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
-            {modelosFiltrados.map((modelo) => (
-              <SharedVideoCard key={modelo.slug} modelo={modelo} isPicker={isPicker} productId={productId} />
-            ))}
-          </div>
+          <>
+            <div className="grid gap-2.5 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+              {templates.map((modelo) => (
+                <SharedVideoCard key={modelo.slug} modelo={modelo} isPicker={isPicker} productId={productId} />
+              ))}
+            </div>
+
+            {/* Sentinel para infinite scroll */}
+            {hasMore && (
+              <div ref={setSentinelRef} className="flex justify-center py-8">
+                {loadingMore && (
+                  <div className="flex items-center gap-2 text-sm text-text-3">
+                    <Loader2 className="size-4 animate-spin" /> Carregando mais…
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         )}
       </Page>
     </AppShell>
   );
 }
+
