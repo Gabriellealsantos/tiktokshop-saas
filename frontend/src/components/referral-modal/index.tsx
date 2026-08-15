@@ -61,9 +61,9 @@ export function ReferralModal({
               >
                 <div className="text-center">
                   <h2 className="text-3xl font-extrabold text-white tracking-tight">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Indique</span> amigos
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Indique</span> e ganhe
                   </h2>
-                  <p className="text-zinc-400 mt-2 font-medium">Presenteie um craque com créditos infinitos.</p>
+                  <p className="text-zinc-400 mt-2 font-medium">Presenteie um amigo!</p>
                 </div>
 
                 <div>
@@ -91,7 +91,7 @@ export function ReferralModal({
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-5 mt-2">
                   <div className="flex items-center gap-3 mb-2">
                     <Gift className="size-5 text-brand-400" />
-                    <h3 className="text-white font-bold">Link presente da Copa</h3>
+                    <h3 className="text-white font-bold">Link presente</h3>
                   </div>
                   <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
                     Cada link dá ao seu amigo acesso à ferramenta completa + 50% de desconto. Escolha de 1 a 10 usos e gere o link abaixo.
@@ -124,7 +124,7 @@ export function ReferralModal({
                   onClick={() => setStep(2)}
                 >
                   <Gift className="mr-2 size-5" />
-                  Gerar link presente
+                  Gerar link
                 </Button>
               </motion.div>
             )}
@@ -150,7 +150,7 @@ export function ReferralModal({
 
                 <div className="text-center">
                   <h2 className="text-3xl font-extrabold text-white tracking-tight">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Seu</span> link presente
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Seu</span> link de convite
                   </h2>
                   <p className="text-zinc-400 mt-2 font-medium uppercase tracking-wider text-xs">o que seu amigo recebe ao usar o seu link</p>
                 </div>
@@ -187,11 +187,11 @@ export function ReferralModal({
 
                 <div className="grid grid-cols-2 gap-3 mt-2">
                   {/* Mensal */}
-                  <div className="relative p-4 rounded-2xl border border-white/10 bg-black/20 flex flex-col justify-center">
-                    <p className="text-[10px] font-bold uppercase text-zinc-400 mb-2">Mensal</p>
+                  <div className="relative p-4 rounded-2xl border border-brand-500/30 bg-[linear-gradient(135deg,rgba(75,68,232,0.10)_0%,rgba(0,0,0,0.2)_100%)] shadow-[0_0_15px_rgba(75,68,232,0.08)] flex flex-col justify-center">
+                    <p className="text-[10px] font-bold uppercase text-brand-300/60 mb-2">Mensal</p>
                     <p className="text-xs text-zinc-500 line-through">R$ 299,90</p>
-                    <p className="text-lg font-black text-white leading-none mt-1">R$ 149,90 <span className="text-[10px] font-normal text-zinc-400">/mês</span></p>
-                    <p className="text-[10px] font-medium text-green-400 mt-2">Economia de R$ 150,00</p>
+                    <p className="text-lg font-black text-white leading-none mt-1">R$ 149,00 <span className="text-[10px] font-normal text-zinc-400">/mês</span></p>
+                    <p className="text-[10px] font-medium text-green-400 mt-2">Economia de R$ 150,90</p>
                   </div>
 
                   {/* Vitalício (Featured) */}
@@ -200,17 +200,17 @@ export function ReferralModal({
                       Mais Popular
                     </div>
                     <p className="text-[10px] font-bold uppercase text-amber-500/80 mb-2">Vitalício</p>
-                    <p className="text-xs text-zinc-500 line-through">R$ 594,90</p>
-                    <p className="text-lg font-black text-white leading-none mt-1">12x R$ 31,53</p>
-                    <p className="text-[9px] font-medium text-zinc-400 mt-0.5">R$ 295,90 pagamento único</p>
-                    <p className="text-[10px] font-medium text-green-400 mt-2">Economia de R$ 299,00</p>
+                    <p className="text-xs text-zinc-500 line-through">R$ 597,00</p>
+                    <p className="text-lg font-black text-white leading-none mt-1">12x R$ 33,84</p>
+                    <p className="text-[9px] font-medium text-zinc-400 mt-0.5">R$ 295,00 pagamento único</p>
+                    <p className="text-[10px] font-medium text-green-400 mt-2">Economia de R$ 302,00</p>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-4 mt-1">
                   <div className="flex items-center gap-3 mb-2">
                     <Gift className="size-5 text-brand-400" />
-                    <h3 className="text-white font-bold">Link presente Copa</h3>
+                    <h3 className="text-white font-bold">Link de convite</h3>
                   </div>
                   <p className="text-[13px] text-zinc-400 mb-4 leading-relaxed">
                     Escolha quantos usos liberar (até 10 no total) e confirme. O link já sai com o desconto aplicado — é só compartilhar.
@@ -254,7 +254,7 @@ export function ReferralModal({
                     )}
                   </Button>
                   <p className="text-[10px] font-medium text-zinc-500 mt-4 tracking-wide uppercase">
-                    Edição Copa do Mundo · promoção por tempo limitado.
+                    Promoção por tempo limitado.
                   </p>
                 </div>
               </motion.div>

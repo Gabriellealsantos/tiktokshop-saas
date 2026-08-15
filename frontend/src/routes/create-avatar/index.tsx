@@ -76,7 +76,7 @@ export default function AvatarStudio() {
                   mode === "full" ? "text-white" : "text-text-1",
                 )}
               >
-                Personalização completa
+                Personalização do zero
               </h3>
               <p
                 className={cn(
@@ -118,7 +118,7 @@ export default function AvatarStudio() {
                   mode === "photo" ? "text-white" : "text-text-1",
                 )}
               >
-                Criar a partir de foto
+                Criar a partir da imagem
               </h3>
               <p
                 className={cn(

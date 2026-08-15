@@ -204,7 +204,7 @@ export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, 
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-500/15 text-brand-400">
                 <Film className="size-5" />
               </span>
-              Extraia movimento de qualquer vídeo viral
+              Replique movimentos de qualquer vídeo viral
             </span>
           }
           description="Escolha um modelo, a IA captura o melhor frame, troca a pessoa pelo seu avatar e gera um prompt pronto para usar em qualquer ferramenta de geração de vídeo."

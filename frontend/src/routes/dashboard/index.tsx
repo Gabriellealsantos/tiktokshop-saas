@@ -29,23 +29,24 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
   const [selectedPeriod, setSelectedPeriod] = useState("7 dias");
 
   const { summary, liveSales, chartData, trendCards, momentRead } = useDashboardData(canSeeRevenue, selectedPeriod);
-
   return (
-    <>
-      {renderHeader}
+    <div style={{ zoom: 0.8 }} className="-mt-6 md:-mt-12">
       <PageHeader
         title="Dashboard de Vendas"
         description="Acompanhe o desempenho de seus produtos e comissões em tempo real."
         actions={
-          <div className="flex gap-2">
-            {canSeeRevenue && (
-              <Pill active={view === "Faturamento"} onClick={() => setView("Faturamento")}>
-                Faturamento
+          <div className="flex flex-col items-end gap-3 mt-2 md:mt-0 translate-y-5">
+            {renderHeader}
+            <div className="flex gap-2">
+              {canSeeRevenue && (
+                <Pill active={view === "Faturamento"} onClick={() => setView("Faturamento")}>
+                  Faturamento
+                </Pill>
+              )}
+              <Pill active={view === "Tendências"} onClick={() => setView("Tendências")}>
+                Tendências
               </Pill>
-            )}
-            <Pill active={view === "Tendências"} onClick={() => setView("Tendências")}>
-              Tendências
-            </Pill>
+            </div>
           </div>
         }
       />
@@ -98,7 +99,7 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }
 

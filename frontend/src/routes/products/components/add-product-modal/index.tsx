@@ -412,15 +412,19 @@ export function AddProductModal({
                 </div>
 
                 {/* RIGHT: Live Preview & Submit */}
-                <div className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-white/10 bg-surface-2/20 flex flex-col p-6 lg:p-8 shrink-0 overflow-y-auto lg:overflow-visible">
-                  <h3 className="text-sm font-bold text-white mb-4">
+                <div className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-white/10 bg-surface-2/20 flex flex-col p-6 lg:p-8 shrink-0 overflow-y-auto lg:overflow-hidden lg:h-full">
+                  <h3 className="shrink-0 text-sm font-bold text-white mb-4">
                     Preview em Tempo Real
                   </h3>
-                  <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-80">
-                    <ProductCard product={previewProduct} />
+                  <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-80 flex-1 min-h-0 flex flex-col">
+                    <ProductCard 
+                      product={previewProduct} 
+                      className="h-full" 
+                      imageClassName="lg:aspect-auto lg:flex-1 lg:min-h-0 lg:shrink" 
+                    />
                   </div>
 
-                  <div className="mt-auto pt-6 border-t border-white/10">
+                  <div className="shrink-0 mt-auto pt-6 border-t border-white/10">
                     <button
                       type="button"
                       onClick={form.handleSubmit(onSubmit, (errors) => {

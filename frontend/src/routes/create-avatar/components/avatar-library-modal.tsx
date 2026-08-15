@@ -80,7 +80,7 @@ function AvatarCard({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-[20px] bg-surface-2 border border-white/5 transition-all hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_12px_24px_-12px_rgba(75,68,232,0.3)] aspect-[9/16]",
+        "group relative overflow-hidden flex flex-col rounded-[20px] bg-surface-2 border border-white/5 transition-all hover:border-white/10 hover:-translate-y-1 hover:shadow-[0_12px_24px_-12px_rgba(75,68,232,0.3)]",
         mode === "select" && "cursor-pointer",
       )}
       onClick={() => {
@@ -92,7 +92,7 @@ function AvatarCard({
       <S3Image
         src={avatar.image}
         alt={avatar.name}
-        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+        className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
       />
 

@@ -13,41 +13,39 @@ export default function IndexRoute() {
   const [view, setView] = useState<"dashboard" | "central">("dashboard");
 
   const headerToggle = (
-    <div className="-mt-4 mb-2 flex justify-center entrance">
-      <div className="flex w-fit items-center rounded-full border border-white/10 bg-black/40 p-1 shadow-inner">
-        <button
-          onClick={() => setView("dashboard")}
-          className={cn(
-            "relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors",
-            view === "dashboard" ? "text-white" : "text-zinc-500 hover:text-zinc-300",
-          )}
-        >
-          {view === "dashboard" && (
-            <motion.div
-              layoutId="home-view-toggle"
-              className="absolute inset-0 rounded-full btn-brand"
-              transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
-            />
-          )}
-          <span className="relative z-10">Dashboard</span>
-        </button>
-        <button
-          onClick={() => setView("central")}
-          className={cn(
-            "relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors",
-            view === "central" ? "text-white" : "text-zinc-500 hover:text-zinc-300",
-          )}
-        >
-          {view === "central" && (
-            <motion.div
-              layoutId="home-view-toggle"
-              className="absolute inset-0 rounded-full btn-brand"
-              transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
-            />
-          )}
-          <span className="relative z-10">Central</span>
-        </button>
-      </div>
+    <div className="flex w-fit items-center rounded-full border border-white/10 bg-black/40 p-1 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] entrance">
+      <button
+        onClick={() => setView("dashboard")}
+        className={cn(
+          "relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors",
+          view === "dashboard" ? "text-white" : "text-zinc-500 hover:text-zinc-300",
+        )}
+      >
+        {view === "dashboard" && (
+          <motion.div
+            layoutId="home-view-toggle"
+            className="absolute inset-0 rounded-full btn-brand"
+            transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
+          />
+        )}
+        <span className="relative z-10">Dashboard</span>
+      </button>
+      <button
+        onClick={() => setView("central")}
+        className={cn(
+          "relative rounded-full px-5 py-1.5 text-xs font-bold transition-colors",
+          view === "central" ? "text-white" : "text-zinc-500 hover:text-zinc-300",
+        )}
+      >
+        {view === "central" && (
+          <motion.div
+            layoutId="home-view-toggle"
+            className="absolute inset-0 rounded-full btn-brand"
+            transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
+          />
+        )}
+        <span className="relative z-10">Central</span>
+      </button>
     </div>
   );
 
