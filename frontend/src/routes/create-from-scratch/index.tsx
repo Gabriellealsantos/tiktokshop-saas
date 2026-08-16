@@ -50,7 +50,17 @@ export default function CreateFromScratchScreen() {
     })),
   ];
 
-  const avataresFiltrados = avatares;
+  const avataresFiltrados = [...avatares];
+  
+  // Reordenação solicitada: Trocar Carla Santos e Mariana Costa de lugar
+  const carlaIndex = avataresFiltrados.findIndex(a => a.name.toLowerCase().includes("carla santos"));
+  const marianaIndex = avataresFiltrados.findIndex(a => a.name.toLowerCase().includes("mariana costa"));
+  
+  if (carlaIndex !== -1 && marianaIndex !== -1) {
+    const temp = avataresFiltrados[carlaIndex];
+    avataresFiltrados[carlaIndex] = avataresFiltrados[marianaIndex];
+    avataresFiltrados[marianaIndex] = temp;
+  }
 
   return (
     <AppShell>
@@ -112,7 +122,7 @@ export default function CreateFromScratchScreen() {
                     key={avatar.id}
                     onClick={() => setAvatarSelecionado(avatar.id)}
                     className={cn(
-                      "group relative overflow-hidden rounded-2xl aspect-[2/3] text-left transition-all duration-300",
+                      "group relative overflow-hidden rounded-2xl text-left transition-all duration-300",
                       isSelected
                         ? "ring-2 ring-brand-500 shadow-[0_0_24px_-4px_rgba(75,68,232,0.5)]"
                         : "ring-1 ring-white/10 hover:ring-white/20 hover:-translate-y-1 hover:shadow-lg",
@@ -122,7 +132,7 @@ export default function CreateFromScratchScreen() {
                       src={avatar.image}
                       alt={avatar.name}
                       loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="block w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 

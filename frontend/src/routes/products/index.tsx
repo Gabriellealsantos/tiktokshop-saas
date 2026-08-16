@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Loader2, Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Pill, Page, PageHeader, ProductCard } from "@/components";
 import { ProductDetailsModal } from "./components/product-details-modal";
@@ -40,12 +40,12 @@ export default function ProductsScreen() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
+  const [page, setPage] = useState(0);
+
   // Ids favoritados, para marcar o coração em qualquer aba (não só na de Favoritos).
   const [favIds, setFavIds] = useState<Set<number>>(new Set());
   // Categorias reais do backend (viram abas dinâmicas depois das fixas).
   const [cats, setCats] = useState<Category[]>([]);
-  // Paginação
-  const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -146,7 +146,7 @@ export default function ProductsScreen() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [category, search, favIds, cats]);
+  }, [category, search, favIds, cats, page]);
 
   useEffect(() => {
     loadFavIds();
@@ -337,6 +337,8 @@ export default function ProductsScreen() {
             )}
           </>
         )}
+
+
 
         <ProductDetailsModal
           product={selectedProduct}

@@ -110,7 +110,7 @@ export default function TrendLanding() {
       <Page className="pt-0 -mt-6 max-w-[1400px] mx-auto px-4 md:px-6">
         <div className="rounded-[24px] bg-[#0F0D15]/20 backdrop-blur-3xl border border-white/5 py-5 px-6 mb-4">
           <TrendHeader
-            title="Viralize"
+            title="Trend"
             titleHighlight="AI"
             subtitle=""
             description="Escolha uma estrutura feita para retenção, comentário e compartilhamento."

@@ -131,21 +131,27 @@ export function LaunchpadContent({ renderHeader }: { renderHeader?: ReactNode })
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      {renderHeader}
-
+    <div className="max-w-6xl mx-auto -mt-6 md:-mt-12">
       {/* 1. Greeting header */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8 mt-8 md:mt-12"
+        className="mb-8 mt-4 md:mt-8 flex flex-col md:flex-row md:items-end justify-between gap-5 relative z-50"
       >
-        <h1 className="text-3xl font-extrabold tracking-[-.035em] text-white md:text-4xl">
-          Olá, {firstName} 👋
-        </h1>
-        <p className="mt-2 text-sm text-zinc-400 max-w-xl">
-          Bem-vindo de volta. Pratique sua mineração diária e explore novos formatos.
-        </p>
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-[-.035em] text-white md:text-4xl">
+            Olá, {firstName} 👋
+          </h1>
+          <p className="mt-2 text-sm text-zinc-400 max-w-xl">
+            Bem-vindo de volta. Pratique sua mineração diária e explore novos formatos.
+          </p>
+        </div>
+
+        {renderHeader && (
+          <div className="flex shrink-0">
+            {renderHeader}
+          </div>
+        )}
       </motion.div>
 
       {/* 2. Search Section */}

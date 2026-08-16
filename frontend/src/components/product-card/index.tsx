@@ -10,11 +10,15 @@ export function ProductCard({
   selected,
   onClick,
   onToggleFavorite,
+  className,
+  imageClassName,
 }: {
   product: Product;
   selected?: boolean;
   onClick?: () => void;
   onToggleFavorite?: (product: Product) => void;
+  className?: string;
+  imageClassName?: string;
 }) {
   return (
     <motion.div
@@ -29,9 +33,10 @@ export function ProductCard({
         "glass-surface is-interactive group relative flex h-full flex-col rounded-[20px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
         "transition-all duration-300",
         selected && "border-accent-400/50 shadow-[0_0_20px_rgba(75,68,232,0.15)]",
+        className
       )}
     >
-      <div className="relative aspect-square w-full overflow-hidden rounded-t-[20px] bg-white/5">
+      <div className={cn("relative aspect-square w-full overflow-hidden rounded-t-[20px] bg-white/5 shrink-0", imageClassName)}>
         <img
           src={product.image || undefined}
           alt={product.name}

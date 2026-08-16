@@ -36,7 +36,7 @@ const GlassDialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background cursor-pointer transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-white/10 data-[state=open]:text-muted-foreground z-50">
+      <DialogPrimitive.Close className="absolute right-3 top-3 md:right-4 md:top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 backdrop-blur-md opacity-80 ring-offset-background cursor-pointer transition-all hover:opacity-100 hover:bg-black/70 hover:scale-105 focus:outline-none shadow-md">
         <X className="h-4 w-4 text-white" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
@@ -93,9 +93,7 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange, onDeleted, 
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <GlassDialogContent
           className={cn(
-            "max-w-[1020px] gap-0 p-0 overflow-hidden border-white/20 bg-zinc-950/50 backdrop-blur-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)]",
-            "max-sm:top-auto max-sm:bottom-0 max-sm:translate-y-0 max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:border-b-0",
-            "sm:rounded-2xl"
+            "max-w-[1020px] w-[95vw] sm:w-[90vw] gap-0 p-0 overflow-hidden border-white/20 bg-zinc-950/50 backdrop-blur-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl"
           )}
         >
           <VisuallyHidden.Root>
@@ -103,18 +101,17 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange, onDeleted, 
             <DialogDescription>Dossiê completo com estatísticas para {product.name}</DialogDescription>
           </VisuallyHidden.Root>
 
-
-          <div className="flex flex-col md:flex-row h-full max-h-[94dvh] md:max-h-[92vh] overflow-x-hidden">
+          <div className="flex flex-col md:flex-row md:h-full max-h-[90vh] md:max-h-[92vh] overflow-x-hidden overflow-y-auto md:overflow-y-hidden">
             {/* LEFT: Media & Main Actions */}
             <ProductMedia product={product} onNavigateToCreate={handleNavigateToCreate} />
 
             {/* RIGHT: Info + Admin Actions */}
-            <div className="flex flex-col w-full md:w-[56%] overflow-y-auto overflow-x-hidden">
+            <div className="flex flex-col w-full md:w-[56%] md:overflow-y-auto overflow-x-hidden">
               <ProductInfo product={product} metrics={metrics} onNavigateToContent={() => onOpenChange(false)} />
 
               {/* Admin: Editar / Excluir */}
               {isAdmin && (
-                <div className="mt-auto border-t border-white/10 py-3 px-5 md:px-7 flex items-center justify-end gap-3 bg-black/20 shrink-0 overflow-x-hidden">
+                <div className="sticky bottom-0 z-20 border-t border-white/10 py-3 px-5 md:px-7 flex items-center justify-end gap-3 bg-zinc-950/90 backdrop-blur-md shrink-0">
                   <button
                     type="button"
                     onClick={() => {
