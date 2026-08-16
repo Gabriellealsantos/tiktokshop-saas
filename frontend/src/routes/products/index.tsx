@@ -146,7 +146,7 @@ export default function ProductsScreen() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [category, search, favIds, cats, page]);
+  }, [category, search, favIds, cats]);
 
   useEffect(() => {
     loadFavIds();

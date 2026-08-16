@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { ImageIcon, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, ImageIcon, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -18,6 +18,7 @@ import { VideoUpload } from "../viral-tab/components/video-upload";
 /** Mesmas categorias usadas no filtro da galeria (shared-models-view.tsx). */
 const CATEGORIAS = ["Moda", "UGC", "Beleza"];
 const SEM_CATEGORIA = "__none__";
+const PAGE_SIZE = 20;
 
 const emptyForm = (): VideoTemplateForm => ({
   slug: "", title: "", category: null, thumbnailUrl: "", videoUrl: "",
@@ -35,6 +36,7 @@ const AUDIO_MODES: { value: VideoAudioMode; label: string; hint: string }[] = [
 export function VideoTemplatesTab() {
   const [items, setItems] = useState<VideoTemplateAdmin[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -56,6 +58,18 @@ export function VideoTemplatesTab() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  // ── Paginação local ──────────────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const paginatedItems = useMemo(
+    () => items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE),
+    [items, page],
+  );
+
+  // Garante que a página atual não fique fora do range após exclusão
+  useEffect(() => {
+    if (page > 0 && page >= totalPages) setPage(totalPages - 1);
+  }, [totalPages, page]);
 
   const openCreate = () => {
     setEditingId(null);
@@ -131,6 +145,34 @@ export function VideoTemplatesTab() {
         </div>
       </div>
 
+        {/* Paginação */}
+        {items.length > PAGE_SIZE && (
+          <div className="flex items-center justify-between text-sm text-zinc-400 mt-1">
+            <span>{items.length} modelos</span>
+            <div className="flex items-center gap-2">
+              <span>Página {page + 1} de {totalPages}</span>
+              <div className="flex items-center gap-1 ml-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0 || loading}
+                  className="grid size-8 place-items-center rounded-lg border border-white/10 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:pointer-events-none"
+                  aria-label="Página anterior"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1 || loading}
+                  className="grid size-8 place-items-center rounded-lg border border-white/10 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:pointer-events-none"
+                  aria-label="Próxima página"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-16 text-sm text-zinc-500">
           <Loader2 className="size-4 animate-spin" /> Carregando modelos…
@@ -141,7 +183,7 @@ export function VideoTemplatesTab() {
         </div>
       ) : (
         <div className="grid gap-3">
-          {items.map((item) => (
+          {paginatedItems.map((item) => (
             <div key={item.id} className="glass-premium-purple relative overflow-hidden flex items-center gap-4 rounded-2xl border border-white/10 p-4 transition-all duration-200 hover:border-white/20 shadow-lg">
               <div className="relative z-10 w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-2 flex items-center justify-center">
                 {item.videoUrl ? (

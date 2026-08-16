@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import type { User, UserRole, UserPlan } from "@/models/user";
@@ -16,6 +16,8 @@ interface UsersTabProps {
   onPendingCountChange: (count: number) => void;
 }
 
+const PAGE_SIZE = 20;
+
 export function UsersTab({ onPendingCountChange }: UsersTabProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,22 +30,57 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
   const [roleFilter, setRoleFilter] = useState<UserRole | "todas">("todas");
   const [planFilter, setPlanFilter] = useState<UserPlan | "todos">("todos");
 
-  const loadUsers = useCallback(async () => {
+  // ── Paginação real (backend) ─────────────────────────────────────────────
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+
+  // Contadores globais (sem filtro) – buscados uma vez à parte para manter as
+  // badges das pílulas de status precisas mesmo quando em outra página.
+  const [globalCounts, setGlobalCounts] = useState({ total: 0, aprovado: 0, pendente: 0, bloqueado: 0 });
+
+  const loadGlobalCounts = useCallback(async () => {
+    try {
+      // Busca todos só para contar (size grande, uma chamada só)
+      const res = await findAllUsers({ page: 0, size: 10000 });
+      const content: UserResponse[] = res.data.content ?? [];
+      const mapped = content.map(mapUserResponse);
+      const counts = {
+        total: mapped.length,
+        aprovado: mapped.filter((u) => u.status === "aprovado").length,
+        pendente: mapped.filter((u) => u.status === "pendente").length,
+        bloqueado: mapped.filter((u) => u.status === "bloqueado").length,
+      };
+      setGlobalCounts(counts);
+      onPendingCountChange(counts.pendente);
+    } catch {
+      // silencioso — contadores ficam com o valor anterior
+    }
+  }, [onPendingCountChange]);
+
+  const loadUsers = useCallback(async (pageToLoad: number) => {
     setLoading(true);
     try {
-      const res = await findAllUsers({ page: 0, size: 100 });
+      const res = await findAllUsers({ page: pageToLoad, size: PAGE_SIZE });
       const content: UserResponse[] = res.data.content ?? [];
       const mapped = content.map(mapUserResponse);
       setUsers(mapped);
-      onPendingCountChange(mapped.filter((u) => u.status === "pendente").length);
+      setTotalPages(res.data.totalPages ?? 1);
+      setTotalElements(res.data.totalElements ?? mapped.length);
     } catch {
       toast.error("Falha ao carregar usuários.");
     } finally {
       setLoading(false);
     }
-  }, [onPendingCountChange]);
+  }, []);
 
-  useEffect(() => { loadUsers(); }, [loadUsers]);
+  useEffect(() => {
+    loadGlobalCounts();
+  }, [loadGlobalCounts]);
+
+  useEffect(() => {
+    loadUsers(page);
+  }, [page, loadUsers]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
@@ -116,6 +153,7 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
 
       setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, plan, role, status: newStatus } : u)));
       toast.success("Usuário atualizado com sucesso.");
+      loadGlobalCounts(); // Atualiza contadores globais
     } catch {
       toast.error("Falha ao atualizar o usuário.");
     } finally {
@@ -136,18 +174,12 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
         setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, status: "bloqueado", plan: "sem_plano" } : u)));
         toast.success("Acesso bloqueado.");
       }
+      loadGlobalCounts(); // Atualiza contadores globais
     } catch {
       toast.error(isBlocked ? "Falha ao desbloquear." : "Falha ao bloquear.");
     } finally {
       setActioningId(null);
     }
-  };
-
-  const statusCounts = {
-    total: users.length,
-    aprovado: users.filter((u) => u.status === "aprovado").length,
-    pendente: users.filter((u) => u.status === "pendente").length,
-    bloqueado: users.filter((u) => u.status === "bloqueado").length,
   };
 
   return (
@@ -161,12 +193,32 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
         onRoleFilterChange={setRoleFilter}
         planFilter={planFilter}
         onPlanFilterChange={setPlanFilter}
-        statusCounts={statusCounts}
+        statusCounts={globalCounts}
       />
 
       <div className="flex items-center justify-between text-sm text-zinc-400 mt-2 border-b border-white/5 pb-4">
-        <span>{filteredUsers.length} usuários</span>
-        <span>Página 1 de 1</span>
+        <span>{totalElements} usuários</span>
+        <div className="flex items-center gap-2">
+          <span>Página {page + 1} de {totalPages}</span>
+          <div className="flex items-center gap-1 ml-2">
+            <button
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={page === 0 || loading}
+              className="grid size-8 place-items-center rounded-lg border border-white/10 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:pointer-events-none"
+              aria-label="Página anterior"
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+              disabled={page >= totalPages - 1 || loading}
+              className="grid size-8 place-items-center rounded-lg border border-white/10 text-zinc-400 transition-colors hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:pointer-events-none"
+              aria-label="Próxima página"
+            >
+              <ChevronRight className="size-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
       {loading ? (
