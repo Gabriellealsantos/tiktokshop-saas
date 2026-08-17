@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import { Check, Loader2, RefreshCw } from "lucide-react";
+import { Check, Loader2, RefreshCw, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button, Input, Label } from "@/components";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger, Button, Checkbox, Input, Label,
+} from "@/components";
 import { METRIC_PERIODS, type DashboardMetric } from "@/models/dashboard";
 import {
   listMetrics,
+  resetMetrics as resetMetricsApi,
   upsertMetric,
 } from "@/services/dashboardAdminService";
 import { cn } from "@/utils/utils";
@@ -47,6 +52,47 @@ export function MetricsTab() {
   // Marca quais cards já tentaram salvar, para só então revelar os erros inline.
   const [attempted, setAttempted] = useState<Record<string, boolean>>({});
 
+  // ── Estado do modal de reset ──────────────────────────────────────────
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetSelection, setResetSelection] = useState<Set<string>>(new Set());
+  const [resetting, setResetting] = useState(false);
+
+  const allSelected = resetSelection.size === METRIC_PERIODS.length;
+
+  const toggleResetPeriod = (ref: string) => {
+    setResetSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(ref)) next.delete(ref); else next.add(ref);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setResetSelection(new Set());
+    } else {
+      setResetSelection(new Set(METRIC_PERIODS.map((p) => p.periodRef)));
+    }
+  };
+
+  const handleResetConfirm = async () => {
+    if (resetSelection.size === 0) return;
+    setResetting(true);
+    try {
+      const res = await resetMetricsApi(Array.from(resetSelection));
+      const deleted: number = res.data?.deleted ?? 0;
+      toast.success(`${deleted} métrica(s) removida(s).`);
+      setResetOpen(false);
+      setResetSelection(new Set());
+      await load();
+    } catch {
+      toast.error("Falha ao resetar as métricas.");
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  // ── Carregamento ──────────────────────────────────────────────────────
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -128,9 +174,74 @@ export function MetricsTab() {
           Valores-base por período. O dashboard soma estes números às vendas ao vivo em tempo real.
           O ticket médio é calculado automaticamente (faturamento ÷ pedidos).
         </p>
-        <Button variant="secondary" onClick={load} className="size-9 shrink-0 p-0 rounded-full" aria-label="Recarregar">
-          <RefreshCw className="size-4" />
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* ── Botão Resetar (abre modal) ──────────────────────────────── */}
+          <AlertDialog open={resetOpen} onOpenChange={(open) => { setResetOpen(open); if (!open) setResetSelection(new Set()); }}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="secondary"
+                className="h-9 px-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20"
+              >
+                <RotateCcw className="size-3.5 mr-1.5" />
+                Resetar
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-zinc-950 border-white/10">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-white">Resetar métricas</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Selecione os períodos que deseja zerar. Os valores serão apagados permanentemente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <div className="space-y-2 py-2">
+                {/* Selecionar tudo */}
+                <div className="flex items-center gap-2 pb-2 border-b border-white/10">
+                  <Checkbox
+                    id="reset-all"
+                    checked={allSelected}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                  <label htmlFor="reset-all" className="text-sm font-medium text-zinc-200 cursor-pointer">
+                    Selecionar tudo
+                  </label>
+                </div>
+
+                {METRIC_PERIODS.map((p) => (
+                  <div key={p.periodRef} className="flex items-center gap-2 py-1 px-1 rounded-md hover:bg-white/5">
+                    <Checkbox
+                      id={`reset-${p.periodRef}`}
+                      checked={resetSelection.has(p.periodRef)}
+                      onCheckedChange={() => toggleResetPeriod(p.periodRef)}
+                    />
+                    <label htmlFor={`reset-${p.periodRef}`} className="text-sm text-zinc-300 cursor-pointer flex-1">
+                      {p.label}
+                      <span className="ml-2 text-[10px] font-mono text-zinc-500">{p.periodRef}</span>
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel className="border-white/10 text-zinc-300 hover:bg-white/5">
+                  Cancelar
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => { e.preventDefault(); handleResetConfirm(); }}
+                  disabled={resetSelection.size === 0 || resetting}
+                  className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-40"
+                >
+                  {resetting && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
+                  Resetar {resetSelection.size > 0 ? `(${resetSelection.size})` : ""}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <Button variant="secondary" onClick={load} className="size-9 shrink-0 p-0 rounded-full" aria-label="Recarregar">
+            <RefreshCw className="size-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
@@ -193,3 +304,4 @@ export function MetricsTab() {
     </div>
   );
 }
+

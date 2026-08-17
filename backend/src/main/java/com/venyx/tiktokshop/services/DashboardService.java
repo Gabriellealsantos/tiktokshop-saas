@@ -202,4 +202,9 @@ public class DashboardService {
         }
         metricRepository.deleteById(id);
     }
+
+    @Transactional
+    public int resetMetrics(List<String> periodRefs) {
+        return metricRepository.deleteByPeriodRefIn(periodRefs);
+    }
 }

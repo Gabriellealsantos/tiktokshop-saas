@@ -13,6 +13,10 @@ export const upsertMetric = (metric: DashboardMetric) =>
 export const deleteMetric = (id: number) =>
   requestBackend({ method: "DELETE", url: `/api/admin/dashboard/metrics/${id}`, withCredentials: true });
 
+export const resetMetrics = (periodRefs: string[]) =>
+  requestBackend({ method: "POST", url: "/api/admin/dashboard/metrics/reset", data: { periodRefs }, withCredentials: true });
+
+
 // ── Insights / Tendências ────────────────────────────────────────────────────
 
 export const listAllInsights = () =>

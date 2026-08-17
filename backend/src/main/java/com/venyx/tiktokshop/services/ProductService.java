@@ -91,13 +91,13 @@ public class ProductService {
 
     private Sort resolveSort(String sort) {
         if (sort == null) {
-            return Sort.by(Sort.Direction.DESC, "createdAt");
+            return Sort.by(Sort.Order.asc("rankPosition").nullsLast(), Sort.Order.desc("createdAt"));
         }
         return switch (sort.toLowerCase()) {
             case "top" -> Sort.by(Sort.Direction.DESC, "salesPerDay");
             case "recent" -> Sort.by(Sort.Direction.DESC, "createdAt");
-            case "rank" -> Sort.by(Sort.Direction.ASC, "rankPosition");
-            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+            case "rank" -> Sort.by(Sort.Order.asc("rankPosition").nullsLast());
+            default -> Sort.by(Sort.Order.asc("rankPosition").nullsLast(), Sort.Order.desc("createdAt"));
         };
     }
 
