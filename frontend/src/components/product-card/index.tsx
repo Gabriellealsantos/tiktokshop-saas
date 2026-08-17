@@ -96,7 +96,12 @@ export function ProductCard({
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            toast("Redirecionando para a loja..."); // TODO: Affiliate URL action
+            if (product.affiliateUrl) {
+              toast("Redirecionando para a loja...");
+              window.open(product.affiliateUrl, "_blank", "noopener,noreferrer");
+            } else {
+              toast.error("Link de afiliação não cadastrado para este produto.");
+            }
           }}
           className="btn-brand mt-1 flex h-10 w-full items-center justify-center gap-2 rounded-full text-sm font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
