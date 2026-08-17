@@ -43,12 +43,12 @@ export function ReferralModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className={`glass-premium-purple ${step === 1 ? 'max-w-lg' : 'max-w-[620px]'} p-0 overflow-hidden border-white/10 rounded-[28px] sm:rounded-[32px] transition-[max-width] duration-300`}>
+      <DialogContent className={`glass-premium-purple w-[92vw] sm:w-full mx-auto ${step === 1 ? 'max-w-lg' : 'max-w-[620px]'} p-0 overflow-hidden border-white/10 rounded-[28px] sm:rounded-[32px] transition-[max-width] duration-300`}>
         {/* Hidden titles for accessibility */}
         <DialogTitle className="sr-only">Indique e Ganhe</DialogTitle>
         <DialogDescription className="sr-only">Modal de indicação e benefícios</DialogDescription>
 
-        <div className="relative overflow-y-auto max-h-[95vh] hide-scrollbar p-6 sm:p-8">
+        <div className="relative overflow-y-auto max-h-[95vh] hide-scrollbar p-5 sm:p-8">
           <AnimatePresence mode="wait" initial={false}>
             {step === 1 && (
               <motion.div
@@ -156,8 +156,8 @@ export function ReferralModal({
                   <p className="text-zinc-400 mt-1 font-medium uppercase tracking-wider text-[11px] sm:text-xs">o que seu amigo recebe ao usar o seu link</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="flex flex-col items-start text-left gap-3 py-6 px-5 rounded-2xl bg-white/[0.03] border border-white/5">
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="flex flex-col items-start text-left gap-2 sm:gap-3 py-4 sm:py-6 px-3 sm:px-5 rounded-2xl bg-white/[0.03] border border-white/5">
                     <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/15 border border-brand-500/30 text-brand-400">
                       <Tag className="size-4" />
                     </div>
@@ -166,7 +166,7 @@ export function ReferralModal({
                       <p className="text-[10px] text-zinc-400 leading-tight">Metade do preço no plano mensal ou vitalício.</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-start text-left gap-3 py-6 px-5 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div className="flex flex-col items-start text-left gap-2 sm:gap-3 py-4 sm:py-6 px-3 sm:px-5 rounded-2xl bg-white/[0.03] border border-white/5">
                     <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/15 border border-brand-500/30 text-brand-400">
                       <Crown className="size-4" />
                     </div>
@@ -175,7 +175,7 @@ export function ReferralModal({
                       <p className="text-[10px] text-zinc-400 leading-tight">Todas as funcionalidades totalmente liberadas.</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-start text-left gap-3 py-6 px-5 rounded-2xl bg-white/[0.03] border border-white/5">
+                  <div className="flex flex-col items-start text-left gap-2 sm:gap-3 py-4 sm:py-6 px-3 sm:px-5 rounded-2xl bg-white/[0.03] border border-white/5">
                     <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/15 border border-brand-500/30 text-brand-400">
                       <CheckCircle2 className="size-4" />
                     </div>
@@ -186,41 +186,41 @@ export function ReferralModal({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mt-2">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-2">
                   {/* Mensal */}
-                  <div className="relative p-6 rounded-[20px] border border-brand-500/30 bg-[linear-gradient(135deg,rgba(75,68,232,0.10)_0%,rgba(0,0,0,0.2)_100%)] shadow-[0_0_15px_rgba(75,68,232,0.08)] flex flex-col justify-between">
+                  <div className="relative p-3 sm:p-6 rounded-[20px] border border-brand-500/30 bg-[linear-gradient(135deg,rgba(75,68,232,0.10)_0%,rgba(0,0,0,0.2)_100%)] shadow-[0_0_15px_rgba(75,68,232,0.08)] flex flex-col justify-between">
                     <div>
-                      <p className="text-[11px] font-bold uppercase text-brand-300/60 mb-2">Mensal</p>
-                      <p className="text-[11px] text-zinc-500 line-through">R$ 299,90</p>
-                      <p className="text-xl font-black text-white leading-none mt-1">R$ 149,00 <span className="text-[10px] font-normal text-zinc-400">/mês</span></p>
+                      <p className="text-[10px] sm:text-xs font-bold uppercase text-brand-300/60 mb-2 sm:mb-3">Mensal</p>
+                      <p className="text-xs sm:text-[15px] text-zinc-500 line-through">R$ 299,90</p>
+                      <p className="text-xl sm:text-4xl font-black text-white leading-none mt-1 sm:mt-2">R$ 149,00 <span className="text-[10px] sm:text-sm font-normal text-zinc-400">/mês</span></p>
                     </div>
-                    <div className="mt-10">
-                      <div className="h-px w-full bg-white/10 mb-3" />
-                      <div className="flex items-center gap-2 text-green-400">
-                        <CheckCircle2 className="size-3.5" />
-                        <p className="text-[10px] font-medium">Economia de R$ 150,90</p>
+                    <div className="mt-4 sm:mt-6">
+                      <div className="h-px w-full bg-white/10 mb-3 sm:mb-4" />
+                      <div className="flex items-center gap-1.5 sm:gap-3 text-green-400">
+                        <CheckCircle2 className="size-3 sm:size-5 shrink-0" />
+                        <p className="text-[10px] sm:text-sm font-semibold leading-tight">Economia de R$ 150,90</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Vitalício (Featured) */}
-                  <div className="relative p-6 rounded-[20px] border border-amber-500/50 bg-[linear-gradient(135deg,rgba(245,158,11,0.15)_0%,rgba(0,0,0,0.2)_100%)] shadow-[0_0_15px_rgba(245,158,11,0.1)] flex flex-col justify-between">
+                  <div className="relative p-3 sm:p-6 rounded-[20px] border border-amber-500/50 bg-[linear-gradient(135deg,rgba(245,158,11,0.15)_0%,rgba(0,0,0,0.2)_100%)] shadow-[0_0_15px_rgba(245,158,11,0.1)] flex flex-col justify-between">
                     <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="text-[11px] font-bold uppercase text-amber-500/80">Vitalício</p>
-                        <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-md">
+                      <div className="flex justify-between items-start mb-2 sm:mb-3">
+                        <p className="text-[10px] sm:text-xs font-bold uppercase text-amber-500/80">Vitalício</p>
+                        <div className="bg-gradient-to-r from-amber-600 to-amber-500 text-white text-[8px] sm:text-[10px] font-extrabold uppercase px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-md text-center leading-tight">
                           Mais Popular
                         </div>
                       </div>
-                      <p className="text-[11px] text-zinc-500 line-through">R$ 597,00</p>
-                      <p className="text-xl font-black text-white leading-none mt-1">12x R$ 33,84</p>
-                      <p className="text-sm font-bold text-white mt-1.5">ou R$ 295,00 pagamento único</p>
+                      <p className="text-xs sm:text-[15px] text-zinc-500 line-through">R$ 597,00</p>
+                      <p className="text-lg sm:text-4xl font-black text-white leading-none mt-1 sm:mt-2">12x R$ 33,84</p>
+                      <p className="text-[11px] sm:text-[17px] font-bold text-zinc-300 mt-1.5 sm:mt-2.5 leading-tight">ou R$ 295,00 pagamento único</p>
                     </div>
-                    <div className="mt-10">
-                      <div className="h-px w-full bg-white/10 mb-3" />
-                      <div className="flex items-center gap-2 text-green-400">
-                        <CheckCircle2 className="size-3.5" />
-                        <p className="text-[10px] font-medium">Economia de R$ 302,00</p>
+                    <div className="mt-4 sm:mt-6">
+                      <div className="h-px w-full bg-white/10 mb-3 sm:mb-4" />
+                      <div className="flex items-center gap-1.5 sm:gap-3 text-green-400">
+                        <CheckCircle2 className="size-3 sm:size-5 shrink-0" />
+                        <p className="text-[10px] sm:text-sm font-semibold leading-tight">Economia de R$ 302,00</p>
                       </div>
                     </div>
                   </div>
