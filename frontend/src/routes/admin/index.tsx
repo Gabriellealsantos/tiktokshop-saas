@@ -66,7 +66,6 @@ export default function AdminScreen() {
               "Prompt de Vídeo",
               "Limites",
               "Métricas",
-              "Tendências",
               "Vendas ao Vivo",
               "Notificações",
               "Segurança",
@@ -92,7 +91,6 @@ export default function AdminScreen() {
           {tab === "Prompt de Vídeo" && <StudioPromptTab />}
           {tab === "Limites" && <LimitsTab />}
           {tab === "Métricas" && <MetricsTab />}
-          {tab === "Tendências" && <InsightsTab />}
           {tab === "Vendas ao Vivo" && <LiveSalesTab />}
           {tab === "Notificações" && <NotificationSoundTab />}
           {tab === "Segurança" && <SecurityTab />}
