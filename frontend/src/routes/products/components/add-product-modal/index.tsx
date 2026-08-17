@@ -1,11 +1,13 @@
+import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import axios from "axios";
 
 import { useMockSession } from "@/context/mock-session";
@@ -110,6 +112,30 @@ interface AddProductModalProps {
   /** Quando presente, o modal abre em modo edição (admin) desse produto. */
   productToEdit?: Product | null;
 }
+
+const GlassDialogContent = React.forwardRef<
+  React.ComponentRef<typeof DialogPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <DialogPrimitive.Portal>
+    <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+    <DialogPrimitive.Content
+      ref={ref}
+      className={cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <DialogPrimitive.Close className="absolute right-3 top-3 md:right-4 md:top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 backdrop-blur-md opacity-80 ring-offset-background cursor-pointer transition-all hover:opacity-100 hover:bg-black/70 hover:scale-105 focus:outline-none shadow-md">
+        <X className="h-4 w-4 text-white" />
+        <span className="sr-only">Close</span>
+      </DialogPrimitive.Close>
+    </DialogPrimitive.Content>
+  </DialogPrimitive.Portal>
+));
+GlassDialogContent.displayName = "GlassDialogContent";
 
 export function AddProductModal({
   open,
@@ -332,11 +358,9 @@ export function AddProductModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent
+      <GlassDialogContent
         className={cn(
-          "max-w-[1200px] gap-0 p-0 overflow-hidden border-white/10 bg-surface-1 text-text-1 shadow-2xl",
-          "max-sm:top-auto max-sm:bottom-0 max-sm:translate-y-0 max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:border-b-0",
-          "sm:rounded-2xl",
+          "max-w-[1200px] w-[95vw] sm:w-[95vw] gap-0 p-0 overflow-hidden border-white/20 bg-zinc-950/50 backdrop-blur-2xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.5)] rounded-2xl"
         )}
       >
         <VisuallyHidden.Root>
@@ -346,7 +370,7 @@ export function AddProductModal({
           </DialogDescription>
         </VisuallyHidden.Root>
 
-        <div className="flex flex-col lg:flex-row h-full max-h-[90dvh] md:max-h-[85vh] relative overflow-hidden">
+        <div className="flex flex-col lg:flex-row h-full max-h-[90dvh] md:max-h-[85vh] relative overflow-y-auto lg:overflow-hidden">
           <AnimatePresence>
             {step === 1 && (
               <motion.div
@@ -355,10 +379,10 @@ export function AddProductModal({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
-                className="flex flex-col lg:flex-row h-full w-full"
+                className="flex flex-col lg:flex-row h-auto lg:h-full w-full"
               >
-                {/* LEFT/FORM: scrolls internally */}
-                <div className="flex-1 min-h-0 p-6 md:p-8 overflow-y-auto">
+                {/* LEFT/FORM: scrolls internally only on desktop */}
+                <div className="flex-1 lg:min-h-0 p-6 md:p-8 lg:overflow-y-auto shrink-0">
                   <div className="mb-6">
                     <h2 className="text-2xl font-bold text-white">
                       {isEditing
@@ -412,11 +436,11 @@ export function AddProductModal({
                 </div>
 
                 {/* RIGHT: Live Preview & Submit */}
-                <div className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-white/10 bg-surface-2/20 flex flex-col p-6 lg:p-8 shrink-0 overflow-y-auto lg:overflow-hidden lg:h-full">
+                <div className="w-full lg:w-[420px] border-t lg:border-t-0 lg:border-l border-white/10 bg-black/20 flex flex-col p-6 lg:p-8 shrink-0 lg:overflow-hidden lg:h-full">
                   <h3 className="shrink-0 text-sm font-bold text-white mb-4">
                     Preview em Tempo Real
                   </h3>
-                  <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-80 flex-1 min-h-0 flex flex-col">
+                  <div className="w-full mx-auto opacity-95 pointer-events-none mb-6 max-w-80 lg:flex-1 lg:min-h-0 flex flex-col shrink-0 h-[460px] lg:h-auto">
                     <ProductCard 
                       product={previewProduct} 
                       className="h-full" 
@@ -506,7 +530,7 @@ export function AddProductModal({
             )}
           </AnimatePresence>
         </div>
-      </DialogContent>
+      </GlassDialogContent>
     </Dialog>
   );
 }
