@@ -30,4 +30,9 @@ public class LiveMetricsCounter {
     public long getClicks() {
         return clicks.get();
     }
+
+    public void reset() {
+        views.set(0);
+        clicks.set(0);
+    }
 }
