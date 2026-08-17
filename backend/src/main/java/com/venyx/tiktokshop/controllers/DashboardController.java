@@ -61,7 +61,7 @@ public class DashboardController {
     @PostMapping("/api/admin/dashboard/metrics/reset")
     public ResponseEntity<Map<String, Integer>> resetMetrics(
             @Valid @RequestBody DashboardMetricResetRequest request) {
-        int deleted = service.resetMetrics(request.periodRefs());
+        int deleted = service.resetMetrics(request.periodRefs(), request.clearLiveSales());
         return ResponseEntity.ok(Map.of("deleted", deleted));
     }
 }

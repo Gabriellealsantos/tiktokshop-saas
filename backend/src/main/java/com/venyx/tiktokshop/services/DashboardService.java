@@ -204,7 +204,12 @@ public class DashboardService {
     }
 
     @Transactional
-    public int resetMetrics(List<String> periodRefs) {
-        return metricRepository.deleteByPeriodRefIn(periodRefs);
+    public int resetMetrics(List<String> periodRefs, boolean clearLiveSales) {
+        int deleted = metricRepository.deleteByPeriodRefIn(periodRefs);
+        if (clearLiveSales) {
+            liveSaleEventRepository.deleteAllInBatch();
+            liveMetricsCounter.reset();
+        }
+        return deleted;
     }
 }

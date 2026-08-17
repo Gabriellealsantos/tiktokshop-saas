@@ -7,5 +7,6 @@ import java.util.List;
 
 public record DashboardMetricResetRequest(
     @NotEmpty(message = "Selecione ao menos um período para resetar")
-    List<@NotBlank String> periodRefs
+    List<@NotBlank String> periodRefs,
+    boolean clearLiveSales
 ) {}

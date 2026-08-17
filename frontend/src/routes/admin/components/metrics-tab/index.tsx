@@ -55,6 +55,7 @@ export function MetricsTab() {
   // ── Estado do modal de reset ──────────────────────────────────────────
   const [resetOpen, setResetOpen] = useState(false);
   const [resetSelection, setResetSelection] = useState<Set<string>>(new Set());
+  const [clearLiveSales, setClearLiveSales] = useState(false);
   const [resetting, setResetting] = useState(false);
 
   const allSelected = resetSelection.size === METRIC_PERIODS.length;
@@ -79,11 +80,15 @@ export function MetricsTab() {
     if (resetSelection.size === 0) return;
     setResetting(true);
     try {
-      const res = await resetMetricsApi(Array.from(resetSelection));
+      const res = await resetMetricsApi(Array.from(resetSelection), clearLiveSales);
       const deleted: number = res.data?.deleted ?? 0;
-      toast.success(`${deleted} métrica(s) removida(s).`);
+      const msg = clearLiveSales
+        ? `${deleted} métrica(s) + vendas ao vivo removidas.`
+        : `${deleted} métrica(s) removida(s).`;
+      toast.success(msg);
       setResetOpen(false);
       setResetSelection(new Set());
+      setClearLiveSales(false);
       await load();
     } catch {
       toast.error("Falha ao resetar as métricas.");
@@ -176,7 +181,7 @@ export function MetricsTab() {
         </p>
         <div className="flex items-center gap-2 shrink-0">
           {/* ── Botão Resetar (abre modal) ──────────────────────────────── */}
-          <AlertDialog open={resetOpen} onOpenChange={(open) => { setResetOpen(open); if (!open) setResetSelection(new Set()); }}>
+          <AlertDialog open={resetOpen} onOpenChange={(open) => { setResetOpen(open); if (!open) { setResetSelection(new Set()); setClearLiveSales(false); } }}>
             <AlertDialogTrigger asChild>
               <Button
                 variant="secondary"
@@ -220,6 +225,19 @@ export function MetricsTab() {
                     </label>
                   </div>
                 ))}
+
+                {/* Vendas ao vivo */}
+                <div className="flex items-center gap-2 pt-2 mt-1 border-t border-white/10">
+                  <Checkbox
+                    id="reset-live-sales"
+                    checked={clearLiveSales}
+                    onCheckedChange={(v) => setClearLiveSales(!!v)}
+                  />
+                  <label htmlFor="reset-live-sales" className="text-sm font-medium text-amber-400 cursor-pointer">
+                    Vendas ao vivo
+                    <span className="ml-1 text-[10px] font-normal text-zinc-500">(limpa eventos + contadores)</span>
+                  </label>
+                </div>
               </div>
 
               <AlertDialogFooter>
