@@ -28,26 +28,12 @@ function TrendTemplateCard({
   const [videoError, setVideoError] = useState(false);
   const [thumbError, setThumbError] = useState(false);
 
-  const handleMouseEnter = () => {
-    if (!videoRef.current) return;
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!prefersReducedMotion) {
-      videoRef.current.play().catch(() => {});
-    }
-  };
 
-  const handleMouseLeave = () => {
-    if (!videoRef.current) return;
-    videoRef.current.pause();
-    videoRef.current.currentTime = 0;
-  };
 
   return (
     <Link
       to={`/trend-boost/${id}`}
       className="group relative overflow-hidden flex flex-col justify-end transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_0_40px_rgba(109,91,245,0.3)] hover:ring-1 hover:ring-[var(--brand-purple)] aspect-[9/16] w-full max-h-[560px] rounded-[24px] mx-auto max-w-sm lg:max-w-none bg-zinc-900 cursor-pointer block"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       {videoSrc && !videoError ? (
         <video
@@ -58,6 +44,7 @@ function TrendTemplateCard({
           muted
           loop
           playsInline
+          autoPlay
           preload="metadata"
           onError={() => setVideoError(true)}
           aria-label={title}

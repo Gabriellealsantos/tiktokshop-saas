@@ -22,10 +22,20 @@ export function formatPtBr(num: number, currency = false): string {
 export function deriveProductMetrics(product: Product) {
   // Parse original sales string back into a number if it's string.
   // The existing sales string is like "1.2 mil vendas"
-  const rawSalesNumberMatch = product.sales.match(/[\d,.]+/);
-  const rawSales = rawSalesNumberMatch
-    ? parseFloat(rawSalesNumberMatch[0].replace(",", ".")) * 1000
-    : 0;
+  const salesStr = product.sales ? product.sales.toLowerCase().replace(/\s/g, "") : "";
+  const rawSalesNumberMatch = salesStr.match(/[\d,.]+/);
+  let rawSales = 0;
+
+  if (rawSalesNumberMatch) {
+    const val = parseFloat(rawSalesNumberMatch[0].replace(",", "."));
+    if (salesStr.includes("mi") || salesStr.includes("m")) {
+      rawSales = val >= 1000000 ? val : val * 1000000;
+    } else if (salesStr.includes("k") || salesStr.includes("mil")) {
+      rawSales = val >= 1000 ? val : val * 1000;
+    } else {
+      rawSales = val;
+    }
+  }
 
   // Parse price into a number.
   // Existing price string: "R$ 49,90"

@@ -111,7 +111,7 @@ export function ProductDetailsModal({ product, isOpen, onOpenChange, onDeleted, 
 
               {/* Admin: Editar / Excluir */}
               {isAdmin && (
-                <div className="sticky bottom-0 z-20 border-t border-white/10 py-3 px-5 md:px-7 flex items-center justify-end gap-3 bg-zinc-950/90 backdrop-blur-md shrink-0">
+                <div className="sticky bottom-0 z-20 pb-5 pt-3 px-5 md:px-7 flex items-center justify-end gap-3 bg-transparent shrink-0">
                   <button
                     type="button"
                     onClick={() => {
