@@ -202,4 +202,14 @@ public class DashboardService {
         }
         metricRepository.deleteById(id);
     }
+
+    @Transactional
+    public int resetMetrics(List<String> periodRefs, boolean clearLiveSales) {
+        int deleted = metricRepository.deleteByPeriodRefIn(periodRefs);
+        if (clearLiveSales) {
+            liveSaleEventRepository.deleteAllInBatch();
+            liveMetricsCounter.reset();
+        }
+        return deleted;
+    }
 }

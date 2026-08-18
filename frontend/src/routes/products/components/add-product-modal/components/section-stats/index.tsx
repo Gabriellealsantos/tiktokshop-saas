@@ -134,6 +134,19 @@ export function SectionStats({ form }: SectionStatsProps) {
         />
         <FormField
           control={form.control}
+          name="rankInCategory"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-xs">Posição</FormLabel>
+              <FormControl>
+                <Input type="number" min="1" step="1" placeholder="Ex: 1" className="h-10 text-sm bg-surface-1 border-white/10" {...field} value={field.value ?? ""} />
+              </FormControl>
+              <FormMessage className="text-xs" />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="salesHistory7d"
           render={({ field }) => (
             <FormItem className="col-span-2">
