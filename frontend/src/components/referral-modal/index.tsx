@@ -45,7 +45,7 @@ export function ReferralModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className={`glass-premium-purple w-[92vw] sm:w-full mx-auto ${step === 1 ? 'max-w-lg' : 'max-w-[620px]'} p-0 overflow-hidden border-white/10 rounded-[28px] sm:rounded-[32px] transition-[max-width] duration-300`}>
         {/* Hidden titles for accessibility */}
-        <DialogTitle className="sr-only">Indique e Ganhe</DialogTitle>
+        <DialogTitle className="sr-only">Convide um amigo</DialogTitle>
         <DialogDescription className="sr-only">Modal de indicação e benefícios</DialogDescription>
 
         <div className="relative overflow-y-auto max-h-[95vh] hide-scrollbar p-5 sm:p-8">
@@ -61,7 +61,7 @@ export function ReferralModal({
               >
                 <div className="text-center">
                   <h2 className="text-3xl font-extrabold text-white tracking-tight">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Indique</span> e ganhe
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Convide</span> um amigo
                   </h2>
                   <p className="text-zinc-400 mt-2 font-medium">Presenteie um amigo!</p>
                 </div>
