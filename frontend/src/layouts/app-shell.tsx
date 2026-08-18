@@ -97,7 +97,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <div className="flex h-9 items-center gap-1.5 rounded-full btn-3d-neutral px-3 text-xs font-medium text-white">
                 <Gift className="size-3.5 text-brand-400" />
-                Indique e Ganhe
+                Convide um amigo
               </div>
             </motion.button>
 
@@ -210,7 +210,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors text-left"
                   >
                     <Gift className="size-4 text-brand-400" />
-                    Indique e Ganhe
+                    Convide um amigo
                   </button>
                   <Link
                     to="/settings"
@@ -272,7 +272,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <TooltipTrigger asChild>
               <button
                 onClick={() => setIsReferralOpen(true)}
-                aria-label="Indique e Ganhe"
+                aria-label="Convide um amigo"
                 className="relative grid size-11 place-items-center rounded-full transition-colors hover:bg-white/5"
               >
                 {isReferralOpen && (
@@ -295,7 +295,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               sideOffset={12}
               className="border border-white/10 bg-zinc-900 text-xs text-white"
             >
-              <p>Indique e Ganhe</p>
+              <p>Convide um amigo</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
