@@ -116,6 +116,7 @@ public class StorageService {
                         .bucket(bucket)
                         .key(key)
                         .contentType(normalizedType)
+                        .cacheControl("public, max-age=604800, must-revalidate")
                         .build(),
                 RequestBody.fromBytes(content));
 

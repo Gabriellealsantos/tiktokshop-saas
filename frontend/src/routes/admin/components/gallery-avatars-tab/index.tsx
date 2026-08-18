@@ -26,6 +26,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  S3Image,
   Select,
   SelectContent,
   SelectItem,
@@ -181,7 +182,7 @@ export function GalleryAvatarsTab() {
             >
               <div className="relative z-10 w-16 h-24 shrink-0 rounded-lg overflow-hidden bg-surface-2 flex items-center justify-center">
                 {item.imageUrl ? (
-                  <img
+                  <S3Image
                     src={item.imageUrl}
                     alt={item.name}
                     className="w-full h-full object-cover"
@@ -278,7 +279,9 @@ export function GalleryAvatarsTab() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Prompt Customizado (Aparência, rosto, cabelo)</Label>
+              <Label className="text-xs text-zinc-400">
+                Prompt Customizado (Aparência, rosto, cabelo)
+              </Label>
               <Input
                 value={form.customPrompt ?? ""}
                 onChange={(e) =>
