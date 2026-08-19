@@ -25,36 +25,38 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
 
   const { summary, liveSales, chartData, trendCards, momentRead } = useDashboardData(canSeeRevenue, selectedPeriod);
   return (
-    <div style={{ zoom: 0.8 }}>
+    <div>
       <PageHeader
         title="Dashboard de Vendas"
         description="Acompanhe o desempenho de seus produtos e comissões em tempo real."
-        actions={
-          <div className="flex flex-col items-end gap-3 mt-2 md:mt-0">
+      />
+      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar py-2 -my-2 px-1">
+          {PERIODS.map((period) => (
+            <Pill
+              key={period}
+              active={selectedPeriod === period}
+              onClick={() => setSelectedPeriod(period)}
+              className="px-4 py-2 text-sm shrink-0 whitespace-nowrap"
+            >
+              {period === "Personalizado" && <Calendar className="size-4" />}
+              {period}
+            </Pill>
+          ))}
+        </div>
+        {renderHeader && (
+          <div className="shrink-0">
             {renderHeader}
           </div>
-        }
-      />
-      <div className="mb-6 flex gap-2 overflow-x-auto pt-2 pb-2 -mt-2 px-1">
-        {PERIODS.map((period) => (
-          <Pill
-            key={period}
-            active={selectedPeriod === period}
-            onClick={() => setSelectedPeriod(period)}
-            className="px-4 py-2 text-sm shrink-0 whitespace-nowrap"
-          >
-            {period === "Personalizado" && <Calendar className="size-4" />}
-            {period}
-          </Pill>
-        ))}
+        )}
       </div>
-      <>
+      <div style={{ zoom: 0.8 }}>
         <MetricsGrid summary={summary} />
         <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_340px]">
           <SalesChart chartData={chartData} />
           <LiveSales sales={liveSales} total={summary?.revenue ?? 0} />
         </div>
-      </>
+      </div>
     </div>
   );
 }
