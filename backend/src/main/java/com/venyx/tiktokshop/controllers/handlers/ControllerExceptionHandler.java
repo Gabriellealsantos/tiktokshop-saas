@@ -3,6 +3,8 @@ package com.venyx.tiktokshop.controllers.handlers;
 import com.venyx.tiktokshop.controllers.exceptions.ValidationError;
 import com.venyx.tiktokshop.services.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,9 @@ import java.time.Instant;
 
 @ControllerAdvice
 public class ControllerExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
+
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<StandardError> entityNotFound(ResourceNotFoundException e, HttpServletRequest request) {
@@ -230,6 +235,19 @@ public class ControllerExceptionHandler {
         err.setMessage(e.getMessage());
         err.setPath(request.getRequestURI());
 
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<StandardError> generic(Exception e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        err.setStatus(status.value());
+        err.setError("Erro interno");
+        err.setMessage("Ocorreu um erro inesperado. Tente novamente.");
+        err.setPath(request.getRequestURI());
+        logger.error("[UNHANDLED] {} {}", request.getRequestURI(), e.getMessage(), e);
         return ResponseEntity.status(status).body(err);
     }
 }
