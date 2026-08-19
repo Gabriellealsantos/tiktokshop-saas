@@ -25,7 +25,7 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
 
   const { summary, liveSales, chartData, trendCards, momentRead } = useDashboardData(canSeeRevenue, selectedPeriod);
   return (
-    <div style={{ zoom: 0.8 }} className="-mt-6 md:-mt-12">
+    <div style={{ zoom: 0.8 }}>
       <PageHeader
         title="Dashboard de Vendas"
         description="Acompanhe o desempenho de seus produtos e comissões em tempo real."
