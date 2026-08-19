@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -82,10 +84,25 @@ public class GeminiImageProvider  implements ImageProvider {
 
         String payload = objectMapper.writeValueAsString(body);
 
-        String raw = restClient.post()
-                .body(payload)
-                .retrieve()
-                .body(String.class);
+        String raw;
+        try {
+            raw = restClient.post()
+                    .body(payload)
+                    .retrieve()
+                    .body(String.class);
+        } catch (RestClientResponseException e) {
+            logger.error("[GEMINI] Falha na API. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            if (e.getStatusCode().is5xxServerError() || e.getStatusCode().value() == 429) {
+                throw new BusinessException("A Inteligência Artificial do Google (Gemini) está sobrecarregada no momento. Por favor, tente novamente em alguns instantes.");
+            }
+            throw new BusinessException("Ocorreu um erro ao comunicar com a Inteligência Artificial. Tente novamente.");
+        } catch (ResourceAccessException e) {
+            logger.error("[GEMINI] Falha de conexao/timeout", e);
+            throw new BusinessException("A Inteligência Artificial demorou muito para responder. Por favor, tente novamente.");
+        } catch (Exception e) {
+            logger.error("[GEMINI] Erro inesperado", e);
+            throw new BusinessException("Erro inesperado ao conectar com a Inteligência Artificial.");
+        }
 
         logger.debug("[GEMINI] resposta recebida ({} bytes)", raw.length());
 

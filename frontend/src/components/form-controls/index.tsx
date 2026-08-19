@@ -31,9 +31,10 @@ export function Field({
             tabIndex={-1}
             onClick={() => setShowPassword((s) => !s)}
             aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-            className="absolute right-0 top-0 grid h-11 w-11 place-items-center text-text-3 transition-colors hover:text-text-1"
+            className="absolute right-0 top-0 flex h-11 w-11 items-center justify-center text-text-3 transition-colors hover:text-text-1"
           >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            <EyeOff className={cn("absolute size-4 transition-all duration-300", showPassword ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-50 -rotate-45")} />
+            <Eye className={cn("absolute size-4 transition-all duration-300", !showPassword ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-50 rotate-45")} />
           </button>
         )}
       </div>
