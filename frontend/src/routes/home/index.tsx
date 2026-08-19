@@ -11,10 +11,13 @@ import { LaunchpadContent } from "./components/launchpad-content";
 
 export default function IndexRoute() {
   useDocumentTitle("Painel Principal");
-  const { isAdmin } = useAuth();
-  const [view, setView] = useState<"dashboard" | "central">(isAdmin ? "dashboard" : "central");
+  const { isAdmin, roles } = useAuth();
+  const isAfiliado = roles?.includes("ROLE_AFFILIATE") ?? false;
+  const canSeeDashboard = isAdmin || isAfiliado;
 
-  const headerToggle = isAdmin ? (
+  const [view, setView] = useState<"dashboard" | "central">(canSeeDashboard ? "dashboard" : "central");
+
+  const headerToggle = canSeeDashboard ? (
     <div className="flex w-fit items-center rounded-full border border-white/10 bg-black/40 p-1 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] entrance">
       <button
         onClick={() => setView("dashboard")}
