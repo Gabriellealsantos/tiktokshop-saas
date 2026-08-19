@@ -24,6 +24,7 @@ type AuthContextData = {
   user?: UserResponse;
   roles: string[];
   isAdmin: boolean;
+  isAfiliado: boolean;
   blockedReason?: AccessBlockReason;
   login: () => void;
   logout: () => Promise<void>;
@@ -104,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const roles = tokenPayload?.authorities ?? [];
+  const isAdmin = roles.includes("ROLE_ADMIN");
+  const isAfiliado = roles.includes("ROLE_AFFILIATE");
   const authenticated = isAuthenticated() && !!user;
 
   const value = useMemo<AuthContextData>(
@@ -113,7 +116,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       tokenPayload,
       user,
       roles,
-      isAdmin: roles.includes("ROLE_ADMIN"),
+      isAdmin,
+      isAfiliado,
       blockedReason,
       login,
       logout,
@@ -125,6 +129,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       tokenPayload,
       user,
       roles,
+      isAdmin,
+      isAfiliado,
       blockedReason,
       login,
       logout,

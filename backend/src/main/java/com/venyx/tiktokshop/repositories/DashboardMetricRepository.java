@@ -9,14 +9,17 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface DashboardMetricRepository extends JpaRepository<DashboardMetric, Long> {
 
-    Optional<DashboardMetric> findByPeriodTypeAndPeriodRef(DashboardPeriodType periodType, String periodRef);
+    Optional<DashboardMetric> findByUserIdAndPeriodTypeAndPeriodRef(UUID userId, DashboardPeriodType periodType, String periodRef);
 
-    List<DashboardMetric> findByPeriodTypeOrderByPeriodRefAsc(DashboardPeriodType periodType);
+    List<DashboardMetric> findByUserIdAndPeriodTypeOrderByPeriodRefAsc(UUID userId, DashboardPeriodType periodType);
+
+    List<DashboardMetric> findByUserId(UUID userId);
 
     @Modifying
-    @Query(value = "DELETE FROM dashboard_metrics WHERE period_ref IN (:refs)", nativeQuery = true)
-    int deleteByPeriodRefIn(@Param("refs") List<String> refs);
+    @Query(value = "DELETE FROM dashboard_metrics WHERE user_id = :userId AND period_ref IN (:refs)", nativeQuery = true)
+    int deleteByUserIdAndPeriodRefIn(@Param("userId") UUID userId, @Param("refs") List<String> refs);
 }

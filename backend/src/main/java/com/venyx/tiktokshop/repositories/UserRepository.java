@@ -29,6 +29,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u FROM User u WHERE u.deletedAt IS NULL " +
             "AND (:search IS NULL OR (LOWER(CAST(u.name AS string)) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
-            "OR LOWER(CAST(u.email AS string)) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))))")
-    Page<User> searchUsers(@Param("search") String search, Pageable pageable);
+            "OR LOWER(CAST(u.email AS string)) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))) " +
+            "AND (:excludePrivileged = false OR NOT EXISTS (SELECT r FROM u.roles r WHERE r.authority IN ('ROLE_ADMIN', 'ROLE_AFFILIATE')))")
+    Page<User> searchUsers(@Param("search") String search, @Param("excludePrivileged") boolean excludePrivileged, Pageable pageable);
 }
