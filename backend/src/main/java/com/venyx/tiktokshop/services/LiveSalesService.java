@@ -25,12 +25,13 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Motor de "Vendas ao Vivo": estoura eventos a partir de produtos realmente
- * cadastrados (manual via {@link #fireSale} ou automático via {@link LiveSalesScheduler}),
- * loga em {@link LiveSaleEvent} e publica no tópico STOMP para o feed em tempo real.
+ * Motor de "Vendas ao Vivo" (Multi-tenant): estoura eventos a partir de produtos realmente
+ * cadastrados para um usuário específico (manual via {@link #fireSale} ou automático via {@link LiveSalesScheduler}),
+ * loga em {@link LiveSaleEvent} vinculado ao usuário e publica na queue STOMP individual.
  */
 @Service
 public class LiveSalesService {
@@ -62,14 +63,14 @@ public class LiveSalesService {
         this.favoriteRepository = favoriteRepository;
     }
 
-    @Transactional(readOnly = true)
-    public LiveSalesConfigDTO getConfig() {
-        return new LiveSalesConfigDTO(currentConfig());
+    @Transactional
+    public LiveSalesConfigDTO getConfig(User user) {
+        return new LiveSalesConfigDTO(currentConfig(user));
     }
 
     @Transactional
-    public LiveSalesConfigDTO updateConfig(LiveSalesConfigDTO dto) {
-        LiveSalesConfig config = currentConfig();
+    public LiveSalesConfigDTO updateConfig(User user, LiveSalesConfigDTO dto) {
+        LiveSalesConfig config = currentConfig(user);
         if (dto.mode() != null) {
             config.setMode(dto.mode());
         }
@@ -98,34 +99,40 @@ public class LiveSalesService {
     }
 
     @Transactional(readOnly = true)
-    public LiveSalesFeedDTO getFeed() {
+    public LiveSalesFeedDTO getFeed(User user) {
         Instant now = Instant.now();
         Instant startOfDay = now.truncatedTo(ChronoUnit.DAYS);
-        BigDecimal totalToday = eventRepository.sumAmountBetween(startOfDay, now);
-        long countToday = eventRepository.countBetween(startOfDay, now);
-        List<LiveSaleEventDTO> recent = eventRepository.findTop10ByOrderByCreatedAtDesc().stream()
+        BigDecimal totalToday = eventRepository.sumAmountBetween(user.getUuid(), startOfDay, now);
+        long countToday = eventRepository.countBetween(user.getUuid(), startOfDay, now);
+        List<LiveSaleEventDTO> recent = eventRepository.findTop10ByUserIdOrderByCreatedAtDesc(user.getUuid()).stream()
                 .map(LiveSaleEventDTO::new)
                 .toList();
         return new LiveSalesFeedDTO(totalToday, countToday, recent);
     }
 
     @Transactional
-    public LiveSaleEventDTO fireSale(Long productId) {
+    public LiveSaleEventDTO fireSale(User user, Long productId) {
         if (productId != null) {
-            // Disparo manual forçado de um produto específico, emite o evento global
+            // Disparo manual forçado de um produto específico
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + productId));
-            return createEventAndBroadcast(product, true);
+            return createEventAndBroadcast(user, product, true);
         } else {
-            // Tick automático: emite PING para os clientes buscarem individualmente
-            messagingTemplate.convertAndSend("/topic/live-sales", (Object) Map.of("action", "PING"));
-            return null; // O job ignora o retorno
+            // Disparo manual sem produto - escolhe um aleatório
+            return generateSaleForUser(user);
         }
     }
 
     @Transactional
+    public void fireSaleForUser(UUID userId, Long productId) {
+        // Chamado pelo scheduler. Em vez de criar a venda, apenas avisa o cliente.
+        // O frontend, ao receber PING, chama /api/live-sales/generate
+        messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/live-sales", Map.of("action", "PING"));
+    }
+
+    @Transactional
     public LiveSaleEventDTO generateSaleForUser(User user) {
-        LiveSalesConfig config = currentConfig();
+        LiveSalesConfig config = currentConfig(user);
         Product product = null;
 
         if (config.getSourceType() == LiveSalesSource.USER_FAVORITES) {
@@ -152,30 +159,36 @@ public class LiveSalesService {
                     .orElseThrow(() -> new BusinessException("Nenhum produto cadastrado para disparar uma venda."));
         }
 
-        return createEventAndBroadcast(product, false);
+        return createEventAndBroadcast(user, product, true); // true para broadcasting para ele mesmo
     }
 
-    private LiveSaleEventDTO createEventAndBroadcast(Product product, boolean broadcastGlobal) {
+    private LiveSaleEventDTO createEventAndBroadcast(User user, Product product, boolean broadcastGlobal) {
         BigDecimal amount = product.getPrice() != null ? product.getPrice() : BigDecimal.ZERO;
         BigDecimal commissionPct = product.getCommissionPct() != null ? product.getCommissionPct() : BigDecimal.ZERO;
         BigDecimal commission = amount.multiply(commissionPct)
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
         LiveSaleEvent event = new LiveSaleEvent(product, product.getName(), product.getImageUrl(), amount, commission);
+        event.setUser(user);
         event = eventRepository.save(event);
 
-        liveMetricsCounter.bumpOnSale();
+        liveMetricsCounter.bumpOnSale(user.getUuid());
 
         LiveSaleEventDTO dto = new LiveSaleEventDTO(event);
         if (broadcastGlobal) {
-            messagingTemplate.convertAndSend("/topic/live-sales", dto);
-            notificationService.broadcastSaleToast(dto);
+            messagingTemplate.convertAndSendToUser(user.getUuid().toString(), "/queue/live-sales", dto);
+            // Optional: se NotificationService precisar de mudança (toast de venda ao vivo)
+            // notificationService.broadcastSaleToastToUser(user, dto); // Depende da implementação atual de toast
         }
         return dto;
     }
 
-    private LiveSalesConfig currentConfig() {
-        return configRepository.findTopByOrderByIdAsc()
-                .orElseGet(() -> configRepository.save(new LiveSalesConfig()));
+    private LiveSalesConfig currentConfig(User user) {
+        return configRepository.findTopByUserIdOrderByIdAsc(user.getUuid())
+                .orElseGet(() -> {
+                    LiveSalesConfig config = new LiveSalesConfig();
+                    config.setUser(user);
+                    return configRepository.save(config);
+                });
     }
 }

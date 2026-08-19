@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
+  Check,
   ChevronRight,
   Copy,
   Download,
@@ -9,6 +10,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { cn } from "@/utils/utils";
 import {
   Button,
   Dialog,
@@ -17,6 +19,69 @@ import {
   DialogTitle,
 } from "@/components";
 import { downloadStorageFile } from "@/services/avatarService";
+
+const loadingSteps = [
+  "Analisando Características escolhidas",
+  "Montando visual",
+  "Gerando Influencer",
+];
+
+function AvatarLoadingSteps() {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timer1 = setTimeout(() => setStep(1), 2500);
+    const timer2 = setTimeout(() => setStep(2), 5000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-3 w-full px-6 z-10">
+      {loadingSteps.map((text, index) => {
+        const isActive = step === index;
+        const isCompleted = step > index;
+
+        return (
+          <div
+            key={index}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-500 relative overflow-hidden",
+              isActive
+                ? "bg-brand-500/10 border border-brand-500/50 shadow-[0_4px_24px_rgba(109,91,245,0.15)]"
+                : "bg-white/[0.03] border border-transparent",
+              isCompleted && "opacity-60"
+            )}
+          >
+            <div className="flex-shrink-0 flex items-center justify-center size-5">
+              {isCompleted ? (
+                <Check className="size-4 text-brand-400" />
+              ) : isActive ? (
+                <Loader2 className="size-4 text-brand-400 animate-spin" />
+              ) : (
+                <div className="size-1.5 rounded-full bg-white/20" />
+              )}
+            </div>
+            <span
+              className={cn(
+                "text-xs font-medium transition-colors duration-500 text-left leading-tight",
+                isActive ? "text-white" : isCompleted ? "text-white/60" : "text-white/40"
+              )}
+            >
+              {text}
+            </span>
+            {isActive && (
+              <div className="absolute inset-0 bg-gradient-to-r from-brand-500/0 via-brand-500/10 to-brand-500/0 animate-shimmer" />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 interface PreviewPanelProps {
   nome: string;
@@ -71,17 +136,12 @@ export function PreviewPanel({
         {/* CARD PRINCIPAL (ESTADOS) */}
         <div className="w-full aspect-[3/4] bg-white/[0.03] backdrop-blur-xl rounded-[16px] overflow-hidden border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative flex items-center justify-center">
           {isGenerating ? (
-            <div className="flex flex-col items-center gap-3 text-brand-400">
-              <Loader2 className="size-8 animate-spin" />
-              <p className="text-sm font-medium animate-pulse">
-                Gerando avatar com IA...
-              </p>
-            </div>
+            <AvatarLoadingSteps />
           ) : generatedImage ? (
             <img
               src={generatedImage}
               alt="Avatar gerado"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-contain p-2"
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-center gap-4 px-6 opacity-70">

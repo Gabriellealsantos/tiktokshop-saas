@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import com.venyx.tiktokshop.entities.enums.LiveSalesSource;
 
 /**
- * Configuração global dos pop-ups de "vendas ao vivo" (prova social) (OPC-4).
+ * Configuração de pop-ups de "vendas ao vivo" por usuário (OPC-4).
  * {@code mode} controla o disparo: DISABLED (parado), MANUAL (só via
  * {@code POST /api/admin/live-sales/fire}) ou AUTOMATIC (job em {@code intervalSeconds}).
  */
@@ -21,6 +21,10 @@ public class LiveSalesConfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -71,6 +75,14 @@ public class LiveSalesConfig {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LiveSalesMode getMode() {

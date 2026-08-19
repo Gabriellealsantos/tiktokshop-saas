@@ -114,20 +114,35 @@ public class SwapPromptComposer {
             """;
 
     private static final String HOLD_OBJECT = """
-            REMOVE the object currently held by the person in image 1 and REPLACE it completely with the '%s' shown in image 2.
-            The original object from image 1 MUST NOT appear in the final image. Do NOT let the person hold two objects.
-            Place the new product EXACTLY in the hand that was holding the original object.
-            CRITICAL ERGONOMICS RULE: DO NOT just place the center of the new object where the old object was.
-            You MUST shift the new object vertically (up or down) so that the person's hand grasps its logical handle, base, or grip area.
-            For tall objects (like a hair brush, wand, or bottle), shift the object UPWARDS so the hand holds the BOTTOM handle, NOT the middle or top bristles.
-            CRITICAL POSE RULE: You MUST keep the person's arms and overall hand position from image 1, BUT you MUST redraw the fingers naturally wrapping around the new object so it looks realistically grasped.
-            The finger grip MUST adapt to the new object's thickness, shape, and handle. Do NOT just paste the object over or behind the original fingers.
-            If the product has a power cord, wire, or cable, it MUST extend naturally downwards
-            and out of the frame. Do NOT let cords, wires, or any part of the object fade out
-            into nothing, float in mid-air, or merge unnaturally into the person's body.
-            Do NOT change the person's clothing under any circumstances. Keep the person's outfit,
-            pose, framing, background and lighting exactly the same.
+            Look at image 1: identify the item the person is HOLDING or DISPLAYING in their hands.
+            This held item must be COMPLETELY REMOVED and REPLACED with the '%s' shown in image 2.
+
+            CRITICAL DISTINCTION — "HELD item" vs "WORN clothing":
+            — The "held item" is whatever the person's fingers are gripping, presenting, or displaying.
+              It could be a garment held up for display, a product, a phone, or any other object.
+            — The "worn clothing" is the outfit ON the person's body (shirt, pants, shoes, etc.).
+            — You MUST replace ONLY the held item. The worn clothing MUST stay 100%% unchanged.
+
+            REPLACEMENT RULES:
+            — The held item from image 1 MUST completely disappear. No traces of it should remain.
+            — Place the new product (from image 2) in the EXACT same position and hand grip as the original held item.
+            — The person must NOT hold two items. Only the new product should be visible in their hands.
+            — Adjust the new product's size so it looks natural when held by this person.
+
+            CRITICAL POSE RULE:
+            — Keep the person's arms, hands, and overall pose from image 1.
+            — Redraw the fingers to naturally wrap around the new product's shape, thickness, and grip area.
+            — If the person was holding the original item with both hands, the new product should also be held with both hands in a natural way.
+
+            ABSOLUTE PRESERVATION RULES — Do NOT change ANY of the following:
+            — The person's face, hair, skin tone, and identity
+            — The clothing the person is WEARING on their body
+            — The person's body proportions and position in the frame
+            — The background, environment, and camera framing
+            — The lighting, color grading, and overall image quality
+            ONLY the held/displayed item changes — EVERYTHING else stays exactly as in image 1.
             """;
+
 
     private static final String HAND_RECONSTRUCTION = """
             HAND RECONSTRUCTION RULE:

@@ -30,7 +30,7 @@ public class LiveSalesController {
     @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/live-sales")
     public ResponseEntity<LiveSalesFeedDTO> getFeed() {
-        return ResponseEntity.ok(service.getFeed());
+        return ResponseEntity.ok(service.getFeed(authService.authenticated()));
     }
 
     @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
@@ -39,22 +39,22 @@ public class LiveSalesController {
         return ResponseEntity.ok(service.generateSaleForUser(authService.authenticated()));
     }
 
-    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/admin/live-sales/config")
     public ResponseEntity<LiveSalesConfigDTO> getConfig() {
-        return ResponseEntity.ok(service.getConfig());
+        return ResponseEntity.ok(service.getConfig(authService.authenticated()));
     }
 
-    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PutMapping("/api/admin/live-sales/config")
     public ResponseEntity<LiveSalesConfigDTO> updateConfig(@RequestBody LiveSalesConfigDTO dto) {
-        return ResponseEntity.ok(service.updateConfig(dto));
+        return ResponseEntity.ok(service.updateConfig(authService.authenticated(), dto));
     }
 
-    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PostMapping("/api/admin/live-sales/fire")
     public ResponseEntity<LiveSaleEventDTO> fire(@RequestBody(required = false) FireSaleRequestDTO request) {
         Long productId = request != null ? request.productId() : null;
-        return ResponseEntity.ok(service.fireSale(productId));
+        return ResponseEntity.ok(service.fireSale(authService.authenticated(), productId));
     }
 }

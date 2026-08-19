@@ -4,15 +4,17 @@ import { AppShell } from "@/layouts/app-shell";
 import { Page } from "@/components";
 import { cn } from "@/utils/utils";
 import { useDocumentTitle } from "@/utils/use-document-title";
+import { useAuth } from "@/context/auth";
 
 import { DashboardContent } from "@/routes/dashboard";
 import { LaunchpadContent } from "./components/launchpad-content";
 
 export default function IndexRoute() {
   useDocumentTitle("Painel Principal");
-  const [view, setView] = useState<"dashboard" | "central">("dashboard");
+  const { isAdmin } = useAuth();
+  const [view, setView] = useState<"dashboard" | "central">(isAdmin ? "dashboard" : "central");
 
-  const headerToggle = (
+  const headerToggle = isAdmin ? (
     <div className="flex w-fit items-center rounded-full border border-white/10 bg-black/40 p-1 shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] entrance">
       <button
         onClick={() => setView("dashboard")}
@@ -47,7 +49,7 @@ export default function IndexRoute() {
         <span className="relative z-10">Central</span>
       </button>
     </div>
-  );
+  ) : null;
 
   return (
     <AppShell>

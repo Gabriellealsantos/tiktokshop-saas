@@ -136,7 +136,7 @@ class NotificationsStore {
       // silencioso — mantém o estado vazio
     }
     subscribeTopic<NotificationResponse>("/topic/notifications", (dto) => this.onWs(dto));
-    subscribeTopic<Record<string, unknown>>("/topic/live-sales", (dto) => this.onLiveSalesWs(dto));
+    subscribeTopic<Record<string, unknown>>("/user/queue/live-sales", (dto) => this.onLiveSalesWs(dto));
   }
 
   private onLiveSalesWs(payload: Record<string, unknown>) {
@@ -144,20 +144,6 @@ class NotificationsStore {
       if (!canSeeSales()) return;
       // Requisita a venda customizada (fonte escolhida no painel admin)
       requestBackend({ method: "GET", url: "/api/live-sales/generate", withCredentials: true })
-        .then(res => {
-           const sale: LiveSaleEventDTO = res.data;
-           const dto: NotificationResponse = {
-             id: sale.id ?? null,
-             type: "SALE",
-             title: "Venda ao vivo",
-             body: `${sale.productName} — R$ ${sale.amount}`,
-             imageUrl: sale.imageUrl ?? null,
-             clickUrl: null,
-             read: false,
-             createdAt: new Date().toISOString()
-           };
-           this.onWs(dto);
-        })
         .catch(() => {});
     } else if (payload?.type === "SALE" || payload?.amount != null) {
       // Disparo manual legado que já vinha com os dados

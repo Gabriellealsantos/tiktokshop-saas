@@ -117,7 +117,14 @@ public class VideoTemplateImageService {
         if (org.springframework.util.StringUtils.hasText(req.templateSlug())) {
             var template = catalogService.requireVisible(req.templateSlug());
             if (org.springframework.util.StringUtils.hasText(template.getImagePrompt())) {
-                prompt += "\n\nTEMPLATE CUSTOM INSTRUCTION:\n" + template.getImagePrompt();
+                if (mode == ClothSwapMode.SEGURAR_OBJETO) {
+                    // Para objetos, o prompt do template descreve a cena original e deve ser
+                    // usado como CONTEXTO a preservar, não como instrução de geração.
+                    prompt += "\n\nORIGINAL SCENE DESCRIPTION (this describes image 1 — preserve this scene EXACTLY, "
+                            + "changing ONLY the held item):\n" + template.getImagePrompt();
+                } else {
+                    prompt += "\n\nTEMPLATE CUSTOM INSTRUCTION:\n" + template.getImagePrompt();
+                }
             }
         }
         if (org.springframework.util.StringUtils.hasText(req.customPrompt())) {

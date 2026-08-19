@@ -23,7 +23,7 @@ export function SummaryGrid({
 
   return (
     <div className="mb-10 grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10">
+      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10 min-w-0">
         {produto?.image && !productImgError ? (
           <img
             src={produto.image}
@@ -46,7 +46,7 @@ export function SummaryGrid({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10">
+      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10 min-w-0">
         {avatar?.image && !avatarImgError ? (
           <img
             src={avatar.image}
@@ -69,7 +69,7 @@ export function SummaryGrid({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10">
+      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10 min-w-0">
         <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500/15 text-brand-400">
           <Camera className="size-5" />
         </div>
@@ -84,7 +84,7 @@ export function SummaryGrid({
         </div>
       </div>
 
-      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10">
+      <div className="flex items-center gap-3 rounded-2xl glass-surface p-4 border border-white/10 min-w-0">
         <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500/15 text-brand-400">
           <ImageIcon className="size-5" />
         </div>

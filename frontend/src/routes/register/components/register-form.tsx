@@ -87,9 +87,10 @@ export function RegisterForm({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+            className="absolute right-3 top-1/2 flex size-4 -translate-y-1/2 items-center justify-center text-zinc-500 hover:text-white transition-colors"
           >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            <EyeOff className={`absolute size-4 transition-all duration-300 ${showPassword ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-50 -rotate-45"}`} />
+            <Eye className={`absolute size-4 transition-all duration-300 ${!showPassword ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-50 rotate-45"}`} />
           </button>
         </div>
         {form.formState.errors.password && (

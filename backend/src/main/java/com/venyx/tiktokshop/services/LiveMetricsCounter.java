@@ -2,6 +2,8 @@ package com.venyx.tiktokshop.services;
 
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -14,25 +16,29 @@ import java.util.concurrent.atomic.AtomicLong;
 @Component
 public class LiveMetricsCounter {
 
-    private final AtomicLong views = new AtomicLong(0);
-    private final AtomicLong clicks = new AtomicLong(0);
+    private final ConcurrentHashMap<UUID, AtomicLong> views = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, AtomicLong> clicks = new ConcurrentHashMap<>();
 
     /** A cada venda: alguns cliques geram a venda e muitas views a cercam. */
-    public void bumpOnSale() {
-        views.addAndGet(ThreadLocalRandom.current().nextLong(500, 2000));
-        clicks.addAndGet(ThreadLocalRandom.current().nextLong(100, 500));
+    public void bumpOnSale(UUID userId) {
+        views.computeIfAbsent(userId, k -> new AtomicLong(0))
+             .addAndGet(ThreadLocalRandom.current().nextLong(500, 2000));
+        clicks.computeIfAbsent(userId, k -> new AtomicLong(0))
+              .addAndGet(ThreadLocalRandom.current().nextLong(100, 500));
     }
 
-    public long getViews() {
-        return views.get();
+    public long getViews(UUID userId) {
+        AtomicLong v = views.get(userId);
+        return v != null ? v.get() : 0L;
     }
 
-    public long getClicks() {
-        return clicks.get();
+    public long getClicks(UUID userId) {
+        AtomicLong c = clicks.get(userId);
+        return c != null ? c.get() : 0L;
     }
 
-    public void reset() {
-        views.set(0);
-        clicks.set(0);
+    public void reset(UUID userId) {
+        views.remove(userId);
+        clicks.remove(userId);
     }
 }

@@ -36,7 +36,7 @@ public class UserController {
     /**
      * Busca paginada de usuários. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping
     public ResponseEntity<Page<UserDTO>> findAllPaged(
             @RequestParam(value = "search", defaultValue = "") String search,
@@ -90,7 +90,7 @@ public class UserController {
     /**
      * Busca um usuário específico pelo seu UUID. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<UserDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(userService.findById(id));
@@ -99,7 +99,7 @@ public class UserController {
     /**
      * Cria um novo usuário no sistema. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PostMapping
     public ResponseEntity<UserDTO> insert(@RequestBody @Valid UserInsertDTO dto) {
         UserDTO newDto = userService.insert(dto);
@@ -111,7 +111,7 @@ public class UserController {
     /**
      * Atualiza os dados de um usuário existente. Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<UserDTO> update(@PathVariable UUID id, @RequestBody @Valid UserUpdateDTO dto) {
         return ResponseEntity.ok(userService.update(id, dto));
@@ -120,7 +120,7 @@ public class UserController {
     /**
      * Remove um usuário do sistema (soft delete). Requer ADM (ROLE_ADMIN).
      */
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         userService.delete(id);

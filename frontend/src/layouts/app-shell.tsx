@@ -44,7 +44,7 @@ let lastShownSaleId: string | null = null;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, isAfiliado, user } = useAuth();
   const { latestSale } = useNotifications();
   const [isReferralOpen, setIsReferralOpen] = useState(false);
   // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
@@ -61,6 +61,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => clearTimeout(t);
   }, [saleId]);
 
+  // Rola para o topo sempre que a rota mudar
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [path]);
+
   return (
     <div className="min-h-screen text-text-1">
       <SignatureBackground />
@@ -76,13 +81,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to="/admin"
                 className={cn(
                   "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                  !isAdmin ? "hidden" : "",
+                  (!isAdmin && !isAfiliado) ? "hidden" : "",
                   path.startsWith("/admin")
                     ? "bg-white/10 text-white"
                     : "text-zinc-400 hover:bg-white/5 hover:text-white",
                 )}
               >
-                Admin
+                {isAdmin ? "Admin" : "Afiliado"}
               </Link>
             </nav>
           </div>
@@ -132,14 +137,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </Link>
                 </DropdownMenuItem>
 
-                {isAdmin && (
+                {(isAdmin || isAfiliado) && (
                   <DropdownMenuItem
                     asChild
                     className="focus:bg-white/10 focus:text-white cursor-pointer"
                   >
                     <Link to="/admin" className="flex w-full items-center gap-2 text-brand-400 focus:text-brand-300">
                       <ShieldCheck className="size-4" />
-                      Painel Admin
+                      Painel {isAdmin ? "Admin" : "Afiliado"}
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -188,7 +193,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     );
                   })}
 
-                  {isAdmin && (
+                  {(isAdmin || isAfiliado) && (
                     <Link
                       to="/admin"
                       className={cn(
@@ -199,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       )}
                     >
                       <ShieldCheck className="size-4" />
-                      Admin
+                      {isAdmin ? "Admin" : "Afiliado"}
                     </Link>
                   )}
                 </nav>
@@ -226,9 +231,12 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="pt-28">{children}</main>
+      <main className="pt-24">{children}</main>
 
-      <nav className="glass-surface glass-surface--nav fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex h-14 -translate-x-1/2 items-center gap-3 sm:gap-4 rounded-2xl px-4 sm:px-5">
+      <nav 
+        className="glass-surface glass-surface--nav fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex h-14 -translate-x-1/2 items-center gap-3 sm:gap-4 rounded-2xl px-4 sm:px-5"
+        style={{ '--glass-base': '85%' } as React.CSSProperties}
+      >
         <TooltipProvider delayDuration={100}>
           {toolbar.map(([to, Icon, label]) => {
             const isRouteActive = to === "/" ? path === "/" : path.startsWith(to);

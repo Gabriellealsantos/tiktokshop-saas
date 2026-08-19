@@ -4,6 +4,7 @@ import com.venyx.tiktokshop.dtos.DashboardMetricDTO;
 import com.venyx.tiktokshop.dtos.DashboardMetricResetRequest;
 import com.venyx.tiktokshop.dtos.DashboardSummaryDTO;
 import com.venyx.tiktokshop.entities.RoleConstants;
+import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.DashboardService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +24,11 @@ import java.util.Map;
 public class DashboardController {
 
     private final DashboardService service;
+    private final AuthService authService;
 
-    public DashboardController(DashboardService service) {
+    public DashboardController(DashboardService service, AuthService authService) {
         this.service = service;
+        this.authService = authService;
     }
 
     @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
@@ -34,34 +37,34 @@ public class DashboardController {
             @RequestParam(value = "period", required = false) String period,
             @RequestParam(value = "from", required = false) String from,
             @RequestParam(value = "to", required = false) String to) {
-        return ResponseEntity.ok(service.getSummary(period, from, to));
+        return ResponseEntity.ok(service.getSummary(authService.authenticated(), period, from, to));
     }
 
-    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/admin/dashboard/metrics")
     public ResponseEntity<List<DashboardMetricDTO>> listMetrics(
             @RequestParam(value = "periodType", required = false) String periodType) {
-        return ResponseEntity.ok(service.listMetrics(periodType));
+        return ResponseEntity.ok(service.listMetrics(authService.authenticated(), periodType));
     }
 
-    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PutMapping("/api/admin/dashboard/metrics")
     public ResponseEntity<DashboardMetricDTO> upsertMetric(@RequestBody DashboardMetricDTO dto) {
-        return ResponseEntity.ok(service.upsertMetric(dto));
+        return ResponseEntity.ok(service.upsertMetric(authService.authenticated(), dto));
     }
 
-    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @DeleteMapping("/api/admin/dashboard/metrics/{id}")
     public ResponseEntity<Void> deleteMetric(@PathVariable Long id) {
-        service.deleteMetric(id);
+        service.deleteMetric(authService.authenticated(), id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAuthority('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PostMapping("/api/admin/dashboard/metrics/reset")
     public ResponseEntity<Map<String, Integer>> resetMetrics(
             @Valid @RequestBody DashboardMetricResetRequest request) {
-        int deleted = service.resetMetrics(request.periodRefs(), request.clearLiveSales());
+        int deleted = service.resetMetrics(authService.authenticated(), request.periodRefs(), request.clearLiveSales());
         return ResponseEntity.ok(Map.of("deleted", deleted));
     }
 }

@@ -32,13 +32,16 @@ public class SubscriptionService {
     private final UserSubscriptionRepository subscriptionRepository;
     private final PlanRepository planRepository;
     private final UserRepository userRepository;
+    private final AuthService authService;
 
     public SubscriptionService(UserSubscriptionRepository subscriptionRepository,
                                PlanRepository planRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               AuthService authService) {
         this.subscriptionRepository = subscriptionRepository;
         this.planRepository = planRepository;
         this.userRepository = userRepository;
+        this.authService = authService;
     }
 
     /** Duração em dias por tipo de plano. LIFETIME não expira (null). */
@@ -81,6 +84,7 @@ public class SubscriptionService {
      */
     @Transactional
     public void cancel(UUID userId) {
+        ensureCanModifyTarget(userId);
         UserSubscription subscription = subscriptionRepository
                 .findFirstByUser_UuidOrderByStartedAtDesc(userId)
                 .orElse(null);
@@ -92,6 +96,7 @@ public class SubscriptionService {
 
     @Transactional
     public SubscriptionDTO activate(UUID userId, PlanType planType) {
+        ensureCanModifyTarget(userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
@@ -122,6 +127,7 @@ public class SubscriptionService {
     /** Bloqueia o acesso: assinatura BLOCKED (se houver) e usuário LOCKED. */
     @Transactional
     public SubscriptionDTO revoke(UUID userId) {
+        ensureCanModifyTarget(userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
@@ -157,5 +163,25 @@ public class SubscriptionService {
         }
         subscriptionRepository.saveAll(overdue);
         return overdue.size();
+    }
+
+    private void ensureCanModifyTarget(UUID targetUserId) {
+        User target = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+                
+        User currentUser;
+        try {
+            currentUser = authService.authenticated();
+        } catch (Exception e) {
+            return;
+        }
+        
+        if (currentUser.hasRole(com.venyx.tiktokshop.entities.RoleConstants.ROLE_ADMIN)) {
+            return;
+        }
+        
+        if (target.hasRole(com.venyx.tiktokshop.entities.RoleConstants.ROLE_ADMIN) || target.hasRole(com.venyx.tiktokshop.entities.RoleConstants.ROLE_AFFILIATE)) {
+            throw new com.venyx.tiktokshop.services.exceptions.ForbiddenException("Você não tem permissão para alterar assinaturas de Administradores ou Afiliados.");
+        }
     }
 }

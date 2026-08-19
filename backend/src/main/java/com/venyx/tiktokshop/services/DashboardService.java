@@ -5,6 +5,7 @@ import com.venyx.tiktokshop.dtos.DashboardSeriesPointDTO;
 import com.venyx.tiktokshop.dtos.DashboardSummaryDTO;
 import com.venyx.tiktokshop.entities.DashboardMetric;
 import com.venyx.tiktokshop.entities.enums.DashboardPeriodType;
+import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.repositories.DashboardMetricRepository;
 import com.venyx.tiktokshop.repositories.LiveSaleEventRepository;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
@@ -22,10 +23,11 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * Métrica base é cadastrada manualmente pelo admin por período (DashboardMetric);
- * na leitura, somamos as vendas ao vivo (LiveSaleEvent) da janela correspondente,
+ * Métrica base é cadastrada manualmente pelo usuário por período (DashboardMetric);
+ * na leitura, somamos as vendas ao vivo (LiveSaleEvent) do usuário da janela correspondente,
  * assim os totais sobem em tempo real sem nunca sobrescrever o valor manual.
  */
 @Service
@@ -46,10 +48,10 @@ public class DashboardService {
     }
 
     @Transactional(readOnly = true)
-    public DashboardSummaryDTO getSummary(String period, String from, String to) {
+    public DashboardSummaryDTO getSummary(User user, String period, String from, String to) {
         ResolvedWindow window = resolveWindow(period, from, to);
 
-        DashboardMetric base = metricRepository.findByPeriodTypeAndPeriodRef(window.type(), window.ref()).orElse(null);
+        DashboardMetric base = metricRepository.findByUserIdAndPeriodTypeAndPeriodRef(user.getUuid(), window.type(), window.ref()).orElse(null);
         BigDecimal baseRevenue = base != null && base.getRevenue() != null ? base.getRevenue() : BigDecimal.ZERO;
         int baseOrders = base != null && base.getOrders() != null ? base.getOrders() : 0;
         BigDecimal baseCommission = base != null && base.getCommission() != null ? base.getCommission() : BigDecimal.ZERO;
@@ -58,9 +60,9 @@ public class DashboardService {
         long baseViews = base != null && base.getProductViews() != null ? base.getProductViews() : 0L;
         long baseClicks = base != null && base.getProductClicks() != null ? base.getProductClicks() : 0L;
 
-        BigDecimal liveRevenue = liveSaleEventRepository.sumAmountBetween(window.start(), window.end());
-        BigDecimal liveCommission = liveSaleEventRepository.sumCommissionBetween(window.start(), window.end());
-        long liveOrders = liveSaleEventRepository.countBetween(window.start(), window.end());
+        BigDecimal liveRevenue = liveSaleEventRepository.sumAmountBetween(user.getUuid(), window.start(), window.end());
+        BigDecimal liveCommission = liveSaleEventRepository.sumCommissionBetween(user.getUuid(), window.start(), window.end());
+        long liveOrders = liveSaleEventRepository.countBetween(user.getUuid(), window.start(), window.end());
 
         BigDecimal revenue = baseRevenue.add(liveRevenue);
         int orders = baseOrders + (int) liveOrders;
@@ -73,27 +75,17 @@ public class DashboardService {
         // via contador em tempo real (LiveMetricsCounter, movido a cada venda ao vivo).
         int itemsSold = baseItemsSold + (int) liveOrders;
         BigDecimal commissionBase = baseCommissionBase.add(liveRevenue);
-        long productViews = baseViews + liveMetricsCounter.getViews();
-        long productClicks = baseClicks + liveMetricsCounter.getClicks();
+        long productViews = baseViews + liveMetricsCounter.getViews(user.getUuid());
+        long productClicks = baseClicks + liveMetricsCounter.getClicks(user.getUuid());
 
         return new DashboardSummaryDTO(
                 revenue, orders, commission, avgTicket,
                 itemsSold, commissionBase, productViews, productClicks,
-                buildSeries(window.start(), window.seriesDays(), baseRevenue, baseOrders));
+                buildSeries(user.getUuid(), window.start(), window.seriesDays(), baseRevenue, baseOrders));
     }
 
-    /**
-     * Janela de tempo resolvida a partir do período pedido: [start, end) para as somas,
-     * seriesDays = nº de buckets diários do gráfico, type + ref = chave da métrica-base
-     * manual (DashboardMetric) buscada em cima dessa janela.
-     */
     private record ResolvedWindow(Instant start, Instant end, int seriesDays, DashboardPeriodType type, String ref) {}
 
-    /**
-     * Traduz o período do front numa janela concreta. Rolling (7d/15d/30d) = "agora menos N dias";
-     * calendário (week/month) = início da semana/mês corrente; custom = intervalo [from, to] inclusivo.
-     * Período nulo cai no default 7d; período/datas inválidas lançam IllegalArgumentException (HTTP 400).
-     */
     private ResolvedWindow resolveWindow(String period, String from, String to) {
         String p = (period == null || period.isBlank()) ? "7d" : period.trim();
         Instant now = Instant.now();
@@ -140,19 +132,13 @@ public class DashboardService {
         if (toDate.isBefore(fromDate)) {
             throw new IllegalArgumentException("'from' não pode ser posterior a 'to'");
         }
-        // end exclusivo = dia seguinte a 'to' 00:00, para o intervalo cobrir o dia 'to' inteiro.
         Instant start = fromDate.atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant end = toDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         int days = (int) (ChronoUnit.DAYS.between(fromDate, toDate) + 1);
         return new ResolvedWindow(start, end, days, DashboardPeriodType.RANGE, "custom:" + fromDate + ":" + toDate);
     }
 
-    /**
-     * Série diária do gráfico: distribui a base manual igualmente entre os dias da janela
-     * e soma as vendas ao vivo de cada dia. Assim o gráfico reflete o mesmo total dos cards
-     * (base + ao vivo), em vez de mostrar só o que foi vendido ao vivo.
-     */
-    private List<DashboardSeriesPointDTO> buildSeries(Instant windowStart, int days, BigDecimal baseRevenue, int baseOrders) {
+    private List<DashboardSeriesPointDTO> buildSeries(UUID userId, Instant windowStart, int days, BigDecimal baseRevenue, int baseOrders) {
         BigDecimal perDayBaseRevenue = days > 0
                 ? baseRevenue.divide(BigDecimal.valueOf(days), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
@@ -162,25 +148,29 @@ public class DashboardService {
         for (int i = 0; i < days; i++) {
             Instant dayStart = windowStart.plus(i, ChronoUnit.DAYS);
             Instant dayEnd = dayStart.plus(1, ChronoUnit.DAYS);
-            BigDecimal dayRevenue = perDayBaseRevenue.add(liveSaleEventRepository.sumAmountBetween(dayStart, dayEnd));
-            long dayOrders = perDayBaseOrders + liveSaleEventRepository.countBetween(dayStart, dayEnd);
+            BigDecimal dayRevenue = perDayBaseRevenue.add(liveSaleEventRepository.sumAmountBetween(userId, dayStart, dayEnd));
+            long dayOrders = perDayBaseOrders + liveSaleEventRepository.countBetween(userId, dayStart, dayEnd);
             points.add(new DashboardSeriesPointDTO(DAY_LABEL.format(dayStart), dayRevenue, (int) dayOrders));
         }
         return points;
     }
 
     @Transactional(readOnly = true)
-    public List<DashboardMetricDTO> listMetrics(String periodType) {
+    public List<DashboardMetricDTO> listMetrics(User user, String periodType) {
         List<DashboardMetric> metrics = (periodType == null || periodType.isBlank())
-                ? metricRepository.findAll()
-                : metricRepository.findByPeriodTypeOrderByPeriodRefAsc(DashboardPeriodType.valueOf(periodType.toUpperCase()));
+                ? metricRepository.findByUserId(user.getUuid())
+                : metricRepository.findByUserIdAndPeriodTypeOrderByPeriodRefAsc(user.getUuid(), DashboardPeriodType.valueOf(periodType.toUpperCase()));
         return metrics.stream().map(DashboardMetricDTO::new).toList();
     }
 
     @Transactional
-    public DashboardMetricDTO upsertMetric(DashboardMetricDTO dto) {
-        DashboardMetric entity = metricRepository.findByPeriodTypeAndPeriodRef(dto.periodType(), dto.periodRef())
-                .orElseGet(DashboardMetric::new);
+    public DashboardMetricDTO upsertMetric(User user, DashboardMetricDTO dto) {
+        DashboardMetric entity = metricRepository.findByUserIdAndPeriodTypeAndPeriodRef(user.getUuid(), dto.periodType(), dto.periodRef())
+                .orElseGet(() -> {
+                    DashboardMetric m = new DashboardMetric();
+                    m.setUser(user);
+                    return m;
+                });
         entity.setPeriodType(dto.periodType());
         entity.setPeriodRef(dto.periodRef());
         entity.setRevenue(dto.revenue());
@@ -196,19 +186,21 @@ public class DashboardService {
     }
 
     @Transactional
-    public void deleteMetric(Long id) {
-        if (!metricRepository.existsById(id)) {
+    public void deleteMetric(User user, Long id) {
+        DashboardMetric entity = metricRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Métrica não encontrada: " + id));
+        if (!entity.getUser().getUuid().equals(user.getUuid())) {
             throw new ResourceNotFoundException("Métrica não encontrada: " + id);
         }
         metricRepository.deleteById(id);
     }
 
     @Transactional
-    public int resetMetrics(List<String> periodRefs, boolean clearLiveSales) {
-        int deleted = metricRepository.deleteByPeriodRefIn(periodRefs);
+    public int resetMetrics(User user, List<String> periodRefs, boolean clearLiveSales) {
+        int deleted = metricRepository.deleteByUserIdAndPeriodRefIn(user.getUuid(), periodRefs);
         if (clearLiveSales) {
-            liveSaleEventRepository.deleteAllInBatch();
-            liveMetricsCounter.reset();
+            liveSaleEventRepository.deleteByUserId(user.getUuid());
+            liveMetricsCounter.reset(user.getUuid());
         }
         return deleted;
     }

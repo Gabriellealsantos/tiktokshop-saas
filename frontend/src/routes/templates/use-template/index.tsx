@@ -12,6 +12,7 @@ import { VideoModel } from "./components/video-model";
 import { VideoPrint } from "./components/video-print";
 import { ClothSwapPanel } from "./components/cloth-swap-panel";
 import { ProductPickerModal } from "./components/product-picker-modal";
+import { PromptLoading } from "./components/prompt-loading";
 import {
   User,
   Crop,
@@ -457,6 +458,12 @@ export default function TemplateAssemblyScreen() {
   const currentStep = promptResult ? 3 : produto ? 2 : 1;
   const swapLoading =
     swapPersonMutation.isPending || swapClothesMutation.isPending;
+    
+  const loadingText = swapPersonMutation.isPending
+    ? "Trocando Influencer..."
+    : swapClothesMutation.isPending
+    ? "Adicionando Produto..."
+    : "Processando com IA...";
 
   return (
     <AppShell>
@@ -472,72 +479,76 @@ export default function TemplateAssemblyScreen() {
             )}
           </div>
 
-          {promptResult ? (
+          {promptMutation.isPending ? (
+            <PromptLoading imageSrc={printSrc} />
+          ) : promptResult ? (
             /* ── PASSO PROMPT (resultado) ─────────────────────────────────── */
-            <div className="mt-10 max-w-4xl mx-auto w-full flex flex-col">
-              <div className="flex flex-col md:flex-row gap-5 mb-5 items-start">
-                {/* IMAGEM FINAL + BOTÃO DE DOWNLOAD */}
-                {printSrc && (
-                  <div className="flex flex-col gap-3 w-full md:w-[280px] shrink-0">
-                    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-deep aspect-[9/16]">
-                      <S3Image
-                        src={printSrc}
-                        alt="Imagem final"
-                        className="h-full w-full object-cover"
-                      />
+            <div className="mt-10 max-w-5xl mx-auto w-full flex flex-col mb-8">
+              <GlassPanel>
+                <div className="flex flex-col md:flex-row gap-5 mb-5 items-start">
+                  {/* IMAGEM FINAL + BOTÃO DE DOWNLOAD */}
+                  {printSrc && (
+                    <div className="flex flex-col gap-3 w-full md:w-[280px] shrink-0">
+                      <div className="relative overflow-hidden rounded-xl border border-white/10 bg-deep aspect-[9/16]">
+                        <S3Image
+                          src={printSrc}
+                          alt="Imagem final"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="w-full h-10 text-sm rounded-xl"
+                        onClick={handleDownloadImage}
+                      >
+                        <Download className="size-4 mr-2" />
+                        Baixar imagem
+                      </Button>
                     </div>
-                    <Button
-                      variant="outline"
-                      className="w-full h-10 text-sm rounded-xl"
-                      onClick={handleDownloadImage}
-                    >
-                      <Download className="size-4 mr-2" />
-                      Baixar imagem
-                    </Button>
-                  </div>
-                )}
+                  )}
 
-                {/* PROMPT */}
-                <div className="flex-1 min-w-0 w-full rounded-xl border border-white/10 bg-deep p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-bold text-white text-[15px]">
-                      Prompt gerado (em inglês)
-                    </h3>
-                    <button
-                      onClick={handleCopyPrompt}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-2 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-md"
-                    >
-                      <Copy className="size-3" />
-                      {copied ? "Copiado!" : "Copiar"}
-                    </button>
-                  </div>
+                  {/* PROMPT */}
+                  <div className="flex-1 min-w-0 w-full rounded-xl border border-white/10 bg-deep p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-bold text-white text-[15px]">
+                        Prompt gerado (em inglês)
+                      </h3>
+                      <button
+                        onClick={handleCopyPrompt}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-2 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-md"
+                      >
+                        <Copy className="size-3" />
+                        {copied ? "Copiado!" : "Copiar"}
+                      </button>
+                    </div>
 
-                  <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[420px] overflow-y-auto">
-                    <pre className="font-mono text-xs text-text-2 whitespace-pre-wrap leading-[1.6]">
-                      {promptResult}
-                    </pre>
+                    <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[420px] overflow-y-auto">
+                      <pre className="font-mono text-xs text-text-2 whitespace-pre-wrap leading-[1.6]">
+                        {promptResult}
+                      </pre>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href="https://labs.google/fx/tools/flow"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 btn-brand inline-flex items-center justify-center h-10 text-sm rounded-xl font-semibold px-4 transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_0_15px_-4px_rgba(75,68,232,0.6)]"
-                >
-                  Gerar vídeo no Google Flow
-                  <ArrowRight className="ml-1.5 size-3.5" />
-                </a>
-                <Button
-                  variant="ghost"
-                  className="flex-1 h-10 text-sm rounded-xl text-white/70 hover:text-white hover:bg-white/5"
-                  onClick={() => setPromptResult(null)}
-                >
-                  Voltar à montagem
-                </Button>
-              </div>
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                  <a
+                    href="https://labs.google/fx/tools/flow"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 btn-brand inline-flex items-center justify-center h-10 text-sm rounded-xl font-semibold px-4 transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_0_15px_-4px_rgba(75,68,232,0.6)]"
+                  >
+                    Gerar vídeo no Google Flow
+                    <ArrowRight className="ml-1.5 size-3.5" />
+                  </a>
+                  <Button
+                    variant="ghost"
+                    className="flex-1 h-10 text-sm rounded-xl text-white/70 hover:text-white hover:bg-white/5"
+                    onClick={() => setPromptResult(null)}
+                  >
+                    Voltar à montagem
+                  </Button>
+                </div>
+              </GlassPanel>
             </div>
           ) : (
             /* ── PASSOS DE MONTAGEM ───────────────────────────────────────── */
@@ -550,7 +561,7 @@ export default function TemplateAssemblyScreen() {
 
                     {/* CONTAINER 2 — PRINT DO VÍDEO + CONTROLES AVATAR */}
                     <div className="flex flex-col gap-6">
-                      <VideoPrint src={printSrc} loading={swapLoading} />
+                      <VideoPrint src={printSrc} loading={swapLoading} loadingText={loadingText} />
 
                       {/* CONTROLES DO AVATAR */}
                       {!avatarSelecionado ? (

@@ -5,9 +5,10 @@ interface VideoPrintProps {
   /** Frame capturado ou resultado do swap (imagem base que recebe as trocas). */
   src?: string | null;
   loading?: boolean;
+  loadingText?: string;
 }
 
-export function VideoPrint({ src, loading }: VideoPrintProps) {
+export function VideoPrint({ src, loading, loadingText }: VideoPrintProps) {
   return (
     <div className="flex flex-col gap-3">
       <span className="text-sm font-semibold tracking-wide text-white/50 uppercase pl-1">
@@ -38,7 +39,7 @@ export function VideoPrint({ src, loading }: VideoPrintProps) {
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 backdrop-blur-sm">
             <Loader2 className="size-7 animate-spin text-brand-400" />
             <span className="text-sm font-medium text-white/80">
-              Processando com IA...
+              {loadingText || "Processando com IA..."}
             </span>
           </div>
         )}

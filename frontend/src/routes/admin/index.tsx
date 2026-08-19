@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Clock3 } from "lucide-react";
 
 import { EmptyState, Pill, Page } from "@/components";
@@ -18,17 +18,39 @@ import { SecurityTab } from "./components/security-tab";
 import { StudioPromptTab } from "./components/studio-prompt-tab";
 
 export default function AdminScreen() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isAfiliado } = useAuth();
   const [tab, setTab] = useState("Usuários");
   const [pendingCount, setPendingCount] = useState(0);
 
-  if (!isAdmin) {
+  const availableTabs = useMemo(() => {
+    if (isAdmin) {
+      return [
+        "Usuários",
+        "Categorias",
+        "Trend Boost",
+        "Modelos de Vídeo",
+        "Avatares",
+        "Prompt de Vídeo",
+        "Limites",
+        "Métricas",
+        "Vendas ao Vivo",
+        "Notificações",
+        "Segurança",
+      ];
+    }
+    if (isAfiliado) {
+      return ["Usuários", "Métricas", "Vendas ao Vivo"];
+    }
+    return [];
+  }, [isAdmin, isAfiliado]);
+
+  if (!isAdmin && !isAfiliado) {
     return (
       <AppShell>
         <Page>
           <EmptyState
             title="Acesso Negado"
-            description="Esta página é restrita a administradores."
+            description="Esta página é restrita a administradores e afiliados."
           />
         </Page>
       </AppShell>
@@ -41,7 +63,7 @@ export default function AdminScreen() {
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between mb-8 entrance">
           <div>
             <h1 className="text-3xl font-extrabold tracking-[-.035em] text-white md:text-4xl">
-              Painel Admin
+              Painel {isAdmin ? "Admin" : "do Afiliado"}
             </h1>
             <p className="mt-2 text-sm text-zinc-400">
               Gerencie usuários e permissões
@@ -57,19 +79,7 @@ export default function AdminScreen() {
 
         <div className="-mt-2 -mx-1 mb-6">
           <div className="flex gap-2 overflow-x-auto py-3 px-4 scrollbar-hide entrance rounded-2xl glass-premium-purple border border-white/10 shadow-lg">
-            {[
-              "Usuários",
-              "Categorias",
-              "Trend Boost",
-              "Modelos de Vídeo",
-              "Avatares",
-              "Prompt de Vídeo",
-              "Limites",
-              "Métricas",
-              "Vendas ao Vivo",
-              "Notificações",
-              "Segurança",
-            ].map((x) => (
+            {availableTabs.map((x) => (
               <Pill key={x} active={tab === x} onClick={() => setTab(x)}>
                 {x}
               </Pill>

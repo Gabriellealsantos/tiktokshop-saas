@@ -4,7 +4,7 @@ import { cn } from "@/utils/utils";
 export function Page({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <main
-      className={cn("mx-auto w-full max-w-375 px-4 pb-28 pt-8 md:px-7 lg:px-10", className)}
+      className={cn("mx-auto w-full max-w-375 px-4 pb-28 pt-4 md:px-7 lg:px-16 xl:px-28", className)}
     >
       {children}
     </main>
