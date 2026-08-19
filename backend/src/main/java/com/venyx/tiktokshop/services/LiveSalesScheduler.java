@@ -1,13 +1,17 @@
 package com.venyx.tiktokshop.services;
 
-import com.venyx.tiktokshop.dtos.LiveSalesConfigDTO;
+import com.venyx.tiktokshop.entities.LiveSalesConfig;
 import com.venyx.tiktokshop.entities.enums.LiveSalesMode;
+import com.venyx.tiktokshop.repositories.LiveSalesConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -26,42 +30,51 @@ public class LiveSalesScheduler {
     private static final int DEFAULT_INTERVAL_SECONDS = 8;
 
     private final LiveSalesService liveSalesService;
+    private final LiveSalesConfigRepository configRepository;
 
-    private volatile Instant lastFiredAt = Instant.EPOCH;
-    private volatile int nextIntervalSeconds = 0;
+    private final ConcurrentHashMap<UUID, Instant> lastFiredAtMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, Integer> nextIntervalMap = new ConcurrentHashMap<>();
 
-    public LiveSalesScheduler(LiveSalesService liveSalesService) {
+    public LiveSalesScheduler(LiveSalesService liveSalesService, LiveSalesConfigRepository configRepository) {
         this.liveSalesService = liveSalesService;
+        this.configRepository = configRepository;
     }
 
     @Scheduled(fixedDelay = 5000)
     public void tick() {
-        LiveSalesConfigDTO config = liveSalesService.getConfig();
-        if (config.mode() != LiveSalesMode.AUTOMATIC) {
-            return;
-        }
+        List<LiveSalesConfig> configs = configRepository.findAll();
         Instant now = Instant.now();
-        if (now.isBefore(lastFiredAt.plusSeconds(nextIntervalSeconds))) {
-            return;
-        }
-        try {
-            liveSalesService.fireSale(null);
-            lastFiredAt = now;
-            // Sorteia o intervalo até a PRÓXIMA venda agora, para ficar estável entre os ticks.
-            nextIntervalSeconds = resolveNextInterval(config);
-        } catch (Exception ex) {
-            log.warn("Falha ao disparar venda ao vivo automática: {}", ex.getMessage());
+
+        for (LiveSalesConfig config : configs) {
+            if (config.getMode() != LiveSalesMode.AUTOMATIC) {
+                continue;
+            }
+
+            UUID userId = config.getUser().getUuid();
+            Instant lastFiredAt = lastFiredAtMap.getOrDefault(userId, Instant.EPOCH);
+            int nextInterval = nextIntervalMap.getOrDefault(userId, 0);
+
+            if (now.isBefore(lastFiredAt.plusSeconds(nextInterval))) {
+                continue;
+            }
+
+            try {
+                liveSalesService.fireSaleForUser(userId, null);
+                lastFiredAtMap.put(userId, now);
+                nextIntervalMap.put(userId, resolveNextInterval(config));
+            } catch (Exception ex) {
+                log.warn("Falha ao disparar venda automática (user: {}): {}", userId, ex.getMessage());
+            }
         }
     }
 
-    /** Intervalo aleatório na faixa [min, max] quando habilitado; senão, o intervalo fixo. */
-    private int resolveNextInterval(LiveSalesConfigDTO config) {
-        if (Boolean.TRUE.equals(config.randomInterval())
-                && config.intervalMinSeconds() != null && config.intervalMaxSeconds() != null) {
-            int min = Math.max(1, config.intervalMinSeconds());
-            int max = Math.max(min, config.intervalMaxSeconds());
+    private int resolveNextInterval(LiveSalesConfig config) {
+        if (config.isRandomInterval()
+                && config.getIntervalMinSeconds() != null && config.getIntervalMaxSeconds() != null) {
+            int min = Math.max(1, config.getIntervalMinSeconds());
+            int max = Math.max(min, config.getIntervalMaxSeconds());
             return ThreadLocalRandom.current().nextInt(min, max + 1);
         }
-        return config.intervalSeconds() != null ? config.intervalSeconds() : DEFAULT_INTERVAL_SECONDS;
+        return config.getIntervalSeconds() != null ? config.getIntervalSeconds() : DEFAULT_INTERVAL_SECONDS;
     }
 }

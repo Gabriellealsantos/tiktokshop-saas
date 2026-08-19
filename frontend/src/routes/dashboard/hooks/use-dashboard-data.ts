@@ -64,7 +64,8 @@ export function useDashboardData(canSeeRevenue: boolean, selectedPeriod: string)
   const refetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!canSeeRevenue) return;
-    const dispose = subscribeTopic<LiveSaleEventDTO>("/topic/live-sales", (payload) => {
+    const dispose = subscribeTopic<LiveSaleEventDTO>("/user/queue/live-sales", (payload) => {
+      if ((payload as any).action === "PING") return;
       setLiveSales(prev => [payload, ...prev].slice(0, 4));
       if (refetchTimer.current) clearTimeout(refetchTimer.current);
       refetchTimer.current = setTimeout(() => fetchSummary(), 800);

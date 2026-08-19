@@ -78,7 +78,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public Page<UserDTO> findAllPaged(String search, Pageable pageable) {
         String searchParam = (search == null || search.isBlank()) ? null : search;
-        Page<User> page = repository.searchUsers(searchParam, pageable);
+        
+        boolean excludePrivileged = false;
+        User currentUser = safeCurrentUser();
+        if (currentUser != null && !currentUser.hasRole(RoleConstants.ROLE_ADMIN)) {
+            excludePrivileged = true;
+        }
+
+        Page<User> page = repository.searchUsers(searchParam, excludePrivileged, pageable);
         
         List<UUID> userIds = page.getContent().stream().map(User::getId).toList();
         List<UserSubscription> activeSubs = subscriptionRepository.findActiveSubscriptionsByUserIds(userIds);
@@ -180,7 +187,10 @@ public class UserService {
     public UserDTO update(UUID id, UserUpdateDTO dto) {
         validateRoleAssignment(dto.roles());
         try {
-            User entity = repository.getReferenceById(id);
+            User entity = repository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Id not found " + id));
+
+            ensureCanModifyTarget(entity);
 
             // colunas UNIQUE: valida antes p/ mensagem de campo (evita 409/500 genérico do banco)
             ensureEmailAvailable(dto.email(), id);
@@ -315,8 +325,11 @@ public class UserService {
     @Transactional
     public void delete(UUID id) {
         try {
-            User entity = repository.getReferenceById(id);
+            User entity = repository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Id not found " + id));
             User currentUser = authService.authenticated();
+
+            ensureCanModifyTarget(entity);
 
             if (currentUser.getId().equals(id)) {
                 throw new ForbiddenException("Você não pode excluir a si mesmo.");
@@ -376,6 +389,19 @@ public class UserService {
 
         if (targetHasPrivileged && !isAdmin) {
             throw new ForbiddenException("Apenas um Administrador pode conceder papéis privilegiados.");
+        }
+    }
+
+    private void ensureCanModifyTarget(User targetUser) {
+        User currentUser = safeCurrentUser();
+        if (currentUser == null) return;
+        
+        boolean isAdmin = currentUser.hasRole(RoleConstants.ROLE_ADMIN);
+        if (isAdmin) return; // Admin pode alterar qualquer um
+        
+        // Se for Afiliado, ele não pode alterar/deletar um Admin nem outro Afiliado
+        if (targetUser.hasRole(RoleConstants.ROLE_ADMIN) || targetUser.hasRole(RoleConstants.ROLE_AFFILIATE)) {
+            throw new ForbiddenException("Você não tem permissão para modificar Administradores ou outros Afiliados.");
         }
     }
 

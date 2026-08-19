@@ -8,16 +8,20 @@ import java.time.Instant;
 import java.util.Objects;
 
 /**
- * Métricas manuais do dashboard, editadas pelo admin, por período.
+ * Métricas manuais do dashboard, editadas pelo usuário (admin/afiliado), por período.
  */
 @Entity
 @Table(name = "dashboard_metrics",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"period_type", "period_ref"}))
+        uniqueConstraints = @UniqueConstraint(name = "uq_dashboard_user_period", columnNames = {"user_id", "period_type", "period_ref"}))
 public class DashboardMetric {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "period_type", nullable = false)
@@ -67,6 +71,14 @@ public class DashboardMetric {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public DashboardPeriodType getPeriodType() {

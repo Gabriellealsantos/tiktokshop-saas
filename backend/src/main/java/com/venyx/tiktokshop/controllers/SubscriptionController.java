@@ -26,19 +26,19 @@ public class SubscriptionController {
         this.service = service;
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/admin/plans")
     public ResponseEntity<List<PlanDTO>> listPlans() {
         return ResponseEntity.ok(service.listPlans());
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @GetMapping("/api/admin/users/{id}/subscription")
     public ResponseEntity<SubscriptionDTO> getByUser(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getByUser(id));
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PostMapping("/api/admin/users/{id}/subscription/activate")
     public ResponseEntity<SubscriptionDTO> activate(
             @PathVariable UUID id,
@@ -46,13 +46,13 @@ public class SubscriptionController {
         return ResponseEntity.ok(service.activate(id, dto.planType()));
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PostMapping("/api/admin/users/{id}/subscription/revoke")
     public ResponseEntity<SubscriptionDTO> revoke(@PathVariable UUID id) {
         return ResponseEntity.ok(service.revoke(id));
     }
 
-    @PreAuthorize("hasRole('" + RoleConstants.ROLE_ADMIN + "')")
+    @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @DeleteMapping("/api/admin/users/{id}/subscription")
     public ResponseEntity<Void> cancel(@PathVariable UUID id) {
         service.cancel(id);

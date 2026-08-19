@@ -44,7 +44,7 @@ let lastShownSaleId: string | null = null;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, isAfiliado, user } = useAuth();
   const { latestSale } = useNotifications();
   const [isReferralOpen, setIsReferralOpen] = useState(false);
   // Popup aparece por alguns segundos a cada nova venda ao vivo recebida via WS.
@@ -81,13 +81,13 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to="/admin"
                 className={cn(
                   "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                  !isAdmin ? "hidden" : "",
+                  (!isAdmin && !isAfiliado) ? "hidden" : "",
                   path.startsWith("/admin")
                     ? "bg-white/10 text-white"
                     : "text-zinc-400 hover:bg-white/5 hover:text-white",
                 )}
               >
-                Admin
+                {isAdmin ? "Admin" : "Afiliado"}
               </Link>
             </nav>
           </div>
@@ -137,14 +137,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </Link>
                 </DropdownMenuItem>
 
-                {isAdmin && (
+                {(isAdmin || isAfiliado) && (
                   <DropdownMenuItem
                     asChild
                     className="focus:bg-white/10 focus:text-white cursor-pointer"
                   >
                     <Link to="/admin" className="flex w-full items-center gap-2 text-brand-400 focus:text-brand-300">
                       <ShieldCheck className="size-4" />
-                      Painel Admin
+                      Painel {isAdmin ? "Admin" : "Afiliado"}
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -193,7 +193,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     );
                   })}
 
-                  {isAdmin && (
+                  {(isAdmin || isAfiliado) && (
                     <Link
                       to="/admin"
                       className={cn(
@@ -204,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       )}
                     >
                       <ShieldCheck className="size-4" />
-                      Admin
+                      {isAdmin ? "Admin" : "Afiliado"}
                     </Link>
                   )}
                 </nav>
