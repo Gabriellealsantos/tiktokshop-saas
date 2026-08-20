@@ -469,15 +469,17 @@ export default function TemplateAssemblyScreen() {
     <AppShell>
       <Page>
         <div className="max-w-5xl mx-auto w-full flex flex-col pb-12">
-          <div className="flex items-center justify-between gap-4">
-            <Stepper steps={STEPS} current={currentStep} />
-            {usage && (
-              <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60">
-                <Gauge className="size-3.5 text-brand-400" />
-                {isUnlimited(usage.max) ? "∞ gerações hoje" : `${usage.remaining}/${usage.max} gerações hoje`}
-              </div>
-            )}
-          </div>
+          {!promptMutation.isPending && (
+            <div className="flex items-center justify-between gap-4">
+              <Stepper steps={STEPS} current={currentStep} />
+              {usage && (
+                <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] border border-white/10 px-3 py-1.5 text-xs font-medium text-white/60">
+                  <Gauge className="size-3.5 text-brand-400" />
+                  {isUnlimited(usage.max) ? "∞ gerações hoje" : `${usage.remaining}/${usage.max} gerações hoje`}
+                </div>
+              )}
+            </div>
+          )}
 
           {promptMutation.isPending ? (
             <PromptLoading imageSrc={printSrc} />

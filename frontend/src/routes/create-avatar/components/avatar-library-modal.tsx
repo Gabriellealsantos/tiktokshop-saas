@@ -112,9 +112,9 @@ function AvatarCard({
             onRename?.(Number(avatar.id), avatar.name);
           }}
           aria-label="Renomear avatar"
-          className="absolute right-12 top-3 grid size-8 place-items-center rounded-full btn-brand text-white opacity-0 shadow-md transition-all duration-300 hover:scale-105 group-hover:opacity-100 focus:opacity-100 z-20"
+          className="absolute left-3 top-3 grid size-7 place-items-center rounded-full btn-brand text-white opacity-0 shadow-md transition-all duration-300 hover:scale-105 group-hover:opacity-100 focus:opacity-100 z-20"
         >
-          <Pencil className="size-4" />
+          <Pencil className="size-3.5" />
         </button>
       )}
 
@@ -126,12 +126,12 @@ function AvatarCard({
           }}
           disabled={isDeleting}
           aria-label="Excluir avatar"
-          className="absolute right-3 top-3 grid size-8 place-items-center rounded-full btn-brand text-white opacity-0 shadow-md transition-all duration-300 hover:scale-105 group-hover:opacity-100 focus:opacity-100 z-20 disabled:opacity-50"
+          className="absolute right-3 top-3 grid size-7 place-items-center rounded-full btn-brand text-white opacity-0 shadow-md transition-all duration-300 hover:scale-105 group-hover:opacity-100 focus:opacity-100 z-20 disabled:opacity-50"
         >
           {isDeleting ? (
-            <Loader2 className="size-4 animate-spin" />
+            <Loader2 className="size-3.5 animate-spin" />
           ) : (
-            <Trash2 className="size-4" />
+            <Trash2 className="size-3.5" />
           )}
         </button>
       )}
@@ -141,8 +141,8 @@ function AvatarCard({
 
 function swapAvatars<T extends { name: string }>(avatars: T[]): T[] {
   const result = [...avatars];
-  const idx1 = result.findIndex((a) => a.name.toLowerCase() === "carla santos");
-  const idx2 = result.findIndex((a) => a.name.toLowerCase() === "mariana costa");
+  const idx1 = result.findIndex((a) => a.name.toLowerCase().includes("carla"));
+  const idx2 = result.findIndex((a) => a.name.toLowerCase().includes("mariana"));
 
   if (idx1 !== -1 && idx2 !== -1) {
     const temp = result[idx1];

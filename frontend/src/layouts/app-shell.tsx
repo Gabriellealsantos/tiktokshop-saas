@@ -235,7 +235,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav 
         className="glass-surface glass-surface--nav fixed bottom-4 lg:bottom-6 left-1/2 z-40 flex h-14 -translate-x-1/2 items-center gap-3 sm:gap-4 rounded-2xl px-4 sm:px-5"
-        style={{ '--glass-base': '85%' } as React.CSSProperties}
       >
         <TooltipProvider delayDuration={100}>
           {toolbar.map(([to, Icon, label]) => {

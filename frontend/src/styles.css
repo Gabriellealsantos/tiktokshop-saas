@@ -317,10 +317,18 @@
   }
 
   .glass-surface--nav {
-    --glass-tint: 0.04;
-    --glass-base: 55%;
-    --glass-border: 0.08;
-    --glass-highlight: 0.08;
+    --glass-tint: 0.05;
+    --glass-base: 85%;
+    --glass-border: 0.12;
+    --glass-highlight: 0.12;
+    background:
+      linear-gradient(165deg,
+        rgba(255, 255, 255, var(--glass-tint)),
+        rgba(255, 255, 255, calc(var(--glass-tint) * 0.35))),
+      rgba(255, 255, 255, 0.03),
+      color-mix(in oklch, var(--card) var(--glass-base), transparent);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
   }
 
   .glass-surface::before {
