@@ -139,6 +139,19 @@ function AvatarCard({
   );
 }
 
+function swapAvatars<T extends { name: string }>(avatars: T[]): T[] {
+  const result = [...avatars];
+  const idx1 = result.findIndex((a) => a.name.toLowerCase() === "carla santos");
+  const idx2 = result.findIndex((a) => a.name.toLowerCase() === "mariana costa");
+
+  if (idx1 !== -1 && idx2 !== -1) {
+    const temp = result[idx1];
+    result[idx1] = result[idx2];
+    result[idx2] = temp;
+  }
+  return result;
+}
+
 export function AvatarLibraryModal({
   children,
   mode = "manage",
@@ -174,19 +187,23 @@ export function AvatarLibraryModal({
   );
   const [newName, setNewName] = useState("");
 
-  const customAvatars = (myAvatars?.items ?? []).map((a) => ({
-    id: a.id,
-    name: a.name,
-    image: a.imageUrl,
-    customPrompt: a.customPrompt,
-  }));
+  const customAvatars = swapAvatars(
+    (myAvatars?.items ?? []).map((a) => ({
+      id: a.id,
+      name: a.name,
+      image: a.imageUrl,
+      customPrompt: a.customPrompt,
+    }))
+  );
 
-  const systemAvatars = (gallery ?? []).map((a) => ({
-    id: a.id,
-    name: a.name,
-    image: a.imageUrl,
-    customPrompt: a.customPrompt,
-  }));
+  const systemAvatars = swapAvatars(
+    (gallery ?? []).map((a) => ({
+      id: a.id,
+      name: a.name,
+      image: a.imageUrl,
+      customPrompt: a.customPrompt,
+    }))
+  );
 
   return (
     <>
