@@ -6,6 +6,7 @@ import com.venyx.tiktokshop.entities.enums.FlowType;
 import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.generation.PoseSuggestionService;
 import com.venyx.tiktokshop.services.generation.ScenePoseImageService;
+import com.venyx.tiktokshop.services.generation.ScriptGenerationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,13 +24,16 @@ public class StudioController {
     private final ScenePoseImageService imageService;
     private final GenerationLimitService limitService;
     private final PoseSuggestionService suggestionService;
+    private final ScriptGenerationService scriptGenerationService;
 
     public StudioController(ScenePoseImageService imageService,
                             GenerationLimitService limitService,
-                            PoseSuggestionService suggestionService) {
+                            PoseSuggestionService suggestionService,
+                            ScriptGenerationService scriptGenerationService) {
         this.imageService = imageService;
         this.limitService = limitService;
         this.suggestionService = suggestionService;
+        this.scriptGenerationService = scriptGenerationService;
     }
 
     @PostMapping("/image")
@@ -66,5 +70,12 @@ public class StudioController {
     public ResponseEntity<PoseSuggestionResponseDTO> poseSuggestions(
             @RequestBody PoseSuggestionRequestDTO dto) {
         return ResponseEntity.ok(new PoseSuggestionResponseDTO(suggestionService.generate(dto)));
+    }
+
+    @PostMapping("/script-generation")
+    @PreAuthorize(USER_ROLES)
+    public ResponseEntity<ScriptGenerationResponseDTO> generateScript(
+            @RequestBody ScriptGenerationRequestDTO dto) {
+        return ResponseEntity.ok(new ScriptGenerationResponseDTO(scriptGenerationService.generate(dto)));
     }
 }

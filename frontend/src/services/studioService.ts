@@ -36,3 +36,20 @@ export const getPoseSuggestions = (data: {
         data,
         withCredentials: true,
     });
+
+export const generateStudioScript = (data: {
+    productId?: number;
+    customProductName?: string;
+    customProductDescription?: string;
+    location?: string;
+    timeOfDay?: string;
+    lighting?: string;
+    atmosphere?: string;
+    pose?: string;
+}) =>
+    requestBackend({
+        method: "POST",
+        url: "/api/studio/script-generation",
+        data,
+        withCredentials: true,
+    });

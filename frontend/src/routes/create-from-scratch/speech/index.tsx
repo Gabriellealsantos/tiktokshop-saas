@@ -13,8 +13,19 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getStudioSession,
   generateStudioVideoPrompt,
+  generateStudioScript,
 } from "@/services/studioService";
-import { NARRATOR_VOICE } from "@/models/studio";
+import {
+  NARRATOR_VOICE,
+  SCENE_LOCATION,
+  TIME_OF_DAY,
+  SCENE_LIGHTING,
+  SCENE_ATMOSPHERE,
+  LOCATION_LABEL,
+  TIME_LABEL,
+  LIGHTING_LABEL,
+  ATMOSPHERE_LABEL,
+} from "@/models/studio";
 import { extractError } from "@/utils/api-error";
 import type { CreationSessionDTO } from "@/models/studio";
 
@@ -48,6 +59,30 @@ export default function SpeechScreen() {
   const [voiceId, setVoiceId] = useState(search.voiceId || "voice-1");
 
   const sessionId = searchParams.get("sessionId");
+  const rawProductId = searchParams.get("productId");
+  const customProductName =
+    searchParams.get("customProductName") ?? undefined;
+  const customProductDescription =
+    searchParams.get("customProductDescription") ?? undefined;
+
+  const generateScript = useMutation({
+    mutationFn: async () => {
+      const response = await generateStudioScript({
+        productId: rawProductId ? Number(rawProductId) : undefined,
+        customProductName,
+        customProductDescription,
+        location: LOCATION_LABEL[SCENE_LOCATION[search.local ?? ""]],
+        timeOfDay: TIME_LABEL[TIME_OF_DAY[search.timeOfDay ?? ""]],
+        lighting: LIGHTING_LABEL[SCENE_LIGHTING[search.lighting ?? ""]],
+        atmosphere: ATMOSPHERE_LABEL[SCENE_ATMOSPHERE[search.atmosphere ?? ""]],
+        pose: search.pose === "manual" ? search.manualPose : search.pose,
+      });
+      return response.data.script as string;
+    },
+    onSuccess: (script) => setSpeechText(script),
+    onError: (err) =>
+      toast.error(extractError(err, "Erro ao gerar o roteiro.")),
+  });
 
   const { data: session } = useQuery({
     queryKey: ["studio-session", sessionId],
@@ -116,6 +151,9 @@ export default function SpeechScreen() {
             <ScriptEditor
               speechText={speechText}
               setSpeechText={setSpeechText}
+              onGenerate={() => generateScript.mutate()}
+              isGenerating={generateScript.isPending}
+              canGenerate={!!rawProductId || !!customProductName}
             />
             <VoiceSelector voiceId={voiceId} setVoiceId={setVoiceId} />
           </div>
