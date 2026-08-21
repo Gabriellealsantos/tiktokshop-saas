@@ -67,29 +67,16 @@ export function PromptLoading({ imageSrc }: PromptLoadingProps) {
         </p>
       </div>
 
-      <div className="flex items-center">
-        <Button 
-          variant="secondary" 
-          className="rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-xs h-8 px-4" 
-          size="sm"
-          onClick={() => navigate("/templates")}
-        >
-          <ArrowLeft className="size-3.5 mr-2" /> 
-          Voltar aos templates
-        </Button>
-      </div>
-
-      {/* Container Grande Externo (Glass) */}
       <div className="w-full rounded-[32px] bg-[#0F0D15]/40 backdrop-blur-3xl border border-white/5 py-16 px-6 flex items-center justify-center relative overflow-hidden shadow-[inset_0_0_80px_rgba(75,68,232,0.15)] min-h-[65vh]">
         {/* Glow de fundo no container grande */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/15 rounded-full blur-[120px] pointer-events-none" />
 
         {/* Componente Centralizado (Inner GlassPanel) */}
-        <div className="w-full max-w-md flex flex-col items-center relative z-10">
+        <div className="w-full max-w-md flex flex-col items-center relative z-10 mx-auto">
           <GlassPanel className="w-full flex flex-col items-center p-8 relative overflow-hidden bg-surface-1/60 border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] rounded-[28px]">
             
             {/* Topo: Círculo com a imagem */}
-            <div className="relative mb-6 z-10">
+            <div className="relative mb-6 z-10 mx-auto flex justify-center w-fit">
               <div className="size-24 rounded-full overflow-hidden border-2 border-brand-500 shadow-[0_0_24px_rgba(109,91,245,0.4)] bg-deep relative flex items-center justify-center p-1">
                 <div className="w-full h-full rounded-full overflow-hidden bg-black/50">
                   {imageSrc ? (

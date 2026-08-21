@@ -468,8 +468,10 @@ export default function TemplateAssemblyScreen() {
   return (
     <AppShell>
       <Page>
-        <div className="max-w-5xl mx-auto w-full flex flex-col pb-12">
-          {!promptMutation.isPending && (
+        {promptMutation.isPending ? (
+          <PromptLoading imageSrc={printSrc} />
+        ) : (
+          <div className="max-w-5xl mx-auto w-full flex flex-col pb-12">
             <div className="flex items-center justify-between gap-4">
               <Stepper steps={STEPS} current={currentStep} />
               {usage && (
@@ -479,11 +481,8 @@ export default function TemplateAssemblyScreen() {
                 </div>
               )}
             </div>
-          )}
 
-          {promptMutation.isPending ? (
-            <PromptLoading imageSrc={printSrc} />
-          ) : promptResult ? (
+            {promptResult ? (
             /* ── PASSO PROMPT (resultado) ─────────────────────────────────── */
             <div className="mt-10 max-w-5xl mx-auto w-full flex flex-col mb-8">
               <GlassPanel>
@@ -690,8 +689,9 @@ export default function TemplateAssemblyScreen() {
                 </Button>
               </div>
             </>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* MODAL DE SELEÇÃO DE AVATAR */}
         <AvatarLibraryModal
