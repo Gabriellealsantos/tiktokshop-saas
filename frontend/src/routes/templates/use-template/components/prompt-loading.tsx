@@ -16,10 +16,12 @@ export function PromptLoading({ imageSrc }: PromptLoadingProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Avança para o passo 1 após 2.5s
-    const timer1 = setTimeout(() => setStep(1), 2500);
-    // Avança para o passo 2 após 5s
-    const timer2 = setTimeout(() => setStep(2), 5000);
+    // Avança para o passo 1 após 1.8s
+    const timer1 = setTimeout(() => setStep(1), 1800);
+    // Avança para o passo 2 após 3.6s
+    const timer2 = setTimeout(() => setStep(2), 3600);
+    // Avança para o passo 3 após 5.4s
+    const timer3 = setTimeout(() => setStep(3), 5400);
 
     // Barra de progresso fluida
     const duration = 7500; // Tempo estimado
@@ -36,20 +38,28 @@ export function PromptLoading({ imageSrc }: PromptLoadingProps) {
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
+      clearTimeout(timer3);
       clearInterval(progressTimer);
     };
   }, []);
 
   const loadingSteps = [
-    "Analisando a cena",
-    "Compondo direção de câmera",
-    "Finalizando prompt",
+    "Analisando video",
+    "Alinhando movimentos do Influencer",
+    "Replicando cenario",
+    "Gerando prompt",
   ];
 
   const timeRemaining = Math.max(0.1, ((100 - progress) / 100) * 7.5).toFixed(1);
 
   return (
-    <div className="w-full flex flex-col gap-6 pb-12 mt-2">
+    <div className="w-full flex flex-col gap-6 pb-12">
+      <style>{`
+        @keyframes loading-slide {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(300%); }
+        }
+      `}</style>
       {/* Títulos do Topo */}
       <div className="flex flex-col gap-3">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 px-3 py-1 text-[11px] font-bold text-brand-400 uppercase tracking-widest self-start">
@@ -67,13 +77,18 @@ export function PromptLoading({ imageSrc }: PromptLoadingProps) {
         </p>
       </div>
 
-      <div className="w-full rounded-[32px] bg-[#0F0D15]/40 backdrop-blur-3xl border border-white/5 py-16 px-6 flex items-center justify-center relative overflow-hidden shadow-[inset_0_0_80px_rgba(75,68,232,0.15)] min-h-[65vh]">
-        {/* Glow de fundo no container grande */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="w-full rounded-[32px] bg-[#0F0D15]/60 backdrop-blur-3xl border border-white/5 py-16 px-6 flex items-center justify-center relative overflow-hidden shadow-[inset_0_0_80px_rgba(75,68,232,0.15)] min-h-[75vh]">
+        {/* Subtle dot pattern grid */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8Y2lyY2xlIGN4PSIyIiBjeT0iMiIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSI+PC9jaXJjbGU+Cjwvc3ZnPg==')] opacity-40 pointer-events-none" />
 
-        {/* Componente Centralizado (Inner GlassPanel) */}
+        {/* Glows de fundo no container grande */}
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/15 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+        <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+
+        {/* Componente Centralizado (Inner Panel) */}
         <div className="w-full max-w-md flex flex-col items-center relative z-10 mx-auto">
-          <GlassPanel className="w-full flex flex-col items-center p-8 relative overflow-hidden bg-surface-1/60 border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] rounded-[28px]">
+          <div className="panel w-full flex flex-col items-center p-8 relative overflow-hidden z-10 mx-auto rounded-[28px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
             
             {/* Topo: Círculo com a imagem */}
             <div className="relative mb-6 z-10 mx-auto flex justify-center w-fit">
@@ -106,12 +121,17 @@ export function PromptLoading({ imageSrc }: PromptLoadingProps) {
             </div>
 
             {/* Barra de Progresso */}
-            <div className="w-full flex flex-col gap-1.5 mb-6 z-10">
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative">
+            <div className="w-[85%] flex flex-col gap-1.5 mb-6 z-10">
+              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden relative">
                 <div 
-                  className="absolute top-0 left-0 h-full bg-brand-400 transition-all duration-100 ease-linear rounded-full shadow-[0_0_10px_rgba(109,91,245,0.6)]" 
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-brand-500 to-brand-300 transition-all duration-100 ease-linear rounded-full shadow-[0_0_15px_rgba(109,91,245,0.8)] overflow-hidden" 
                   style={{ width: `${progress}%` }} 
-                />
+                >
+                  <div 
+                    className="absolute inset-0 w-[40%] bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[-20deg]"
+                    style={{ animation: 'loading-slide 1.5s infinite linear' }} 
+                  />
+                </div>
               </div>
               <div className="flex justify-between items-center text-[10px] text-white/40 font-medium px-0.5">
                 <span>{Math.round(progress)}%</span>
@@ -129,9 +149,9 @@ export function PromptLoading({ imageSrc }: PromptLoadingProps) {
                   <div
                     key={index}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-[16px] transition-all duration-500 relative overflow-hidden",
+                      "flex items-center gap-3 px-4 py-3 rounded-[16px] transition-all duration-500 relative overflow-hidden backdrop-blur-md",
                       isActive
-                        ? "bg-brand-500/10 border border-brand-500/30 shadow-[0_4px_24px_rgba(109,91,245,0.15)]"
+                        ? "bg-white/[0.06] border border-white/20 shadow-[0_4px_24px_rgba(109,91,245,0.15)]"
                         : "bg-white/[0.02] border border-white/5",
                       isCompleted && "opacity-50"
                     )}
@@ -160,7 +180,7 @@ export function PromptLoading({ imageSrc }: PromptLoadingProps) {
                 );
               })}
             </div>
-          </GlassPanel>
+          </div>
         </div>
       </div>
     </div>
