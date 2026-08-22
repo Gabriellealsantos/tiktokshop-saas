@@ -31,6 +31,7 @@ public class ScenePoseImageService {
     private static final String STUDIO_FOLDER = "studio";
     private static final String CUSTOM_PRODUCT_FOLDER = "custom-products";
 
+
     private final ObjectMapper objectMapper;
     private final ProductRepository productRepository;
     private final AvatarRepository avatarRepository;
@@ -45,6 +46,7 @@ public class ScenePoseImageService {
     private final StudioVideoPromptComposer videoComposer;
     private final TextProvider textProvider;
     private final StudioGenerationProcessor processor;
+    private final StudioVideoPromptTx videoPromptTx;
 
     public ScenePoseImageService(ObjectMapper objectMapper,
                                  ProductRepository productRepository,
@@ -59,7 +61,8 @@ public class ScenePoseImageService {
                                  AuthService authService,
                                  StudioVideoPromptComposer videoComposer,
                                  TextProvider textProvider,
-                                 StudioGenerationProcessor processor) {
+                                 StudioGenerationProcessor processor,
+                                 StudioVideoPromptTx videoPromptTx) {
         this.objectMapper = objectMapper;
         this.productRepository = productRepository;
         this.avatarRepository = avatarRepository;
@@ -74,6 +77,7 @@ public class ScenePoseImageService {
         this.videoComposer = videoComposer;
         this.textProvider = textProvider;
         this.processor = processor;
+        this.videoPromptTx = videoPromptTx;
     }
 
     @Transactional
@@ -126,32 +130,20 @@ public class ScenePoseImageService {
                 .orElseThrow(() -> new ResourceNotFoundException("Sessão não encontrada: " + id));
     }
 
-    @Transactional
     public CreationSession generateVideoPrompt(StudioVideoRequestDTO req) {
-        User user = authService.authenticated();
+        UUID userId = authService.authenticated().getUuid();
 
-        CreationSession session = sessionRepository.findByIdAndUser_Uuid(req.sessionId(), user.getUuid())
-                .orElseThrow(() -> new ResourceNotFoundException("Sessão não encontrada: " + req.sessionId()));
+        Map<String, Object> config = videoPromptTx.loadContext(req.sessionId(), userId);
 
-        if (session.getStatus() != CreationStatus.COMPLETED || session.getConfig().get("imageUrl") == null) {
-            throw new BusinessException("Gere a imagem antes de gerar o prompt do vídeo.");
-        }
-
-        String productName = (String) session.getConfig().get("productName");
-        if (productName == null) {
-            throw new BusinessException("Sessão sem produto associado.");
-        }
-        String productDescription = (String) session.getConfig().get("productDescription");
-
-        String videoPrompt = videoComposer.compose(productName, productDescription,
-                session.getConfig(), req.script(), req.voice());
+        String videoPrompt = videoComposer.compose(
+                (String) config.get("productName"),
+                (String) config.get("productDescription"),
+                config, req.script(), req.voice());
 
         TextProviderResult result = textProvider.generate(new TextProviderRequest(videoPrompt, false));
 
-        session.getConfig().put("script", req.script());
-        session.getConfig().put("voice", req.voice().name());
-        session.getConfig().put("videoPrompt", result.text().trim());
-        return sessionRepository.save(session);
+        return videoPromptTx.saveResult(req.sessionId(), userId,
+                req.script(), req.voice().name(), result.text().trim());
     }
 
     private Product resolveCatalogProduct(StudioImageRequestDTO req) {

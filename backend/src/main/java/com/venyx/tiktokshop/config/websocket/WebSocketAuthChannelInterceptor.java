@@ -1,6 +1,8 @@
 package com.venyx.tiktokshop.config.websocket;
 
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -11,9 +13,11 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * Autentica a conexão STOMP no frame CONNECT (não no handshake HTTP do
@@ -25,6 +29,9 @@ import java.security.Principal;
  */
 @Component
 public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketAuthChannelInterceptor.class);
+
 
     private final JwtDecoder jwtDecoder;
 
@@ -39,17 +46,26 @@ public class WebSocketAuthChannelInterceptor implements ChannelInterceptor {
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             String authHeader = accessor.getFirstNativeHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                logger.warn("[WS] CONNECT recusado: header Authorization ausente ou malformado");
                 throw new AuthenticationCredentialsNotFoundException("Token JWT ausente no CONNECT do WebSocket.");
             }
 
-            Jwt jwt = jwtDecoder.decode(authHeader.substring(7));
+            Jwt jwt;
+            try {
+                jwt = jwtDecoder.decode(authHeader.substring(7));
+            } catch (JwtException e) {
+                logger.warn("[WS] CONNECT recusado: token inválido — {}", e.getMessage());
+                throw new AuthenticationCredentialsNotFoundException("Token JWT inválido no CONNECT do WebSocket.", e);
+            }
+
             String uid = jwt.getClaimAsString("uid");
             if (uid == null) {
+                logger.warn("[WS] CONNECT recusado: token sem claim 'uid'");
                 throw new AuthenticationCredentialsNotFoundException("Token JWT sem claim 'uid'.");
             }
 
-            Principal principal = new UsernamePasswordAuthenticationToken(uid, null, java.util.List.of());
-            accessor.setUser(principal);
+            logger.debug("[WS] CONNECT aceito para uid={}", uid);
+            accessor.setUser(new UsernamePasswordAuthenticationToken(uid, null, List.of()));
         }
 
         return message;

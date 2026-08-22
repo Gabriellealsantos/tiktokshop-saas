@@ -7,13 +7,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static java.lang.Math.pow;
+import static java.lang.Thread.currentThread;
+import static java.util.concurrent.ThreadLocalRandom.current;
 
 import static java.time.Duration.ofSeconds;
 
@@ -28,7 +34,8 @@ public class GeminiTextProvider implements TextProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GeminiTextProvider.class);
 
-    private static final int MAX_RETRIES = 3;
+    private static final int MAX_RETRIES = 5;
+    private static final Set<Integer> RETRYABLE = Set.of(429, 500, 502, 503, 504);
 
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
@@ -64,10 +71,7 @@ public class GeminiTextProvider implements TextProvider {
                         "parts", List.of(Map.of("text", request.instruction())))),
                 "generationConfig", generationConfig);
 
-        String payload = objectMapper.writeValueAsString(body);
-        String raw = requestWithRetry(payload);
-
-        logger.debug("[GEMINI-TEXT] resposta recebida ({} bytes)", raw.length());
+        String raw = requestWithRetry(objectMapper.writeValueAsString(body));
 
         String text = extractText(objectMapper.readTree(raw));
         if (text == null || text.isBlank()) {
@@ -76,30 +80,52 @@ public class GeminiTextProvider implements TextProvider {
         return new TextProviderResult(text);
     }
 
+    /**
+     * Backoff exponencial com jitter. Um 503 do Gemini responde em poucos segundos,
+     * então tentativas coladas caem na mesma sobrecarga — o espaçamento é que resolve.
+     */
     private String requestWithRetry(String payload) {
+        RuntimeException last = null;
+
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            long inicio = System.currentTimeMillis();
             try {
-                return restClient.post()
+                String raw = restClient.post()
                         .uri(baseUrl + "/" + model + ":generateContent")
                         .body(payload)
                         .retrieve()
                         .body(String.class);
-            } catch (HttpServerErrorException.ServiceUnavailable ex) {
-                logger.warn("[GEMINI-TEXT] 503 (tentativa {}/{})", attempt, MAX_RETRIES);
-                if (attempt == MAX_RETRIES) {
-                    throw new BusinessException("Serviço de IA indisponível no momento, tente novamente.");
+                logger.info("[GEMINI-TEXT] ok em {}ms, payload={} KB",
+                        System.currentTimeMillis() - inicio, payload.length() / 1024);
+                return raw;
+            } catch (RestClientResponseException e) {
+                if (!RETRYABLE.contains(e.getStatusCode().value())) {
+                    throw e;
                 }
+                logger.warn("[GEMINI-TEXT] {} em {}ms (tentativa {}/{})",
+                        e.getStatusCode().value(), System.currentTimeMillis() - inicio,
+                        attempt, MAX_RETRIES);
+                last = e;
+            } catch (ResourceAccessException e) {
+                logger.warn("[GEMINI-TEXT] timeout apos {}ms (tentativa {}/{})",
+                        System.currentTimeMillis() - inicio, attempt, MAX_RETRIES);
+                last = e;
+            }
+            if (attempt < MAX_RETRIES) {
                 sleepBackoff(attempt);
             }
         }
-        throw new IllegalStateException("unreachable");
+
+        logger.error("[GEMINI-TEXT] esgotadas as {} tentativas", MAX_RETRIES, last);
+        throw new BusinessException("Serviço de IA indisponível no momento, tente novamente.");
     }
 
     private void sleepBackoff(int attempt) {
+        long delay = (long) (1000 * pow(2, attempt - 1)) + current().nextLong(250, 750);
         try {
-            Thread.sleep(500L * attempt);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            currentThread().interrupt();
             throw new BusinessException("Requisição interrompida.");
         }
     }
