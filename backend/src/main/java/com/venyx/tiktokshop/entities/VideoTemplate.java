@@ -64,8 +64,16 @@ public class VideoTemplate {
     @Column(name = "motion_instruction", columnDefinition = "TEXT")
     private String motionInstruction;
 
+    /** LEGADO: mistura cena + descrição da pessoa original. Só usado como fallback de {@link #scenePrompt}. */
     @Column(name = "image_prompt", columnDefinition = "TEXT")
     private String imagePrompt;
+
+    /**
+     * Descrição APENAS da cena (FRAMING/POSE/EXPRESSION/OUTFIT/ENVIRONMENT), sem nenhum traço
+     * físico da pessoa — a identidade vem exclusivamente da imagem do avatar nos swaps.
+     */
+    @Column(name = "scene_prompt", columnDefinition = "TEXT")
+    private String scenePrompt;
 
     /** Camada de áudio/fala do prompt gerado (narração falada / música / silêncio). */
     @Enumerated(EnumType.STRING)
@@ -202,6 +210,14 @@ public class VideoTemplate {
 
     public void setImagePrompt(String imagePrompt) {
         this.imagePrompt = imagePrompt;
+    }
+
+    public String getScenePrompt() {
+        return scenePrompt;
+    }
+
+    public void setScenePrompt(String scenePrompt) {
+        this.scenePrompt = scenePrompt;
     }
 
     public VideoAudioMode getAudioMode() {

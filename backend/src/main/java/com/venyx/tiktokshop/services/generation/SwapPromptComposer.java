@@ -85,6 +85,119 @@ public class SwapPromptComposer {
             
             """ + PERSON_INTEGRATION + "\n" + VISUAL_CONSISTENCY + "\n" + AVOID_RULES;
 
+    // ───────────────────────── contexto de cena do template ─────────────────────
+    // O texto de cena entra DEPOIS das regras acima e por isso precisa de um cabeçalho que
+    // deixe explícito o seu papel. Sem isso o modelo lê a descrição como "gere esta pessoa"
+    // e devolve alguém que não é o avatar escolhido.
+
+    /** Cabeçalho do bloco de cena no swap de PESSOA quando o template tem scenePrompt limpo. */
+    private static final String SCENE_HEADER_PERSON = """
+            SCENE REFERENCE (a text description of image 1 — supporting context only):
+            The text below describes ONLY the camera framing, the body pose, the facial
+            expression and gaze, the clothing, and the environment that are ALREADY visible
+            in image 1. Use it to keep that scene stable while you replace the person.
+            It contains NO information about WHO the person is.
+            Image 1 is always the authority: if the text and image 1 disagree about anything,
+            follow image 1 and ignore the text.
+            Expression and gaze in this text are SCENE information (they belong to image 1),
+            NOT identity information.
+            The identity of the resulting person — face, facial features, skin tone, hair,
+            apparent age and body type — comes EXCLUSIVELY from image 2, exactly as stated in
+            the FACIAL IDENTITY LOCK and CRITICAL FULL-BODY SKIN RULE above. Nothing written
+            below may weaken, blend with, or override those rules.
+            """;
+
+    /** Cabeçalho do bloco de cena no swap de PESSOA quando só existe o imagePrompt legado. */
+    private static final String SCENE_HEADER_PERSON_LEGACY = """
+            LEGACY TEMPLATE DESCRIPTION (partially invalid — read this warning first):
+            The text below was originally written to describe the STOCK PERSON of this template.
+            It MAY contain descriptions of a face, facial features, skin tone, hair, gender,
+            apparent age or body type. EVERY such description is INVALID for this edit and MUST
+            be ignored completely — treat those words as if they were not there.
+            Extract from it ONLY: camera framing, body pose, facial expression and gaze,
+            clothing, and environment. Discard anything else.
+            Image 1 is the authority for the scene: where the text and image 1 disagree, follow image 1.
+            The identity of the resulting person — face, facial features, skin tone, hair,
+            apparent age and body type — comes EXCLUSIVELY from image 2, exactly as stated in
+            the FACIAL IDENTITY LOCK and CRITICAL FULL-BODY SKIN RULE above. The text below is
+            NEVER a source of identity.
+            """;
+
+    /**
+     * Reforço final anexado DEPOIS de todos os blocos opcionais do swap de pessoa.
+     * O texto do template e o customPrompt do avatar são os últimos tokens do prompt e
+     * modelos costumam dar peso extra ao final — esta trava fecha a brecha.
+     */
+    public static final String PERSON_FINAL_LOCK = """
+            FINAL IDENTITY CHECK (highest priority, overrides every text block above):
+            The face, facial features, skin tone, hair and apparent age in the result MUST come
+            from image 2 and from nowhere else. Any physical description of a person appearing
+            in the text blocks above is background context only — never a source of identity.
+            The result must NOT show a third, invented person: it must be the person from
+            image 2, placed in the scene of image 1.
+            """;
+
+    /** Troca do look inteiro: a roupa descrita no texto está OBSOLETA. */
+    private static final String SCENE_HEADER_CLOTHES_REPLACE_ALL = """
+            SCENE REFERENCE (a text description of image 1 — environment and framing only):
+            Use the text below ONLY for the camera framing, the body pose, the lighting and the
+            environment/background. Keep those exactly as described and as seen in image 1.
+            CRITICAL — THE CLOTHING IN THIS TEXT IS OBSOLETE: the outfit is being completely
+            replaced in this edit. Ignore the "OUTFIT" line and every other mention of garment
+            type, color, fabric, print, pattern, sleeve or length in the text. The ONLY valid
+            clothing reference is image 2. If the text and image 2 disagree about clothing,
+            image 2 always wins. Never re-introduce the original garment, its shape or its color.
+            """;
+
+    /** Troca de UMA peça: a peça equivalente está obsoleta, o resto do look é preservado. */
+    private static final String SCENE_HEADER_CLOTHES_REPLACE_ONE = """
+            SCENE REFERENCE (a text description of image 1 — environment and framing first):
+            Use the text below for the camera framing, the body pose, the lighting and the
+            environment/background. Keep those exactly as described and as seen in image 1.
+            CRITICAL — PARTIAL CLOTHING RULE: only ONE garment is being replaced in this edit.
+            For the garment type that matches the product in image 2, the text is OBSOLETE:
+            ignore its color, fabric, print and length, and take the replacement garment ONLY
+            from image 2 — image 2 always wins over the text.
+            All the OTHER pieces of the outfit mentioned in the text must be preserved exactly
+            as they appear in image 1. Do not restyle, recolor or remove them.
+            """;
+
+    /** Sobreposição: TUDO no texto, inclusive a roupa, deve ser preservado. */
+    private static final String SCENE_HEADER_CLOTHES_LAYER = """
+            SCENE REFERENCE (a text description of image 1 — preserve everything it describes):
+            The text below describes the camera framing, the body pose, the lighting, the
+            environment/background AND the outfit the person is ALREADY wearing in image 1.
+            ALL of it must be PRESERVED: the item from image 2 is layered ON TOP of the existing
+            outfit — it does NOT replace it. The garments described in the text must remain
+            visible and unchanged wherever the new item does not cover them.
+            Image 1 is the authority: where the text and image 1 disagree, follow image 1.
+            """;
+
+    /** Objeto na mão: a cena inteira é preservada; só o item segurado muda. */
+    private static final String SCENE_HEADER_HOLD_OBJECT = """
+            SCENE REFERENCE (a text description of image 1 — preserve this scene EXACTLY):
+            The text below describes the camera framing, the body pose, the lighting, the
+            environment/background and the outfit worn in image 1. ALL of it must be reproduced
+            without a single change.
+            The ONLY element that changes is the item held in the person's hands, which is
+            replaced by the product from image 2. The held item is NOT described in this text —
+            do not use the text to reconstruct, keep or re-imagine it.
+            """;
+
+    /** Sufixo dos blocos de roupa quando o texto veio do scenePrompt limpo. */
+    private static final String CLOTHES_SCENE_IDENTITY_NOTE = """
+            This text says NOTHING about who the person is: the face, facial features, skin tone,
+            hair and body already present in image 1 must stay 100% unchanged.
+            """;
+
+    /** Sufixo dos blocos de roupa quando o texto veio do imagePrompt legado. */
+    private static final String LEGACY_PERSON_WARNING = """
+            WARNING — this is a legacy description: it may also describe the ORIGINAL stock person
+            of the template (face, skin tone, hair, gender, apparent age, body type). Every physical
+            description of a person in it is INVALID and MUST be ignored. The person already present
+            in image 1 must stay 100% unchanged — do not morph them toward the text.
+            """;
+
     // Use a default label if no product name is provided.
     private static final String DEFAULT_PRODUCT = "the product";
 
@@ -338,7 +451,51 @@ public class SwapPromptComposer {
         promptBuilder.append(ANTI_DEGRADATION);
         promptBuilder.append(VISUAL_CONSISTENCY);
         promptBuilder.append(AVOID_RULES);
-        
+
         return promptBuilder.toString();
+    }
+
+    /**
+     * Bloco de cena do swap de PESSOA. Prefere o {@code scenePrompt} limpo; cai no
+     * {@code imagePrompt} legado com aviso; devolve vazio quando não há nenhum dos dois
+     * (caso dos templates privados enviados pelo usuário — a image 1 já carrega a cena).
+     */
+    public String personSceneBlock(String scenePrompt, String legacyImagePrompt) {
+        if (StringUtils.hasText(scenePrompt)) {
+            return "\n\n" + SCENE_HEADER_PERSON + "TEXT:\n" + scenePrompt.trim() + "\n";
+        }
+        if (StringUtils.hasText(legacyImagePrompt)) {
+            return "\n\n" + SCENE_HEADER_PERSON_LEGACY + "TEXT:\n" + legacyImagePrompt.trim() + "\n";
+        }
+        return "";
+    }
+
+    /**
+     * Bloco de cena dos swaps de ROUPA/OBJETO. O cabeçalho muda por modo porque a roupa
+     * descrita no texto é obsoleta no COMPLETO, parcialmente obsoleta no SUBSTITUIR e
+     * precisa ser preservada no ADICIONAR e no SEGURAR_OBJETO.
+     */
+    public String clothesSceneBlock(ClothSwapMode mode, String scenePrompt, String legacyImagePrompt) {
+        boolean clean = StringUtils.hasText(scenePrompt);
+        String text = clean ? scenePrompt : legacyImagePrompt;
+        if (!StringUtils.hasText(text) || mode == null) {
+            return "";
+        }
+        String header = switch (mode) {
+            case COMPLETO -> SCENE_HEADER_CLOTHES_REPLACE_ALL;
+            case SUBSTITUIR -> SCENE_HEADER_CLOTHES_REPLACE_ONE;
+            case ADICIONAR -> SCENE_HEADER_CLOTHES_LAYER;
+            case SEGURAR_OBJETO -> SCENE_HEADER_HOLD_OBJECT;
+        };
+        return "\n\n" + header
+                + (clean ? CLOTHES_SCENE_IDENTITY_NOTE : LEGACY_PERSON_WARNING)
+                + "TEXT:\n" + text.trim() + "\n";
+    }
+
+    /** Instrução livre vinda do avatar escolhido pelo usuário. */
+    public String avatarCustomBlock(String customPrompt) {
+        return StringUtils.hasText(customPrompt)
+                ? "\n\nAVATAR CUSTOM INSTRUCTION:\n" + customPrompt.trim() + "\n"
+                : "";
     }
 }

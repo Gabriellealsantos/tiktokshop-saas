@@ -12,6 +12,7 @@ import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.VideoTemplateCatalogService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
@@ -72,16 +73,16 @@ public class VideoTemplateImageService {
         config.put("frameUrl", req.frameUrl());
         config.put("avatarImageUrl", req.avatarImageUrl());
 
-        String basePrompt = SwapPromptComposer.PERSON;
-        if (org.springframework.util.StringUtils.hasText(req.templateSlug())) {
+        StringBuilder builder = new StringBuilder(SwapPromptComposer.PERSON);
+        if (StringUtils.hasText(req.templateSlug())) {
             var template = catalogService.requireVisible(req.templateSlug());
-            if (org.springframework.util.StringUtils.hasText(template.getImagePrompt())) {
-                basePrompt += "\n\nTEMPLATE CUSTOM INSTRUCTION:\n" + template.getImagePrompt();
-            }
+            builder.append(promptComposer.personSceneBlock(
+                    template.getScenePrompt(), template.getImagePrompt()));
         }
-        if (org.springframework.util.StringUtils.hasText(req.customPrompt())) {
-            basePrompt += "\n\nAVATAR CUSTOM INSTRUCTION:\n" + req.customPrompt();
-        }
+        builder.append(promptComposer.avatarCustomBlock(req.customPrompt()));
+        builder.append("\n").append(SwapPromptComposer.PERSON_FINAL_LOCK);
+
+        String basePrompt = builder.toString();
 
         ImageGeneration job = createPendingJob(user, config, basePrompt);
 
@@ -96,40 +97,33 @@ public class VideoTemplateImageService {
         limitService.assertCanGenerate(user.getUuid(), VIDEO_TEMPLATE);
 
         ClothSwapMode mode = ClothSwapMode.fromValue(req.mode());
-        boolean hasAvatar = org.springframework.util.StringUtils.hasText(req.avatarImageUrl());
+        boolean hasAvatar = StringUtils.hasText(req.avatarImageUrl());
 
         Map<String, Object> config = new LinkedHashMap<>();
         config.put("op", "swap-clothes");
         config.put("mode", mode.name());
         config.put("baseImageUrl", req.baseImageUrl());
         config.put("productImageUrl", req.productImageUrl());
-        if (org.springframework.util.StringUtils.hasText(req.productName())) {
+        if (StringUtils.hasText(req.productName())) {
             config.put("productName", req.productName());
         }
-        if (org.springframework.util.StringUtils.hasText(req.productDescription())) {
+        if (StringUtils.hasText(req.productDescription())) {
             config.put("productDescription", req.productDescription());
         }
         if (hasAvatar) {
             config.put("avatarImageUrl", req.avatarImageUrl());
         }
 
-        String prompt = promptComposer.buildClothesPrompt(mode, req.productName(), req.productDescription(), hasAvatar);
-        if (org.springframework.util.StringUtils.hasText(req.templateSlug())) {
+        StringBuilder builder = new StringBuilder(promptComposer.buildClothesPrompt(
+                mode, req.productName(), req.productDescription(), hasAvatar));
+        if (StringUtils.hasText(req.templateSlug())) {
             var template = catalogService.requireVisible(req.templateSlug());
-            if (org.springframework.util.StringUtils.hasText(template.getImagePrompt())) {
-                if (mode == ClothSwapMode.SEGURAR_OBJETO) {
-                    // Para objetos, o prompt do template descreve a cena original e deve ser
-                    // usado como CONTEXTO a preservar, não como instrução de geração.
-                    prompt += "\n\nORIGINAL SCENE DESCRIPTION (this describes image 1 — preserve this scene EXACTLY, "
-                            + "changing ONLY the held item):\n" + template.getImagePrompt();
-                } else {
-                    prompt += "\n\nTEMPLATE CUSTOM INSTRUCTION:\n" + template.getImagePrompt();
-                }
-            }
+            builder.append(promptComposer.clothesSceneBlock(
+                    mode, template.getScenePrompt(), template.getImagePrompt()));
         }
-        if (org.springframework.util.StringUtils.hasText(req.customPrompt())) {
-            prompt += "\n\nAVATAR CUSTOM INSTRUCTION:\n" + req.customPrompt();
-        }
+        builder.append(promptComposer.avatarCustomBlock(req.customPrompt()));
+
+        String prompt = builder.toString();
 
         ImageGeneration job = createPendingJob(user, config, prompt);
 

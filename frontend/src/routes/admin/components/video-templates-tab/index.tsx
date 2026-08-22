@@ -23,7 +23,7 @@ const PAGE_SIZE = 20;
 const emptyForm = (): VideoTemplateForm => ({
   slug: "", title: "", category: null, thumbnailUrl: "", videoUrl: "",
   videoStyle: "", objective: "", tone: "", energy: "", duration: "",
-  motionInstruction: "", imagePrompt: "", audioMode: "NARRACAO", sortOrder: 0, active: true,
+  motionInstruction: "", imagePrompt: "", scenePrompt: "", audioMode: "NARRACAO", sortOrder: 0, active: true,
 });
 
 /** Opções do dropdown de áudio/fala (casa com o enum VideoAudioMode do backend). */
@@ -84,7 +84,8 @@ export function VideoTemplatesTab() {
       thumbnailUrl: item.thumbnailUrl ?? "", videoUrl: item.videoUrl,
       videoStyle: item.videoStyle ?? "", objective: item.objective ?? "",
       tone: item.tone ?? "", energy: item.energy ?? "", duration: item.duration ?? "",
-      motionInstruction: item.motionInstruction ?? "", imagePrompt: item.imagePrompt ?? "", audioMode: item.audioMode ?? "NARRACAO",
+      motionInstruction: item.motionInstruction ?? "", imagePrompt: item.imagePrompt ?? "",
+      scenePrompt: item.scenePrompt ?? "", audioMode: item.audioMode ?? "NARRACAO",
       sortOrder: item.sortOrder, active: item.active,
     });
     setDialogOpen(true);
@@ -343,17 +344,50 @@ export function VideoTemplatesTab() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs text-zinc-400">Prompt da Imagem (Thumbnail / Geração)</Label>
+              <Label className="text-xs text-zinc-400">Descrição da Cena (troca de pessoa e de roupa)</Label>
               <Textarea
-                value={form.imagePrompt ?? ""}
-                onChange={(e) => setForm((p) => ({ ...p, imagePrompt: e.target.value }))}
-                placeholder={"Ex: mulher negra de vestido verde, braços cruzados..."}
-                className="min-h-20 text-sm text-white bg-black/40 border-white/10"
+                value={form.scenePrompt ?? ""}
+                onChange={(e) => setForm((p) => ({ ...p, scenePrompt: e.target.value }))}
+                placeholder={
+                  "FRAMING: vertical full-body mirror selfie, camera straight-on at chest height.\n" +
+                  "POSE: the subject stands squared to the mirror, right arm raised holding a phone in front of the face...\n" +
+                  "EXPRESSION: neutral, gaze down toward the phone.\n" +
+                  "OUTFIT: off-white crew-neck t-shirt and beige chino shorts.\n" +
+                  "ENVIRONMENT: retail fitting room, white walls, black curtain on the right, beige tile floor."
+                }
+                className="min-h-32 font-mono text-xs text-white bg-black/40 border-white/10"
               />
               <p className="text-[10px] text-zinc-500 leading-relaxed">
-                Este comando é enviado para a IA gerar a imagem da pose (referência de vestuário e posição). Será somado ao comando do Avatar do usuário.
+                Descreva <strong className="text-zinc-400">apenas a cena</strong>: enquadramento, pose,
+                expressão, roupa e ambiente.{" "}
+                <strong className="text-red-400">Nunca descreva a pessoa</strong> (rosto, tom de pele,
+                cabelo, idade, gênero ou tipo de corpo) — quem entra na imagem é o avatar escolhido pelo
+                usuário, e qualquer traço físico aqui compete com ele e gera uma pessoa errada. Use as
+                etiquetas FRAMING / POSE / EXPRESSION / OUTFIT / ENVIRONMENT, uma por linha, e prefira{" "}
+                <strong className="text-zinc-400">"the subject"</strong> a "a woman"/"a man". Vazio = a
+                IA usa só o frame do vídeo (aceitável). Ideal até ~120 palavras.
               </p>
             </div>
+
+            <details className="rounded-md border border-white/5 bg-black/20 px-3 py-2">
+              <summary className="cursor-pointer text-xs text-zinc-500 select-none">
+                Prompt da Imagem <span className="text-zinc-600">(legado)</span>
+              </summary>
+              <div className="space-y-1.5 pt-2">
+                <Textarea
+                  value={form.imagePrompt ?? ""}
+                  onChange={(e) => setForm((p) => ({ ...p, imagePrompt: e.target.value }))}
+                  placeholder={"Ex: mulher negra de vestido verde, braços cruzados..."}
+                  className="min-h-20 text-sm text-white bg-black/40 border-white/10"
+                />
+                <p className="text-[10px] text-zinc-500 leading-relaxed">
+                  Campo antigo, mantido só como <strong className="text-zinc-400">reserva</strong>: só é
+                  enviado à IA quando a "Descrição da Cena" acima está vazia — e, nesse caso, com um aviso
+                  automático mandando ignorar descrições de pessoa. Depois de preencher a Descrição da Cena,
+                  este texto deixa de ter efeito. Não use para novos modelos.
+                </p>
+              </div>
+            </details>
 
             <div className="flex items-center gap-2 pt-1">
               <Switch checked={form.active ?? true} onCheckedChange={(v) => setForm((p) => ({ ...p, active: v }))} />

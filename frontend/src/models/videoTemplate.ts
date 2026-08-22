@@ -16,7 +16,6 @@ export interface VideoTemplateSummary {
   thumbnailUrl: string | null;
   videoUrl: string;
   owned: boolean;
-  imagePrompt?: string | null;
 }
 
 /** Modo de troca de roupa (casa com o backend ClothSwapMode). */
@@ -96,7 +95,10 @@ export interface VideoTemplateAdmin {
   energy: string | null;
   duration: string | null;
   motionInstruction: string | null;
+  /** LEGADO: só é enviado à IA quando `scenePrompt` está vazio. */
   imagePrompt: string | null;
+  /** Descrição apenas da cena (FRAMING/POSE/EXPRESSION/OUTFIT/ENVIRONMENT), sem traços da pessoa. */
+  scenePrompt: string | null;
   audioMode: VideoAudioMode;
   active: boolean;
   sortOrder: number;
@@ -116,6 +118,7 @@ export interface VideoTemplateForm {
   duration?: string | null;
   motionInstruction?: string | null;
   imagePrompt?: string | null;
+  scenePrompt?: string | null;
   audioMode?: VideoAudioMode;
   sortOrder?: number;
   active?: boolean;

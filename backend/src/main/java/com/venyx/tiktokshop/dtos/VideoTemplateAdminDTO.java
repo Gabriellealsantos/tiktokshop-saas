@@ -20,6 +20,7 @@ public record VideoTemplateAdminDTO(
         String duration,
         String motionInstruction,
         String imagePrompt,
+        String scenePrompt,
         String audioMode,
         boolean active,
         int sortOrder
@@ -39,6 +40,7 @@ public record VideoTemplateAdminDTO(
                 entity.getDuration(),
                 entity.getMotionInstruction(),
                 entity.getImagePrompt(),
+                entity.getScenePrompt(),
                 entity.getAudioMode() != null ? entity.getAudioMode().name() : null,
                 entity.isActive(),
                 entity.getSortOrder()
