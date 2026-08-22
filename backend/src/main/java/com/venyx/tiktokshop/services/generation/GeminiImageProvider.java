@@ -1,5 +1,6 @@
 package com.venyx.tiktokshop.services.generation;
 
+import com.venyx.tiktokshop.services.ImageNormalizer;
 import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import org.slf4j.Logger;
@@ -44,6 +45,8 @@ public class GeminiImageProvider  implements ImageProvider {
     private static final Logger logger = LoggerFactory.getLogger(GeminiImageProvider.class);
 
     private static final int MAX_RETRIES = 3;
+    /** Um timeout pode significar que o Gemini processou e cobrou. Insistir gasta cota. */
+    private static final int MAX_TIMEOUT_ATTEMPTS = 2;
     private static final Set<Integer> RETRYABLE = Set.of(429, 500, 502, 503, 504);
 
     private final RestClient restClient;
@@ -54,17 +57,20 @@ public class GeminiImageProvider  implements ImageProvider {
     private final String aspectRatio;
     private final String imageSize;
     private final String thinkingLevel;
+    private final ImageNormalizer imageNormalizer;
 
     public GeminiImageProvider(StorageService storageService,
                                ObjectMapper objectMapper,
+                               ImageNormalizer imageNormalizer,
                                @Value("${venyx.gemini.base-url}") String baseUrl,
                                @Value("${venyx.gemini.api-key}") String apiKey,
                                @Value("${venyx.gemini.model}") String model,
-                               @Value("${venyx.gemini.timeout-seconds}") int timeoutSeconds,
+                               @Value("${venyx.gemini.image-timeout-seconds:240}") int timeoutSeconds,
                                @Value("${venyx.gemini.image-aspect-ratio}") String aspectRatio,
                                @Value("${venyx.gemini.image-size:1K}") String imageSize,
                                @Value("${venyx.gemini.thinking-level:high}") String thinkingLevel) {
         this.storageService = storageService;
+        this.imageNormalizer = imageNormalizer;
         this.objectMapper = objectMapper;
         this.model = model;
         this.aspectRatio = aspectRatio;
@@ -141,14 +147,18 @@ public class GeminiImageProvider  implements ImageProvider {
 
         // Ordem preservada: image 1, image 2, ... conforme a lista de referências.
         for (String url : request.referenceImageUrls()) {
-            byte[] reference = downloadReference(url);
+            // O storage guarda a imagem em resolução cheia, mas o payload da API não precisa
+            // dela: 2048px já bastam para o modelo e cortam o tamanho da requisição em várias
+            // vezes. Sem isso, uma geração 2K reenviada como referência sozinha passa de 2MB.
+            byte[] reference = imageNormalizer.toJpeg(downloadReference(url));
             input.add(Map.of(
                     "type", "image",
-                    "mime_type", resolveMimeType(reference),
+                    "mime_type", "image/jpeg",
                     "data", getEncoder().encodeToString(reference)));
         }
         return input;
     }
+
 
     /** Deriva o mime dos magic bytes — a referência pode ser PNG (avatar) ou JPEG (produto). */
     private String resolveMimeType(byte[] content) {
@@ -229,21 +239,32 @@ public class GeminiImageProvider  implements ImageProvider {
 
 
     private String postWithRetry(String payload) {
+        int payloadKb = payload.length() / 1024;
         RuntimeException last = null;
+        int timeoutAttempts = 0;
 
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            long inicio = System.currentTimeMillis();
             try {
-                return restClient.post().body(payload).retrieve().body(String.class);
+                String raw = restClient.post().body(payload).retrieve().body(String.class);
+                logger.info("[GEMINI] ok em {}ms, payload={} KB",
+                        System.currentTimeMillis() - inicio, payloadKb);
+                return raw;
             } catch (RestClientResponseException e) {
                 if (!RETRYABLE.contains(e.getStatusCode().value()) || isDailyQuotaExhausted(e)) {
                     throw e;
                 }
-                logger.warn("[GEMINI] {} (tentativa {}/{})",
-                        e.getStatusCode().value(), attempt, MAX_RETRIES);
+                logger.warn("[GEMINI] {} em {}ms (tentativa {}/{}), payload={} KB",
+                        e.getStatusCode().value(), System.currentTimeMillis() - inicio,
+                        attempt, MAX_RETRIES, payloadKb);
                 last = e;
             } catch (ResourceAccessException e) {
-                logger.warn("[GEMINI] timeout (tentativa {}/{})", attempt, MAX_RETRIES);
+                logger.warn("[GEMINI] timeout apos {}ms (tentativa {}/{}), payload={} KB",
+                        System.currentTimeMillis() - inicio, attempt, MAX_RETRIES, payloadKb);
                 last = e;
+                if (++timeoutAttempts >= MAX_TIMEOUT_ATTEMPTS) {
+                    throw e;
+                }
             }
             if (attempt < MAX_RETRIES) {
                 sleepBackoff(attempt);

@@ -93,18 +93,14 @@ public class StorageConfig {
         }
 
         // As URLs salvas em banco apontam direto pro objeto (sem assinatura), então o bucket
-        // precisa ser público para leitura. Só fazemos isso contra o MinIO local (endpoint
-        // customizado) — em AWS S3 real, a policy do bucket é responsabilidade da infra.
+        // precisa ser público para leitura, e o CORS precisa liberar a leitura de pixels via
+        // <canvas> (sem ele a captura de frame em /templates/use falha por canvas "tainted").
+        // Só configuramos isso contra o MinIO local (endpoint customizado) — em AWS S3 real,
+        // policy e CORS são responsabilidade da infra e já estão aplicados no bucket.
         if (endpoint != null && !endpoint.isBlank()) {
             ensurePublicReadPolicy(client);
+            ensureCorsConfigured(client);
         }
-
-        // Necessário em qualquer ambiente: sem CORS na resposta do S3/MinIO, o navegador
-        // recusa ler pixels de <video>/<img> cross-origin via <canvas> (fica "tainted"),
-        // mesmo com o elemento marcado crossOrigin="anonymous" — é o que quebra a captura
-        // de frame em /templates/use. A bucket policy pública (acima) resolve só o GET
-        // em si, não esse caso de leitura de pixels.
-        ensureCorsConfigured(client);
     }
 
     private void ensurePublicReadPolicy(S3Client client) {
