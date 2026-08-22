@@ -134,14 +134,14 @@ export function PreviewPanel({
 
       <div className="glass-container rounded-[24px] p-4 flex flex-col gap-4">
         {/* CARD PRINCIPAL (ESTADOS) */}
-        <div className="w-full aspect-[3/4] bg-white/[0.03] backdrop-blur-xl rounded-[16px] overflow-hidden border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative flex items-center justify-center">
+        <div className="w-full mx-auto aspect-[9/16] bg-white/[0.03] backdrop-blur-xl rounded-[16px] overflow-hidden border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] relative flex items-center justify-center">
           {isGenerating ? (
             <AvatarLoadingSteps />
           ) : generatedImage ? (
             <img
               src={generatedImage}
               alt="Avatar gerado"
-              className="absolute inset-0 w-full h-full object-contain p-2"
+              className="absolute inset-0 w-full h-full object-contain"
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-center gap-4 px-6 opacity-70">
