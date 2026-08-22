@@ -48,6 +48,14 @@ public class SwapPromptComposer {
     public static final String PERSON = """
             Replace the person in image 1 with the person shown in image 2.
 
+            IMAGE 2 FRAMING NOTE:
+            Image 2 is a close-up crop showing only the head and upper torso of the avatar.
+            It is an IDENTITY reference, NOT a body or framing reference. Read the face, hair,
+            skin tone and apparent age from it. The body build, height, stance and proportions
+            come from image 1 — do not try to infer them from image 2.
+            Never crop, zoom or re-frame the result toward image 2's close-up framing:
+            the result MUST keep image 1's full framing and camera distance.
+
             KEEP from image 1 (the original scene):
             — pose, body position, framing, camera angle, background, and lighting.
             — facial expression (The avatar's face is used for IDENTITY ONLY — the emotional expression MUST match the mood, context, and exact muscle movements of the scene in image 1).
@@ -61,7 +69,7 @@ public class SwapPromptComposer {
             — face, facial features, and skin tone
             — hair style and hair color (ALWAYS match the avatar's hair exactly. Include hair volume, texture, natural movement, and flyaway strands consistent with image 2. Match the hairline shape exactly)
             — apparent age (if image 2 shows an elderly person, the ENTIRE result MUST look elderly; if young, young)
-            — body type and build (Match the general body type from image 2, but adapt the scale and proportions so the head size fits perfectly and naturally with the pose and framing of image 1. Do NOT make the head oversized or disproportionate to the environment)
+            — build ONLY as far as the crop actually shows it (neck thickness, shoulder width). The body's height, weight, proportions and stance stay exactly as in image 1. Adapt the head scale so it sits naturally in image 1's pose and framing — do NOT make the head oversized or disproportionate to the environment
             
             FACIAL IDENTITY LOCK:
             The face from image 2 MUST be reproduced with near-100% photographic likeness.
@@ -72,12 +80,15 @@ public class SwapPromptComposer {
             Do NOT average, blend, or approximate the facial features — reproduce them exactly.
             
             CRITICAL FULL-BODY SKIN RULE:
-            The skin on the ENTIRE body (hands, arms, neck, chest, legs — every visible area, NOT just the face)
-            MUST match image 2's skin exactly. This includes:
-            — Exact skin tone and color from image 2
+            Image 2 only shows the skin of the face, neck and upper chest. Take the exact skin
+            tone from that visible area and EXTEND it consistently to every visible part of the
+            body in the result — hands, arms, shoulders, legs, feet — even though those parts do
+            not appear in image 2. This includes:
+            — Exact skin tone and color sampled from image 2
             — Age-appropriate skin texture
             — Visible pores, natural skin grain, and subtle imperfections matching image 2
-            The body and the face MUST look like they belong to the SAME person from image 2.
+            There must be NO tone break between the face and the rest of the body: the head and
+            the body MUST read as the SAME person, lit by image 1's light.
             
             TATTOOS & SKIN MARKINGS RULE:
             Look VERY closely at image 2 (the avatar reference).
