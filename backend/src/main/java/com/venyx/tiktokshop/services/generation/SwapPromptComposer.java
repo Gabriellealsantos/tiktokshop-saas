@@ -36,9 +36,11 @@ public class SwapPromptComposer {
             the boundary between the person and the background must blend naturally with the camera focus.
             
             IMAGE QUALITY RULE:
-            Preserve the EXACT resolution, sharpness, grain, and noise pattern from image 1.
-            Do NOT sharpen, smooth, denoise, or enhance the overall image quality.
-            The final result must have the same photographic characteristics as image 1 (ISO grain, depth of field).
+            Match the depth of field, lighting quality and camera perspective of image 1 so the
+            person belongs naturally to the scene.
+            Render the face, skin and hair with clean, natural photographic detail.
+            Do NOT copy video compression artifacts, blockiness, banding or digital noise from
+            image 1 into the person — image 1 is a compressed video frame, not a photographic reference.
             Do NOT add any new visual elements not present in image 1 (borders, overlays, watermarks).
             """;
 
@@ -333,8 +335,10 @@ public class SwapPromptComposer {
         promptBuilder.append(contract);
         promptBuilder.append(PRODUCT_EXTRACTION);
         promptBuilder.append(PRODUCT_COLOR_RULE);
-        promptBuilder.append(LIGHTING_INTEGRATION);
-        promptBuilder.append(SCALE_RULE);
+        if (mode == ClothSwapMode.SEGURAR_OBJETO) {
+            promptBuilder.append(LIGHTING_INTEGRATION);
+            promptBuilder.append(SCALE_RULE);
+        }
         promptBuilder.append(ANTI_DEGRADATION);
         promptBuilder.append(VISUAL_CONSISTENCY);
         promptBuilder.append(AVOID_RULES);

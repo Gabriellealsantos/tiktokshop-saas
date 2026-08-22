@@ -31,7 +31,7 @@ public class NotificationScheduler {
 
     @Scheduled(fixedDelay = 5000)
     public void tick() {
-        for (NotificationSchedule s : scheduleRepository.findByActiveTrue()) {
+        for (NotificationSchedule s : scheduleRepository.findActiveFetchingCreator()) {
             Instant last = s.getLastFiredAt() != null ? s.getLastFiredAt() : Instant.EPOCH;
             if (Instant.now().isBefore(last.plusSeconds(s.getIntervalSeconds()))) {
                 continue;

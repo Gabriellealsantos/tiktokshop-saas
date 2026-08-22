@@ -18,9 +18,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static java.lang.Math.pow;
+import static java.lang.Thread.currentThread;
+import static java.util.concurrent.ThreadLocalRandom.current;
 
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 
@@ -37,12 +43,17 @@ public class GeminiImageProvider  implements ImageProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GeminiImageProvider.class);
 
+    private static final int MAX_RETRIES = 3;
+    private static final Set<Integer> RETRYABLE = Set.of(429, 500, 502, 503, 504);
+
     private final RestClient restClient;
     private final StorageService storageService;
     private final String model;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
     private final String aspectRatio;
+    private final String imageSize;
+    private final String thinkingLevel;
 
     public GeminiImageProvider(StorageService storageService,
                                ObjectMapper objectMapper,
@@ -50,11 +61,15 @@ public class GeminiImageProvider  implements ImageProvider {
                                @Value("${venyx.gemini.api-key}") String apiKey,
                                @Value("${venyx.gemini.model}") String model,
                                @Value("${venyx.gemini.timeout-seconds}") int timeoutSeconds,
-                               @Value("${venyx.gemini.image-aspect-ratio}") String aspectRatio) {
+                               @Value("${venyx.gemini.image-aspect-ratio}") String aspectRatio,
+                               @Value("${venyx.gemini.image-size:1K}") String imageSize,
+                               @Value("${venyx.gemini.thinking-level:high}") String thinkingLevel) {
         this.storageService = storageService;
         this.objectMapper = objectMapper;
         this.model = model;
         this.aspectRatio = aspectRatio;
+        this.imageSize = imageSize;
+        this.thinkingLevel = thinkingLevel;
 
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
         factory.setReadTimeout(ofSeconds(timeoutSeconds));
@@ -77,21 +92,23 @@ public class GeminiImageProvider  implements ImageProvider {
         Map<String, Object> body = Map.of(
                 "model", model,
                 "input", buildInput(request),
+                "generation_config", Map.of("thinking_level", thinkingLevel),
                 "response_format", Map.of(
                         "type", "image",
                         "mime_type", "image/jpeg",
-                        "aspect_ratio", aspectRatio));
+                        "aspect_ratio", aspectRatio,
+                        "image_size", imageSize));
 
         String payload = objectMapper.writeValueAsString(body);
 
         String raw;
         try {
-            raw = restClient.post()
-                    .body(payload)
-                    .retrieve()
-                    .body(String.class);
+            raw = postWithRetry(payload);
         } catch (RestClientResponseException e) {
             logger.error("[GEMINI] Falha na API. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            if (isDailyQuotaExhausted(e)) {
+                throw new BusinessException("O limite diário de gerações de imagem foi atingido. As gerações voltam amanhã.");
+            }
             if (e.getStatusCode().is5xxServerError() || e.getStatusCode().value() == 429) {
                 throw new BusinessException("A Inteligência Artificial do Google (Gemini) está sobrecarregada no momento. Por favor, tente novamente em alguns instantes.");
             }
@@ -136,21 +153,31 @@ public class GeminiImageProvider  implements ImageProvider {
     /** Deriva o mime dos magic bytes — a referência pode ser PNG (avatar) ou JPEG (produto). */
     private String resolveMimeType(byte[] content) {
         if (content.length >= 3
-                && (content[0] & 0xFF) == 0xFF
-                && (content[1] & 0xFF) == 0xD8
-                && (content[2] & 0xFF) == 0xFF) {
+                && (content[0] & 0xFF) == 0xFF && (content[1] & 0xFF) == 0xD8 && (content[2] & 0xFF) == 0xFF) {
             return "image/jpeg";
+        }
+        if (content.length >= 12
+                && content[0] == 'R' && content[1] == 'I' && content[2] == 'F' && content[3] == 'F'
+                && content[8] == 'W' && content[9] == 'E' && content[10] == 'B' && content[11] == 'P') {
+            return "image/webp";
         }
         return "image/png";
     }
 
     private byte[] downloadReference(String url) {
         URI uri = parseAndValidate(url);
-        HttpRequest request = HttpRequest.newBuilder(uri).GET().build();
+        HttpRequest request = HttpRequest.newBuilder(uri)
+                .timeout(ofSeconds(20))
+                .GET()
+                .build();
 
         try {
             HttpResponse<byte[]> response = httpClient.send(request, ofByteArray());
             if (response.statusCode() != 200) {
+                byte[] body = response.body();
+                String preview = body == null ? "" : new String(body, 0, Math.min(body.length, 300), StandardCharsets.UTF_8);
+                logger.error("[GEMINI] falha ao baixar referência. status={} url={} body={}",
+                        response.statusCode(), url, preview);
                 throw new BusinessException("Falha ao baixar a imagem de referência.");
             }
             return response.body();
@@ -158,6 +185,7 @@ public class GeminiImageProvider  implements ImageProvider {
             Thread.currentThread().interrupt();
             throw new BusinessException("Download da imagem de referência interrompido.");
         } catch (IOException e) {
+            logger.error("[GEMINI] erro de I/O ao baixar referência: url={}", url, e);
             throw new BusinessException("Falha ao baixar a imagem de referência.");
         }
     }
@@ -197,6 +225,50 @@ public class GeminiImageProvider  implements ImageProvider {
             }
         }
         return null;
+    }
+
+
+    private String postWithRetry(String payload) {
+        RuntimeException last = null;
+
+        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+            try {
+                return restClient.post().body(payload).retrieve().body(String.class);
+            } catch (RestClientResponseException e) {
+                if (!RETRYABLE.contains(e.getStatusCode().value()) || isDailyQuotaExhausted(e)) {
+                    throw e;
+                }
+                logger.warn("[GEMINI] {} (tentativa {}/{})",
+                        e.getStatusCode().value(), attempt, MAX_RETRIES);
+                last = e;
+            } catch (ResourceAccessException e) {
+                logger.warn("[GEMINI] timeout (tentativa {}/{})", attempt, MAX_RETRIES);
+                last = e;
+            }
+            if (attempt < MAX_RETRIES) {
+                sleepBackoff(attempt);
+            }
+        }
+        throw last;
+    }
+
+    /** 429 de cota diária não adianta retentar — só volta a funcionar no dia seguinte. */
+    private boolean isDailyQuotaExhausted(RestClientResponseException e) {
+        if (e.getStatusCode().value() != 429) {
+            return false;
+        }
+        String body = e.getResponseBodyAsString().toLowerCase();
+        return body.contains("per day") || body.contains("perday") || body.contains("daily");
+    }
+
+    private void sleepBackoff(int attempt) {
+        long delay = (long) (1000 * pow(2, attempt - 1)) + current().nextLong(250, 750);
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            currentThread().interrupt();
+            throw new BusinessException("Requisição interrompida.");
+        }
     }
 
 }

@@ -1,5 +1,7 @@
 package com.venyx.tiktokshop.services.generation;
 
+import com.venyx.tiktokshop.services.exceptions.BusinessException;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,10 +15,11 @@ import java.util.List;
 public record ImageProviderRequest(String prompt, List<String> referenceImageUrls) {
 
     public ImageProviderRequest {
-        referenceImageUrls = referenceImageUrls == null ? List.of()
-                : referenceImageUrls.stream()
-                    .filter(url -> url != null && !url.isBlank())
-                    .toList();
+        List<String> source = referenceImageUrls == null ? List.of() : referenceImageUrls;
+        if (source.stream().anyMatch(url -> url == null || url.isBlank())) {
+            throw new BusinessException("Referência de imagem ausente na requisição de geração.");
+        }
+        referenceImageUrls = List.copyOf(source);
     }
 
     /** Conveniência: {@code of(prompt)} sem referências, ou {@code of(prompt, url1, url2, ...)}. */

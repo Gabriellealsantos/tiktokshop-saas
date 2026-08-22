@@ -123,10 +123,7 @@ public class LiveSalesService {
         }
     }
 
-    @Transactional
     public void fireSaleForUser(UUID userId, Long productId) {
-        // Chamado pelo scheduler. Em vez de criar a venda, apenas avisa o cliente.
-        // O frontend, ao receber PING, chama /api/live-sales/generate
         messagingTemplate.convertAndSendToUser(userId.toString(), "/queue/live-sales", Map.of("action", "PING"));
     }
 
@@ -145,13 +142,8 @@ public class LiveSalesService {
             if (list != null && !list.isEmpty()) {
                 product = list.get(ThreadLocalRandom.current().nextInt(list.size()));
             }
-        } else if (config.getSourceType() == LiveSalesSource.CATEGORY) {
-            // Simplificado para usar a lista geral se a query customizada falhar, ideal seria usar ProductRepository
-            List<Product> all = productRepository.findAll();
-            List<Product> filtered = all.stream().filter(p -> p.isActive() && p.getCategory() != null && p.getCategory().getId().equals(config.getCategoryId())).toList();
-            if (!filtered.isEmpty()) {
-                product = filtered.get(ThreadLocalRandom.current().nextInt(filtered.size()));
-            }
+        } else if (config.getSourceType() == LiveSalesSource.CATEGORY && config.getCategoryId() != null) {
+            product = productRepository.pickRandomByCategory(config.getCategoryId()).orElse(null);
         }
 
         if (product == null) {

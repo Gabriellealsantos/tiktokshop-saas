@@ -107,13 +107,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Optional<Product> pickRandom() {
-        long count = repository.count();
-        if (count == 0) {
-            return Optional.empty();
-        }
-        int index = ThreadLocalRandom.current().nextInt((int) count);
-        Page<Product> page = repository.findAll(PageRequest.of(index, 1));
-        return page.hasContent() ? Optional.of(page.getContent().get(0)) : Optional.empty();
+        return repository.pickRandomActive();
     }
 
     @Transactional(readOnly = true)

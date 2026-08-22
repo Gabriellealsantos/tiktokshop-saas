@@ -29,10 +29,12 @@ public interface ImageGenerationRepository extends JpaRepository<ImageGeneration
 
     @Modifying
     @Query(nativeQuery = true, value = """
-    UPDATE image_generations SET status = 'FAILED', error = 'Job órfão (timeout)'
-    WHERE status IN ('PENDING', 'RUNNING') AND created_at < :threshold
+    UPDATE image_generations
+       SET status = 'FAILED', error = 'Job órfão (timeout)', updated_at = :now
+     WHERE status IN ('PENDING', 'RUNNING')
+       AND updated_at < :threshold
     """)
-    int markOrphansAsFailed(Instant threshold);
+    int markOrphansAsFailed(Instant threshold, Instant now);
 
     @Query("""
     SELECT g FROM ImageGeneration g

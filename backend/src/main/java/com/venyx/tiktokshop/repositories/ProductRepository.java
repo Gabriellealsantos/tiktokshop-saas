@@ -47,4 +47,24 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                           @Param("category") Category category,
                           @Param("miningWindow") MiningWindow miningWindow,
                           Pageable pageable);
+
+    /** Sorteio de produto ativo por categoria — usado na feed de vendas ao vivo. */
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM products
+             WHERE active = true AND category_id = :categoryId
+             ORDER BY random()
+             LIMIT 1
+            """)
+    Optional<Product> pickRandomByCategory(@Param("categoryId") Long categoryId);
+
+    /** Sorteio de qualquer produto ativo — fallback quando a fonte configurada não retorna nada. */
+    @Query(nativeQuery = true, value = """
+            SELECT * FROM products
+             WHERE active = true
+             ORDER BY random()
+             LIMIT 1
+            """)
+    Optional<Product> pickRandomActive();
+
+
 }

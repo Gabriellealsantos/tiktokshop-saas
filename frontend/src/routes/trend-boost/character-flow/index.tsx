@@ -17,9 +17,7 @@ import {
 } from "@/services/viralService";
 import type {
   PendingJob,
-  ViralImageGeneration,
   ViralScript,
-  ViralScriptsResponse,
   ViralTemplateDetail,
   ViralUsage,
 } from "@/models/viral";
@@ -61,7 +59,11 @@ export default function RouteComponent() {
   const [loadingStage, setLoadingStage] = useState(0);
   const { waitForJob } = useGenerationWs();
 
-  const { mutate: generateScripts, data: scripts, isPending: isGeneratingScripts } = useMutation({
+  const {
+    mutate: generateScripts,
+    data: scripts,
+    isPending: isGeneratingScripts,
+  } = useMutation({
     mutationFn: async (tone: string) => {
       const res = await generateViralScripts({
         templateSlug: templateId,
@@ -79,7 +81,13 @@ export default function RouteComponent() {
     },
   });
 
-  const { mutate: generatePrompt, data: finalPrompt, isPending: isGeneratingPrompt, isSuccess: isPromptSuccess, reset: resetPrompt } = useMutation({
+  const {
+    mutate: generatePrompt,
+    data: finalPrompt,
+    isPending: isGeneratingPrompt,
+    isSuccess: isPromptSuccess,
+    reset: resetPrompt,
+  } = useMutation({
     mutationFn: async () => {
       const script = scripts?.find((s: ViralScript) => s.id === selectedScript);
       if (!script) throw new Error("no-script");
@@ -101,7 +109,7 @@ export default function RouteComponent() {
     onError: (err) => {
       if (axios.isAxiosError(err) && err.response?.status === 429) {
         toast.error(
-          `Você atingiu o limite diário${usage && !isUnlimited(usage.max) ? ` (${usage.max})` : ""} de prompts virais. Tente novamente amanhã.`
+          `Você atingiu o limite diário${usage && !isUnlimited(usage.max) ? ` (${usage.max})` : ""} de prompts virais. Tente novamente amanhã.`,
         );
       } else {
         toast.error("Erro ao gerar o prompt. Tente novamente.");
@@ -164,7 +172,6 @@ export default function RouteComponent() {
     <AppShell>
       <Page className="pt-0 -mt-6 pb-36 px-4 md:px-6">
         <div className="mx-auto max-w-6xl">
-
           {/* Cabeçalho Compacto & Stepper no TOPO */}
           <div className="rounded-[24px] bg-[#0F0D15]/20 backdrop-blur-3xl border border-white/5 py-5 px-6 mb-6">
             <TrendHeader
@@ -184,15 +191,39 @@ export default function RouteComponent() {
                   Personagem
                 </div>
                 <div className="w-8 h-px bg-white/10" />
-                <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-brand-300" : "text-white")}>
-                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500/20 text-brand-400" : "bg-brand-500/25 border border-brand-500 text-brand-300 shadow-[0_0_15px_-2px_rgba(75,68,232,0.5)]")}>
+                <div
+                  className={cn(
+                    "flex items-center gap-2 font-semibold text-sm",
+                    isStep3 ? "text-brand-300" : "text-white",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "flex items-center justify-center size-6 rounded-full",
+                      isStep3
+                        ? "bg-brand-500/20 text-brand-400"
+                        : "bg-brand-500/25 border border-brand-500 text-brand-300 shadow-[0_0_15px_-2px_rgba(75,68,232,0.5)]",
+                    )}
+                  >
                     {isStep3 ? <Check className="size-3.5" /> : "2"}
                   </div>
                   Tom & roteiro
                 </div>
                 <div className="w-8 h-px bg-white/10" />
-                <div className={cn("flex items-center gap-2 font-semibold text-sm", isStep3 ? "text-white" : "text-text-3")}>
-                  <div className={cn("flex items-center justify-center size-6 rounded-full", isStep3 ? "bg-brand-500/25 border border-brand-500 text-brand-300 shadow-[0_0_15px_-2px_rgba(75,68,232,0.5)]" : "bg-white/5")}>
+                <div
+                  className={cn(
+                    "flex items-center gap-2 font-semibold text-sm",
+                    isStep3 ? "text-white" : "text-text-3",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "flex items-center justify-center size-6 rounded-full",
+                      isStep3
+                        ? "bg-brand-500/25 border border-brand-500 text-brand-300 shadow-[0_0_15px_-2px_rgba(75,68,232,0.5)]"
+                        : "bg-white/5",
+                    )}
+                  >
                     3
                   </div>
                   Prompt + download
@@ -204,8 +235,17 @@ export default function RouteComponent() {
                   className="hidden sm:inline-flex items-center gap-1.5 shrink-0 rounded-full border border-white/10 bg-deep px-3 py-1 text-xs font-semibold text-text-2"
                   title="Prompts virais gerados hoje"
                 >
-                  <Rocket className={cn("size-3.5", isUnlimited(usage.max) || usage.remaining > 0 ? "text-brand-400" : "text-red-400")} />
-                  {isUnlimited(usage.max) ? "∞ restantes hoje" : `${usage.remaining}/${usage.max} restantes hoje`}
+                  <Rocket
+                    className={cn(
+                      "size-3.5",
+                      isUnlimited(usage.max) || usage.remaining > 0
+                        ? "text-brand-400"
+                        : "text-red-400",
+                    )}
+                  />
+                  {isUnlimited(usage.max)
+                    ? "∞ restantes hoje"
+                    : `${usage.remaining}/${usage.max} restantes hoje`}
                 </div>
               )}
             </div>
@@ -213,9 +253,12 @@ export default function RouteComponent() {
 
           <div className="rounded-[24px] bg-[#0F0D15]/20 backdrop-blur-3xl border border-white/5 p-6">
             <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
-
               {/* COLUNA ESQUERDA - STICKY */}
-              <CharacterSidebar character={character} templateId={templateId} isStep3={isStep3} />
+              <CharacterSidebar
+                character={character}
+                templateId={templateId}
+                isStep3={isStep3}
+              />
 
               {/* COLUNA DIREITA - PAINEL DE TRABALHO */}
               <div className="flex flex-col rounded-2xl">
@@ -240,7 +283,9 @@ export default function RouteComponent() {
                           setSelectedScript={setSelectedScript}
                           selectedTone={selectedTone}
                           isGeneratingScripts={isGeneratingScripts}
-                          generateScripts={(tone: string) => generateScripts(tone)}
+                          generateScripts={(tone: string) =>
+                            generateScripts(tone)
+                          }
                           generatePrompt={generatePrompt}
                         />
                       )}

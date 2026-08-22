@@ -18,9 +18,9 @@ import java.util.Iterator;
 public class ImageNormalizer {
 
     private static final int MAX_DIMENSION = 2048;
-    private static final long MAX_PIXELS = 40_000_000L;
+    private static final long MAX_PIXELS = 8_000_000L;
     private static final float JPEG_QUALITY = 0.88f;
-    private static final int WEBP_QUALITY = 80;
+    private static final int WEBP_QUALITY = 92;
 
     public byte[] toJpeg(byte[] content) {
         BufferedImage source = read(content);

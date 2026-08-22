@@ -137,11 +137,7 @@ public class OAuth2SchemaInitializer {
     }
 
     private boolean isH2Database() {
-        try {
-            String url = jdbcTemplate.getDataSource().getConnection().getMetaData().getURL();
-            return url != null && url.contains("h2");
-        } catch (Exception e) {
-            return false;
-        }
+        String url = environment.getProperty("spring.datasource.url", "");
+        return url.contains(":h2:");
     }
 }
