@@ -150,6 +150,21 @@ public class SwapPromptComposer {
             image 2, placed in the scene of image 1.
             """;
 
+    /**
+     * Última instrução do prompt de roupa. Os tokens finais pesam mais, e sem esta trava
+     * o modelo trata a cena como sugestão e reconstrói o ambiente.
+     */
+    public static final String CLOTHES_FINAL_LOCK = """
+            FINAL SCENE CHECK (highest priority, overrides every text block above):
+            Image 1 is the ONLY source for the background, the environment, the room, the walls,
+            the floor, the decorations, the lighting and the camera framing. Reproduce them
+            pixel-for-pixel — do NOT reconstruct, redecorate, re-imagine or replace any part of
+            the scene, and do NOT invent objects, furniture, baseboards or wall items that are
+            not visible in image 1.
+            The person in image 1 — face, hair, skin tone, body and pose — stays exactly as is.
+            The ONLY thing that changes in the entire image is the garment taken from image 2.
+            """;
+
     /** Troca do look inteiro: a roupa descrita no texto está OBSOLETA. */
     private static final String SCENE_HEADER_CLOTHES_REPLACE_ALL = """
             SCENE REFERENCE (a text description of image 1 — environment and framing only):

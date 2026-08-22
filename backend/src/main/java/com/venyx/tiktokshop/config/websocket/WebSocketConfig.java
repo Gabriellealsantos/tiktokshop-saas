@@ -1,8 +1,10 @@
 package com.venyx.tiktokshop.config.websocket;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
@@ -28,9 +30,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final WebSocketAuthChannelInterceptor authChannelInterceptor;
 
-    public WebSocketConfig(WebSocketAuthChannelInterceptor authChannelInterceptor) {
+    private final TaskScheduler messageBrokerTaskScheduler;
+
+    public WebSocketConfig(WebSocketAuthChannelInterceptor authChannelInterceptor,
+                           @Lazy @Qualifier("messageBrokerTaskScheduler") TaskScheduler messageBrokerTaskScheduler) {
         this.authChannelInterceptor = authChannelInterceptor;
+        this.messageBrokerTaskScheduler = messageBrokerTaskScheduler;
     }
+
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -48,18 +55,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/topic", "/queue")
                 .setHeartbeatValue(new long[] { 10000, 10000 })
-                .setTaskScheduler(heartbeatScheduler());
+                .setTaskScheduler(messageBrokerTaskScheduler);
         registry.setApplicationDestinationPrefixes("/app");
         registry.setUserDestinationPrefix("/user");
-    }
-
-    @Bean
-    public TaskScheduler heartbeatScheduler() {
-        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(1);
-        scheduler.setThreadNamePrefix("ws-heartbeat-");
-        scheduler.initialize();
-        return scheduler;
     }
 
     @Override

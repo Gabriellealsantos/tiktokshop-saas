@@ -24,7 +24,6 @@ public class ScriptGenerationService {
         this.authService = authService;
     }
 
-    @Transactional(readOnly = true)
     public String generate(ScriptGenerationRequestDTO req) {
         authService.authenticated();
 

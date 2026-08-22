@@ -2,18 +2,26 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
 import { BASE_URL } from "./system";
-import { getAuthData } from "../localStorage/access-token-repository";
+import { ensureFreshToken } from "./requests";
 
 // O back autentica o STOMP no frame CONNECT (WebSocketAuthChannelInterceptor),
 // então enviamos o Bearer nos connectHeaders. Endpoint é SockJS em /ws.
 function createStompClient(): Client {
-  return new Client({
+  const client = new Client({
     webSocketFactory: () => new SockJS(`${BASE_URL}/ws`),
-    connectHeaders: { Authorization: "Bearer " + (getAuthData().access_token ?? "") },
     reconnectDelay: 5000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,
   });
+
+  // Resolvido a cada tentativa de CONNECT, não uma vez na criação: num reconnect
+  // depois dos 15 min o token anterior já expirou e o back recusa o frame.
+  client.beforeConnect = async () => {
+    const token = await ensureFreshToken();
+    client.connectHeaders = { Authorization: "Bearer " + token };
+  };
+
+  return client;
 }
 
 /**

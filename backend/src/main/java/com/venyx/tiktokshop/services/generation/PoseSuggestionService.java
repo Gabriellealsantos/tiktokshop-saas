@@ -7,7 +7,6 @@ import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class PoseSuggestionService {
         this.authService = authService;
     }
 
-    @Transactional(readOnly = true)
+
     public List<String> generate(PoseSuggestionRequestDTO req) {
         authService.authenticated();
 

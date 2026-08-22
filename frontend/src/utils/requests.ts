@@ -89,9 +89,9 @@ export const requestRefresh = (refreshToken: string) => {
 export const requestBackend = (config: AxiosRequestConfig) => {
   const headers = config.withCredentials
     ? {
-        ...config.headers,
-        Authorization: "Bearer " + getAuthData().access_token,
-      }
+      ...config.headers,
+      Authorization: "Bearer " + getAuthData().access_token,
+    }
     : config.headers;
 
   return axios({ ...config, baseURL: BASE_URL, headers });
@@ -152,6 +152,51 @@ axios.interceptors.request.use(
 // o resultado, evitando consumir um refresh_token já rotacionado.
 let refreshPromise: Promise<string> | null = null;
 
+function runRefresh(refreshToken: string): Promise<string> {
+  if (!refreshPromise) {
+    refreshPromise = requestRefresh(refreshToken)
+      .then((response) => {
+        saveAuthData(response.data);
+        return response.data.access_token as string;
+      })
+      .catch((refreshError) => {
+        removeAuthData();
+        history.replace("/login");
+        throw refreshError;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+const EXPIRY_SKEW_MS = 60_000;
+
+function expiresAt(token: string): number {
+  try {
+    const normalized = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(window.atob(normalized));
+    return typeof payload.exp === "number" ? payload.exp * 1000 : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Devolve um token válido por pelo menos 60s, renovando pela mesma fila do interceptor. */
+export const ensureFreshToken = async (): Promise<string> => {
+  const authData = getAuthData();
+  const token = authData.access_token ?? "";
+
+  if (token && expiresAt(token) - Date.now() > EXPIRY_SKEW_MS) {
+    return token;
+  }
+  if (!authData.refresh_token) {
+    return token;
+  }
+  return runRefresh(authData.refresh_token);
+};
+
 axios.interceptors.response.use(
   (response) => response,
   async (error: unknown) => {
@@ -180,25 +225,7 @@ axios.interceptors.response.use(
 
         if (authData.refresh_token) {
           try {
-            // Se já há um refresh em andamento, espera por ele em vez de
-            // disparar outro com o mesmo (já consumido) refresh_token.
-            if (!refreshPromise) {
-              refreshPromise = requestRefresh(authData.refresh_token)
-                .then((response) => {
-                  saveAuthData(response.data);
-                  return response.data.access_token as string;
-                })
-                .catch((refreshError) => {
-                  removeAuthData();
-                  history.replace("/login");
-                  throw refreshError;
-                })
-                .finally(() => {
-                  refreshPromise = null;
-                });
-            }
-
-            const newAccessToken = await refreshPromise;
+            const newAccessToken = await runRefresh(authData.refresh_token);
             if (originalRequest.headers) {
               originalRequest.headers["Authorization"] =
                 "Bearer " + newAccessToken;
@@ -218,4 +245,3 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-

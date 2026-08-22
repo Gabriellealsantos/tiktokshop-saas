@@ -120,12 +120,8 @@ public class VideoTemplateImageService {
 
         StringBuilder builder = new StringBuilder(promptComposer.buildClothesPrompt(
                 mode, req.productName(), req.productDescription(), hasAvatar));
-        if (StringUtils.hasText(req.templateSlug())) {
-            var template = catalogService.requireVisible(req.templateSlug());
-            builder.append(promptComposer.clothesSceneBlock(
-                    mode, template.getScenePrompt(), template.getImagePrompt()));
-        }
         builder.append(promptComposer.avatarCustomBlock(req.customPrompt()));
+        builder.append("\n").append(SwapPromptComposer.CLOTHES_FINAL_LOCK);
 
         String prompt = builder.toString();
 

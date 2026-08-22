@@ -67,7 +67,12 @@ public class StorageConfig {
         }
 
         S3Client client = builder.build();
-        ensureBucketExists(client);
+        // Preparação de bucket, policy e CORS só faz sentido no MinIO local. Em AWS S3
+        // real isso é responsabilidade da infra, e a role da EC2 não tem (nem precisa de)
+        // permissão para essas operações.
+        if (endpoint != null && !endpoint.isBlank()) {
+            ensureBucketExists(client);
+        }
         return client;
     }
 
