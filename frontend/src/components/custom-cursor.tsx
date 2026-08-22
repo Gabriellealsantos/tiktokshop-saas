@@ -20,13 +20,16 @@ export function CustomCursor() {
     const updatePosition = (e: MouseEvent) => {
       if (!isVisible) setIsVisible(true);
       
+      // Ignore invalid coordinates that drag events sometimes fire at the end of a drag
+      if (e.clientX === 0 && e.clientY === 0 && (e.type === 'drag' || e.type === 'dragend')) return;
+      
       if (cursorRef.current) {
         // Direct DOM manipulation for zero-latency 1:1 speed
         cursorRef.current.style.transform = `translate(${e.clientX - 18}px, ${e.clientY - 18}px)`;
       }
 
       const target = e.target as HTMLElement;
-      const isClickable = target.closest('a, button, input, select, textarea, [role="button"], .cursor-pointer') !== null;
+      const isClickable = target && target.closest ? target.closest('a, button, input, select, textarea, [role="button"], .cursor-pointer') !== null : false;
       
       if (isClickable !== isHovering) {
         isHovering = isClickable;
@@ -41,12 +44,16 @@ export function CustomCursor() {
     const handleMouseLeave = () => setIsVisible(false);
     const handleMouseEnter = () => setIsVisible(true);
 
-    window.addEventListener("mousemove", updatePosition, { passive: true });
+    window.addEventListener("pointermove", updatePosition, { passive: true });
+    window.addEventListener("dragover", updatePosition, { passive: true });
+    window.addEventListener("drag", updatePosition, { passive: true });
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mouseenter", handleMouseEnter);
 
     return () => {
-      window.removeEventListener("mousemove", updatePosition);
+      window.removeEventListener("pointermove", updatePosition);
+      window.removeEventListener("dragover", updatePosition);
+      window.removeEventListener("drag", updatePosition);
       document.removeEventListener("mouseleave", handleMouseLeave);
       document.removeEventListener("mouseenter", handleMouseEnter);
     };
