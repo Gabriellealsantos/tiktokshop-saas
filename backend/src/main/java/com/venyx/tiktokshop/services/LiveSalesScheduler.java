@@ -42,14 +42,10 @@ public class LiveSalesScheduler {
 
     @Scheduled(fixedDelay = 5000)
     public void tick() {
-        List<LiveSalesConfig> configs = configRepository.findAll();
+        List<LiveSalesConfig> configs = configRepository.findByModeFetchingUser(LiveSalesMode.AUTOMATIC);
         Instant now = Instant.now();
 
         for (LiveSalesConfig config : configs) {
-            if (config.getMode() != LiveSalesMode.AUTOMATIC) {
-                continue;
-            }
-
             UUID userId = config.getUser().getUuid();
             Instant lastFiredAt = lastFiredAtMap.getOrDefault(userId, Instant.EPOCH);
             int nextInterval = nextIntervalMap.getOrDefault(userId, 0);

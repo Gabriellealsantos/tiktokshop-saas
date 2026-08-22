@@ -182,15 +182,20 @@ public class AuthorizationServerConfig {
                         PasswordEncoder passwordEncoder) {
                 JdbcRegisteredClientRepository repository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
-                // Limpa cliente antigo para evitar duplicação em ambiente de desenvolvimento
+
                 RegisteredClient existing = repository.findByClientId(clientId);
                 if (existing != null) {
+                        return repository;
+                }
+
+                // Limpa cliente antigo para evitar duplicação em ambiente de desenvolvimento
+                /*if (existing != null) {
                         jdbcTemplate.update("DELETE FROM oauth2_authorization WHERE registered_client_id = ?",
                                         existing.getId());
                         jdbcTemplate.update("DELETE FROM oauth2_authorization_consent WHERE registered_client_id = ?",
                                         existing.getId());
                         jdbcTemplate.update("DELETE FROM oauth2_registered_client WHERE id = ?", existing.getId());
-                }
+                }*/
 
                 RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
                                 .clientId(clientId)

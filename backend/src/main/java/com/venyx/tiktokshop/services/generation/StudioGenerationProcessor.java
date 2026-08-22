@@ -65,8 +65,8 @@ public class StudioGenerationProcessor {
             job.setUpdatedAt(Instant.now());
             generationRepository.save(job);
 
-            ImageProviderResult result = imageProvider.generate(new ImageProviderRequest(
-                    job.getPrompt(), List.of(avatarImageUrl, productImageUrl)));
+            ImageProviderResult result = imageProvider.generate(
+                    ImageProviderRequest.of(job.getPrompt(), avatarImageUrl, productImageUrl));
 
             String imageUrl = storageService.uploadWithRetry(
                     result.content(), result.mimeType(), STUDIO_FOLDER + "/" + userUuid);

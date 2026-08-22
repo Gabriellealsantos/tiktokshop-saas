@@ -1,6 +1,7 @@
 package com.venyx.tiktokshop.repositories;
 
 import com.venyx.tiktokshop.entities.Notification;
+import com.venyx.tiktokshop.entities.NotificationSchedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

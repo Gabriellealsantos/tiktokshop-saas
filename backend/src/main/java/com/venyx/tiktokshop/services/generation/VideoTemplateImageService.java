@@ -11,6 +11,8 @@ import com.venyx.tiktokshop.services.AuthService;
 import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.VideoTemplateCatalogService;
+import com.venyx.tiktokshop.services.exceptions.BusinessException;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.venyx.tiktokshop.entities.enums.FlowType.VIDEO_TEMPLATE;
+import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.FAILED;
 import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.PENDING;
 
 /**
@@ -87,8 +90,9 @@ public class VideoTemplateImageService {
         ImageGeneration job = createPendingJob(user, config, basePrompt);
 
         // Ordem das referências: image 1 = frame (cena/pose), image 2 = avatar (pessoa).
-        swapWorker.runSwapPerson(user, job.getId(), basePrompt,
-                req.frameUrl(), req.avatarImageUrl());
+        dispatch(job, () -> swapWorker.runSwapPerson(user, job.getId(), job.getPrompt(),
+                req.frameUrl(), req.avatarImageUrl()));
+
         return new PendingJobDTO(job.getId());
     }
 
@@ -129,11 +133,11 @@ public class VideoTemplateImageService {
 
         // Ordem das referências: image 1 = pessoa (base), image 2 = produto. (Opcional image 3 = avatar)
         if (hasAvatar) {
-            swapWorker.runSwapClothes(user, job.getId(), prompt,
-                    req.baseImageUrl(), req.productImageUrl(), req.avatarImageUrl());
+            dispatch(job, () -> swapWorker.runSwapClothes(user, job.getId(), job.getPrompt(),
+                    req.baseImageUrl(), req.productImageUrl(), req.avatarImageUrl()));
         } else {
-            swapWorker.runSwapClothes(user, job.getId(), prompt,
-                    req.baseImageUrl(), req.productImageUrl());
+            dispatch(job, () -> swapWorker.runSwapClothes(user, job.getId(), job.getPrompt(),
+                    req.baseImageUrl(), req.productImageUrl()));
         }
         return new PendingJobDTO(job.getId());
     }
@@ -147,5 +151,16 @@ public class VideoTemplateImageService {
         job.setStatus(PENDING);
         job.setCreatedAt(Instant.now());
         return repository.save(job);
+    }
+
+    private void dispatch(ImageGeneration job, Runnable task) {
+        try {
+            task.run();
+        } catch (TaskRejectedException e) {
+            job.setStatus(FAILED);
+            job.setError("Sistema em capacidade máxima. Tente novamente em instantes.");
+            repository.save(job);
+            throw new BusinessException("Muitas gerações em andamento. Aguarde alguns segundos e tente de novo.");
+        }
     }
 }

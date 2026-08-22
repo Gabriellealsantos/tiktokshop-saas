@@ -37,16 +37,12 @@ public class AvatarPhotoPromptBuilder {
                     .append("faixa etária, tipo físico e altura aparente, e também a mesma roupa.\n");
         }
 
-        prompt.append("Enquadramento: corpo inteiro, pessoa em pé de frente para a câmera, ")
-                .append("mãos relaxadas ao lado do corpo, fundo branco sólido de estúdio.\n");
+        prompt.append("\n").append(AvatarPromptBuilder.PADRAO_ESTUDIO);
 
         appendDetail(prompt, "Ajustes na roupa", req.clothingInstructions());
         appendDetail(prompt, "Detalhes adicionais", req.extraOptions());
 
-        return prompt
-                .append("Iluminação profissional de estúdio, foco nítido, alta qualidade, ")
-                .append("fundo branco puro (#FFFFFF). A pessoa não deve segurar câmera nem celular.")
-                .toString();
+        return prompt.append("\n").append(AvatarPromptBuilder.EVITAR).toString();
     }
     private void appendDetail(StringBuilder prompt, String label, String raw) {
         String clean = sanitizer.clean(raw);

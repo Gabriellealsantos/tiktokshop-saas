@@ -54,8 +54,9 @@ export function CropModal({
             Recortar avatar
           </DialogTitle>
           <DialogDescription className="text-white/60">
-            Dê zoom e arraste para enquadrar. O formato 9:16 é fixo. Este
-            recorte é usado apenas neste uso e não altera sua biblioteca.
+            Já enquadramos o rosto para melhor fidelidade. Ajuste se quiser, ou
+            use "Resetar" para o corpo inteiro. O formato 9:16 é fixo e o
+            recorte vale apenas neste uso.
           </DialogDescription>
         </DialogHeader>
 

@@ -16,16 +16,22 @@ import type { Product } from "@/models/product";
 import { mapBackendToProduct, type BackendProduct } from "@/models/product-mappers";
 import { searchProducts } from "@/services/productService";
 
+import imgMineracao from "@/assets/central-capa-mineracao-produtos.jpeg";
+import imgAvatar from "@/assets/central-capa-gerador-avatar.jpeg";
+import imgTemplates from "@/assets/central-capa-templates-virais.jpeg";
+import imgTrend from "@/assets/central-capa-trendAi.png";
+
+
 export function LaunchpadContent({ renderHeader }: { renderHeader?: ReactNode }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const firstName = user?.name ? user.name.split(" ")[0] : "Criador";
 
   const modules = [
-    ["Mineração de Produtos", "/products", "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=400&q=80"],
-    ["Gerador de Avatar", "/create-avatar", "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80"],
-    ["Templates Virais", "/templates", "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=400&q=80"],
-    ["Trend Boost", "/trend-boost", "https://images.unsplash.com/photo-1614036417651-1d4a362db44b?auto=format&fit=crop&w=400&q=80"],
+    ["Mineração de Produtos", "/products", imgMineracao],
+    ["Gerador de Avatar", "/create-avatar", imgAvatar],
+    ["Templates Virais", "/templates", imgTemplates],
+    ["Trend Boost", "/trend-boost", imgTrend],
   ] as const;
 
   // --- Top Produtos (ranking real por vendas/dia) ---

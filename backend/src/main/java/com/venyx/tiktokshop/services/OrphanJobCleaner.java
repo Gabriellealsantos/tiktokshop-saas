@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit;
 public class OrphanJobCleaner {
 
     private static final Logger logger = LoggerFactory.getLogger(OrphanJobCleaner.class);
-    private static final int ORPHAN_THRESHOLD_MINUTES = 10;
+    private static final int ORPHAN_THRESHOLD_MINUTES = 30;
 
     private final ImageGenerationRepository repository;
 
@@ -28,11 +28,11 @@ public class OrphanJobCleaner {
         this.repository = repository;
     }
 
-    @Scheduled(fixedDelay = 300_000) // 5 min
+    @Scheduled(fixedDelay = 300_000)
     @Transactional
     public void cleanOrphans() {
         Instant threshold = Instant.now().minus(ORPHAN_THRESHOLD_MINUTES, ChronoUnit.MINUTES);
-        int updated = repository.markOrphansAsFailed(threshold);
+        int updated = repository.markOrphansAsFailed(threshold, Instant.now());
         if (updated > 0) {
             logger.info("[ORPHAN-CLEANER] {} job(s) órfão(s) marcado(s) como FAILED", updated);
         }
