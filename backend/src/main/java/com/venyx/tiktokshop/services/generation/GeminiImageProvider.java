@@ -75,7 +75,7 @@ public class GeminiImageProvider  implements ImageProvider {
         this.model = model;
         this.aspectRatio = aspectRatio;
         this.imageSize = imageSize;
-        this.thinkingLevel = thinkingLevel;
+        this.thinkingLevel = thinkingLevel.trim();
 
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
         factory.setReadTimeout(ofSeconds(timeoutSeconds));
