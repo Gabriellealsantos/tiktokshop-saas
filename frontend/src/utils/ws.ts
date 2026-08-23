@@ -8,7 +8,11 @@ import { ensureFreshToken } from "./requests";
 // então enviamos o Bearer nos connectHeaders. Endpoint é SockJS em /ws.
 function createStompClient(): Client {
   const client = new Client({
-    webSocketFactory: () => new SockJS(`${BASE_URL}/ws`),
+    // Sem xhr_streaming: o Cloudflare faz buffer de respostas abertas e mata o
+    // streaming. Nativo primeiro, xhr-polling (requisicoes curtas) como fallback.
+    webSocketFactory: () => new SockJS(`${BASE_URL}/ws`, null, {
+      transports: ["websocket", "xhr-polling"],
+    }),
     reconnectDelay: 5000,
     heartbeatIncoming: 10000,
     heartbeatOutgoing: 10000,

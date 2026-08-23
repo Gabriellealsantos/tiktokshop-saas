@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.joining;
 
 import java.time.Instant;
 
-@ControllerAdvice
+@ControllerAdvice(basePackages = "com.venyx.tiktokshop.controllers")
 public class ControllerExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
@@ -239,7 +239,12 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<StandardError> generic(Exception e, HttpServletRequest request) {
+    public ResponseEntity<StandardError> generic(Exception e, HttpServletRequest request) throws Exception {
+        // /ws e /error tem content-type proprio; escrever JSON aqui mascara o erro real.
+        String uri = request.getRequestURI();
+        if (uri.startsWith("/ws") || uri.startsWith("/error")) {
+            throw e;
+        }
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         StandardError err = new StandardError();
         err.setTimestamp(Instant.now());

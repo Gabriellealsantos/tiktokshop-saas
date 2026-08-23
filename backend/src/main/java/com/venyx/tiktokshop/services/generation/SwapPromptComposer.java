@@ -38,9 +38,12 @@ public class SwapPromptComposer {
             IMAGE QUALITY RULE:
             Match the depth of field, lighting quality and camera perspective of image 1 so the
             person belongs naturally to the scene.
-            Render the face, skin and hair with clean, natural photographic detail.
-            Do NOT copy video compression artifacts, blockiness, banding or digital noise from
-            image 1 into the person — image 1 is a compressed video frame, not a photographic reference.
+            Render the face, skin and hair with real photographic texture — visible pores and
+            natural micro-imperfections, never a retouched or beauty-filtered surface.
+            Distinguish two different things: image 1 is a compressed video frame, so do NOT copy
+            its COMPRESSION artifacts (blockiness, banding, macroblocking) into the person; but DO
+            match its PHOTOGRAPHIC characteristics — grain level, sharpness, focus and depth of
+            field — so the face never looks cleaner or sharper than the scene around it.
             Do NOT add any new visual elements not present in image 1 (borders, overlays, watermarks).
             """;
 
@@ -148,6 +151,27 @@ public class SwapPromptComposer {
             in the text blocks above is background context only — never a source of identity.
             The result must NOT show a third, invented person: it must be the person from
             image 2, placed in the scene of image 1.
+
+            FINAL PHOTOGRAPHIC CHECK (equally mandatory — identity without this is a failure):
+            Copying the identity does NOT mean pasting image 2 into image 1. The result must read
+            as ONE photograph taken by ONE camera in ONE moment, never as a head composited onto
+            a body. Specifically:
+            — HEAD SCALE: the head must be anatomically proportional to the body and to the room.
+              A head that reads even slightly too large is a failure. Size it from image 1's body,
+              never from image 2's close-up crop.
+            — HAIR EDGE: hair must blend into the background with soft, natural strands and
+              believable depth of field. No hard cut-out silhouette, no halo, no clean outline.
+            — NECK AND SHOULDERS: the jaw, neck and shoulders must connect with continuous
+              anatomy, consistent shading and a natural contact shadow under the chin.
+            — GRAIN AND FOCUS: the face must carry the SAME grain, noise, sharpness and depth of
+              field as the rest of image 1. Do NOT render the face cleaner, smoother, sharper or
+              more retouched than the body and the background around it.
+            — LIGHT: the face must be lit by image 1's light sources, matching their direction,
+              softness and color temperature. No studio lighting on a face inside a real room.
+            — SKIN: real skin texture with pores and micro-imperfections. No beauty filter, no
+              airbrushed or plastic surface.
+            If the face looks retouched, filtered, or sharper than its surroundings, the result
+            is WRONG even when the identity is perfect.
             """;
 
     /**
