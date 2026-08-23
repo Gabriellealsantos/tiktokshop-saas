@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.venyx.tiktokshop.entities.enums.FlowType.VIDEO_TEMPLATE;
 import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.FAILED;
@@ -71,12 +72,25 @@ public class VideoTemplateImageService {
         User user = authService.authenticated();
         limitService.assertCanGenerate(user.getUuid(), VIDEO_TEMPLATE);
 
+        // A image 3 (avatar sem crop) é um REFORÇO opcional e chega como a URL já hospedada
+        // que o banco guarda — não é reenviada. Se ela estiver fora do nosso storage, o
+        // GeminiImageProvider a recusaria (anti-SSRF) e derrubaria a geração inteira; como é
+        // acessória, aqui ela é simplesmente descartada e o prompt cai na variante de rosto-só.
+        String bodyImageUrl = StringUtils.hasText(req.avatarBodyImageUrl())
+                && req.avatarBodyImageUrl().startsWith(storageService.publicBaseUrl() + "/")
+                ? req.avatarBodyImageUrl()
+                : null;
+        boolean hasBodyReference = bodyImageUrl != null;
+
         Map<String, Object> config = new LinkedHashMap<>();
         config.put("op", "swap-person");
         config.put("frameUrl", req.frameUrl());
         config.put("avatarImageUrl", req.avatarImageUrl());
+        if (hasBodyReference) {
+            config.put("avatarBodyImageUrl", bodyImageUrl);
+        }
 
-        StringBuilder builder = new StringBuilder(SwapPromptComposer.PERSON);
+        StringBuilder builder = new StringBuilder(SwapPromptComposer.buildPersonPrompt(hasBodyReference));
         if (StringUtils.hasText(req.templateSlug())) {
             var template = catalogService.requireVisible(req.templateSlug());
             builder.append(promptComposer.personSceneBlock(
@@ -84,14 +98,24 @@ public class VideoTemplateImageService {
         }
         builder.append(promptComposer.avatarCustomBlock(req.customPrompt()));
         builder.append("\n").append(SwapPromptComposer.PERSON_FINAL_LOCK);
+        // Token aleatório para decorrelacionar tentativas: frame+avatar+prompt idênticos entre
+        // cliques em "trocar pessoa" fazem o modelo convergir para o mesmo resultado (bom ou
+        // ruim). Isto força cada chamada a ser amostrada como uma geração nova e independente,
+        // sem precisar de F5 (que só recria esse efeito por acaso, ao reconstruir o estado).
+        builder.append("\n\nGENERATION ATTEMPT ID: ").append(UUID.randomUUID())
+                .append(" — internal disambiguation token only. Do not render this text, any")
+                .append(" number, or any watermark anywhere in the image. Treat this call as a")
+                .append(" brand-new, independent generation, not a refinement or continuation of")
+                .append(" any previous attempt.");
 
         String basePrompt = builder.toString();
 
         ImageGeneration job = createPendingJob(user, config, basePrompt);
 
-        // Ordem das referências: image 1 = frame (cena/pose), image 2 = avatar (pessoa).
+        // Ordem das referências: image 1 = frame (cena/pose), image 2 = avatar (pessoa),
+        // image 3 (opcional) = mesmo avatar sem crop, só para tom de pele/corpo.
         dispatch(job, () -> swapWorker.runSwapPerson(user, job.getId(), job.getPrompt(),
-                req.frameUrl(), req.avatarImageUrl()));
+                req.frameUrl(), req.avatarImageUrl(), bodyImageUrl));
 
         return new PendingJobDTO(job.getId());
     }
@@ -120,7 +144,9 @@ public class VideoTemplateImageService {
 
         StringBuilder builder = new StringBuilder(promptComposer.buildClothesPrompt(
                 mode, req.productName(), req.productDescription(), hasAvatar));
-        builder.append(promptComposer.avatarCustomBlock(req.customPrompt()));
+        // Aqui a image 2 é o PRODUTO: a pessoa está na image 1 e, quando enviada, na image 3.
+        builder.append(promptComposer.avatarCustomBlock(req.customPrompt(),
+                hasAvatar ? "image 1 and image 3" : "image 1"));
         builder.append("\n").append(SwapPromptComposer.CLOTHES_FINAL_LOCK);
 
         String prompt = builder.toString();

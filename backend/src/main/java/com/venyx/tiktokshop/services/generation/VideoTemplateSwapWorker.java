@@ -42,8 +42,11 @@ public class VideoTemplateSwapWorker {
 
     @Async("generationExecutor")
     public void runSwapPerson(User user, Long jobId, String prompt,
-                              String frameUrl, String avatarImageUrl) {
-        runSwap(user, jobId, prompt, "SWAP_PERSON", frameUrl, avatarImageUrl);
+                              String frameUrl, String avatarImageUrl, String avatarBodyImageUrl) {
+        String[] references = (avatarBodyImageUrl == null || avatarBodyImageUrl.isBlank())
+                ? new String[]{frameUrl, avatarImageUrl}
+                : new String[]{frameUrl, avatarImageUrl, avatarBodyImageUrl};
+        runSwap(user, jobId, prompt, "SWAP_PERSON", references);
     }
 
     @Async("generationExecutor")

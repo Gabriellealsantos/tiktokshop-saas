@@ -129,6 +129,11 @@ export default function TemplateAssemblyScreen() {
   // (Gemini) só aceita referências HOSPEDADAS no storage — então subimos a imagem escolhida uma
   // vez e reusamos a URL hospedada. Cache no ref, invalidado ao trocar/recortar o avatar.
   const avatarHostedRef = useRef<string | null>(null);
+  // URL hospedada do avatar ORIGINAL (corpo inteiro, sem crop) — enviada como referência
+  // extra de tom de pele/corpo no swap de pessoa, para o Gemini parar de "chutar" a cor de
+  // braços e pernas a partir só do recorte de rosto (avatarHostedRef). Mesmo ciclo de vida
+  // do ref acima: invalidado ao trocar de avatar.
+  const avatarBodyHostedRef = useRef<string | null>(null);
 
   const resolveHostedAvatarUrl = async (): Promise<string> => {
     if (avatarHostedRef.current) return avatarHostedRef.current;
@@ -146,6 +151,40 @@ export default function TemplateAssemblyScreen() {
     const url = (up.data as { url: string }).url;
     avatarHostedRef.current = url;
     return url;
+  };
+
+  /**
+   * Sobe o avatar original (sem crop) para servir de referência extra de tom de pele/corpo.
+   * Best-effort: se falhar, retorna undefined e o swap segue só com o crop de rosto (como
+   * já funcionava antes), em vez de travar a geração por causa dessa referência opcional.
+   */
+  const resolveHostedBodyAvatarUrl = async (): Promise<string | undefined> => {
+    if (avatarBodyHostedRef.current) return avatarBodyHostedRef.current;
+    if (!avatarOriginal) return undefined;
+    // A foto completa do avatar (galeria ou "meus avatares") JÁ está hospedada: o banco
+    // guarda a URL dela e é essa URL que chega aqui. Reenviá-la só criaria uma cópia
+    // idêntica no storage. Diferente do recorte de rosto, que é fabricado no canvas e
+    // por isso não existe em lugar nenhum até ser enviado.
+    if (/^https?:\/\//i.test(avatarOriginal)) {
+      avatarBodyHostedRef.current = avatarOriginal;
+      return avatarOriginal;
+    }
+    // Sobra o caso de asset local (/avatarN.jpeg) ou data URL — aí sim precisa subir.
+    try {
+      const resp = await fetch(avatarOriginal);
+      if (!resp.ok) return undefined;
+      const blob = await resp.blob();
+      const up = await uploadTemplateFrame(blob);
+      const url = (up.data as { url: string }).url;
+      avatarBodyHostedRef.current = url;
+      return url;
+    } catch (e) {
+      console.warn(
+        "Não foi possível subir o avatar completo como referência de tom de pele.",
+        e,
+      );
+      return undefined;
+    }
   };
 
   useEffect(() => {
@@ -265,9 +304,13 @@ export default function TemplateAssemblyScreen() {
       }
       // Garante que o avatar seja uma URL hospedada (assets locais/data URLs não servem ao Gemini).
       const avatarImageUrl = await resolveHostedAvatarUrl();
+      // Referência extra (corpo inteiro, sem crop) para o Gemini acertar o tom de pele de
+      // braços/pernas. Opcional: se o upload falhar, o swap segue sem ela.
+      const avatarBodyImageUrl = await resolveHostedBodyAvatarUrl();
       const res = await swapPerson({
         frameUrl,
         avatarImageUrl,
+        avatarBodyImageUrl,
         customPrompt: avatarCustomPrompt ?? undefined,
         templateSlug: slug,
       });
@@ -380,6 +423,7 @@ export default function TemplateAssemblyScreen() {
     setPersonResultUrl(null);
     setFinalImageUrl(null);
     avatarHostedRef.current = null;
+    avatarBodyHostedRef.current = null;
     hasSavedCropRef.current = false;
     setSavedCrop({ zoom: 1, x: 0, y: 0 });
     setDims({ cw: 0, ch: 0, dw: 0, dh: 0 });
