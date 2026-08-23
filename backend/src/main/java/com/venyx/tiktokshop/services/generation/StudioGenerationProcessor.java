@@ -1,21 +1,11 @@
 package com.venyx.tiktokshop.services.generation;
 
 import com.venyx.tiktokshop.entities.CreationSession;
-import com.venyx.tiktokshop.entities.ImageGeneration;
-import com.venyx.tiktokshop.entities.enums.CreationStatus;
-import com.venyx.tiktokshop.entities.enums.ImageGenerationStatus;
-import com.venyx.tiktokshop.repositories.CreationSessionRepository;
-import com.venyx.tiktokshop.repositories.ImageGenerationRepository;
 import com.venyx.tiktokshop.services.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class StudioGenerationProcessor {
@@ -23,75 +13,52 @@ public class StudioGenerationProcessor {
     private static final Logger log = LoggerFactory.getLogger(StudioGenerationProcessor.class);
     private static final String STUDIO_FOLDER = "studio";
 
-    private final CreationSessionRepository sessionRepository;
-    private final ImageGenerationRepository generationRepository;
     private final ImageProvider imageProvider;
     private final StorageService storageService;
     private final StudioGenerationNotifier notifier;
+    private final StudioGenerationTx studioTx;
 
-    public StudioGenerationProcessor(CreationSessionRepository sessionRepository,
-                                     ImageGenerationRepository generationRepository,
-                                     ImageProvider imageProvider,
+    public StudioGenerationProcessor(ImageProvider imageProvider,
                                      StorageService storageService,
-                                     StudioGenerationNotifier notifier) {
-        this.sessionRepository = sessionRepository;
-        this.generationRepository = generationRepository;
+                                     StudioGenerationNotifier notifier,
+                                     StudioGenerationTx studioTx) {
         this.imageProvider = imageProvider;
         this.storageService = storageService;
         this.notifier = notifier;
+        this.studioTx = studioTx;
     }
 
     @Async("studioTaskExecutor")
-    @Transactional
     public void process(Long sessionId, Long jobId) {
         long inicio = System.currentTimeMillis();
         log.info("[STUDIO-ASYNC-INÍCIO] sessionId={} jobId={} na thread {}",
                 sessionId, jobId, Thread.currentThread().getName());
 
-        CreationSession session = sessionRepository.findByIdFetchingUser(sessionId).orElse(null);
-        ImageGeneration job = generationRepository.findById(jobId).orElse(null);
-
-        if (session == null || job == null || session.getStatus() != CreationStatus.GENERATING) {
+        StudioJobContext ctx = studioTx.start(sessionId, jobId);
+        if (ctx == null) {
             log.warn("[STUDIO-ASYNC-SKIP] sessionId={} jobId={} inconsistente, ignorando.", sessionId, jobId);
             return;
         }
 
-        UUID userUuid = session.getUser().getUuid();
-        String avatarImageUrl = (String) session.getConfig().get("avatarImageUrl");
-        String productImageUrl = (String) session.getConfig().get("productImageUrl");
-
+        CreationSession session;
         try {
-            job.setStatus(ImageGenerationStatus.RUNNING);
-            job.setUpdatedAt(Instant.now());
-            generationRepository.save(job);
-
+            // Fora de transação: a chamada ao Gemini leva ~25s e nao pode segurar conexao do pool.
             ImageProviderResult result = imageProvider.generate(
-                    ImageProviderRequest.of(job.getPrompt(), avatarImageUrl, productImageUrl));
+                    ImageProviderRequest.of(ctx.prompt(), ctx.avatarImageUrl(), ctx.productImageUrl()));
 
             String imageUrl = storageService.uploadWithRetry(
-                    result.content(), result.mimeType(), STUDIO_FOLDER + "/" + userUuid);
+                    result.content(), result.mimeType(), STUDIO_FOLDER + "/" + ctx.userUuid());
 
-            job.setImageUrl(imageUrl);
-            job.setStatus(ImageGenerationStatus.COMPLETED);
-            generationRepository.save(job);
-
-            session.getConfig().put("imageUrl", imageUrl);
-            session.setStatus(CreationStatus.COMPLETED);
+            session = studioTx.complete(sessionId, jobId, imageUrl);
         } catch (Exception e) {
             log.error("[STUDIO-ASYNC-FAILED] sessionId={} jobId={} erro: {}", sessionId, jobId, e.getMessage(), e);
-            job.setStatus(ImageGenerationStatus.FAILED);
-            job.setError(e.getMessage());
-            generationRepository.save(job);
-
-            session.setStatus(CreationStatus.FAILED);
-            session.getConfig().put("error", e.getMessage());
+            session = studioTx.fail(sessionId, jobId, e.getMessage());
         }
 
-        sessionRepository.save(session);
-        notifier.notifyReady(userUuid, session);
+        notifier.notifyReady(ctx.userUuid(), session);
 
-        long duracao = System.currentTimeMillis() - inicio;
         log.info("[STUDIO-ASYNC-FIM] sessionId={} finalizado (status={}) em {}ms na thread {}",
-                sessionId, session.getStatus(), duracao, Thread.currentThread().getName());
+                sessionId, session.getStatus(), System.currentTimeMillis() - inicio,
+                Thread.currentThread().getName());
     }
 }
