@@ -28,6 +28,8 @@ export type VideoAudioMode = "NARRACAO" | "MUSICA" | "SILENCIO";
 export interface SwapPersonRequest {
   frameUrl: string;
   avatarImageUrl: string;
+  /** Avatar original sem crop (corpo inteiro) — referência extra de tom de pele/corpo. */
+  avatarBodyImageUrl?: string;
   customPrompt?: string;
   templateSlug?: string;
 }
