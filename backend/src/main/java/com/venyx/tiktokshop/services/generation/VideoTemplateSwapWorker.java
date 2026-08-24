@@ -62,7 +62,10 @@ public class VideoTemplateSwapWorker {
         repository.save(job);
 
         try {
-            ImageProviderResult result = imageProvider.generate(ImageProviderRequest.of(prompt, references));
+            // ofMatchingAspect: nos swaps a image 1 é a cena que precisa voltar com o mesmo
+            // enquadramento. A proporção configurada (9:16) só vale para os fluxos de criação.
+            ImageProviderResult result = imageProvider.generate(
+                    ImageProviderRequest.ofMatchingAspect(prompt, references));
             String folder = RESULT_FOLDER + "/" + user.getUuid();
             job.setImageUrl(storageService.uploadWithRetry(result.content(), result.mimeType(), folder));
             job.setStatus(COMPLETED);

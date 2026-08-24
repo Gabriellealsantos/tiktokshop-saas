@@ -22,10 +22,61 @@ public class ImageNormalizer {
     private static final float JPEG_QUALITY = 0.88f;
     private static final int WEBP_QUALITY = 92;
 
+    /**
+     * Qualidade das imagens de REFERÊNCIA mandadas ao modelo. Mais alta que a de exibição
+     * porque a referência não é para ser vista: é o insumo que o modelo precisa reproduzir.
+     * A image 1 do swap é justamente a cena que tem de voltar intacta, e cada geração de
+     * JPEG apaga um pouco da textura fina — grão de parede, trama de tecido, ripado — que é
+     * exatamente onde a deriva de fundo aparece primeiro.
+     */
+    private static final float REFERENCE_JPEG_QUALITY = 0.95f;
+
     public byte[] toJpeg(byte[] content) {
         BufferedImage source = read(content);
         BufferedImage scaled = downscale(source);
-        return write(flatten(scaled));
+        return write(flatten(scaled), JPEG_QUALITY);
+    }
+
+    /**
+     * Normaliza uma imagem para servir de referência ao modelo.
+     *
+     * <p>Quando o conteúdo já é JPEG dentro do limite de dimensão, ele passa direto: decodificar
+     * e recodificar não ganharia nada e custaria mais uma geração de perda. É o caso do
+     * resultado do swap de pessoa quando ele volta como base do swap de roupa.
+     */
+    public byte[] toReferenceJpeg(byte[] content) {
+        if (isJpeg(content) && withinMaxDimension(content)) {
+            return content;
+        }
+        BufferedImage source = read(content);
+        BufferedImage scaled = downscale(source);
+        return write(flatten(scaled), REFERENCE_JPEG_QUALITY);
+    }
+
+    private boolean isJpeg(byte[] content) {
+        return content != null && content.length >= 3
+                && (content[0] & 0xFF) == 0xFF
+                && (content[1] & 0xFF) == 0xD8
+                && (content[2] & 0xFF) == 0xFF;
+    }
+
+    /** Lê só o cabeçalho: descobrir o tamanho não deve custar a decodificação inteira. */
+    private boolean withinMaxDimension(byte[] content) {
+        try (ImageInputStream input = ImageIO.createImageInputStream(new ByteArrayInputStream(content))) {
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+            if (!readers.hasNext()) {
+                return false;
+            }
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(input);
+                return Math.max(reader.getWidth(0), reader.getHeight(0)) <= MAX_DIMENSION;
+            } finally {
+                reader.dispose();
+            }
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public byte[] toWebp(byte[] content) {
@@ -92,11 +143,11 @@ public class ImageNormalizer {
         return target;
     }
 
-    private byte[] write(BufferedImage image) {
+    private byte[] write(BufferedImage image, float quality) {
         ImageWriter writer = ImageIO.getImageWritersByFormatName("jpeg").next();
         ImageWriteParam param = writer.getDefaultWriteParam();
         param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        param.setCompressionQuality(JPEG_QUALITY);
+        param.setCompressionQuality(quality);
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try (ImageOutputStream stream = ImageIO.createImageOutputStream(output)) {
