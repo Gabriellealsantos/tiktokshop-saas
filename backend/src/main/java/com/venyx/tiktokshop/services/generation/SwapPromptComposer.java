@@ -9,6 +9,7 @@ public class SwapPromptComposer {
 
     private final PromptSanitizer sanitizer;
 
+    /** Exclusivo do fluxo de ROUPA: fala do produto, que nao existe no swap de pessoa. */
     private static final String VISUAL_CONSISTENCY = """
             VISUAL CONSISTENCY RULE:
             The final image must look like a single, unedited photograph.
@@ -19,184 +20,251 @@ public class SwapPromptComposer {
             a studio environment.
             """;
 
-    private static final String AVOID_RULES = """
+    /** Exclusivo do fluxo de ROUPA: fala em preservar identidade, o oposto do swap de pessoa. */
+    private static final String AVOID_CLOTHES = """
             Avoid: deformed or extra fingers and hands, warped faces, changed facial identity,
             a different-looking person, oversized or enlarged head, wrong body proportions,
             on-screen text, captions, watermarks, logos, distorted anatomy, plastic AI look.
             """;
 
-    private static final String PERSON_INTEGRATION = """
-            ENVIRONMENTAL INTEGRATION RULE:
-            The inserted person MUST be perfectly integrated into the scene's lighting and environment.
-            Match the scene's lighting direction, intensity, and color temperature exactly.
-            The person must cast realistic shadows onto the floor, walls, or surrounding objects consistent with the scene's light sources.
-            Add natural ambient occlusion (contact shadows) where the person touches the ground or other surfaces.
-            If the scene has warm/golden lighting, the person's hair and clothing highlights must also be warm.
-            Do NOT leave a bright, flat studio-lighting look on the person. Erode any harsh cut-out edges;
-            the boundary between the person and the background must blend naturally with the camera focus.
-            SKIN IS THE ONE EXCEPTION TO THIS RULE: do not warm, darken, cool or re-tint the skin's
-            actual hue to "match" the scene lighting. This lighting adaptation is about brightness,
-            highlights and shadow direction ONLY, applied EQUALLY to the face and to the rest of the
-            body — never about changing the underlying skin color. The face and the legs/arms/hands
-            must keep the EXACT same underlying skin hue as each other; only their brightness may
-            differ with pose and shadow, never their color. The skin tone match to image 2/image 3
-            always overrides this rule if the two ever seem to disagree.
+    /**
+     * Integração fotográfica do swap de pessoa. Substitui a antiga ENVIRONMENTAL INTEGRATION
+     * RULE, que autorizava explicitamente repintar o fundo ("cast shadows onto the floor,
+     * walls" e "erode any harsh cut-out edges") — as duas coisas que o objetivo proíbe. Aqui a
+     * sombra fica restrita a onde image 1 já tem sombra, e a silhueta à área que a pessoa
+     * original já ocupava. Também absorve o ANTI_DEGRADATION, que só era aplicado no fluxo de
+     * roupa, com o escopo declarado por região: preserva grão e cor na cena, limpa artefato de
+     * compressão só na pessoa.
+     */
+    private static final String PHOTOGRAPHIC_INTEGRATION = """
 
-            IMAGE QUALITY RULE:
-            Match the depth of field, lighting quality and camera perspective of image 1 so the
-            person belongs naturally to the scene.
-            Render the face, skin and hair with real photographic texture — visible pores and
-            natural micro-imperfections, never a retouched or beauty-filtered surface.
-            Distinguish two different things: image 1 is a compressed video frame, so do NOT copy
-            its COMPRESSION artifacts (blockiness, banding, macroblocking) into the person; but DO
-            match its PHOTOGRAPHIC characteristics — grain level, sharpness, focus and depth of
-            field — so the face never looks cleaner or sharper than the scene around it.
-            Do NOT add any new visual elements not present in image 1 (borders, overlays, watermarks).
-            """;
-
-    /** Nota de enquadramento da image 2, comum às duas variantes (com ou sem image 3). */
-    private static final String PERSON_IMAGE2_NOTE = """
-            Replace the person in image 1 with the person shown in image 2.
-
-            IMAGE 2 FRAMING NOTE:
-            Image 2 is a close-up crop showing only the head and upper torso of the avatar.
-            It is an IDENTITY reference, NOT a body or framing reference. Read the face, hair,
-            skin tone and apparent age from it. The body build, height, stance and proportions
-            come from image 1 — do not try to infer them from image 2.
-            Never crop, zoom or re-frame the result toward image 2's close-up framing:
-            the result MUST keep image 1's full framing and camera distance.
+            PHOTOGRAPHIC INTEGRATION — ONE PHOTOGRAPH, ONE CAMERA:
+            The result reads as a single frame from image 1's camera, not as a head placed on
+            a body.
+            — HEAD SCALE: the head is anatomically proportional to the body and to the room,
+              sized from image 1's body rather than from image 2's close-up crop. It occupies
+              the same fraction of the frame that image 1's head occupies.
+            — JAW, NECK AND SHOULDERS: continuous anatomy, consistent shading, and a natural
+              contact shadow under the chin.
+            — HAIR EDGE: hair meets the background in soft individual strands at image 1's
+              depth of field, the way hair photographs.
+            — LIGHT WRAP: the room's light wraps onto the edges of the hair, the jaw and the
+              shoulders exactly as it wraps onto every other object in image 1. A subject with
+              no light wrap reads as pasted on, however good the face is.
+            — GRAIN AND FOCUS: the person carries image 1's grain level, noise, sharpness and
+              depth of field, so the face is exactly as clean as the scene around it and no
+              cleaner. Image 1 is a compressed video frame: its blockiness, banding and
+              macroblocking stay out of the person, while its photographic character stays in.
+            — SKIN SURFACE: real skin with visible pores and micro-imperfections, at the same
+              resolution as the rest of the frame — an untouched photograph, not a retouched one.
+            — SILHOUETTE: the person occupies the same area of the frame that image 1's person
+              occupied. Every pixel outside that area is a copy of image 1.
+            — SHADOWS: shadows fall exactly where image 1 already has them, with image 1's
+              direction, hardness and length. Surfaces that are clean in image 1 stay clean.
+            The scene keeps image 1's resolution, sharpness, grain, colour, saturation and hue.
             """;
 
     /**
-     * Nota da image 3, anexada só quando o front manda o avatar original (corpo inteiro,
-     * sem crop) junto — usada exclusivamente como referência de tom de pele/corpo, nunca
-     * como uma segunda identidade nem como fonte de pose/roupa/fundo.
+     * Frase de tarefa. A orientacao oficial de edicao (diferente de geracao) manda abrir
+     * declarando o que muda e o que permanece — antes de qualquer regra.
      */
-    private static final String PERSON_IMAGE3_NOTE = """
-
-            IMAGE 3 FRAMING NOTE:
-            Image 3, when present, is the SAME avatar as image 2 but uncropped, showing the
-            full body. It is a SKIN-TONE AND BODY-BUILD reference ONLY — completely ignore
-            its own pose, clothing, background and camera framing; those still come
-            EXCLUSIVELY from image 1. Use image 3 only to see how the face/skin tone already
-            read from image 2 looks on whatever parts of the body it actually leaves bare.
-            How much bare skin image 3 shows depends entirely on its outfit: it may show the
-            arms and legs, or it may cover them completely with long sleeves and long trousers.
+    private static final String PERSON_TASK = """
+            EDIT TASK — SINGLE PERSON REPLACEMENT.
+            Image 1 is a photograph. Exactly one thing about it changes: the person's identity
+            becomes the person from image 2. Everything else in image 1 — the room, the walls,
+            the floor, the furniture, the lighting, the camera framing, the body pose, the
+            facial performance and the clothing — is reproduced exactly as it already is.
             """;
 
-    /** image 1 = frame do vídeo (cena/pose base); image 2 = avatar (pessoa a inserir). */
-    private static final String PERSON_BODY = """
+    /** Rotulagem explicita das referencias: o vinculo posicional sozinho e fragil. */
+    private static final String PERSON_ROSTER = """
 
-            KEEP from image 1 (the original scene):
-            — pose, body position, framing, camera angle, background, and lighting.
-              This means the GEOMETRY of the body ONLY — where the limbs are, how they are
-              posed, how large they are. It does NOT include the original person's skin: that
-              is replaced entirely (see CRITICAL FULL-BODY SKIN RULE below).
-            — facial expression (The avatar's face is used for IDENTITY ONLY — the emotional expression MUST match the mood, context, and exact muscle movements of the scene in image 1).
-
-            CRITICAL CLOTHING RULE:
-            You MUST KEEP the exact clothing and outfit worn by the person in image 1.
-            Preserve the EXACT color, style, fabric, shape, and texture of the original outfit from image 1.
-            Do NOT change the clothing color. Do NOT copy any clothing from image 2.
-            
-            COPY from image 2 (the avatar reference) onto the result:
-            — face, facial features, and skin tone
-            — hair style and hair color (ALWAYS match the avatar's hair exactly. Include hair volume, texture, natural movement, and flyaway strands consistent with image 2. Match the hairline shape exactly)
-            — apparent age (if image 2 shows an elderly person, the ENTIRE result MUST look elderly; if young, young)
-            — build ONLY as far as the crop actually shows it (neck thickness, shoulder width). The body's height, weight, proportions and stance stay exactly as in image 1. Adapt the head scale so it sits naturally in image 1's pose and framing — do NOT make the head oversized or disproportionate to the environment
-            
-            FACIAL IDENTITY LOCK:
-            The face from image 2 MUST be reproduced with near-100% photographic likeness.
-            Copy EXACTLY: eye shape and color, eyebrow shape and thickness, nose shape and size,
-            lip shape, jawline, chin, forehead proportions, ear shape (if visible),
-            facial bone structure, and any unique facial features (beauty marks, dimples, etc.).
-            Even if the avatar looks similar to the original person, you MUST forcefully apply all specific facial features from image 2 to ensure a complete identity swap.
-            Do NOT average, blend, or approximate the facial features — reproduce them exactly.
+            IMAGE ROSTER:
+            — IMAGE 1 — THE SCENE. A frame from a video. It is the authority for everything
+              except who the person is. It is reproduced, never reinterpreted.
+            — IMAGE 2 — THE AVATAR, a close crop of the head and upper torso. It is the
+              authority for identity only: face, hair, skin tone, apparent age. Its own
+              framing, pose, clothing and background are irrelevant to this edit.
             """;
 
-    /** Regra de pele quando só temos a image 2 (crop de rosto) — extrapola por texto. */
-    private static final String SKIN_RULE_FACE_ONLY = """
-
-            CRITICAL FULL-BODY SKIN RULE:
-            Image 2 only shows the skin of the face, neck and upper chest. Take the exact skin
-            tone from that visible area and EXTEND it consistently to every visible part of the
-            body in the result — hands, arms, shoulders, legs, feet — even though those parts do
-            not appear in image 2. This includes:
-            — Exact skin tone and color sampled from image 2
-            — Age-appropriate skin texture
-            — Visible pores, natural skin grain, and subtle imperfections matching image 2
-            There must be NO tone break between the face and the rest of the body: the head and
-            the body MUST read as the SAME person, lit by image 1's light.
+    /** Linha extra do roster quando o front tambem manda o avatar de corpo inteiro. */
+    private static final String PERSON_ROSTER_IMAGE3 = """
+            — IMAGE 3 — THE SAME AVATAR, uncropped, full body. It is consulted for one thing
+              only: how that person's skin tone reads on the limbs. Its pose, clothing,
+              background and framing are irrelevant to this edit.
             """;
 
     /**
-     * Regra de pele quando a image 3 (avatar sem crop, corpo inteiro) também está presente —
-     * amostra o tom diretamente do corpo em vez de extrapolar só por texto a partir do rosto.
+     * A trava de cena que nao existia no swap de pessoa — so o fluxo de roupa tinha uma.
+     * As superficies sao enumeradas uma a uma porque o modelo preserva melhor o que e
+     * nomeado, e o texto e afirmativo em vez de negativo.
      */
-    private static final String SKIN_RULE_WITH_BODY_REF = """
+    private static final String SCENE_PIXEL_LOCK = """
 
-            CRITICAL FULL-BODY SKIN RULE:
-            THE FACE IS THE ANCHOR. The face, neck and hands are always visible in image 2 and
-            image 3, so they are the authoritative source of this person's skin tone. Read that
-            exact tone and reproduce the SAME tone on every visible part of the body in the
-            result — hands, arms, shoulders, legs, feet.
-            Image 3 may ALSO expose the arms and legs, depending on its outfit. If it does, use
-            that visible skin to confirm the tone. If image 3 covers the arms or legs with long
-            sleeves or long trousers, then it gives you NO information about them: in that case
-            do NOT guess, do NOT invent a different tone, and do NOT derive anything from the
-            clothing — simply extend the exact face/neck/hand tone to those limbs.
-            This includes:
-            — Exact skin tone and color, identical to the tone of the face
-            — Age-appropriate skin texture
-            — Visible pores, natural skin grain, and subtle imperfections consistent with image 2
-            There must be NO tone break between the face and the rest of the body: the head and
-            the body MUST read as the SAME person, lit by image 1's light.
+            SCENE PIXEL LOCK — THE HIGHEST-PRIORITY RULE OF THIS EDIT:
+            Image 1 is the only source of the scene, and the scene is copied, not redrawn.
+            Reproduce pixel-for-pixel, unchanged in shape, position, colour, texture and
+            brightness:
+            — the walls, with their panelling, seams, joins, texture and any marks on them
+            — the floor, its material, its grain, and any rug or mat on it
+            — the skirting boards, door frames, sockets, switches and wall fittings
+            — every piece of furniture, in its exact position, shape and upholstery
+            — every decorative object, plant, curtain, mirror and reflection
+            — the light sources, their direction, colour temperature, intensity and falloff
+            — the camera framing, crop, distance, angle, lens perspective and image borders
+            Every pixel that is not part of the person is a copy of image 1. If the result's
+            background differs from image 1's background in any visible way, the edit has
+            FAILED — however good the face is.
+            """;
+
+    /** Identidade: vem exclusivamente da image 2. */
+    private static final String PERSON_IDENTITY = """
+
+            IDENTITY — FROM IMAGE 2:
+            The result shows the person from image 2, with near-100% photographic likeness.
+            Reproduce exactly: eye shape and colour, eyebrow shape and thickness, nose shape
+            and size, lip shape, jawline, chin, forehead proportions, ear shape, facial bone
+            structure, and any distinguishing marks such as beauty spots or dimples.
+            Hair matches image 2 exactly: style, colour, hairline shape, volume, texture and
+            the way loose strands fall.
+            Apparent age matches image 2: an older avatar produces a person who reads as
+            older over the whole body, a younger avatar one who reads as younger.
+            This is a complete identity replacement — the result's face is image 2's face.
+            Where the two people happen to look alike, image 2's specific features still
+            decide every detail, feature by feature.
+            Neck thickness and shoulder width follow image 2 as far as its crop shows them.
+            Height, weight, body proportions and stance stay exactly as in image 1.
             """;
 
     /**
-     * O modelo lê "KEEP the body from image 1" como "mantenha o corpo inteiro, pele inclusa",
-     * e troca só o rosto — o que quebra o tom quando a pessoa original é mais clara/escura que
-     * o avatar. Esta regra manda repintar explicitamente, na mesma linguagem que já funciona
-     * na regra de tatuagem ("erase and paint over").
+     * A performance facial vinha numa unica linha entre parenteses. Como a cena tipica e
+     * alguem falando, cada canal (boca, olhar, palpebras, cabeca) precisa ser nomeado: se o
+     * modelo fecha a boca ou reposiciona o olhar, o frame deixa de casar com o clipe.
      */
-    private static final String SKIN_REPAINT_RULE = """
+    private static final String PERFORMANCE_LOCK = """
 
-            THE ORIGINAL PERSON'S SKIN IS NOT PRESERVED — REPAINT IT:
-            The person in image 1 is a DIFFERENT person and may have a completely different
-            skin tone from the avatar: darker, lighter, or a different undertone. That original
-            tone is WRONG for this result and MUST be entirely erased and repainted.
-            Replacing the person means replacing ALL of their exposed skin, not just the face.
-            Every square centimetre of visible skin in the result — face, neck, ears, arms,
-            elbows, hands, fingers, knees, legs, ankles and feet — must be REPAINTED to the
-            avatar's skin tone. Do NOT leave a single patch of the original person's skin tone
-            anywhere in the image.
-            SELF-CHECK BEFORE FINISHING: compare the face with the arms and the legs in your
-            result. If they do not read as the same skin tone on the same person, the edit has
-            FAILED and you must repaint the limbs to match the face.
+            PERFORMANCE LOCK — FROM IMAGE 1:
+            The facial performance belongs to image 1 and transfers unchanged onto image 2's
+            face. Image 2 supplies the anatomy; image 1 supplies what that anatomy is doing.
+            Reproduce from image 1, exactly as they are in that frame:
+            — THE MOUTH: how far it is open, the lip shape, whether teeth are visible and how
+              much of them, the tongue position when visible. This frame is usually caught
+              mid-speech: keep the mouth in that same mid-word shape, rather than settling it
+              into a closed or neutral mouth.
+            — THE SMILE: its width, its asymmetry, which side lifts more, the cheek compression
+            — THE EYES: the eyelid aperture on each side, any squint, the eyebrow position
+            — THE GAZE: the exact direction the eyes point, whether they meet the camera or
+              look away from it, and to which side
+            — THE HEAD: its tilt, its turn, its forward or backward lean, the chin height
+            — THE NECK: its tension, its angle, the line of the jaw against it
+            The emotion, the muscle positions and the gaze in the result are the ones already
+            present in image 1, rendered on image 2's face.
             """;
 
-    private static final String PERSON_TAIL = """
+    /** A roupa faz parte da cena preservada nesta etapa. */
+    private static final String PERSON_CLOTHING = """
 
-            TATTOOS & SKIN MARKINGS RULE:
-            Look VERY closely at image 2 (the avatar reference).
-            — If image 2 CLEARLY shows tattoos: Reproduce ONLY the avatar's exact tattoos.
-            — If image 2 does NOT show tattoos: The final result MUST have ZERO tattoos. Completely erase and paint over any tattoo, scar, or mark that was on the person in image 1.
-            — NEVER invent, add, or hallucinate tattoos that are not clearly present in image 2.
+            CLOTHING — FROM IMAGE 1:
+            The outfit in the result is the outfit in image 1: same colour, same cut, same
+            fabric, same folds, same texture, same fit, same fastenings. Image 2's own
+            clothing stays in image 2.
+            """;
 
-            """ + PERSON_INTEGRATION + "\n" + VISUAL_CONSISTENCY + "\n" + AVOID_RULES;
+    /**
+     * Regra unica de pele. Duas propriedades importam aqui, e as duas custaram uma rodada:
+     *
+     * <p>1. O eixo e albedo x iluminacao, nao matiz x brilho. Profundidade de tom de pele e
+     * luminancia, entao "brilho vem da image 1" entregava ao modelo a luminancia da pessoa
+     * ORIGINAL do frame e os membros derivavam para o tom dela (membros claros demais).
+     *
+     * <p>2. A regra e ABSOLUTA, nao relativa. "Os membros tem o mesmo tom do rosto" obriga o
+     * modelo a comparar duas regioes que ele gera de forma independente: sem um valor comum a
+     * que ambas se refiram, o resultado oscila em torno do alvo. Tentar consertar isso com um
+     * empurrao direcional ("nunca mais claros") so troca o lado do erro — foi o que produziu
+     * membros escuros demais. Aqui existe UM valor de albedo, declarado na linha de tom do
+     * avatar, e toda regiao de pele renderiza para ele.
+     *
+     * <p>Por isso este bloco NAO nomeia nenhum tom de pele: sinonimo e lido como instrucao
+     * nova, e um exemplo "deep brown" aqui competia com o "medium brown" da descricao do
+     * avatar. O unico lugar onde um tom e nomeado e a descricao do avatar.
+     */
+    private static final String SKIN_RULE = """
+
+            SKIN:
+            The skin visible in image 1 belongs to a DIFFERENT person and is replaced along with
+            the face. Two separate rules govern the skin of the person replacing them:
+            — ALBEDO — the skin's own colour, INCLUDING HOW DEEP OR LIGHT IT IS — is a property of
+              the person. This person has ONE albedo value: the one stated in the avatar
+              description's skin tone line. Every region of skin renders at that value, including
+              limbs no photograph shows and limbs the avatar's own clothing covers. The colour of
+              a garment says nothing about the skin near it.
+            — ILLUMINATION — direction, intensity, softness and colour temperature — comes from
+              image 1 and decides only how much light reaches each surface. The face is lit by
+              that room on the same terms as the body, never separately from it.
+            Light changes how much light a surface returns, never how deep its own colour is.
+            The skin is one continuous surface: jaw into neck into chest, with no seam and no step
+            at the collar, the sleeve or the hem.
+            It carries real texture: visible pores, natural grain, age-appropriate detail.
+            """;
+
+    /**
+     * Papel da image 3 no tom de membro. Era um CONDICIONAL ("se mostra a perna leia dali,
+     * se cobre estenda o rosto") e o modelo tinha de escolher o ramo olhando a foto — quando
+     * o avatar usa calca comprida ele caia no prior, que puxa para o claro. Agora a image 3
+     * apenas CONFIRMA o valor unico ja declarado, sem nunca decidi-lo, e sem que o rosto seja
+     * a referencia: os dois obedecem a mesma ancora.
+     */
+    private static final String SKIN_RULE_IMAGE3 = """
+            IMAGE 3 CONFIRMS THE VALUE, IT NEVER DECIDES IT:
+            Image 3 shows this same person's body. Where its outfit leaves the arms or legs bare,
+            use it to confirm the stated albedo value there. Where sleeves or trousers cover
+            them, nothing changes: those limbs still render at the stated value.
+            """;
+
+    /** Regra de marcas de pele, reduzida de ~75 para ~40 palavras e escrita em afirmativa. */
+    private static final String SKIN_MARKINGS = """
+
+            SKIN MARKINGS:
+            The result carries exactly the tattoos, scars and marks that are visible in image 2
+            — no more, no fewer. Where image 2 shows clear skin, the result's skin is clear,
+            and any marking that belonged to image 1's person is painted over.
+            """;
+
+    /**
+     * Substitui, no caminho da pessoa, o antigo bloco de "avoid" herdado do fluxo de roupa.
+     * Aquele bloco pedia para evitar "changed facial identity, a different-looking person"
+     * — exatamente o oposto da tarefa deste fluxo.
+     */
+    private static final String PERSON_ANATOMY_CHECK = """
+
+            ANATOMY CHECK:
+            Each hand has five fingers, in image 1's position and at image 1's angle. Body
+            proportions are image 1's. The frame carries only what image 1 already contains:
+            no added text, caption, watermark, logo, border or overlay.
+            """;
 
     /**
      * image 1 = frame do vídeo (cena/pose base); image 2 = avatar (pessoa a inserir);
      * image 3 (opcional) = mesmo avatar sem crop, só para tom de pele/corpo.
      *
-     * Monta o prompt de swap de pessoa. Quando {@code hasBodyReference} é true, o front já
-     * enviou a 3ª imagem (avatar original, corpo inteiro) e a regra de pele passa a amostrar
-     * o tom direto do corpo em vez de extrapolar só a partir do recorte de rosto.
+     * <p>Ordem dos blocos: tarefa, roster, trava de cena, identidade, performance, roupa,
+     * pele, integração fotográfica. A cena vem cedo porque é o requisito de maior prioridade;
+     * a trava final combinada (cena + identidade) é anexada pelo service, depois dos blocos
+     * opcionais de template e de avatar.
      */
     public static String buildPersonPrompt(boolean hasBodyReference) {
-        String intro = PERSON_IMAGE2_NOTE + (hasBodyReference ? PERSON_IMAGE3_NOTE : "");
-        String skinRule = hasBodyReference ? SKIN_RULE_WITH_BODY_REF : SKIN_RULE_FACE_ONLY;
-        return intro + PERSON_BODY + skinRule + SKIN_REPAINT_RULE + PERSON_TAIL;
+        String roster = PERSON_ROSTER + (hasBodyReference ? PERSON_ROSTER_IMAGE3 : "");
+        String skin = SKIN_RULE + (hasBodyReference ? SKIN_RULE_IMAGE3 : "");
+        return PERSON_TASK
+                + roster
+                + SCENE_PIXEL_LOCK
+                + PERSON_IDENTITY
+                + PERFORMANCE_LOCK
+                + PERSON_CLOTHING
+                + skin
+                + SKIN_MARKINGS
+                + PHOTOGRAPHIC_INTEGRATION
+                + PERSON_ANATOMY_CHECK;
     }
 
     // ───────────────────────── contexto de cena do template ─────────────────────
@@ -206,19 +274,17 @@ public class SwapPromptComposer {
 
     /** Cabeçalho do bloco de cena no swap de PESSOA quando o template tem scenePrompt limpo. */
     private static final String SCENE_HEADER_PERSON = """
-            SCENE REFERENCE (a text description of image 1 — supporting context only):
-            The text below describes ONLY the camera framing, the body pose, the facial
-            expression and gaze, the clothing, and the environment that are ALREADY visible
-            in image 1. Use it to keep that scene stable while you replace the person.
-            It contains NO information about WHO the person is.
-            Image 1 is always the authority: if the text and image 1 disagree about anything,
-            follow image 1 and ignore the text.
-            Expression and gaze in this text are SCENE information (they belong to image 1),
-            NOT identity information.
-            The identity of the resulting person — face, facial features, skin tone, hair,
-            apparent age and body type — comes EXCLUSIVELY from image 2, exactly as stated in
-            the FACIAL IDENTITY LOCK and CRITICAL FULL-BODY SKIN RULE above. Nothing written
-            below may weaken, blend with, or override those rules.
+            POSE REFERENCE (a text description of image 1 — read only the parts listed here):
+            From the text below, use ONLY what it says about the body pose, the facial
+            expression, the gaze and the camera framing. Those are the parts that help you keep
+            the performance stable while the person changes.
+            Everything the text says about the environment — the room, the walls, the floor,
+            the furniture, the decor, the lighting — is already present in image 1 at full
+            resolution, and image 1 is the only source used for it. Read the scene from the
+            pixels, not from this description.
+            This text says NOTHING about who the person is. Expression and gaze in it are SCENE
+            information belonging to image 1, not identity information. The identity of the
+            resulting person comes exclusively from image 2, image 3 and the avatar description.
             """;
 
     /** Cabeçalho do bloco de cena no swap de PESSOA quando só existe o imagePrompt legado. */
@@ -243,39 +309,16 @@ public class SwapPromptComposer {
      * modelos costumam dar peso extra ao final — esta trava fecha a brecha.
      */
     public static final String PERSON_FINAL_LOCK = """
-            FINAL IDENTITY CHECK (highest priority, overrides every text block above):
-            The face, facial features, skin tone, hair and apparent age in the result MUST come
-            from image 2, from image 3, and from the AVATAR IDENTITY DESCRIPTION block — and
-            from nowhere else. Every OTHER physical description of a person in the text above
-            (scene text, template text) is background context only — never a source of identity.
-            The result must NOT show a third, invented person: it must be the person from
-            image 2, placed in the scene of image 1.
-            This applies to the WHOLE BODY, not just the head. The person in image 1 is being
-            replaced, so none of their skin survives: the arms, hands and legs in the result
-            must be repainted to image 2's skin tone, exactly like the face. A result whose
-            face and limbs do not match in skin tone is a FAILED edit.
-
-            FINAL PHOTOGRAPHIC CHECK (equally mandatory — identity without this is a failure):
-            Copying the identity does NOT mean pasting image 2 into image 1. The result must read
-            as ONE photograph taken by ONE camera in ONE moment, never as a head composited onto
-            a body. Specifically:
-            — HEAD SCALE: the head must be anatomically proportional to the body and to the room.
-              A head that reads even slightly too large is a failure. Size it from image 1's body,
-              never from image 2's close-up crop.
-            — HAIR EDGE: hair must blend into the background with soft, natural strands and
-              believable depth of field. No hard cut-out silhouette, no halo, no clean outline.
-            — NECK AND SHOULDERS: the jaw, neck and shoulders must connect with continuous
-              anatomy, consistent shading and a natural contact shadow under the chin.
-            — GRAIN AND FOCUS: the face must carry the SAME grain, noise, sharpness and depth of
-              field as the rest of image 1. Do NOT render the face cleaner, smoother, sharper or
-              more retouched than the body and the background around it.
-            — LIGHT: the face must be lit by image 1's light sources, matching their direction,
-              softness and intensity. This applies to brightness and shadow only — never re-tint
-              the skin's underlying hue (see the skin exception in the integration rule above).
-            — SKIN: real skin texture with pores and micro-imperfections. No beauty filter, no
-              airbrushed or plastic surface.
-            If the face looks retouched, filtered, or sharper than its surroundings, the result
-            is WRONG even when the identity is perfect.
+            FINAL CHECK — BOTH HALVES MUST HOLD. This overrides every text block above.
+            THE SCENE IS IMAGE 1'S — background, walls, floor, furniture, lighting and camera
+            framing are reproduced from it, unchanged. Any text above that describes the
+            environment is context about image 1, never permission to rebuild it.
+            THE PERSON IS IMAGE 2'S — face, hair, skin tone and apparent age come from image 2,
+            image 3 and the avatar description, and from nowhere else. Every other physical
+            description of a person above is background context, never a source of identity.
+            THE PERFORMANCE IS IMAGE 1'S — pose, expression, mouth shape and gaze direction,
+            rendered on image 2's face.
+            Getting the person right and the room wrong is exactly as wrong as the reverse.
             """;
 
     /**
@@ -471,13 +514,16 @@ public class SwapPromptComposer {
 
     // The new absolute identity lock when image 3 is available
     private static final String IDENTITY_LOCK = """
-            CRITICAL IDENTITY RULE: Image 3 is the ABSOLUTE facial identity reference.
-            You MUST copy exactly the hair, nose, eyebrows, face shape, and skin tone from Image 3 onto the person,
-            guaranteeing near-100% likeness. Fix any noise or distortion in Image 1's face using Image 3.
-            Do NOT alter, morph, beautify, restyle, age or swap the face to look like a different person.
+            CRITICAL IDENTITY RULE: The person in image 1 IS ALREADY the person in image 3 —
+            this edit changes their clothing, not their face. Preserve the face, facial
+            features, hair, skin tone and identity exactly as they appear in image 1.
+            Image 3 is a reference for verification only: consult it if some region of the face
+            is degraded or unclear in image 1, and use it solely to repair that region back to
+            this same person. It is not an instruction to re-apply the face.
+            The face in the result must remain 100% the person already present in image 1.
             Preserve the person's exact body proportions and head-to-body ratio, and their size,
             scale and position within the frame, plus the camera framing and distance from
-            image 1 — do NOT resize the head, zoom, crop or re-frame.
+            image 1 — the head keeps its size, and the frame keeps its crop.
             CRITICAL PRODUCT RULE: Take from image 2 ONLY the product's design (shape, EXACT color, print, details).
             You MUST preserve the EXACT color, branding, and texture of the product from image 2. Do NOT change its color under any circumstances.
             IGNORE image 2's scale, cropping, or any human body parts visible in image 2.
@@ -610,7 +656,7 @@ public class SwapPromptComposer {
         }
         promptBuilder.append(ANTI_DEGRADATION);
         promptBuilder.append(VISUAL_CONSISTENCY);
-        promptBuilder.append(AVOID_RULES);
+        promptBuilder.append(AVOID_CLOTHES);
 
         return promptBuilder.toString();
     }
@@ -680,12 +726,14 @@ public class SwapPromptComposer {
                 AVATAR IDENTITY DESCRIPTION (a written description of the person shown in \
                 %s — this IS an authoritative identity source):
                 The text below describes that SAME person. Unlike the scene text, it is a valid \
-                source of identity: use it to resolve anything the images do not show clearly — \
-                above all the skin tone of the arms, hands and legs.
-                The images still come first: where this text and the images disagree, follow the \
-                images. But where the images are SILENT — for example when the avatar's own outfit \
-                covers the arms and legs with long sleeves or long trousers — this text decides, \
-                and you must apply the skin tone it states to those limbs.
+                source of identity: use it to resolve anything the images do not show clearly.
+                THE SKIN TONE LINE IN THIS TEXT IS THE ALBEDO VALUE referred to by the SKIN rule \
+                above. It is a single value for this person's whole body — face, neck, chest, \
+                shoulders, arms, hands, thighs, legs and feet all render at it. It holds for \
+                limbs that no photograph shows, which is the case whenever the avatar's own \
+                outfit covers the arms or the legs.
+                For everything OTHER than that skin tone value, the images come first: where \
+                this text and the images disagree about a feature, follow the images.
                 TEXT:
                 """.formatted(personImages) + customPrompt.trim() + "\n";
     }

@@ -14,6 +14,11 @@ import org.springframework.web.client.RestClientResponseException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -21,6 +26,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +55,10 @@ public class GeminiImageProvider  implements ImageProvider {
     private static final int MAX_TIMEOUT_ATTEMPTS = 2;
     private static final Set<Integer> RETRYABLE = Set.of(429, 500, 502, 503, 504);
 
+    /** Proporções que a API aceita. A medida da image 1 é encaixada na mais próxima destas. */
+    private static final List<String> SUPPORTED_ASPECTS =
+            List.of("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9");
+
     private final RestClient restClient;
     private final StorageService storageService;
     private final String model;
@@ -57,6 +67,7 @@ public class GeminiImageProvider  implements ImageProvider {
     private final String aspectRatio;
     private final String imageSize;
     private final String thinkingLevel;
+    private final String imageMimeType;
     private final ImageNormalizer imageNormalizer;
 
     public GeminiImageProvider(StorageService storageService,
@@ -68,7 +79,8 @@ public class GeminiImageProvider  implements ImageProvider {
                                @Value("${venyx.gemini.image-timeout-seconds:240}") int timeoutSeconds,
                                @Value("${venyx.gemini.image-aspect-ratio}") String aspectRatio,
                                @Value("${venyx.gemini.image-size:1K}") String imageSize,
-                               @Value("${venyx.gemini.thinking-level:high}") String thinkingLevel) {
+                               @Value("${venyx.gemini.thinking-level:high}") String thinkingLevel,
+                               @Value("${venyx.gemini.image-mime-type:image/jpeg}") String imageMimeType) {
         this.storageService = storageService;
         this.imageNormalizer = imageNormalizer;
         this.objectMapper = objectMapper;
@@ -76,6 +88,7 @@ public class GeminiImageProvider  implements ImageProvider {
         this.aspectRatio = aspectRatio;
         this.imageSize = imageSize;
         this.thinkingLevel = thinkingLevel.trim();
+        this.imageMimeType = imageMimeType.trim();
 
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory();
         factory.setReadTimeout(ofSeconds(timeoutSeconds));
@@ -95,14 +108,18 @@ public class GeminiImageProvider  implements ImageProvider {
 
     @Override
     public ImageProviderResult generate(ImageProviderRequest request) {
+        // As referências são baixadas UMA vez: a proporção de saída é lida da image 1 e os
+        // mesmos bytes seguem para o payload, sem um segundo download só para medir.
+        List<byte[]> references = downloadReferences(request.referenceImageUrls());
+
         Map<String, Object> body = Map.of(
                 "model", model,
-                "input", buildInput(request),
+                "input", buildInput(request.prompt(), references),
                 "generation_config", Map.of("thinking_level", thinkingLevel),
                 "response_format", Map.of(
                         "type", "image",
-                        "mime_type", "image/jpeg",
-                        "aspect_ratio", aspectRatio,
+                        "mime_type", imageMimeType,
+                        "aspect_ratio", resolveAspectRatio(request, references),
                         "image_size", imageSize));
 
         String payload = objectMapper.writeValueAsString(body);
@@ -141,22 +158,94 @@ public class GeminiImageProvider  implements ImageProvider {
     }
 
 
-    private List<Map<String, Object>> buildInput(ImageProviderRequest request) {
+    /**
+     * O storage guarda a imagem em resolução cheia, mas o payload da API não precisa dela:
+     * 2048px já bastam para o modelo e cortam o tamanho da requisição em várias vezes. Sem
+     * isso, uma geração 2K reenviada como referência sozinha passa de 2MB.
+     */
+    private List<byte[]> downloadReferences(List<String> urls) {
+        List<byte[]> references = new ArrayList<>(urls.size());
+        for (String url : urls) {
+            references.add(imageNormalizer.toReferenceJpeg(downloadReference(url)));
+        }
+        return references;
+    }
+
+    private List<Map<String, Object>> buildInput(String prompt, List<byte[]> references) {
         List<Map<String, Object>> input = new ArrayList<>();
-        input.add(Map.of("type", "text", "text", request.prompt()));
+        input.add(Map.of("type", "text", "text", prompt));
 
         // Ordem preservada: image 1, image 2, ... conforme a lista de referências.
-        for (String url : request.referenceImageUrls()) {
-            // O storage guarda a imagem em resolução cheia, mas o payload da API não precisa
-            // dela: 2048px já bastam para o modelo e cortam o tamanho da requisição em várias
-            // vezes. Sem isso, uma geração 2K reenviada como referência sozinha passa de 2MB.
-            byte[] reference = imageNormalizer.toJpeg(downloadReference(url));
+        // Cada imagem é precedida por um rótulo textual: o prompt fala em "image 1/2/3", mas
+        // as imagens chegavam como um array anônimo e o vínculo era puramente posicional.
+        // O rótulo amarra explicitamente o número citado no texto à imagem que vem em seguida.
+        int index = 1;
+        for (byte[] reference : references) {
+            input.add(Map.of("type", "text", "text", "IMAGE " + index++ + ":"));
             input.add(Map.of(
                     "type", "image",
                     "mime_type", "image/jpeg",
                     "data", getEncoder().encodeToString(reference)));
         }
         return input;
+    }
+
+    /**
+     * Nos swaps a proporção sai da image 1: a cena precisa voltar com o mesmo enquadramento,
+     * e pedir 9:16 para um clipe que não é 9:16 devolve a imagem recortada ou esticada. A
+     * razão medida é encaixada na proporção suportada mais próxima (distância logarítmica,
+     * para que o erro relativo pese igual nas duas pontas da lista). Se a medição falhar,
+     * cai na proporção configurada em vez de derrubar a geração.
+     */
+    private String resolveAspectRatio(ImageProviderRequest request, List<byte[]> references) {
+        if (!request.matchFirstReferenceAspect() || references.isEmpty()) {
+            return aspectRatio;
+        }
+
+        double measured = readAspectRatio(references.get(0));
+        if (measured <= 0) {
+            logger.warn("[GEMINI] nao foi possivel medir a image 1; usando proporcao configurada {}", aspectRatio);
+            return aspectRatio;
+        }
+
+        String closest = aspectRatio;
+        double best = Double.MAX_VALUE;
+        for (String candidate : SUPPORTED_ASPECTS) {
+            String[] parts = candidate.split(":");
+            double value = Double.parseDouble(parts[0]) / Double.parseDouble(parts[1]);
+            double distance = Math.abs(Math.log(measured / value));
+            if (distance < best) {
+                best = distance;
+                closest = candidate;
+            }
+        }
+
+        if (!closest.equals(aspectRatio)) {
+            logger.info("[GEMINI] proporcao derivada da image 1: {} (medido {})",
+                    closest, String.format("%.4f", measured));
+        }
+        return closest;
+    }
+
+    /** Lê largura/altura pelo cabeçalho, sem decodificar a imagem inteira. Devolve -1 se falhar. */
+    private double readAspectRatio(byte[] content) {
+        try (ImageInputStream input = ImageIO.createImageInputStream(new ByteArrayInputStream(content))) {
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+            if (!readers.hasNext()) {
+                return -1;
+            }
+            ImageReader reader = readers.next();
+            try {
+                reader.setInput(input);
+                int width = reader.getWidth(0);
+                int height = reader.getHeight(0);
+                return height <= 0 ? -1 : (double) width / height;
+            } finally {
+                reader.dispose();
+            }
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
 
