@@ -12,6 +12,8 @@ import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.VideoTemplateCatalogService;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -35,6 +37,8 @@ import static com.venyx.tiktokshop.entities.enums.ImageGenerationStatus.PENDING;
  */
 @Service
 public class VideoTemplateImageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(VideoTemplateImageService.class);
 
     private static final String FRAME_FOLDER = "templates/frames";
 
@@ -82,6 +86,20 @@ public class VideoTemplateImageService {
                 : null;
         boolean hasBodyReference = bodyImageUrl != null;
 
+        // O descarte era silencioso: nao havia como saber, olhando o log, se uma geracao rodou
+        // com a referencia de corpo ou sem ela. Como a image 3 e a fonte primaria do tom de
+        // braco e perna, a ausencia dela muda o resultado de forma visivel — e diagnosticar
+        // isso as cegas ja custou uma investigacao inteira numa hipotese errada.
+        if (hasBodyReference) {
+            logger.info("[SWAP-PERSON] com image 3 (referencia de tom de membro)");
+        } else if (StringUtils.hasText(req.avatarBodyImageUrl())) {
+            logger.warn("[SWAP-PERSON] sem image 3: a URL do avatar de corpo inteiro esta fora"
+                    + " do storage da plataforma e foi descartada. url={} esperado prefixo={}",
+                    req.avatarBodyImageUrl(), storageService.publicBaseUrl() + "/");
+        } else {
+            logger.info("[SWAP-PERSON] sem image 3: o front nao enviou avatarBodyImageUrl");
+        }
+
         Map<String, Object> config = new LinkedHashMap<>();
         config.put("op", "swap-person");
         config.put("frameUrl", req.frameUrl());
@@ -90,7 +108,23 @@ public class VideoTemplateImageService {
             config.put("avatarBodyImageUrl", bodyImageUrl);
         }
 
-        StringBuilder builder = new StringBuilder(SwapPromptComposer.buildPersonPrompt(hasBodyReference));
+        // Token aleatório para decorrelacionar tentativas: frame+avatar+prompt idênticos entre
+        // cliques em "trocar pessoa" fazem o modelo convergir para o mesmo resultado (bom ou
+        // ruim). Isto força cada chamada a ser amostrada como uma geração nova e independente,
+        // sem precisar de F5 (que só recria esse efeito por acaso, ao reconstruir o estado).
+        //
+        // Fica no TOPO, e não no fim. Os últimos tokens do prompt são os de maior peso — é por
+        // isso que a trava final mora lá — e gastá-los com um identificador aleatório entrega
+        // a posição mais influente do prompt a um texto sem conteúdo. A redação também deixou
+        // de enumerar "text, number, watermark": nomear o que não se quer é o jeito mais
+        // eficiente de pedir exatamente isso a um modelo de imagem.
+        StringBuilder builder = new StringBuilder();
+        builder.append("GENERATION ATTEMPT ID: ").append(UUID.randomUUID())
+                .append(" — internal token, not part of the image. Treat this call as a")
+                .append(" brand-new, independent generation, sampled fresh rather than")
+                .append(" continuing or refining any previous attempt.\n\n");
+
+        builder.append(SwapPromptComposer.buildPersonPrompt(hasBodyReference));
         if (StringUtils.hasText(req.templateSlug())) {
             var template = catalogService.requireVisible(req.templateSlug());
             builder.append(promptComposer.personSceneBlock(
@@ -98,15 +132,6 @@ public class VideoTemplateImageService {
         }
         builder.append(promptComposer.avatarCustomBlock(req.customPrompt()));
         builder.append("\n").append(SwapPromptComposer.PERSON_FINAL_LOCK);
-        // Token aleatório para decorrelacionar tentativas: frame+avatar+prompt idênticos entre
-        // cliques em "trocar pessoa" fazem o modelo convergir para o mesmo resultado (bom ou
-        // ruim). Isto força cada chamada a ser amostrada como uma geração nova e independente,
-        // sem precisar de F5 (que só recria esse efeito por acaso, ao reconstruir o estado).
-        builder.append("\n\nGENERATION ATTEMPT ID: ").append(UUID.randomUUID())
-                .append(" — internal disambiguation token only. Do not render this text, any")
-                .append(" number, or any watermark anywhere in the image. Treat this call as a")
-                .append(" brand-new, independent generation, not a refinement or continuation of")
-                .append(" any previous attempt.");
 
         String basePrompt = builder.toString();
 
