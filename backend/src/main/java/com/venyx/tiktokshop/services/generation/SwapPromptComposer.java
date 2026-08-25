@@ -32,9 +32,23 @@ public class SwapPromptComposer {
      * RULE, que autorizava explicitamente repintar o fundo ("cast shadows onto the floor,
      * walls" e "erode any harsh cut-out edges") — as duas coisas que o objetivo proíbe. Aqui a
      * sombra fica restrita a onde image 1 já tem sombra, e a silhueta à área que a pessoa
-     * original já ocupava. Também absorve o ANTI_DEGRADATION, que só era aplicado no fluxo de
+     * original já ocupava — com a EXCEÇÃO DO CABELO, explicada abaixo. Também absorve o
+     * ANTI_DEGRADATION, que só era aplicado no fluxo de
      * roupa, com o escopo declarado por região: preserva grão e cor na cena, limpa artefato de
      * compressão só na pessoa.
+     *
+     * <p>POR QUE O CABELO É EXCEÇÃO NA SILHUETA: a regra dizia que "the person occupies the
+     * same area of the frame that image 1's person occupied". Quando as duas pessoas têm volume
+     * de cabelo diferente — modelo original de cachos largos, avatar de cabelo liso — isso
+     * obriga o modelo a preencher a área da cabeleira antiga com alguém que não a tem. Ele
+     * resolve do jeito mais barato: mantém a massa de cabelo da image 1 e apenas a REPINTA na
+     * cor do avatar. O resultado é uma cabeça com duas texturas de cabelo convivendo, uma do
+     * avatar e outra da modelo original recolorida — defeito observado em produção.
+     *
+     * <p>A regra e a identidade do cabelo se contradiziam. A separação correta é entre CONTEÚDO
+     * e FRONTEIRA: o conteúdo fora da pessoa continua vindo só da image 1 (o anti-repintura
+     * original), mas a fronteira entre pessoa e fundo passa a seguir o cabelo da image 2. Onde
+     * o cabelo antigo encolhe, o que aparece é o fundo da própria image 1, não sobra de cabelo.
      */
     private static final String PHOTOGRAPHIC_INTEGRATION = """
 
@@ -57,8 +71,14 @@ public class SwapPromptComposer {
               macroblocking stay out of the person, while its photographic character stays in.
             — SKIN SURFACE: real skin with visible pores and micro-imperfections, at the same
               resolution as the rest of the frame — an untouched photograph, not a retouched one.
-            — SILHOUETTE: the person occupies the same area of the frame that image 1's person
-              occupied. Every pixel outside that area is a copy of image 1.
+            — SILHOUETTE: the BODY occupies the same area of the frame that image 1's body
+              occupied — same stance, same limb positions, same width. THE HAIR IS THE ONE
+              EXCEPTION: its outline belongs to image 2, so it may cover more or less of the
+              frame than image 1's hair did. Where image 1's hair filled space that this
+              person's hair does not, that space becomes background again, continued from
+              image 1's own background — the wall, floor or furniture that stands there,
+              never an invention and never a leftover of the old hair. Everything outside the
+              person is image 1's content, unchanged.
             — SHADOWS: shadows fall exactly where image 1 already has them, with image 1's
               direction, hardness and length. Surfaces that are clean in image 1 stay clean.
             The scene keeps image 1's resolution, sharpness, grain, colour, saturation and hue.
@@ -71,7 +91,8 @@ public class SwapPromptComposer {
     private static final String PERSON_TASK = """
             EDIT TASK — SINGLE PERSON REPLACEMENT.
             Image 1 is a photograph. Exactly one thing about it changes: the person's identity
-            becomes the person from image 2. Everything else in image 1 — the room, the walls,
+            becomes the person from image 2. That person is PAINTED INTO the frame anew, at
+            image 1's scale and through image 1's camera. Everything else in image 1 — the room, the walls,
             the floor, the furniture, the lighting, the camera framing, the body pose, the
             facial performance and the clothing — is reproduced exactly as it already is.
             """;
@@ -117,21 +138,58 @@ public class SwapPromptComposer {
             FAILED — however good the face is.
             """;
 
-    /** Identidade: vem exclusivamente da image 2. */
+    /**
+     * Identidade: vem exclusivamente da image 2 — mas RE-DESENHADA, não copiada.
+     *
+     * <p>O DEFEITO QUE ESTA REDAÇÃO CORRIGE: a versão anterior mandava "reproduce exactly",
+     * "near-100% photographic likeness", "feature by feature", logo depois de o SCENE_PIXEL_LOCK
+     * dizer "copied, not redrawn" e "pixel-for-pixel". Nos blocos de maior prioridade o modelo
+     * lia COPIAR quatro vezes, e obedecia: transplantava a image 2 em vez de re-sintetizar a
+     * pessoa. Como a image 2 é um crop 1080x1920 em que a cabeça preenche o quadro, a cabeça
+     * transplantada saía gigante e com borda de recorte. O cliente descreveu exatamente isso:
+     * "parece que ela recorta a imagem do avatar e coloca na frente do modelo do vídeo, fica
+     * com a cabeça enorme, ela não recria".
+     *
+     * <p>A defesa que existia era fraca por três motivos: era uma NEGAÇÃO ("not as a head placed
+     * on a body"), contra o princípio afirmativo que o próprio SCENE_PIXEL_LOCK segue; era um
+     * único bullet dentro da PHOTOGRAPHIC_INTEGRATION; e dizia o que a pessoa não devia ser sem
+     * nunca dizer o que ela devia ser.
+     *
+     * <p>A CORREÇÃO É SEPARAR O VERBO POR DOMÍNIO, o mesmo padrão que a SKIN_RULE usa para
+     * albedo x iluminação: a CENA é copiada, a PESSOA é re-fotografada. A image 2 deixa de ser
+     * uma camada para colar e passa a ser a descrição de QUEM desenhar.
+     *
+     * <p>A LISTA DE TRAÇOS FOI MANTIDA PALAVRA POR PALAVRA de propósito. É ela que carrega a
+     * semelhança; o que saiu foi só o vocabulário de cópia ao redor dela. Trocar a lista junto
+     * misturaria duas mudanças e tornaria impossível saber qual delas mexeu no resultado.
+     *
+     * <p>A escala de cabeça é declarada AQUI, e não só como bullet da PHOTOGRAPHIC_INTEGRATION,
+     * porque é o sintoma mais visível da falha e precisa aparecer no mesmo bloco que descreve
+     * a identidade — é lá que o modelo decide de onde tirar o rosto.
+     */
     private static final String PERSON_IDENTITY = """
 
-            IDENTITY — FROM IMAGE 2:
-            The result shows the person from image 2, with near-100% photographic likeness.
-            Reproduce exactly: eye shape and colour, eyebrow shape and thickness, nose shape
-            and size, lip shape, jawline, chin, forehead proportions, ear shape, facial bone
-            structure, and any distinguishing marks such as beauty spots or dimples.
-            Hair matches image 2 exactly: style, colour, hairline shape, volume, texture and
-            the way loose strands fall.
-            Apparent age matches image 2: an older avatar produces a person who reads as
-            older over the whole body, a younger avatar one who reads as younger.
-            This is a complete identity replacement — the result's face is image 2's face.
-            Where the two people happen to look alike, image 2's specific features still
-            decide every detail, feature by feature.
+            IDENTITY — WHO THE PERSON IS, FROM IMAGE 2:
+            Image 2 is not a layer to place into image 1. It is the reference for WHO this
+            person is. The person is DRAWN AGAIN, from scratch, inside image 1's frame — the
+            same individual, photographed a second time by image 1's camera. No pixel of
+            image 2 travels into the result; only the identity does.
+            Anyone who knows the person in image 2 recognises them immediately in the result.
+            These are the features that make them recognisable, and they are rendered
+            faithfully: eye shape and colour, eyebrow shape and thickness, nose shape and size,
+            lip shape, jawline, chin, forehead proportions, ear shape, facial bone structure,
+            and any distinguishing marks such as beauty spots or dimples.
+            Hair is the same hair: style, colour, hairline shape, volume, texture and the way
+            loose strands fall.
+            Apparent age is the same: an older avatar produces a person who reads as older over
+            the whole body, a younger avatar one who reads as younger.
+            Where the two people happen to look alike, image 2's specific features still decide
+            every detail, feature by feature.
+            IMAGE 2'S CAMERA IS DISCARDED. Image 2 is a close crop in which the head fills the
+            frame; image 1 is a wider shot in which it does not. The head is rendered at IMAGE
+            1'S head size, at image 1's camera distance, lens perspective and viewing angle —
+            never at image 2's. A head carried over at image 2's scale is the single most
+            visible way this edit fails.
             Neck thickness and shoulder width follow image 2 as far as its crop shows them.
             Height, weight, body proportions and stance stay exactly as in image 1.
             """;
@@ -231,6 +289,63 @@ public class SwapPromptComposer {
             """;
 
     /**
+     * Regra de superfície de cabelo — o análogo capilar da {@link #SKIN_RULE}.
+     *
+     * <p>O BURACO QUE ELA FECHA: o cabelo só aparecia em dois lugares, a borda na
+     * {@link #PHOTOGRAPHIC_INTEGRATION} ("HAIR EDGE") e o estilo na {@link #PERSON_IDENTITY}
+     * ("hair matches image 2 exactly"). Havia regra para onde o cabelo ENCONTRA o fundo e
+     * nenhuma para a superfície dele. O modelo então entregava massa brilhante contínua: onda
+     * de amplitude e período repetidos, banda especular única descendo cada mecha, cor em
+     * faixas verticais, silhueta fechada e couro cabeludo invisível — cabelo de propaganda de
+     * xampu.
+     *
+     * <p>A DIVISÃO DE ESCOPO É O PONTO DELICADO, e ela copia a divisão albedo/iluminação da
+     * SKIN_RULE. A image 2 continua dona do QUE o cabelo é: corte, cor, risca, volume,
+     * comprimento e formato da onda. Este bloco governa só COMO ele renderiza: fio separado em
+     * vez de lâmina, brilho quebrado em vez de banda. Sem declarar essa divisão a regra
+     * brigaria com o "hair matches image 2 exactly ... texture" da PERSON_IDENTITY, e o modelo
+     * resolveria o conflito trocando o penteado — justamente o que não pode mudar.
+     *
+     * <p>LIMITE CONHECIDO: isto melhora o render, não a fonte. Quando a própria foto do avatar
+     * já tem cabelo sintético, a PERSON_IDENTITY manda reproduzi-lo, e o teto do resultado é a
+     * image 2. Nesse caso a correção é trocar a foto, não o texto.
+     *
+     * <p>O PARÁGRAFO DE SUBSTITUIÇÃO veio depois, e fecha uma assimetria: a SKIN_RULE sempre
+     * abriu dizendo que "the skin visible in image 1 belongs to a DIFFERENT person and is
+     * replaced along with the face", mas NENHUM bloco dizia isso do cabelo. Sem essa frase o
+     * modelo tratava a cabeleira da image 1 como material reaproveitável e a repintava na cor
+     * do avatar, produzindo duas texturas de cabelo na mesma cabeça. A frase final — "one head
+     * carries one hair texture, never two" — nomeia o defeito de forma afirmativa, em vez de
+     * proibi-lo, seguindo o mesmo princípio do resto do arquivo. Anda junto com a exceção de
+     * cabelo na SILHOUETTE da {@link #PHOTOGRAPHIC_INTEGRATION}: uma diz que o cabelo antigo
+     * some, a outra libera a área que ele ocupava.
+     */
+    private static final String HAIR_SURFACE = """
+
+            HAIR — REPLACED FIRST, THEN RENDERED:
+            The hair visible in image 1 belongs to a DIFFERENT person and goes away completely,
+            along with the face: its length, its volume, its curl pattern and its outline all
+            go. It is never recoloured and kept. Image 2 decides what the hair IS — cut, colour,
+            parting, length, volume and wave shape — and image 2's hair is the only hair in the
+            result. One head carries one hair texture, never two.
+            HOW THAT HAIR RENDERS:
+            — STRANDS, NOT A SHEET: the hair is made of individual strands that separate, cross
+              and clump irregularly. Locks vary in thickness and in how tightly they wave, and
+              the wave does not repeat at one fixed amplitude and period down the whole length.
+            — BROKEN HIGHLIGHTS: light catches strands unevenly and the highlight breaks up
+              across them. No single continuous specular band runs down a lock, and no uniform
+              sheen covers the whole mass.
+            — COLOUR IN STRANDS: lighter and darker tones interleave strand by strand, rather
+              than being laid down as clean vertical bands.
+            — SCALP AND HAIRLINE: the parting shows scalp, the hairline is irregular rather than
+              drawn, and fine short hairs break it up at the temples and the forehead.
+            — OPEN SILHOUETTE: loose strands, frizz and flyaways leave the mass, so the outline
+              is broken instead of one smooth closed contour.
+            — TRANSLUCENCY: where the light comes from behind, the outer strands let it through.
+            Hair as photographed at image 1's resolution and depth of field — not hair rendered.
+            """;
+
+    /**
      * Substitui, no caminho da pessoa, o antigo bloco de "avoid" herdado do fluxo de roupa.
      * Aquele bloco pedia para evitar "changed facial identity, a different-looking person"
      * — exatamente o oposto da tarefa deste fluxo.
@@ -248,7 +363,7 @@ public class SwapPromptComposer {
      * image 3 (opcional) = mesmo avatar sem crop, só para tom de pele/corpo.
      *
      * <p>Ordem dos blocos: tarefa, roster, trava de cena, identidade, performance, roupa,
-     * pele, integração fotográfica. A cena vem cedo porque é o requisito de maior prioridade;
+     * pele, cabelo, integração fotográfica. A cena vem cedo porque é o requisito de maior prioridade;
      * a trava final combinada (cena + identidade) é anexada pelo service, depois dos blocos
      * opcionais de template e de avatar.
      */
@@ -263,6 +378,7 @@ public class SwapPromptComposer {
                 + PERSON_CLOTHING
                 + skin
                 + SKIN_MARKINGS
+                + HAIR_SURFACE
                 + PHOTOGRAPHIC_INTEGRATION
                 + PERSON_ANATOMY_CHECK;
     }
@@ -313,9 +429,13 @@ public class SwapPromptComposer {
             THE SCENE IS IMAGE 1'S — background, walls, floor, furniture, lighting and camera
             framing are reproduced from it, unchanged. Any text above that describes the
             environment is context about image 1, never permission to rebuild it.
-            THE PERSON IS IMAGE 2'S — face, hair, skin tone and apparent age come from image 2,
-            image 3 and the avatar description, and from nowhere else. Every other physical
-            description of a person above is background context, never a source of identity.
+            THE PERSON IS IMAGE 2'S, DRAWN AT IMAGE 1'S SCALE — face, hair, skin tone and
+            apparent age come from image 2, image 3 and the avatar description, and from nowhere
+            else; the head size, camera distance, lens perspective and viewing angle come from
+            image 1. The person is re-rendered into this frame by image 1's camera, and image 2
+            is the reference for who they are, never a picture to place on top. Every other
+            physical description of a person above is background context, never a source of
+            identity.
             THE PERFORMANCE IS IMAGE 1'S — pose, expression, mouth shape and gaze direction,
             rendered on image 2's face.
             Getting the person right and the room wrong is exactly as wrong as the reverse.
@@ -716,6 +836,21 @@ public class SwapPromptComposer {
      * Mesma descrição, mas informando quais imagens carregam a pessoa — a ordem das
      * referências muda por fluxo: no swap de PESSOA o avatar é image 2 (+ image 3);
      * no swap de ROUPA a image 2 é o PRODUTO e o avatar é a image 3.
+     *
+     * <p>SOBRE A TRAVA DE SUPERFÍCIE DE PELE: este bloco é o ÚLTIMO texto do prompt e o
+     * cabeçalho declara o customPrompt como fonte autoritativa de identidade. Isso significa
+     * que um adjetivo de acabamento nele — "smooth and radiant", "flawless", "glowing" —
+     * chega depois e mais específico do que a {@link #SKIN_RULE} e a
+     * {@link #PHOTOGRAPHIC_INTEGRATION}, que pedem poro e microimperfeição, e vence as duas:
+     * o rosto sai com pele de render 3D. Foi exatamente o que aconteceu com a avatar de
+     * galeria cuja linha de pele dizia "smooth and radiant with natural glowing makeup" — a
+     * única do conjunto com adjetivo de retoque e sem nenhuma palavra de textura.
+     *
+     * <p>Corrigir o texto daquele avatar resolve aquele caso; esta linha resolve a classe,
+     * porque o customPrompt é editável pelo painel e pelos avatares que o próprio usuário
+     * cria, e nenhum dos dois passa por migration. A redação segue o mesmo padrão já usado
+     * aqui para o skin tone: em vez de proibir por fora, declara o ESCOPO do texto — palavra
+     * de acabamento descreve maquiagem e luz, não a superfície da pele.
      */
     public String avatarCustomBlock(String customPrompt, String personImages) {
         if (!StringUtils.hasText(customPrompt)) {
@@ -732,6 +867,11 @@ public class SwapPromptComposer {
                 shoulders, arms, hands, thighs, legs and feet all render at it. It holds for \
                 limbs that no photograph shows, which is the case whenever the avatar's own \
                 outfit covers the arms or the legs.
+                SKIN SURFACE IS NOT NEGOTIABLE BY THIS TEXT: any finish word below — smooth, \
+                flawless, radiant, glowing, poreless, porcelain, airbrushed — describes makeup \
+                and light, never the skin surface. The SKIN and PHOTOGRAPHIC INTEGRATION rules \
+                above stand unchanged: visible pores and micro-imperfections, at the scene's own \
+                resolution, in every result.
                 For everything OTHER than that skin tone value, the images come first: where \
                 this text and the images disagree about a feature, follow the images.
                 TEXT:

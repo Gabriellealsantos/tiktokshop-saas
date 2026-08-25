@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Logs (logging.file.name em application-dev.properties) ###
+logs/
+*.log
