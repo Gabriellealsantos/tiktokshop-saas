@@ -353,9 +353,9 @@ public class GeminiImageProvider  implements ImageProvider {
                 if (!RETRYABLE.contains(e.getStatusCode().value()) || isDailyQuotaExhausted(e)) {
                     throw e;
                 }
-                logger.warn("[GEMINI] {} em {}ms (tentativa {}/{}), payload={} KB",
+                logger.warn("[GEMINI] {} em {}ms (tentativa {}/{}), payload={} KB, body={}",
                         e.getStatusCode().value(), System.currentTimeMillis() - inicio,
-                        attempt, MAX_RETRIES, payloadKb);
+                        attempt, MAX_RETRIES, payloadKb, resumo(e.getResponseBodyAsString()));
                 last = e;
             } catch (ResourceAccessException e) {
                 logger.warn("[GEMINI] timeout apos {}ms (tentativa {}/{}), payload={} KB",
@@ -398,6 +398,18 @@ public class GeminiImageProvider  implements ImageProvider {
         }
         String body = e.getResponseBodyAsString().toLowerCase();
         return BLOCK_MARKERS.stream().anyMatch(body::contains);
+    }
+
+    /**
+     * O corpo do erro traz a causa real (deadline exceeded, internal, invalid argument).
+     * Sem ele, um 500 sistematico fica indistinguivel de sobrecarga passageira.
+     */
+    private String resumo(String body) {
+        if (body == null || body.isBlank()) {
+            return "<vazio>";
+        }
+        String limpo = body.replaceAll("\\s+", " ").trim();
+        return limpo.length() <= 300 ? limpo : limpo.substring(0, 300) + "...";
     }
 
 }
