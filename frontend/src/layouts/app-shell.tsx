@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   {user?.photoUrl ? (
                     <img src={user.photoUrl} alt="Foto de perfil" className="size-full object-cover" />
                   ) : (
-                    isAdmin ? "A" : "C"
+                    (user?.name?.charAt(0) ?? "U").toUpperCase()
                   )}
                 </motion.button>
               </DropdownMenuTrigger>
