@@ -393,6 +393,18 @@ export default function TemplateAssemblyScreen() {
       toast.error(backendError(err, "Não foi possível gerar o prompt.")),
   });
 
+  // "Manter look atual": pula a troca de roupa e vai direto pro prompt, usando
+  // o resultado da troca de pessoa como imagem final. Ainda exige produto
+  // selecionado (o prompt descreve o produto), só dispensa o "Aplicar troca".
+  const handleManterLook = () => {
+    if (!produto) {
+      toast.error("Escolha um produto antes de gerar o prompt.");
+      return;
+    }
+    setFinalImageUrl(personResultUrl);
+    promptMutation.mutate();
+  };
+
   const handleCopyPrompt = async () => {
     if (!promptResult) return;
     await navigator.clipboard.writeText(promptResult);
@@ -784,7 +796,7 @@ export default function TemplateAssemblyScreen() {
                         produto={produto}
                         onEscolherProduto={() => setProductPickerOpen(true)}
                         onAplicar={(mode) => swapClothesMutation.mutate(mode)}
-                        onManterLook={() => setFinalImageUrl(personResultUrl)}
+                        onManterLook={handleManterLook}
                         loading={swapClothesMutation.isPending}
                       />
                     </div>
@@ -806,6 +818,7 @@ export default function TemplateAssemblyScreen() {
                       !slug ||
                       !produto ||
                       !avatarConfirmed ||
+                      !finalImageUrl ||
                       promptMutation.isPending
                     }
                     className="bg-accent-500 hover:bg-accent-600 text-white shadow-[0_0_24px_-6px_rgba(109,91,245,0.5)] px-8 disabled:opacity-50"
