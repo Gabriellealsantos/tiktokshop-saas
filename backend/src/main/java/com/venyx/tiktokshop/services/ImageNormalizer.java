@@ -18,7 +18,7 @@ import java.util.Iterator;
 public class ImageNormalizer {
 
     private static final int MAX_DIMENSION = 2048;
-    private static final long MAX_PIXELS = 8_000_000L;
+    private static final long MAX_SOURCE_PIXELS = 100_000_000L;
     private static final float JPEG_QUALITY = 0.88f;
     private static final int WEBP_QUALITY = 92;
 
@@ -94,8 +94,16 @@ public class ImageNormalizer {
             ImageReader reader = readers.next();
             try {
                 reader.setInput(input);
-                assertSafeDimensions(reader.getWidth(0), reader.getHeight(0));
-                return reader.read(0);
+                int width = reader.getWidth(0);
+                int height = reader.getHeight(0);
+                assertNotBomb(width, height);
+
+                ImageReadParam param = reader.getDefaultReadParam();
+                int step = subsamplingStep(width, height);
+                if (step > 1) {
+                    param.setSourceSubsampling(step, step, 0, 0);
+                }
+                return reader.read(0, param);
             } finally {
                 reader.dispose();
             }
@@ -106,9 +114,24 @@ public class ImageNormalizer {
         }
     }
 
-    private void assertSafeDimensions(int width, int height) {
-        if ((long) width * height > MAX_PIXELS) {
-            throw new BusinessException("Imagem com resolução acima do permitido.");
+    /**
+     * Maior fator de 2 que ainda deixa o lado mais longo acima de MAX_DIMENSION.
+     * Decodifica já reduzido: uma imagem de 100MP nunca vira um bitmap de 400MB em heap.
+     * O downscale() continua fazendo o ajuste fino com interpolação.
+     */
+    private int subsamplingStep(int width, int height) {
+        int longest = Math.max(width, height);
+        int step = 1;
+        while (longest / (step * 2) >= MAX_DIMENSION) {
+            step *= 2;
+        }
+        return step;
+    }
+
+    private void assertNotBomb(int width, int height) {
+        if ((long) width * height > MAX_SOURCE_PIXELS) {
+            throw new BusinessException("Imagem de %dx%d é grande demais. O limite é %d megapixels."
+                    .formatted(width, height, MAX_SOURCE_PIXELS / 1_000_000));
         }
     }
 
