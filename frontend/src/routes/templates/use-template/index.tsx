@@ -393,6 +393,18 @@ export default function TemplateAssemblyScreen() {
       toast.error(backendError(err, "Não foi possível gerar o prompt.")),
   });
 
+  // "Manter look atual": pula a troca de roupa e vai direto pro prompt, usando
+  // o resultado da troca de pessoa como imagem final. Ainda exige produto
+  // selecionado (o prompt descreve o produto), só dispensa o "Aplicar troca".
+  const handleManterLook = () => {
+    if (!produto) {
+      toast.error("Escolha um produto antes de gerar o prompt.");
+      return;
+    }
+    setFinalImageUrl(personResultUrl);
+    promptMutation.mutate();
+  };
+
   const handleCopyPrompt = async () => {
     if (!promptResult) return;
     await navigator.clipboard.writeText(promptResult);
@@ -632,46 +644,49 @@ export default function TemplateAssemblyScreen() {
                       </div>
                     )}
 
-                    {/* PROMPT */}
-                    <div className="flex-1 min-w-0 w-full rounded-xl border border-white/10 bg-deep p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-bold text-white text-[15px]">
-                          Prompt gerado (em inglês)
-                        </h3>
-                        <button
-                          onClick={handleCopyPrompt}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-2 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-md"
-                        >
-                          <Copy className="size-3" />
-                          {copied ? "Copiado!" : "Copiar"}
-                        </button>
+                    {/* PROMPT E BOTÕES */}
+                    <div className="flex-1 min-w-0 w-full flex flex-col gap-3">
+                      <div className="rounded-xl border border-white/10 bg-deep p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-bold text-white text-[15px]">
+                            Prompt gerado (em inglês)
+                          </h3>
+                          <button
+                            onClick={handleCopyPrompt}
+                            className="btn-brand inline-flex items-center justify-center h-8 text-xs rounded-lg font-semibold px-3 transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_0_15px_-4px_rgba(75,68,232,0.6)]"
+                          >
+                            <Copy className="size-3 mr-1.5" />
+                            {copied ? "Copiado!" : "Copiar"}
+                          </button>
+                        </div>
+
+                        <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[360px] overflow-y-auto">
+                          <pre className="font-mono text-xs text-text-2 whitespace-pre-wrap leading-[1.6]">
+                            {promptResult}
+                          </pre>
+                        </div>
                       </div>
 
-                      <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[420px] overflow-y-auto">
-                        <pre className="font-mono text-xs text-text-2 whitespace-pre-wrap leading-[1.6]">
-                          {promptResult}
-                        </pre>
+                      {/* BOTÕES ABAIXO DO PROMPT */}
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button
+                          variant="outline"
+                          className="flex-1 h-10 text-sm rounded-xl"
+                          onClick={() => setPromptResult(null)}
+                        >
+                          Voltar à montagem
+                        </Button>
+                        <a
+                          href="https://labs.google/fx/tools/flow"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 btn-brand inline-flex items-center justify-center h-10 text-sm rounded-xl font-semibold px-4 transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_0_15px_-4px_rgba(75,68,232,0.6)]"
+                        >
+                          Ir para Google Flow
+                          <ArrowRight className="ml-1.5 size-3.5" />
+                        </a>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                    <a
-                      href="https://labs.google/fx/tools/flow"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 btn-brand inline-flex items-center justify-center h-10 text-sm rounded-xl font-semibold px-4 transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_0_15px_-4px_rgba(75,68,232,0.6)]"
-                    >
-                      Gerar vídeo no Google Flow
-                      <ArrowRight className="ml-1.5 size-3.5" />
-                    </a>
-                    <Button
-                      variant="ghost"
-                      className="flex-1 h-10 text-sm rounded-xl text-white/70 hover:text-white hover:bg-white/5"
-                      onClick={() => setPromptResult(null)}
-                    >
-                      Voltar à montagem
-                    </Button>
                   </div>
                 </GlassPanel>
               </div>
@@ -781,7 +796,7 @@ export default function TemplateAssemblyScreen() {
                         produto={produto}
                         onEscolherProduto={() => setProductPickerOpen(true)}
                         onAplicar={(mode) => swapClothesMutation.mutate(mode)}
-                        onManterLook={() => setFinalImageUrl(personResultUrl)}
+                        onManterLook={handleManterLook}
                         loading={swapClothesMutation.isPending}
                       />
                     </div>
@@ -803,6 +818,7 @@ export default function TemplateAssemblyScreen() {
                       !slug ||
                       !produto ||
                       !avatarConfirmed ||
+                      !finalImageUrl ||
                       promptMutation.isPending
                     }
                     className="bg-accent-500 hover:bg-accent-600 text-white shadow-[0_0_24px_-6px_rgba(109,91,245,0.5)] px-8 disabled:opacity-50"

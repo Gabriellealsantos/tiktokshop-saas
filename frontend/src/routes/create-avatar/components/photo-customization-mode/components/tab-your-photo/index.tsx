@@ -22,7 +22,10 @@ export function TabSuaFoto({
     const file = e.target.files?.[0];
     if (!file) return;
     form.setValue("fotoPrincipal", file, { shouldValidate: true });
-    setFotoPreview(URL.createObjectURL(file));
+    setFotoPreview((previous) => {
+      if (previous) URL.revokeObjectURL(previous);
+      return URL.createObjectURL(file);
+    });
   };
 
   return (
@@ -66,10 +69,11 @@ export function TabSuaFoto({
                   <button
                     type="button"
                     onClick={() => {
-                      form.setValue("fotoPrincipal", null, {
-                        shouldValidate: true,
+                      form.resetField("fotoPrincipal");
+                      setFotoPreview((previous) => {
+                        if (previous) URL.revokeObjectURL(previous);
+                        return null;
                       });
-                      setFotoPreview(null);
                     }}
                     className="absolute top-2 right-2 grid size-8 place-items-center rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-sm transition-colors"
                   >
@@ -90,6 +94,11 @@ export function TabSuaFoto({
                   <p className="font-semibold text-white">Enviar sua foto</p>
                   <p className="text-sm text-text-3 mt-1">
                     De preferência rosto bem visível e iluminação clara
+                  </p>
+
+                  <p className="text-xs text-text-3/70 mt-1">
+                    JPG, PNG ou WEBP · até 15 MB · fotos grandes são reduzidas
+                    automaticamente
                   </p>
                 </label>
               )}
