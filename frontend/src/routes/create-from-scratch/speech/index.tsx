@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ArrowRight } from "lucide-react";
 import { AppShell } from "@/layouts/app-shell";
-import { Page, Button, Stepper } from "@/components";
+import { Page, Button, Stepper, PremiumLoading } from "@/components";
 import { toast } from "sonner";
 
 import { ScriptEditor } from "./components/script-editor";
@@ -109,90 +109,109 @@ export default function SpeechScreen() {
   return (
     <AppShell>
       <Page>
-        {/* TOPO */}
-        <header className="entrance mb-8 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            className="bg-white/5 border border-white/10 hover:bg-white/10"
-            onClick={() =>
-              navigate(`/create-from-scratch/pose?${searchParams.toString()}`)
-            }
-          >
-            <ChevronLeft className="size-4 mr-2" />
-            Voltar
-          </Button>
+        {generatePrompt.isPending ? (
+          <PremiumLoading
+            imageSrc={session?.config?.imageUrl as string | undefined}
+            badgeText="Inteligência Criativa"
+            mainTitle="Criando seu vídeo do zero"
+            mainDescription="A IA está processando o seu roteiro, alinhando a voz do narrador e gerando o prompt cinematográfico perfeito para a cena."
+            loadingTitle="Finalizando geração"
+            loadingSubtitle="Estamos juntando todos os elementos criados."
+            loadingSteps={[
+              "Processando roteiro e voz",
+              "Combinando cenário e iluminação",
+              "Analisando movimento e pose",
+              "Gerando prompt do Google Flow",
+            ]}
+          />
+        ) : (
+          <>
+            {/* TOPO */}
+            <header className="entrance mb-8 flex items-center justify-between">
+              <Button
+                variant="ghost"
+                className="bg-white/5 border border-white/10 hover:bg-white/10"
+                onClick={() =>
+                  navigate(`/create-from-scratch/pose?${searchParams.toString()}`)
+                }
+              >
+                <ChevronLeft className="size-4 mr-2" />
+                Voltar
+              </Button>
 
-          <div className="flex flex-col items-end">
-            <span className="text-[10px] font-bold uppercase tracking-[.2em] text-accent-400">
-              Criar do zero
-            </span>
-            <span className="text-sm font-medium text-text-2">
-              Passo 5 de 6
-            </span>
-          </div>
-        </header>
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] font-bold uppercase tracking-[.2em] text-accent-400">
+                  Criar do zero
+                </span>
+                <span className="text-sm font-medium text-text-2">
+                  Passo 5 de 6
+                </span>
+              </div>
+            </header>
 
-        {/* STEPPER */}
-        <Stepper steps={steps} current={4} />
+            {/* STEPPER */}
+            <Stepper steps={steps} current={4} />
 
-        {/* TÍTULO DA ETAPA */}
-        <div className="mt-10 mb-8">
-          <h1 className="text-3xl font-extrabold tracking-[-.035em] text-text-1 md:text-4xl">
-            Fala & Voz
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-text-2">
-            Escreva o roteiro e selecione a voz para o seu vídeo.
-          </p>
-        </div>
+            {/* TÍTULO DA ETAPA */}
+            <div className="mt-10 mb-8">
+              <h1 className="text-3xl font-extrabold tracking-[-.035em] text-text-1 md:text-4xl">
+                Fala & Voz
+              </h1>
+              <p className="mt-3 text-sm leading-6 text-text-2">
+                Escreva o roteiro e selecione a voz para o seu vídeo.
+              </p>
+            </div>
 
-        {/* CONTEÚDO PRINCIPAL */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <ScriptEditor
-              speechText={speechText}
-              setSpeechText={setSpeechText}
-              onGenerate={() => generateScript.mutate()}
-              isGenerating={generateScript.isPending}
-              canGenerate={!!rawProductId || !!customProductName}
-            />
-            <VoiceSelector voiceId={voiceId} setVoiceId={setVoiceId} />
-          </div>
+            {/* CONTEÚDO PRINCIPAL */}
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-6">
+                <ScriptEditor
+                  speechText={speechText}
+                  setSpeechText={setSpeechText}
+                  onGenerate={() => generateScript.mutate()}
+                  isGenerating={generateScript.isPending}
+                  canGenerate={!!rawProductId || !!customProductName}
+                />
+                <VoiceSelector voiceId={voiceId} setVoiceId={setVoiceId} />
+              </div>
 
-          <GenerationSummary session={session} />
-        </div>
+              <GenerationSummary session={session} />
+            </div>
 
-        {/* RODAPÉ */}
-        <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-8">
-          <Button
-            variant="ghost"
-            onClick={() =>
-              navigate(`/create-from-scratch/pose?${searchParams.toString()}`)
-            }
-            className="text-text-2 hover:text-white"
-          >
-            Voltar
-          </Button>
-          <Button
-            onClick={() => {
-              generatePrompt.mutate(undefined, {
-                onSuccess: (updated) => {
-                  const videoPrompt = updated.config?.videoPrompt as string;
-                  const params = new URLSearchParams(searchParams);
-                  params.set("sessionId", String(updated.id));
-                  navigate(`/create-from-scratch/video?${params.toString()}`, {
-                    state: { videoPrompt, imageUrl: updated.config?.imageUrl },
+            {/* RODAPÉ */}
+            <div className="flex items-center justify-between border-t border-white/10 pt-6 mt-8">
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  navigate(`/create-from-scratch/pose?${searchParams.toString()}`)
+                }
+                className="text-text-2 hover:text-white"
+              >
+                Voltar
+              </Button>
+              <Button
+                onClick={() => {
+                  generatePrompt.mutate(undefined, {
+                    onSuccess: (updated) => {
+                      const videoPrompt = updated.config?.videoPrompt as string;
+                      const params = new URLSearchParams(searchParams);
+                      params.set("sessionId", String(updated.id));
+                      navigate(`/create-from-scratch/video?${params.toString()}`, {
+                        state: { videoPrompt, imageUrl: updated.config?.imageUrl },
+                      });
+                    },
                   });
-                },
-              });
-            }}
-            disabled={
-              !speechText.trim() || generatePrompt.isPending || !sessionId
-            }
-          >
-            {generatePrompt.isPending ? "Gerando prompt..." : "Avançar"}
-            <ArrowRight className="size-4 ml-2" />
-          </Button>
-        </div>
+                }}
+                disabled={
+                  !speechText.trim() || generatePrompt.isPending || !sessionId
+                }
+              >
+                {generatePrompt.isPending ? "Gerando prompt..." : "Avançar"}
+                <ArrowRight className="size-4 ml-2" />
+              </Button>
+            </div>
+          </>
+        )}
       </Page>
     </AppShell>
   );
