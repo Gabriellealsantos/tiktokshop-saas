@@ -130,6 +130,13 @@ public class GeminiTextProvider implements TextProvider {
                         last = e;
                         break;
                     }
+                    if (e.getStatusCode().value() == 429) {
+                        // Rate limit e por modelo, nao por chave: insistir no mesmo devolve outro 429
+                        // e consome o orcamento que o proximo da cadeia usaria. Troca de modelo direto.
+                        logger.warn("[GEMINI-TEXT] 429 no modelo {} -- indo para o proximo da cadeia", candidate);
+                        last = e;
+                        break;
+                    }
                     if (!RETRYABLE.contains(e.getStatusCode().value())) {
                         throw e;
                     }
@@ -138,9 +145,13 @@ public class GeminiTextProvider implements TextProvider {
                             candidate, attempt, MAX_ATTEMPTS_PER_MODEL);
                     last = e;
                 } catch (ResourceAccessException e) {
-                    logger.warn("[GEMINI-TEXT] timeout apos {}ms, modelo={} (tentativa {}/{})",
-                            System.currentTimeMillis() - inicio, candidate, attempt, MAX_ATTEMPTS_PER_MODEL);
+                    // Timeout nao e sobrecarga momentanea como um 503: o modelo nao respondeu dentro do
+                    // orcamento. Repetir nele custa outro timeout inteiro e consome o tempo que o proximo
+                    // da cadeia precisaria para ser tentado.
+                    logger.warn("[GEMINI-TEXT] timeout apos {}ms, modelo={} -- indo para o proximo da cadeia",
+                            System.currentTimeMillis() - inicio, candidate);
                     last = e;
+                    break;
                 }
                 sleepBackoff(attempt);
             }

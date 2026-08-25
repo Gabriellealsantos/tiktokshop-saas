@@ -34,25 +34,37 @@ public class AuthenticationEventsListener {
     @EventListener
     public void onFailure(AuthenticationFailureBadCredentialsEvent event) {
         Object principal = event.getAuthentication().getPrincipal();
-
-        if (principal instanceof String) {
-            String username = (String) principal;
-            logger.warn("Login failed for user: {}", username);
-
-            Optional<User> userOptional = userRepository.findByEmail(username);
-
-            // Try identifying by other means if email fails (fallback logic similar to
-            // UserService)
-            if (userOptional.isEmpty()) {
-                // Try CPF or Phone if username looks like them, but for now simple email lookup
-                // is safer
-                // to avoid complex logic here. UserService handles loadUserByUsername so
-                // usually
-                // the username passed here is what the user typed.
-            }
-
-            userOptional.ifPresent(authService::handleFailedLoginAttempt);
+        if (!(principal instanceof String username)) {
+            return;
         }
+        // Access token expirado chegando na API cai aqui tambem: o principal do
+        // BearerTokenAuthenticationToken e a string do proprio token. Nao e tentativa de
+        // login, nao conta como falha e nao pode aparecer no log como se fosse.
+        if (!isUserIdentifier(username)) {
+            logger.debug("Credencial rejeitada que nao e identificador de usuario ({} chars)", username.length());
+            return;
+        }
+        logger.warn("Login failed for user: {}", mask(username));
+        userRepository.findByEmail(username).ifPresent(authService::handleFailedLoginAttempt);
+    }
+
+    private boolean isUserIdentifier(String value) {
+        return value.length() <= 120 && value.indexOf('@') > 0;
+    }
+
+    
+    /**
+     * O principal e o que o cliente mandou, nao dado confiavel: ja chegou aqui um access
+     * token inteiro no lugar do e-mail. Log de falha de login nao pode virar via de
+     * vazamento de credencial.
+     */
+    private String mask(String username) {
+        int at = username.indexOf('@');
+        if (at < 1 || username.length() > 120) {
+            return "<credencial omitida, %d chars>".formatted(username.length());
+        }
+        String local = username.substring(0, at);
+        return local.substring(0, Math.min(2, local.length())) + "***" + username.substring(at);
     }
 
     @EventListener

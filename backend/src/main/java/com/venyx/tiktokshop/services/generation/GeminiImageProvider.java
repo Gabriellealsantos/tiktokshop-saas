@@ -59,6 +59,9 @@ public class GeminiImageProvider  implements ImageProvider {
     private static final List<String> SUPPORTED_ASPECTS =
             List.of("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9");
 
+    private static final Set<String> BLOCK_MARKERS = Set.of("safety violation", "prohibited content");
+
+
     private final RestClient restClient;
     private final StorageService storageService;
     private final String model;
@@ -129,12 +132,19 @@ public class GeminiImageProvider  implements ImageProvider {
             raw = postWithRetry(payload);
         } catch (RestClientResponseException e) {
             logger.error("[GEMINI] Falha na API. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+
             if (isDailyQuotaExhausted(e)) {
                 throw new BusinessException("O limite diário de gerações de imagem foi atingido. As gerações voltam amanhã.");
             }
             if (e.getStatusCode().is5xxServerError() || e.getStatusCode().value() == 429) {
                 throw new BusinessException("A Inteligência Artificial do Google (Gemini) está sobrecarregada no momento. Por favor, tente novamente em alguns instantes.");
             }
+
+            if (isContentBlocked(e)) {
+                throw new BusinessException("A imagem foi bloqueada pelo filtro de conteúdo do Google. "
+                        + "Troque a foto de referência ou ajuste a descrição e tente de novo.");
+            }
+
             throw new BusinessException("Ocorreu um erro ao comunicar com a Inteligência Artificial. Tente novamente.");
         } catch (ResourceAccessException e) {
             logger.error("[GEMINI] Falha de conexao/timeout", e);
@@ -379,6 +389,15 @@ public class GeminiImageProvider  implements ImageProvider {
             currentThread().interrupt();
             throw new BusinessException("Requisição interrompida.");
         }
+    }
+
+    /** Bloqueio de politica nao e transitorio: repetir a mesma entrada devolve o mesmo 400. */
+    private boolean isContentBlocked(RestClientResponseException e) {
+        if (e.getStatusCode().value() != 400) {
+            return false;
+        }
+        String body = e.getResponseBodyAsString().toLowerCase();
+        return BLOCK_MARKERS.stream().anyMatch(body::contains);
     }
 
 }
