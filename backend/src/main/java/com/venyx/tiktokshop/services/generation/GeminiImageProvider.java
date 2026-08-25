@@ -25,11 +25,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.Math.pow;
 import static java.lang.Thread.currentThread;
@@ -50,7 +46,7 @@ public class GeminiImageProvider  implements ImageProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GeminiImageProvider.class);
 
-    private static final int MAX_RETRIES = 3;
+    private static final int MAX_RETRIES = 2;
     /** Um timeout pode significar que o Gemini processou e cobrou. Insistir gasta cota. */
     private static final int MAX_TIMEOUT_ATTEMPTS = 2;
     private static final Set<Integer> RETRYABLE = Set.of(429, 500, 502, 503, 504);
@@ -61,10 +57,13 @@ public class GeminiImageProvider  implements ImageProvider {
 
     private static final Set<String> BLOCK_MARKERS = Set.of("safety violation", "prohibited content");
 
+    /** Teto do job inteiro. Passar disso, ninguem mais quer a imagem: melhor falhar com mensagem. */
+    private static final long TOTAL_BUDGET_MS = 420_000;
+
 
     private final RestClient restClient;
     private final StorageService storageService;
-    private final String model;
+    private final List<String> models;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
     private final String aspectRatio;
@@ -79,6 +78,7 @@ public class GeminiImageProvider  implements ImageProvider {
                                @Value("${venyx.gemini.base-url}") String baseUrl,
                                @Value("${venyx.gemini.api-key}") String apiKey,
                                @Value("${venyx.gemini.model}") String model,
+                               @Value("${venyx.gemini.image-fallback-models:}") String fallbackModels,
                                @Value("${venyx.gemini.image-timeout-seconds:240}") int timeoutSeconds,
                                @Value("${venyx.gemini.image-aspect-ratio}") String aspectRatio,
                                @Value("${venyx.gemini.image-size:1K}") String imageSize,
@@ -87,7 +87,7 @@ public class GeminiImageProvider  implements ImageProvider {
         this.storageService = storageService;
         this.imageNormalizer = imageNormalizer;
         this.objectMapper = objectMapper;
-        this.model = model;
+        this.models = buildChain(model, fallbackModels);
         this.aspectRatio = aspectRatio;
         this.imageSize = imageSize;
         this.thinkingLevel = thinkingLevel.trim();
@@ -116,7 +116,6 @@ public class GeminiImageProvider  implements ImageProvider {
         List<byte[]> references = downloadReferences(request.referenceImageUrls());
 
         Map<String, Object> body = Map.of(
-                "model", model,
                 "input", buildInput(request.prompt(), references),
                 "generation_config", Map.of("thinking_level", thinkingLevel),
                 "response_format", Map.of(
@@ -125,11 +124,9 @@ public class GeminiImageProvider  implements ImageProvider {
                         "aspect_ratio", resolveAspectRatio(request, references),
                         "image_size", imageSize));
 
-        String payload = objectMapper.writeValueAsString(body);
-
         String raw;
         try {
-            raw = postWithRetry(payload);
+            raw = postWithRetry(body);
         } catch (RestClientResponseException e) {
             logger.error("[GEMINI] Falha na API. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
 
@@ -337,39 +334,56 @@ public class GeminiImageProvider  implements ImageProvider {
     }
 
 
-    private String postWithRetry(String payload) {
-        int payloadKb = payload.length() / 1024;
+    private String postWithRetry(Map<String, Object> body) {
+        long deadline = System.currentTimeMillis() + TOTAL_BUDGET_MS;
         RuntimeException last = null;
-        int timeoutAttempts = 0;
 
-        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-            long inicio = System.currentTimeMillis();
-            try {
-                String raw = restClient.post().body(payload).retrieve().body(String.class);
-                logger.info("[GEMINI] ok em {}ms, payload={} KB",
-                        System.currentTimeMillis() - inicio, payloadKb);
-                return raw;
-            } catch (RestClientResponseException e) {
-                if (!RETRYABLE.contains(e.getStatusCode().value()) || isDailyQuotaExhausted(e)) {
-                    throw e;
+        for (String candidate : models) {
+            Map<String, Object> comModelo = new LinkedHashMap<>(body);
+            comModelo.put("model", candidate);
+            String payload = objectMapper.writeValueAsString(comModelo);
+            int payloadKb = payload.length() / 1024;
+            int timeoutAttempts = 0;
+
+            for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                if (System.currentTimeMillis() >= deadline) {
+                    logger.error("[GEMINI] orcamento de {}ms esgotado no modelo {}",
+                            TOTAL_BUDGET_MS, candidate);
+                    throw last != null ? last
+                            : new BusinessException("A geração passou do tempo limite. Tente novamente.");
                 }
-                logger.warn("[GEMINI] {} em {}ms (tentativa {}/{}), payload={} KB, body={}",
-                        e.getStatusCode().value(), System.currentTimeMillis() - inicio,
-                        attempt, MAX_RETRIES, payloadKb, resumo(e.getResponseBodyAsString()));
-                last = e;
-            } catch (ResourceAccessException e) {
-                logger.warn("[GEMINI] timeout apos {}ms (tentativa {}/{}), payload={} KB",
-                        System.currentTimeMillis() - inicio, attempt, MAX_RETRIES, payloadKb);
-                last = e;
-                if (++timeoutAttempts >= MAX_TIMEOUT_ATTEMPTS) {
-                    throw e;
+
+                long inicio = System.currentTimeMillis();
+                try {
+                    String raw = restClient.post().body(payload).retrieve().body(String.class);
+                    logger.info("[GEMINI] ok em {}ms, modelo={}, payload={} KB",
+                            System.currentTimeMillis() - inicio, candidate, payloadKb);
+                    return raw;
+                } catch (RestClientResponseException e) {
+                    if (!RETRYABLE.contains(e.getStatusCode().value()) || isDailyQuotaExhausted(e)) {
+                        throw e;
+                    }
+                    logger.warn("[GEMINI] {} em {}ms, modelo={} (tentativa {}/{}), payload={} KB, body={}",
+                            e.getStatusCode().value(), System.currentTimeMillis() - inicio, candidate,
+                            attempt, MAX_RETRIES, payloadKb, resumo(e.getResponseBodyAsString()));
+                    last = e;
+                } catch (ResourceAccessException e) {
+                    // Dois timeouts no mesmo modelo ja custaram minutos: o proximo da cadeia tem
+                    // mais chance que uma terceira tentativa na mesma fila.
+                    logger.warn("[GEMINI] timeout apos {}ms, modelo={} (tentativa {}/{}), payload={} KB",
+                            System.currentTimeMillis() - inicio, candidate, attempt, MAX_RETRIES, payloadKb);
+                    last = e;
+                    if (++timeoutAttempts >= MAX_TIMEOUT_ATTEMPTS) {
+                        break;
+                    }
                 }
-            }
-            if (attempt < MAX_RETRIES) {
-                sleepBackoff(attempt);
+                if (attempt < MAX_RETRIES) {
+                    sleepBackoff(attempt);
+                }
             }
         }
-        throw last;
+        throw last != null ? last
+                : new BusinessException("A geração passou do tempo limite. Tente novamente.");
     }
 
     /** 429 de cota diária não adianta retentar — só volta a funcionar no dia seguinte. */
@@ -410,6 +424,19 @@ public class GeminiImageProvider  implements ImageProvider {
         }
         String limpo = body.replaceAll("\\s+", " ").trim();
         return limpo.length() <= 300 ? limpo : limpo.substring(0, 300) + "...";
+    }
+
+    private List<String> buildChain(String primary, String fallbacks) {
+        List<String> chain = new ArrayList<>();
+        chain.add(primary);
+        for (String candidate : fallbacks.split(",")) {
+            String trimmed = candidate.trim();
+            if (!trimmed.isBlank() && !chain.contains(trimmed)) {
+                chain.add(trimmed);
+            }
+        }
+        logger.info("[GEMINI] cadeia de modelos de imagem: {}", chain);
+        return List.copyOf(chain);
     }
 
 }
