@@ -49,7 +49,6 @@ import type {
   ImageGenerationResult,
   PendingJob,
   TemplateUsage,
-  VideoPromptResponse,
 } from "@/models/videoTemplate";
 import { S3Image } from "@/components";
 import { useGenerationWs } from "@/hooks/useGenerationWs";
@@ -57,11 +56,19 @@ import { useGenerationWs } from "@/hooks/useGenerationWs";
 const STEPS = ["Templates", "Avatar", "Produto", "Prompt"];
 
 /** Extrai a mensagem de erro do backend (StandardError), com destaque para a cota (429). */
+/** Extrai a mensagem de erro do backend (StandardError), com destaque para a cota (429). */
 function backendError(err: unknown, fallback: string): string {
-  const e = err as {
-    response?: { status?: number; data?: { message?: string } };
-  };
-  return e?.response?.data?.message ?? fallback;
+  const e = err as { response?: { data?: { message?: string } } };
+  const httpMessage = e?.response?.data?.message;
+  if (httpMessage) return httpMessage;
+
+  // A falha de geracao assincrona nao chega como erro HTTP: a mensagem vem pelo
+  // WebSocket e e embrulhada em new Error(result.error) na mutation. Sem este
+  // ramo, o unico caso que o usuario mais precisa entender vira texto generico.
+  if (err instanceof Error && err.message) {
+    return err.message;
+  }
+  return fallback;
 }
 
 /** Zoom do enquadramento automático de rosto (mesmo teto do slider). */
@@ -660,7 +667,7 @@ export default function TemplateAssemblyScreen() {
                           </button>
                         </div>
 
-                        <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[360px] overflow-y-auto">
+                        <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[260px] overflow-y-auto">
                           <pre className="font-mono text-xs text-text-2 whitespace-pre-wrap leading-[1.6]">
                             {promptResult}
                           </pre>
@@ -669,13 +676,6 @@ export default function TemplateAssemblyScreen() {
 
                       {/* BOTÕES ABAIXO DO PROMPT */}
                       <div className="flex flex-col sm:flex-row gap-3">
-                        <Button
-                          variant="outline"
-                          className="flex-1 h-10 text-sm rounded-xl"
-                          onClick={() => setPromptResult(null)}
-                        >
-                          Voltar à montagem
-                        </Button>
                         <a
                           href="https://labs.google/fx/tools/flow"
                           target="_blank"
@@ -685,6 +685,13 @@ export default function TemplateAssemblyScreen() {
                           Ir para Google Flow
                           <ArrowRight className="ml-1.5 size-3.5" />
                         </a>
+                        <Button
+                          variant="outline"
+                          className="flex-1 h-10 text-sm rounded-xl"
+                          onClick={() => setPromptResult(null)}
+                        >
+                          Voltar à montagem
+                        </Button>
                       </div>
                     </div>
                   </div>

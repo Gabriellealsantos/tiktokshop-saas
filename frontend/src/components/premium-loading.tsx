@@ -82,7 +82,7 @@ export function PremiumLoading({
         </p>
       </div>
 
-      <GlassPanel className="w-full py-16 px-6 flex items-center justify-center relative overflow-hidden min-h-[75vh] rounded-[32px]">
+      <div className="w-full py-16 px-6 flex items-center justify-center relative overflow-hidden min-h-[75vh] rounded-[32px] bg-[#1A1825]/60 border border-white/10 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         {/* Subtle dot pattern grid */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8Y2lyY2xlIGN4PSIyIiBjeT0iMiIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSI+PC9jaXJjbGU+Cjwvc3ZnPg==')] opacity-40 pointer-events-none" />
 
@@ -186,7 +186,7 @@ export function PremiumLoading({
             </div>
           </div>
         </div>
-      </GlassPanel>
+      </div>
     </div>
   );
 }

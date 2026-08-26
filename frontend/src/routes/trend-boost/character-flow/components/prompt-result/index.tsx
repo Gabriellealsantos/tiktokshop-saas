@@ -27,7 +27,7 @@ export function PromptResult({ finalPrompt, handleCopy, resetPrompt }: PromptRes
           </button>
         </div>
 
-        <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="bg-[#0b0914] rounded-lg p-4 border border-white/5 max-h-[220px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           <pre className="font-mono text-xs text-text-2 whitespace-pre-wrap leading-[1.6]">
             {finalPrompt}
           </pre>
@@ -35,6 +35,13 @@ export function PromptResult({ finalPrompt, handleCopy, resetPrompt }: PromptRes
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
+        <Button
+          variant="outline"
+          className="flex-1 h-10 text-sm rounded-xl"
+          onClick={() => resetPrompt()}
+        >
+          Gerar outro
+        </Button>
         <a
           href="https://labs.google/fx/tools/flow"
           target="_blank"
@@ -44,13 +51,6 @@ export function PromptResult({ finalPrompt, handleCopy, resetPrompt }: PromptRes
           Abrir Google Flow
           <ArrowRight className="ml-1.5 size-3.5" />
         </a>
-        <Button
-          variant="outline"
-          className="flex-1 h-10 text-sm rounded-xl"
-          onClick={() => resetPrompt()}
-        >
-          Gerar outro
-        </Button>
       </div>
     </motion.section>
   );
