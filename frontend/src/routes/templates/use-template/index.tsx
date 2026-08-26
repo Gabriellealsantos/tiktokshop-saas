@@ -49,7 +49,6 @@ import type {
   ImageGenerationResult,
   PendingJob,
   TemplateUsage,
-  VideoPromptResponse,
 } from "@/models/videoTemplate";
 import { S3Image } from "@/components";
 import { useGenerationWs } from "@/hooks/useGenerationWs";
@@ -57,11 +56,19 @@ import { useGenerationWs } from "@/hooks/useGenerationWs";
 const STEPS = ["Templates", "Avatar", "Produto", "Prompt"];
 
 /** Extrai a mensagem de erro do backend (StandardError), com destaque para a cota (429). */
+/** Extrai a mensagem de erro do backend (StandardError), com destaque para a cota (429). */
 function backendError(err: unknown, fallback: string): string {
-  const e = err as {
-    response?: { status?: number; data?: { message?: string } };
-  };
-  return e?.response?.data?.message ?? fallback;
+  const e = err as { response?: { data?: { message?: string } } };
+  const httpMessage = e?.response?.data?.message;
+  if (httpMessage) return httpMessage;
+
+  // A falha de geracao assincrona nao chega como erro HTTP: a mensagem vem pelo
+  // WebSocket e e embrulhada em new Error(result.error) na mutation. Sem este
+  // ramo, o unico caso que o usuario mais precisa entender vira texto generico.
+  if (err instanceof Error && err.message) {
+    return err.message;
+  }
+  return fallback;
 }
 
 /** Zoom do enquadramento automático de rosto (mesmo teto do slider). */
