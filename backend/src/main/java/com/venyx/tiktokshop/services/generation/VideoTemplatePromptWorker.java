@@ -1,7 +1,6 @@
 package com.venyx.tiktokshop.services.generation;
 
 import com.venyx.tiktokshop.dtos.GenerationResultMessage;
-import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.entities.VideoTemplate;
 import org.slf4j.Logger;
@@ -37,7 +36,7 @@ public class VideoTemplatePromptWorker {
 
     @Async("generationExecutor")
     public void runPrompt(User user, String correlationId,
-                          VideoTemplate template, Product product) {
+                          VideoTemplate template, ProductBrief product) {
         try {
             String instruction = composer.compose(template, product);
             TextProviderResult result = textProvider.generate(new TextProviderRequest(instruction, false));

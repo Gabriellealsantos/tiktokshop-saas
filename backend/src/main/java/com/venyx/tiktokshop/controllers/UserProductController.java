@@ -35,6 +35,12 @@ public class UserProductController {
         return ResponseEntity.ok(service.findAllForUser(user.getUuid()));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserProductDTO> findById(@PathVariable Long id) {
+        User user = authService.authenticated();
+        return ResponseEntity.ok(service.findByIdForUser(user.getUuid(), id));
+    }
+
     @PostMapping
     public ResponseEntity<UserProductDTO> insert(@RequestBody UserProductDTO dto) {
         User user = authService.authenticated();

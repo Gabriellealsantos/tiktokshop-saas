@@ -11,6 +11,20 @@ export function ContentGenerationOptions({ product, onNavigate }: ContentGenerat
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  /**
+   * Vitrine e produto próprio têm ids independentes, então cada um vai no seu parâmetro —
+   * mandar o id de um produto próprio como `productId` resolveria para OUTRO produto da vitrine.
+   */
+  const withProductParam = (params: URLSearchParams) => {
+    params.delete("productId");
+    params.delete("userProductId");
+    params.set(
+      product.source === "user" ? "userProductId" : "productId",
+      String(product.id),
+    );
+    return params;
+  };
+
   return (
     <div className="mt-4.5 flex flex-col gap-2.5">
       <div>
@@ -24,8 +38,7 @@ export function ContentGenerationOptions({ product, onNavigate }: ContentGenerat
         className="group relative flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-left transition-all duration-200 backdrop-blur-sm hover:border-orange-500/50 hover:bg-white/[0.06] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(249,115,22,0.35),inset_0_1px_0_rgba(255,255,255,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/50 overflow-hidden cursor-pointer w-full"
         onClick={() => {
           onNavigate();
-          const params = new URLSearchParams(searchParams);
-          params.set("productId", String(product.id));
+          const params = withProductParam(new URLSearchParams(searchParams));
           navigate(`/generate/viral-template?${params.toString()}`);
         }}
       >
@@ -51,8 +64,7 @@ export function ContentGenerationOptions({ product, onNavigate }: ContentGenerat
         className="group relative flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-left transition-all duration-200 backdrop-blur-sm hover:border-brand-500/50 hover:bg-white/[0.06] hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-8px_rgba(139,92,246,0.35),inset_0_1px_0_rgba(255,255,255,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 overflow-hidden cursor-pointer w-full"
         onClick={() => {
           onNavigate();
-          const params = new URLSearchParams();
-          params.set("productId", String(product.id));
+          const params = withProductParam(new URLSearchParams());
           const avatarId = searchParams.get("avatarId");
           const applicationMode = searchParams.get("applicationMode");
           if (avatarId) params.set("avatarId", avatarId);

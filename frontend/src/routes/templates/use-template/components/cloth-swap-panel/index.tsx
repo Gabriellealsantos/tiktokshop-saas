@@ -246,10 +246,14 @@ export function ClothSwapPanel({
                 {onManterLook && (
                   <button
                     type="button"
-                    className="text-xs text-white/40 hover:text-white/80 font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-sm"
+                    className="flex flex-col items-center gap-0.5 text-xs text-white/40 hover:text-white/80 font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-sm disabled:opacity-40"
+                    disabled={loading}
                     onClick={onManterLook}
                   >
                     Manter look atual
+                    <span className="text-[11px] text-white/30 font-normal">
+                      Gera o prompt sem inserir produto
+                    </span>
                   </button>
                 )}
               </div>

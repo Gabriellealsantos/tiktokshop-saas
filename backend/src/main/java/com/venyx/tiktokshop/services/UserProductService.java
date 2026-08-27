@@ -31,6 +31,14 @@ public class UserProductService {
         return repository.findByUser_Uuid(userId).stream().map(UserProductDTO::new).toList();
     }
 
+    /** Produto próprio por id, sempre escopado ao dono — o fluxo de geração recupera por aqui. */
+    @Transactional(readOnly = true)
+    public UserProductDTO findByIdForUser(UUID userId, Long id) {
+        return repository.findByIdAndUser_Uuid(id, userId)
+                .map(UserProductDTO::new)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + id));
+    }
+
     @Transactional
     public UserProductDTO insert(User user, UserProductDTO dto) {
         UserProduct entity = new UserProduct();
