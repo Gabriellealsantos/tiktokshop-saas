@@ -12,6 +12,8 @@ public class AvatarGenerationProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(AvatarGenerationProcessor.class);
     private static final String AVATAR_FOLDER = "avatars";
+    private static final String FILA_CHEIA =
+            "Estamos com muitas gerações em andamento agora. Tente novamente em alguns minutos.";
 
     private final ImageProvider imageProvider;
     private final StorageService storageService;
@@ -61,5 +63,15 @@ public class AvatarGenerationProcessor {
         log.info("[ASYNC-FIM] jobId={} finalizado (status={}) em {}ms na thread {}",
                 jobId, job.getStatus(), System.currentTimeMillis() - inicio,
                 Thread.currentThread().getName());
+    }
+
+    /**
+     * A fila estourou: a tarefa nem chegou a ser criada. Sem isto o job fica PENDING até o
+     * cleaner passar, e o usuário fica olhando o spinner sem saber que já acabou.
+     */
+    public void markRejected(Long jobId) {
+        log.warn("[ASYNC-REJEITADO] jobId={} recusado pelo executor, marcando FAILED", jobId);
+        ImageGeneration job = avatarTx.fail(jobId, FILA_CHEIA);
+        notifier.notifyReady(job.getUser().getUuid(), job);
     }
 }

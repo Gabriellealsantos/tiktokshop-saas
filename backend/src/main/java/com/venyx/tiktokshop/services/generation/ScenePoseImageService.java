@@ -12,6 +12,7 @@ import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -199,7 +200,11 @@ public class ScenePoseImageService {
                 new TransactionSynchronization() {
                     @Override
                     public void afterCommit() {
-                        processor.process(sessionId, jobId);
+                        try {
+                            processor.process(sessionId, jobId);
+                        } catch (TaskRejectedException e) {
+                            processor.markRejected(sessionId, jobId);
+                        }
                     }
                 });
     }

@@ -35,6 +35,7 @@ public class GenerationLimitService {
 
     @Transactional
     public void assertCanGenerate(UUID userId, FlowType flowType) {
+        generationRepository.lockDailyQuota(userId + ":" + flowType.name());
         DailyLimit limit = loadLimit(flowType);
         
         if (limit.getMaxPerDay() == -1) {
@@ -69,7 +70,7 @@ public class GenerationLimitService {
     }
 
     private DailyLimit loadLimit(FlowType flowType) {
-        return limitRepository.findByFlowTypeForUpdate(flowType)
+        return limitRepository.findById(flowType)
                 .orElseThrow(() -> new BusinessException(
                         "Limite não configurado para o fluxo: " + flowType));
     }

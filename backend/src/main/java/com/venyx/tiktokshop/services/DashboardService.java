@@ -23,7 +23,11 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Métrica base é cadastrada manualmente pelo usuário por período (DashboardMetric);
@@ -32,6 +36,12 @@ import java.util.UUID;
  */
 @Service
 public class DashboardService {
+
+    /**
+     * Teto do intervalo personalizado. Sem ele, um range de anos vira uma query por dia
+     * dentro da mesma transacao — e o pool de conexoes fica preso por minutos.
+     */
+    private static final int MAX_CUSTOM_DAYS = 90;
 
     private static final DateTimeFormatter DAY_LABEL = DateTimeFormatter.ofPattern("dd/MM").withZone(ZoneOffset.UTC);
 
@@ -134,23 +144,35 @@ public class DashboardService {
         }
         Instant start = fromDate.atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant end = toDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+
         int days = (int) (ChronoUnit.DAYS.between(fromDate, toDate) + 1);
+
+        if (days > MAX_CUSTOM_DAYS) {
+            throw new IllegalArgumentException(
+                    "O período personalizado é de no máximo %d dias.".formatted(MAX_CUSTOM_DAYS));
+        }
         return new ResolvedWindow(start, end, days, DashboardPeriodType.RANGE, "custom:" + fromDate + ":" + toDate);
     }
 
-    private List<DashboardSeriesPointDTO> buildSeries(UUID userId, Instant windowStart, int days, BigDecimal baseRevenue, int baseOrders) {
+    private List<DashboardSeriesPointDTO> buildSeries(UUID userId, Instant windowStart, int days,
+                                                      BigDecimal baseRevenue, int baseOrders) {
         BigDecimal perDayBaseRevenue = days > 0
                 ? baseRevenue.divide(BigDecimal.valueOf(days), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
         int perDayBaseOrders = days > 0 ? baseOrders / days : 0;
 
+        Instant windowEnd = windowStart.plus(days, ChronoUnit.DAYS);
+        Map<Integer, LiveSaleEventRepository.DailyBucket> porDia = liveSaleEventRepository
+                .sumDailyBuckets(userId, windowStart, windowEnd).stream()
+                .collect(toMap(LiveSaleEventRepository.DailyBucket::getBucket, identity()));
+
         List<DashboardSeriesPointDTO> points = new ArrayList<>();
         for (int i = 0; i < days; i++) {
-            Instant dayStart = windowStart.plus(i, ChronoUnit.DAYS);
-            Instant dayEnd = dayStart.plus(1, ChronoUnit.DAYS);
-            BigDecimal dayRevenue = perDayBaseRevenue.add(liveSaleEventRepository.sumAmountBetween(userId, dayStart, dayEnd));
-            long dayOrders = perDayBaseOrders + liveSaleEventRepository.countBetween(userId, dayStart, dayEnd);
-            points.add(new DashboardSeriesPointDTO(DAY_LABEL.format(dayStart), dayRevenue, (int) dayOrders));
+            LiveSaleEventRepository.DailyBucket dia = porDia.get(i);
+            BigDecimal dayRevenue = perDayBaseRevenue.add(dia != null ? dia.getReceita() : BigDecimal.ZERO);
+            long dayOrders = perDayBaseOrders + (dia != null ? dia.getPedidos() : 0L);
+            points.add(new DashboardSeriesPointDTO(
+                    DAY_LABEL.format(windowStart.plus(i, ChronoUnit.DAYS)), dayRevenue, (int) dayOrders));
         }
         return points;
     }

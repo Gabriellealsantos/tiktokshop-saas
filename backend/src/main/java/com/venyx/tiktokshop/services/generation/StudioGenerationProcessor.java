@@ -13,6 +13,9 @@ public class StudioGenerationProcessor {
     private static final Logger log = LoggerFactory.getLogger(StudioGenerationProcessor.class);
     private static final String STUDIO_FOLDER = "studio";
 
+    private static final String FILA_CHEIA =
+            "Estamos com muitas gerações em andamento agora. Tente novamente em alguns minutos.";
+
     private final ImageProvider imageProvider;
     private final StorageService storageService;
     private final StudioGenerationNotifier notifier;
@@ -60,5 +63,11 @@ public class StudioGenerationProcessor {
         log.info("[STUDIO-ASYNC-FIM] sessionId={} finalizado (status={}) em {}ms na thread {}",
                 sessionId, session.getStatus(), System.currentTimeMillis() - inicio,
                 Thread.currentThread().getName());
+    }
+
+    public void markRejected(Long sessionId, Long jobId) {
+        log.warn("[STUDIO-ASYNC-REJEITADO] sessionId={} jobId={} recusado pelo executor", sessionId, jobId);
+        CreationSession session = studioTx.fail(sessionId, jobId, FILA_CHEIA);
+        notifier.notifyReady(session.getUser().getUuid(), session);
     }
 }

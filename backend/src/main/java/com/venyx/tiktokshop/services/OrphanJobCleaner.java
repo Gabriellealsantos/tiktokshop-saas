@@ -1,6 +1,5 @@
 package com.venyx.tiktokshop.services;
 
-import com.venyx.tiktokshop.entities.enums.ImageGenerationStatus;
 import com.venyx.tiktokshop.repositories.ImageGenerationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import java.time.temporal.ChronoUnit;
 public class OrphanJobCleaner {
 
     private static final Logger logger = LoggerFactory.getLogger(OrphanJobCleaner.class);
-    private static final int ORPHAN_THRESHOLD_MINUTES = 30;
+    private static final int ORPHAN_THRESHOLD_MINUTES = 20;
 
     private final ImageGenerationRepository repository;
 
