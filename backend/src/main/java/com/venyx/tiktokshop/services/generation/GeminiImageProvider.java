@@ -57,6 +57,9 @@ public class GeminiImageProvider  implements ImageProvider {
 
     private static final Set<String> BLOCK_MARKERS = Set.of("safety violation", "prohibited content");
 
+    /** Congestionamento do modelo: repetir nele em seguida devolve o mesmo 500. */
+    private static final String HIGH_DEMAND = "experiencing high demand";
+
     /** Teto do job inteiro. Passar disso, ninguem mais quer a imagem: melhor falhar com mensagem. */
     private static final long TOTAL_BUDGET_MS = 420_000;
 
@@ -367,6 +370,11 @@ public class GeminiImageProvider  implements ImageProvider {
                             e.getStatusCode().value(), System.currentTimeMillis() - inicio, candidate,
                             attempt, MAX_RETRIES, payloadKb, resumo(e.getResponseBodyAsString()));
                     last = e;
+
+                    if (e.getResponseBodyAsString().toLowerCase().contains(HIGH_DEMAND)) {
+                        break;
+                    }
+
                 } catch (ResourceAccessException e) {
                     // Dois timeouts no mesmo modelo ja custaram minutos: o proximo da cadeia tem
                     // mais chance que uma terceira tentativa na mesma fila.
