@@ -12,7 +12,7 @@ import type { VideoTemplateSummary } from "@/models/videoTemplate";
 const CATEGORIAS = ["Todos", "Moda", "UGC", "Beleza"];
 const PAGE_SIZE = 20;
 
-export function SharedVideoCard({ modelo, productId }: { modelo: VideoTemplateSummary; isPicker?: boolean; productId?: string }) {
+export function SharedVideoCard({ modelo, productId, userProductId }: { modelo: VideoTemplateSummary; isPicker?: boolean; productId?: string; userProductId?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const navigate = useNavigate();
 
@@ -50,6 +50,8 @@ export function SharedVideoCard({ modelo, productId }: { modelo: VideoTemplateSu
     params.set("video", modelo.videoUrl);
     if (modelo.thumbnailUrl) params.set("thumbnail", modelo.thumbnailUrl);
     if (productId) params.set("productId", productId);
+    // Produto próprio do usuário: id de outro espaço, vai no parâmetro dele.
+    if (userProductId) params.set("userProductId", userProductId);
     navigate(`/templates/use?${params.toString()}`);
   };
 
@@ -112,7 +114,7 @@ export function SharedVideoCard({ modelo, productId }: { modelo: VideoTemplateSu
   );
 }
 
-export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, productId?: string }) {
+export function SharedModelsView({ isPicker, productId, userProductId }: { isPicker?: boolean, productId?: string, userProductId?: string }) {
   const [categoriaAtiva, setCategoriaAtiva] = useState("Todos");
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
@@ -256,7 +258,7 @@ export function SharedModelsView({ isPicker, productId }: { isPicker?: boolean, 
           <>
             <div className="grid gap-2.5 sm:gap-3 md:gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
               {templates.map((modelo) => (
-                <SharedVideoCard key={modelo.slug} modelo={modelo} isPicker={isPicker} productId={productId} />
+                <SharedVideoCard key={modelo.slug} modelo={modelo} isPicker={isPicker} productId={productId} userProductId={userProductId} />
               ))}
             </div>
 

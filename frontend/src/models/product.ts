@@ -1,5 +1,12 @@
 export type Product = {
   id: number;
+  /**
+   * De onde o produto veio. "catalog" (padrão) = vitrine minerada (/api/products);
+   * "user" = produto próprio cadastrado pelo usuário (/api/user-products). Os dois têm
+   * espaços de id independentes, então quem manda o id ao backend PRECISA olhar isto
+   * para escolher entre `productId` e `userProductId`.
+   */
+  source?: "catalog" | "user";
   name: string;
   category: string;
   categoryId?: number;

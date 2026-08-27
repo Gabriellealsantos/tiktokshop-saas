@@ -23,10 +23,12 @@ import { type Product } from "@/data/mock";
 import type { Category } from "@/models/category";
 import {
   mapBackendToProduct,
+  mapUserProductToProduct,
   toProductDTO,
   productToFormValues,
   type BackendProduct,
 } from "@/models/product-mappers";
+import type { UserProduct } from "@/models/user-product";
 import {
   createAdminProduct,
   updateAdminProduct,
@@ -315,25 +317,15 @@ export function AddProductModal({
         const created = res.data as BackendProduct;
         setCreatedProduct(mapBackendToProduct(created));
       } else {
-        // Usuário: cria UserProduct (só nome, descrição, imagem).
-        await createUserProduct({
+        // Usuário: cria UserProduct (só nome, descrição, imagem). O id REAL devolvido pelo
+        // backend é o que leva o produto adiante no fluxo de geração — sem ele o produto se
+        // perde e a tela de montagem abre vazia.
+        const res = await createUserProduct({
           name: values.name,
           imageUrl: values.image,
           description: null,
         });
-        // UserProduct não devolve um Product completo, construímos um mínimo para o step 2.
-        setCreatedProduct({
-          id: Date.now(),
-          name: values.name,
-          category: values.category || "Meus Produtos",
-          price: values.price
-            ? `R$ ${values.price.toFixed(2).replace(".", ",")}`
-            : "R$ 0,00",
-          sales: "0 vendas",
-          image: values.image,
-          favorite: false,
-          viral: false,
-        });
+        setCreatedProduct(mapUserProductToProduct(res.data as UserProduct));
       }
 
       toast.success("Produto adicionado com sucesso!", {

@@ -1,6 +1,5 @@
 package com.venyx.tiktokshop.services.generation;
 
-import com.venyx.tiktokshop.entities.Product;
 import com.venyx.tiktokshop.entities.VideoTemplate;
 import com.venyx.tiktokshop.entities.enums.VideoAudioMode;
 import org.springframework.core.io.Resource;
@@ -44,14 +43,15 @@ public class VideoPromptComposer {
     }
 
     /** Instrução completa enviada ao TextProvider para gerar UM prompt Veo3. */
-    public String compose(VideoTemplate template, Product product) {
+    public String compose(VideoTemplate template, ProductBrief product) {
         String filledMaster = fillMaster(loadMaster(), template, product);
 
         return loadKnowledge()
                 + "\n\n---\n\n" + filledMaster
                 + MOTION_HANDOFF
                 + IDENTITY_DIRECTIVE
-                + resolveAudioDirective(template.getAudioMode());
+                + resolveAudioDirective(template.getAudioMode())
+                + (product.isEmpty() ? NO_PRODUCT_DIRECTIVE : "");
     }
 
     /**
@@ -146,13 +146,23 @@ public class VideoPromptComposer {
                     + "call-to-action is VISUAL only (on-screen text or a natural gesture toward the "
                     + "product), never spoken. Make this explicit in the final prompt.\n";
 
-    private String fillMaster(String body, VideoTemplate template, Product product) {
-        String category = product.getCategory() != null ? product.getCategory().getName() : null;
+    /**
+     * "Manter look atual": o usuário só trocou a pessoa e não vestiu produto nenhum, então os
+     * placeholders de produto ficam vazios. Sem esta diretriz o LLM inventa um produto para
+     * preencher o buraco do master-prompt (ele foi treinado para sempre vender algo).
+     */
+    private static final String NO_PRODUCT_DIRECTIVE =
+            "\n---\n## NO PRODUCT IN THIS VIDEO\n"
+                    + "There is NO product to feature in this video. Do NOT invent, name, mention or "
+                    + "show any product, brand or package, and do NOT write a product-focused call-to-"
+                    + "action. The video is about the person, the scene and the movement only.\n";
+
+    private String fillMaster(String body, VideoTemplate template, ProductBrief product) {
         return body
                 // Produto (campos disponíveis; ausentes ficam vazios — o master tolera)
-                .replace("{{PRODUCT_NAME}}", nvl(sanitizer.clean(product.getName())))
-                .replace("{{CATEGORY}}", nvl(sanitizer.clean(category)))
-                .replace("{{DESCRIPTION}}", nvl(sanitizer.clean(product.getDescription())))
+                .replace("{{PRODUCT_NAME}}", nvl(sanitizer.clean(product.name())))
+                .replace("{{CATEGORY}}", nvl(sanitizer.clean(product.category())))
+                .replace("{{DESCRIPTION}}", nvl(sanitizer.clean(product.description())))
                 .replace("{{BRAND}}", "")
                 .replace("{{MAIN_BENEFIT}}", "")
                 .replace("{{SECONDARY_BENEFITS}}", "")

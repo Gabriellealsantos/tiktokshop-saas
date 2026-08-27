@@ -58,10 +58,15 @@ export interface ImageGenerationResult {
   createdAt: string;
 }
 
-/** POST /api/templates/prompt */
+/**
+ * POST /api/templates/prompt. O produto é opcional e mutuamente exclusivo: `productId` para a
+ * vitrine, `userProductId` para o produto próprio do usuário (espaços de id distintos).
+ * Nenhum dos dois = "manter look atual", prompt sem produto.
+ */
 export interface VideoPromptRequest {
   templateSlug: string;
-  productId: number;
+  productId?: number | null;
+  userProductId?: number | null;
   finalImageUrl?: string | null;
   avatarImageUrl?: string | null;
 }

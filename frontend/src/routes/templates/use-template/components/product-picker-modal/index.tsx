@@ -7,6 +7,9 @@ import { searchProducts } from "@/services/productService";
 import { mapBackendToProduct, type BackendProduct } from "@/models/product-mappers";
 import type { Product } from "@/models/product";
 
+/** Mesmo tamanho de página da vitrine (/products), para o scroll infinito ter a mesma cadência. */
+const PAGE_SIZE = 20;
+
 const GlassDialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -71,35 +74,97 @@ export function ProductPickerModal({ open, onOpenChange, onSelect }: ProductPick
   const [term, setTerm] = React.useState("");
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+  const [hasMore, setHasMore] = React.useState(true);
   const debounceRef = React.useRef<ReturnType<typeof setTimeout>>(undefined);
   const reqIdRef = React.useRef(0);
+  /** Página já carregada da vitrine — o scroll infinito pede a seguinte. */
+  const pageRef = React.useRef(0);
+  /**
+   * Trava SÍNCRONA de requisição em voo. O estado `loadingMore` só chega ao observer no
+   * próximo commit do React, então dois disparos no mesmo frame passariam pela checagem e
+   * encadeariam páginas sozinhos.
+   */
+  const inFlightRef = React.useRef(false);
 
-  React.useEffect(() => {
-    if (!open) return;
-    const reqId = ++reqIdRef.current;
-    setLoading(true);
+  const load = React.useCallback(
+    async (pageToLoad: number, append: boolean) => {
+      if (inFlightRef.current) return;
+      inFlightRef.current = true;
+      const reqId = ++reqIdRef.current;
+      if (append) setLoadingMore(true);
+      else setLoading(true);
 
-    const run = async () => {
       try {
         const res = await searchProducts({
           search: term || undefined,
           sort: term ? undefined : "top",
-          size: 12,
+          size: PAGE_SIZE,
+          page: pageToLoad,
         });
         if (reqId !== reqIdRef.current) return; // ignora resposta obsoleta (corrida)
+
         const content = (res.data?.content ?? []) as BackendProduct[];
-        setProducts(content.map((p) => mapBackendToProduct(p)));
+        const mapped = content.map((p) => mapBackendToProduct(p));
+        setProducts((prev) => (append ? [...prev, ...mapped] : mapped));
+        setHasMore(!res.data?.last && content.length > 0);
+        pageRef.current = pageToLoad;
       } catch {
-        if (reqId === reqIdRef.current) setProducts([]);
+        if (reqId !== reqIdRef.current) return;
+        setHasMore(false);
+        if (!append) setProducts([]);
       } finally {
-        if (reqId === reqIdRef.current) setLoading(false);
+        inFlightRef.current = false;
+        if (reqId === reqIdRef.current) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       }
-    };
+    },
+    [term],
+  );
+
+  // Abertura do modal e cada digitação recomeçam da página 0 (debounce evita uma busca por tecla).
+  React.useEffect(() => {
+    if (!open) return;
+    pageRef.current = 0;
+    setHasMore(true);
+    setLoading(true);
 
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(run, 250);
+    debounceRef.current = setTimeout(() => load(0, false), 250);
     return () => clearTimeout(debounceRef.current);
-  }, [term, open]);
+  }, [open, load]);
+
+  // Estado mutável para o observer não precisar ser recriado a cada render (evita loop).
+  const scrollState = React.useRef({ hasMore, loading, loadingMore });
+  React.useEffect(() => {
+    scrollState.current = { hasMore, loading, loadingMore };
+  }, [hasMore, loading, loadingMore]);
+
+  const observerRef = React.useRef<IntersectionObserver | null>(null);
+
+  const setSentinelRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      observerRef.current?.disconnect();
+      if (!node) return;
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (!entries[0].isIntersecting) return;
+          const { hasMore, loading, loadingMore } = scrollState.current;
+          if (hasMore && !loading && !loadingMore) load(pageRef.current + 1, true);
+        },
+        // Quem rola aqui é o corpo do modal, não a janela. Sem apontar o root para ele, o
+        // rootMargin seria medido contra o viewport e o "carregar antes de chegar no fim"
+        // não aconteceria (o clip do container zera a interseção de qualquer jeito).
+        { root: node.closest('[role="dialog"]'), rootMargin: "200px" },
+      );
+      observerRef.current.observe(node);
+    },
+    [load],
+  );
+
+  React.useEffect(() => () => observerRef.current?.disconnect(), []);
 
   const handleSelect = (product: Product) => {
     onSelect(product);
@@ -135,10 +200,21 @@ export function ProductPickerModal({ open, onOpenChange, onSelect }: ProductPick
         ) : products.length === 0 ? (
           <p className="text-center text-text-3 py-16">Nenhum produto encontrado.</p>
         ) : (
-          <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 pb-2">
-            {products.map((p) => (
-              <ProductCardSmall key={p.id} product={p} onSelect={handleSelect} />
-            ))}
+          <div className="flex flex-col gap-5 pb-2">
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+              {products.map((p) => (
+                <ProductCardSmall key={p.id} product={p} onSelect={handleSelect} />
+              ))}
+            </div>
+
+            {/* Sentinela do scroll infinito: entrou na área visível → carrega a próxima página. */}
+            {hasMore && <div ref={setSentinelRef} className="h-px w-full" />}
+
+            {loadingMore && (
+              <div className="flex justify-center py-4">
+                <Loader2 className="size-5 animate-spin text-brand-400" />
+              </div>
+            )}
           </div>
         )}
       </GlassDialogContent>

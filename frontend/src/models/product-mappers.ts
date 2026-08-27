@@ -1,4 +1,5 @@
 import type { Product } from "./product";
+import type { UserProduct } from "./user-product";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types / Enums do catálogo de produtos minerados.
@@ -58,10 +59,31 @@ function formatBRL(value: number | null | undefined): string {
   return `R$ ${n.toFixed(2).replace(".", ",")}`;
 }
 
+/**
+ * UserProduct -> Product (modelo do front), para o produto próprio circular pelas mesmas telas
+ * do catálogo. Não tem categoria nem métricas: os campos obrigatórios ficam neutros e o
+ * `source: "user"` é o que distingue os dois espaços de id na hora de chamar o backend.
+ */
+export function mapUserProductToProduct(dto: UserProduct): Product {
+  return {
+    id: dto.id,
+    source: "user",
+    name: dto.name,
+    category: "Meu produto",
+    price: "",
+    sales: "Produto próprio",
+    image: dto.imageUrl ?? "",
+    favorite: false,
+    viral: false,
+    description: dto.description ?? undefined,
+  };
+}
+
 /** BackendProduct -> Product (modelo do front). `favorite` vem do chamador (lista de favoritos). */
 export function mapBackendToProduct(dto: BackendProduct, favorite = false): Product {
   return {
     id: dto.id,
+    source: "catalog",
     name: dto.name,
     category: dto.categoryName ?? "Sem categoria",
     categoryId: dto.categoryId ?? undefined,

@@ -39,11 +39,14 @@ import {
   getTemplateUsage,
 } from "@/services/videoTemplateService";
 import { getProductById } from "@/services/productService";
+import { getUserProductById } from "@/services/userProductService";
 import {
   mapBackendToProduct,
+  mapUserProductToProduct,
   type BackendProduct,
 } from "@/models/product-mappers";
 import type { Product } from "@/models/product";
+import type { UserProduct } from "@/models/user-product";
 import type {
   ClothSwapMode,
   ImageGenerationResult,
@@ -113,6 +116,8 @@ export default function TemplateAssemblyScreen() {
   const slug = searchParams.get("slug") ?? undefined;
   const videoUrl = searchParams.get("video") ?? undefined;
   const productId = searchParams.get("productId") ?? undefined;
+  // Produto próprio do usuário (/api/user-products): id de outro espaço, parâmetro separado.
+  const userProductId = searchParams.get("userProductId") ?? undefined;
   const thumbnailUrl = searchParams.get("thumbnail") ?? undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -260,17 +265,28 @@ export default function TemplateAssemblyScreen() {
   const [productPickerOpen, setProductPickerOpen] = useState(false);
   const [personResultUrl, setPersonResultUrl] = useState<string | null>(null); // resultado do swap de pessoa (base p/ roupa)
   const [finalImageUrl, setFinalImageUrl] = useState<string | null>(null); // resultado do swap de roupa (ou "manter look")
+  /**
+   * Troca de roupa efetivamente aplicada. Separado de `finalImageUrl` porque "manter look
+   * atual" também preenche a imagem final (com o resultado da pessoa) — e o botão "Gerar
+   * prompt" do rodapé exige a troca de roupa de verdade.
+   */
+  const [clothesApplied, setClothesApplied] = useState(false);
   const [promptResult, setPromptResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Produto que veio da tela anterior (?productId=): busca e pré-preenche o painel.
+  // Produto que veio da tela anterior (?productId= da vitrine ou ?userProductId= do próprio
+  // usuário): busca e pré-preenche o painel da etapa 3.
   const { data: productFromUrl } = useQuery({
-    queryKey: ["product", productId],
+    queryKey: ["template-product", productId, userProductId],
     queryFn: async () => {
+      if (userProductId) {
+        const res = await getUserProductById(Number(userProductId));
+        return mapUserProductToProduct(res.data as UserProduct);
+      }
       const res = await getProductById(Number(productId));
       return mapBackendToProduct(res.data as BackendProduct);
     },
-    enabled: !!productId,
+    enabled: !!productId || !!userProductId,
   });
 
   const { waitForJob } = useGenerationWs();
@@ -333,6 +349,7 @@ export default function TemplateAssemblyScreen() {
     onSuccess: (imageUrl) => {
       setPersonResultUrl(imageUrl);
       setFinalImageUrl(null); // troca de pessoa reinicia a etapa de roupa
+      setClothesApplied(false);
       setAvatarConfirmed(true);
       queryClient.invalidateQueries({ queryKey: ["template-usage"] });
       toast.success("Pessoa trocada! Agora aplique a roupa ou gere o prompt.");
@@ -368,6 +385,7 @@ export default function TemplateAssemblyScreen() {
     },
     onSuccess: (imageUrl) => {
       setFinalImageUrl(imageUrl);
+      setClothesApplied(true);
       queryClient.invalidateQueries({ queryKey: ["template-usage"] });
       toast.success("Roupa aplicada!");
     },
@@ -375,14 +393,16 @@ export default function TemplateAssemblyScreen() {
       toast.error(backendError(err, "Não foi possível aplicar a roupa.")),
   });
 
-  // Gerar prompt Veo3 (texto, não consome cota).
+  // Gerar prompt Veo3 (texto, não consome cota). O produto é opcional: em "manter look atual"
+  // não existe produto nenhum na cena, e o backend gera o prompt só com template + avatar.
   const promptMutation = useMutation({
     mutationFn: async () => {
       if (!slug) throw new Error("Template inválido.");
-      if (!produto) throw new Error("Escolha um produto.");
+      const isUserProduct = produto?.source === "user";
       const res = await generateVideoPrompt({
         templateSlug: slug,
-        productId: Number(produto.id),
+        productId: produto && !isUserProduct ? Number(produto.id) : null,
+        userProductId: produto && isUserProduct ? Number(produto.id) : null,
         finalImageUrl: finalImageUrl ?? personResultUrl,
         avatarImageUrl: avatarHostedRef.current ?? avatarSelecionado,
       });
@@ -400,14 +420,10 @@ export default function TemplateAssemblyScreen() {
       toast.error(backendError(err, "Não foi possível gerar o prompt.")),
   });
 
-  // "Manter look atual": pula a troca de roupa e vai direto pro prompt, usando
-  // o resultado da troca de pessoa como imagem final. Ainda exige produto
-  // selecionado (o prompt descreve o produto), só dispensa o "Aplicar troca".
+  // "Manter look atual": pula a troca de roupa e vai direto pro prompt, usando o resultado da
+  // troca de pessoa como imagem final. Não exige produto — manter o look é justamente não
+  // colocar produto nenhum na cena; exigir a escolha aqui travava o fluxo sem motivo.
   const handleManterLook = () => {
-    if (!produto) {
-      toast.error("Escolha um produto antes de gerar o prompt.");
-      return;
-    }
     setFinalImageUrl(personResultUrl);
     promptMutation.mutate();
   };
@@ -441,6 +457,7 @@ export default function TemplateAssemblyScreen() {
     setAvatarConfirmed(false);
     setPersonResultUrl(null);
     setFinalImageUrl(null);
+    setClothesApplied(false);
     avatarHostedRef.current = null;
     avatarBodyHostedRef.current = null;
     hasSavedCropRef.current = false;
@@ -596,7 +613,9 @@ export default function TemplateAssemblyScreen() {
     setPosition((prev) => clampTo(prev.x, prev.y, zoom));
   };
 
-  const currentStep = promptResult ? 3 : produto ? 2 : 1;
+  // A etapa "Produto" começa quando a troca de pessoa é confirmada — ter produto escolhido não
+  // é pré-requisito dela ("manter look atual" segue sem produto nenhum).
+  const currentStep = promptResult ? 3 : produto || avatarConfirmed ? 2 : 1;
   const swapLoading =
     swapPersonMutation.isPending || swapClothesMutation.isPending;
 
@@ -823,9 +842,8 @@ export default function TemplateAssemblyScreen() {
                   <Button
                     disabled={
                       !slug ||
-                      !produto ||
                       !avatarConfirmed ||
-                      !finalImageUrl ||
+                      !clothesApplied ||
                       promptMutation.isPending
                     }
                     className="bg-accent-500 hover:bg-accent-600 text-white shadow-[0_0_24px_-6px_rgba(109,91,245,0.5)] px-8 disabled:opacity-50"
