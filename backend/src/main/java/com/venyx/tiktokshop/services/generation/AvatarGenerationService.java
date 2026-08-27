@@ -12,6 +12,7 @@ import com.venyx.tiktokshop.services.GenerationLimitService;
 import com.venyx.tiktokshop.services.StorageService;
 import com.venyx.tiktokshop.services.exceptions.BusinessException;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -184,7 +185,11 @@ public class AvatarGenerationService {
                 new TransactionSynchronization() {
                     @Override
                     public void afterCommit() {
-                        processor.process(jobId);
+                        try {
+                            processor.process(jobId);
+                        } catch (TaskRejectedException e) {
+                            processor.markRejected(jobId);
+                        }
                     }
                 });
     }

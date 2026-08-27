@@ -4,6 +4,7 @@ import com.venyx.tiktokshop.entities.ImageGeneration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -59,4 +60,12 @@ public interface ImageGenerationRepository extends JpaRepository<ImageGeneration
       AND updated_at < :threshold
     """)
     long countStuckSince(Instant threshold);
+
+    /**
+     * Lock consultivo por (usuario, fluxo), liberado automaticamente no commit. Serializa
+     * apenas as verificacoes de limite do mesmo usuario no mesmo fluxo: sem ele, duas
+     * requisicoes concorrentes leem a mesma contagem e ambas passam pelo teto diario.
+     */
+    @Query(value = "SELECT 1 FROM (SELECT pg_advisory_xact_lock(hashtext(:chave))) t", nativeQuery = true)
+    Integer lockDailyQuota(@Param("chave") String chave);
 }

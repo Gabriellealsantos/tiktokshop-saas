@@ -17,11 +17,17 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class AsyncConfig {
 
     @Bean("generationExecutor")
-    public Executor generationExecutor() {
+    public Executor generationExecutor(
+            @Value("${generation.async.core-pool:4}") int corePool,
+            @Value("${generation.async.max-pool:4}") int maxPool,
+            @Value("${generation.async.queue-capacity:100}") int queueCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(8);
-        executor.setMaxPoolSize(12);
-        executor.setQueueCapacity(100);
+        // core == max de proposito: com queueCapacity alto o ThreadPoolExecutor so cria
+        // threads acima do core depois que a fila enche — entao um max maior nunca era
+        // alcancado e o pool ficava travado no core, escondendo o dimensionamento real.
+        executor.setCorePoolSize(corePool);
+        executor.setMaxPoolSize(maxPool);
+        executor.setQueueCapacity(queueCapacity);
         executor.setThreadNamePrefix("gen-");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.setWaitForTasksToCompleteOnShutdown(true);
@@ -32,9 +38,9 @@ public class AsyncConfig {
 
     @Bean(name = "avatarTaskExecutor")
     Executor avatarTaskExecutor(
-            @Value("${avatar.async.core-pool:2}") int corePool,
-            @Value("${avatar.async.max-pool:3}") int maxPool,
-            @Value("${avatar.async.queue-capacity:50}") int queueCapacity) {
+            @Value("${avatar.async.core-pool:4}") int corePool,
+            @Value("${avatar.async.max-pool:4}") int maxPool,
+            @Value("${avatar.async.queue-capacity:100}") int queueCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(corePool);
         executor.setMaxPoolSize(maxPool);
@@ -48,9 +54,9 @@ public class AsyncConfig {
 
     @Bean(name = "studioTaskExecutor")
     Executor studioTaskExecutor(
-            @Value("${studio.async.core-pool:2}") int corePool,
-            @Value("${studio.async.max-pool:3}") int maxPool,
-            @Value("${studio.async.queue-capacity:50}") int queueCapacity) {
+            @Value("${studio.async.core-pool:4}") int corePool,
+            @Value("${studio.async.max-pool:4}") int maxPool,
+            @Value("${studio.async.queue-capacity:100}") int queueCapacity) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(corePool);
         executor.setMaxPoolSize(maxPool);
