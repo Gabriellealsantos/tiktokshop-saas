@@ -61,3 +61,4 @@ export { toggleVariants } from "./toggle";
 export * from "./custom-cursor";
 export * from "./glass-panel";
 export * from "./premium-loading";
+export * from "./tiktok-icon";
