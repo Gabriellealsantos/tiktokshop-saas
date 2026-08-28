@@ -26,6 +26,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.Math.pow;
 import static java.lang.Thread.currentThread;
@@ -63,6 +64,11 @@ public class GeminiImageProvider  implements ImageProvider {
     /** Teto do job inteiro. Passar disso, ninguem mais quer a imagem: melhor falhar com mensagem. */
     private static final long TOTAL_BUDGET_MS = 420_000;
 
+
+    /** Modelos que rejeitam thinking_level. Descoberto no primeiro 400, lembrado no processo. */
+    private final Set<String> semThinking = ConcurrentHashMap.newKeySet();
+
+    private static final String THINKING_NAO_SUPORTADO = "thinking is not enabled for this model";
 
     private final RestClient restClient;
     private final StorageService storageService;
@@ -131,6 +137,7 @@ public class GeminiImageProvider  implements ImageProvider {
         try {
             raw = postWithRetry(body);
         } catch (RestClientResponseException e) {
+
             logger.error("[GEMINI] Falha na API. Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
 
             if (isDailyQuotaExhausted(e)) {
@@ -344,6 +351,11 @@ public class GeminiImageProvider  implements ImageProvider {
         for (String candidate : models) {
             Map<String, Object> comModelo = new LinkedHashMap<>(body);
             comModelo.put("model", candidate);
+
+            if (semThinking.contains(candidate)) {
+                comModelo.remove("generation_config");
+            }
+
             String payload = objectMapper.writeValueAsString(comModelo);
             int payloadKb = payload.length() / 1024;
             int timeoutAttempts = 0;
@@ -363,6 +375,13 @@ public class GeminiImageProvider  implements ImageProvider {
                             System.currentTimeMillis() - inicio, candidate, payloadKb);
                     return raw;
                 } catch (RestClientResponseException e) {
+                    if (e.getResponseBodyAsString().toLowerCase().contains(THINKING_NAO_SUPORTADO)
+                            && comModelo.remove("generation_config") != null) {
+                        semThinking.add(candidate);
+                        payload = objectMapper.writeValueAsString(comModelo);
+                        logger.warn("[GEMINI] modelo={} nao aceita thinking_level; refazendo sem ele", candidate);
+                        continue;
+                    }
                     if (!RETRYABLE.contains(e.getStatusCode().value()) || isDailyQuotaExhausted(e)) {
                         throw e;
                     }
@@ -396,6 +415,7 @@ public class GeminiImageProvider  implements ImageProvider {
 
     /** 429 de cota diária não adianta retentar — só volta a funcionar no dia seguinte. */
     private boolean isDailyQuotaExhausted(RestClientResponseException e) {
+
         if (e.getStatusCode().value() != 429) {
             return false;
         }
