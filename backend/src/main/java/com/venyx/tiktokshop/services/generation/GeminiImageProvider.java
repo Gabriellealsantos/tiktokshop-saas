@@ -27,6 +27,9 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.pow;
 import static java.lang.Thread.currentThread;
@@ -69,6 +72,12 @@ public class GeminiImageProvider  implements ImageProvider {
     private final Set<String> semThinking = ConcurrentHashMap.newKeySet();
 
     private static final String THINKING_NAO_SUPORTADO = "thinking is not enabled for this model";
+    private static final String NIVEL_NAO_SUPORTADO = "is not a supported thinking level";
+    private static final Pattern PERMITIDOS = Pattern.compile("Allowed values are: ([^.]+)");
+    private static final List<String> NIVEIS = List.of("minimal", "low", "medium", "high");
+
+    /** Cada modelo aceita um subconjunto proprio, e o Google muda sem aviso. Aprendido no 400. */
+    private final Map<String, String> thinkingPorModelo = new ConcurrentHashMap<>();
 
     private final RestClient restClient;
     private final StorageService storageService;
@@ -354,6 +363,11 @@ public class GeminiImageProvider  implements ImageProvider {
 
             if (semThinking.contains(candidate)) {
                 comModelo.remove("generation_config");
+            } else {
+                String aprendido = thinkingPorModelo.get(candidate);
+                if (aprendido != null) {
+                    comModelo.put("generation_config", Map.of("thinking_level", aprendido));
+                }
             }
 
             String payload = objectMapper.writeValueAsString(comModelo);
@@ -382,6 +396,20 @@ public class GeminiImageProvider  implements ImageProvider {
                         logger.warn("[GEMINI] modelo={} nao aceita thinking_level; refazendo sem ele", candidate);
                         continue;
                     }
+
+                    if (e.getResponseBodyAsString().contains(NIVEL_NAO_SUPORTADO)) {
+                        String nivel = nivelCompativel(e.getResponseBodyAsString());
+                        if (nivel != null) {
+                            thinkingPorModelo.put(candidate, nivel);
+                            comModelo.put("generation_config", Map.of("thinking_level", nivel));
+                            payload = objectMapper.writeValueAsString(comModelo);
+                            payloadKb = payload.length() / 1024;
+                            logger.warn("[GEMINI] modelo={} recusou thinking_level={}; usando {}",
+                                    candidate, thinkingLevel, nivel);
+                            continue;
+                        }
+                    }
+
                     if (!RETRYABLE.contains(e.getStatusCode().value()) || isDailyQuotaExhausted(e)) {
                         throw e;
                     }
@@ -467,4 +495,26 @@ public class GeminiImageProvider  implements ImageProvider {
         return List.copyOf(chain);
     }
 
+
+    /**
+     * Do conjunto que o modelo aceita, escolhe o mais alto que nao passa do configurado —
+     * subir o nivel sozinho seria pagar mais tempo do que foi pedido.
+     */
+    private String nivelCompativel(String corpo) {
+        Matcher matcher = PERMITIDOS.matcher(corpo);
+        if (!matcher.find()) {
+            return null;
+        }
+        Set<String> permitidos = Arrays.stream(matcher.group(1).split(","))
+                .map(valor -> valor.replace("'", "").trim())
+                .collect(Collectors.toSet());
+
+        int alvo = NIVEIS.indexOf(thinkingLevel);
+        for (int i = alvo; i >= 0; i--) {
+            if (permitidos.contains(NIVEIS.get(i))) {
+                return NIVEIS.get(i);
+            }
+        }
+        return permitidos.stream().min(Comparator.comparingInt(NIVEIS::indexOf)).orElse(null);
+    }
 }
