@@ -49,14 +49,14 @@ export function useDashboardData(canSeeRevenue: boolean, selectedPeriod: string)
     if (!canSeeRevenue) return;
     getLiveSalesFeed().then(res => {
       setLiveSales(res.data.recent.slice(0, 4));
-    }).catch(() => {});
+    }).catch(() => { });
   }, [canSeeRevenue]);
 
   // Tendências cadastradas pelo admin (já vêm filtradas por ativo do back).
   useEffect(() => {
     getInsights().then(res => {
       setInsights(res.data as DashboardInsightDTO[]);
-    }).catch(() => {});
+    }).catch(() => { });
   }, []);
 
   // Ao vivo: cada venda estourada em /topic/live-sales refaz o fetch (debounce),
@@ -65,10 +65,10 @@ export function useDashboardData(canSeeRevenue: boolean, selectedPeriod: string)
   useEffect(() => {
     if (!canSeeRevenue) return;
     const dispose = subscribeTopic<LiveSaleEventDTO>("/user/queue/live-sales", (payload) => {
-      if ((payload as any).action === "PING") return;
+      if ((payload as LiveSaleEventDTO & { action?: string }).action === "PING") return;
       setLiveSales(prev => [payload, ...prev].slice(0, 4));
       if (refetchTimer.current) clearTimeout(refetchTimer.current);
-      refetchTimer.current = setTimeout(() => fetchSummary(), 800);
+      refetchTimer.current = setTimeout(() => fetchSummary(), 10000);
     });
     return () => {
       if (refetchTimer.current) clearTimeout(refetchTimer.current);
