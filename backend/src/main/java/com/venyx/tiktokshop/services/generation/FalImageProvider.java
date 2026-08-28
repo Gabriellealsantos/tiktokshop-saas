@@ -51,6 +51,8 @@ public class FalImageProvider implements ImageProvider {
     private static final int MAX_RETRIES = 3;
     private static final Set<Integer> RETRYABLE = Set.of(429, 500, 502, 503, 504);
 
+    private static final String CONTENT_POLICY = "content_policy_violation";
+
     private static final List<String> SUPPORTED_ASPECTS =
             List.of("21:9", "16:9", "3:2", "4:3", "5:4", "1:1", "4:5", "3:4", "2:3", "9:16");
 
@@ -142,9 +144,10 @@ public class FalImageProvider implements ImageProvider {
                             status, resumo(e.getResponseBodyAsString()));
                     throw new BusinessException("Serviço de imagem indisponível. Tente novamente.");
                 }
-                if (!RETRYABLE.contains(status)) {
-                    logger.error("[FAL] erro nao retentavel. status={} body={}",
-                            status, resumo(e.getResponseBodyAsString()));
+                if (!isRetryable(e)) {
+                    logger.error("[FAL] erro nao retentavel em {}ms. status={} body={}",
+                            System.currentTimeMillis() - inicio, status,
+                            resumo(e.getResponseBodyAsString()));
                     throw new BusinessException("Ocorreu um erro ao gerar a imagem. Tente novamente.");
                 }
                 logger.warn("[FAL] {} em {}ms, modelo={} (tentativa {}/{}), body={}",
@@ -161,6 +164,11 @@ public class FalImageProvider implements ImageProvider {
             }
         }
         logger.error("[FAL] esgotadas as {} tentativas no modelo {}", MAX_RETRIES, model, last);
+        if (last instanceof RestClientResponseException resposta
+                && resposta.getResponseBodyAsString().contains(CONTENT_POLICY)) {
+            throw new BusinessException("A imagem foi bloqueada pelo filtro de conteúdo. "
+                    + "Troque a foto de referência ou o produto e tente de novo.");
+        }
         throw new BusinessException("O serviço de imagem está sobrecarregado. Tente novamente em instantes.");
     }
 
@@ -249,6 +257,16 @@ public class FalImageProvider implements ImageProvider {
         }
         String limpo = body.replaceAll("\\s+", " ").trim();
         return limpo.length() <= 300 ? limpo : limpo.substring(0, 300) + "...";
+    }
+
+    /**
+     * O verificador de conteudo da fal e nao-deterministico: o mesmo prompt reprovado passa na
+     * tentativa seguinte. Repetir custa segundos e evita derrubar uma geracao que ia funcionar.
+     */
+    private boolean isRetryable(RestClientResponseException e) {
+        int status = e.getStatusCode().value();
+        return RETRYABLE.contains(status)
+                || (status == 422 && e.getResponseBodyAsString().contains(CONTENT_POLICY));
     }
 
     private void sleepBackoff() {
