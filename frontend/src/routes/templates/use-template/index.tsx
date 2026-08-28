@@ -274,6 +274,13 @@ export default function TemplateAssemblyScreen() {
   const [promptResult, setPromptResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  /** Prompt buscado em segundo plano, junto da chave template+produto que o originou. */
+  const [promptPreload, setPromptPreload] = useState<{
+    chave: string;
+    prompt: string;
+  } | null>(null);
+  const preloadKeyRef = useRef<string | null>(null);
+
   // Produto que veio da tela anterior (?productId= da vitrine ou ?userProductId= do próprio
   // usuário): busca e pré-preenche o painel da etapa 3.
   const { data: productFromUrl } = useQuery({
@@ -420,12 +427,66 @@ export default function TemplateAssemblyScreen() {
       toast.error(backendError(err, "Não foi possível gerar o prompt.")),
   });
 
+  /**
+   * Mesma chamada do promptMutation, mas em segundo plano. Nao reaproveita aquela mutation
+   * porque o isPending dela troca a tela pelo PromptLoading e o promptResult navega para o
+   * resultado — os dois sao gatilhos de navegacao, nao de busca.
+   */
+  const promptPreloadMutation = useMutation({
+    mutationFn: async (chave: string) => {
+      if (!slug) throw new Error("Template inválido.");
+      const isUserProduct = produto?.source === "user";
+      const res = await generateVideoPrompt({
+        templateSlug: slug,
+        productId: produto && !isUserProduct ? Number(produto.id) : null,
+        userProductId: produto && isUserProduct ? Number(produto.id) : null,
+        finalImageUrl: finalImageUrl ?? personResultUrl,
+        avatarImageUrl: avatarHostedRef.current ?? avatarSelecionado,
+      });
+
+      const { jobId } = res.data as PendingJob;
+      const result = await waitForJob(jobId);
+
+      if (result.status === "FAILED") {
+        throw new Error(result.error ?? "Falha ao pré-gerar o prompt.");
+      }
+      return { chave, prompt: result.data as string };
+    },
+    onSuccess: (preload) => setPromptPreload(preload),
+    onError: () => setPromptPreload(null),
+  });
+
+  const { mutate: preloadPrompt } = promptPreloadMutation;
+
+  // O prompt Veo3 depende so de template + produto: VideoTemplatePromptService.generate nao
+  // le as imagens que o DTO carrega. Buscar aqui deixa ele pronto enquanto a troca de roupa
+  // ainda gera, sem mexer na tela.
+  useEffect(() => {
+    if (!slug || !produto) return;
+    const chave = `${slug}:${produto.source}:${produto.id}`;
+    if (preloadKeyRef.current === chave) return;
+    preloadKeyRef.current = chave;
+    setPromptPreload(null);
+    preloadPrompt(chave);
+  }, [slug, produto, preloadPrompt]);
+
+  /** Se o prompt ja veio em segundo plano para este template+produto, mostra na hora. */
+  const handleGerarPrompt = () => {
+    const chave =
+      slug && produto ? `${slug}:${produto.source}:${produto.id}` : null;
+    if (chave && promptPreload?.chave === chave) {
+      setPromptResult(promptPreload.prompt);
+      return;
+    }
+    promptMutation.mutate();
+  };
+
   // "Manter look atual": pula a troca de roupa e vai direto pro prompt, usando o resultado da
   // troca de pessoa como imagem final. Não exige produto — manter o look é justamente não
   // colocar produto nenhum na cena; exigir a escolha aqui travava o fluxo sem motivo.
   const handleManterLook = () => {
     setFinalImageUrl(personResultUrl);
-    promptMutation.mutate();
+    handleGerarPrompt();
   };
 
   const handleCopyPrompt = async () => {
@@ -847,7 +908,7 @@ export default function TemplateAssemblyScreen() {
                       promptMutation.isPending
                     }
                     className="bg-accent-500 hover:bg-accent-600 text-white shadow-[0_0_24px_-6px_rgba(109,91,245,0.5)] px-8 disabled:opacity-50"
-                    onClick={() => promptMutation.mutate()}
+                    onClick={handleGerarPrompt}
                   >
                     {promptMutation.isPending ? (
                       <Loader2 className="size-4 mr-2 animate-spin" />

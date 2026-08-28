@@ -48,7 +48,7 @@ public class FalImageProvider implements ImageProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(FalImageProvider.class);
 
-    private static final int MAX_RETRIES = 2;
+    private static final int MAX_RETRIES = 3;
     private static final Set<Integer> RETRYABLE = Set.of(429, 500, 502, 503, 504);
 
     private static final List<String> SUPPORTED_ASPECTS =

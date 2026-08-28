@@ -11,7 +11,18 @@ import { LightingSelector } from "./components/lighting-selector";
 import { AtmosphereSelector } from "./components/atmosphere-selector";
 import { SummaryBar } from "./components/summary-bar";
 
-const steps = ["Produto", "Influencer", "Cenário", "Pose + Imagem", "Fala & Voz", "Vídeo"];
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getPoseSuggestions } from "@/services/studioService";
+
+const steps = [
+  "Produto",
+  "Influencer",
+  "Cenário",
+  "Pose + Imagem",
+  "Fala & Voz",
+  "Vídeo",
+];
 
 export default function ScenarioScreen() {
   const navigate = useNavigate();
@@ -29,12 +40,42 @@ export default function ScenarioScreen() {
   };
 
   // State from URL if navigating back from future steps
-  const [localSelecionado, setLocalSelecionado] = useState<string | null>(search.local || null);
-  const [timeOfDaySelected, setTimeOfDaySelected] = useState<string | null>(search.timeOfDay || null);
-  const [lightingSelected, setLightingSelected] = useState<string | null>(search.lighting || null);
-  const [atmosphereSelected, setAtmosphereSelected] = useState<string | null>(search.atmosphere || null);
+  const [localSelecionado, setLocalSelecionado] = useState<string | null>(
+    search.local || null,
+  );
+  const [timeOfDaySelected, setTimeOfDaySelected] = useState<string | null>(
+    search.timeOfDay || null,
+  );
+  const [lightingSelected, setLightingSelected] = useState<string | null>(
+    search.lighting || null,
+  );
+  const [atmosphereSelected, setAtmosphereSelected] = useState<string | null>(
+    search.atmosphere || null,
+  );
 
-  const isFormComplete = localSelecionado && timeOfDaySelected && lightingSelected && atmosphereSelected;
+  const isFormComplete =
+    localSelecionado &&
+    timeOfDaySelected &&
+    lightingSelected &&
+    atmosphereSelected;
+
+  const queryClient = useQueryClient();
+
+  // As sugestoes dependem so do produto, que ja esta na URL. Buscar aqui usa o tempo em que o
+  // usuario escolhe cenario — quando ele chega na tela de pose, o cache ja esta quente.
+  useEffect(() => {
+    if (!search.productId) return;
+    queryClient.prefetchQuery({
+      queryKey: ["pose-suggestions", search.productId],
+      queryFn: async () => {
+        const response = await getPoseSuggestions({
+          productId: Number(search.productId),
+        });
+        return response.data.poses as string[];
+      },
+      staleTime: Infinity,
+    });
+  }, [search.productId, queryClient]);
 
   return (
     <AppShell>
@@ -44,7 +85,9 @@ export default function ScenarioScreen() {
           <Button
             variant="ghost"
             className="bg-white/5 border border-white/10 hover:bg-white/10"
-            onClick={() => navigate(`/create-from-scratch?${searchParams.toString()}`)}
+            onClick={() =>
+              navigate(`/create-from-scratch?${searchParams.toString()}`)
+            }
           >
             <ChevronLeft className="size-4 mr-2" />
             Voltar
@@ -75,16 +118,28 @@ export default function ScenarioScreen() {
 
         <div className="rounded-[28px] bg-[linear-gradient(180deg,hsl(255_100%_95%/0.02),hsl(258_90%_70%/0.008))] backdrop-blur-sm border border-white/10 ring-1 ring-inset ring-white/[0.06] shadow-[0_20px_50px_-24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.10)] p-6 sm:p-8 pb-2 sm:pb-2 mb-8">
           {/* 1. LOCAL */}
-          <LocalSelector localSelecionado={localSelecionado} setLocalSelecionado={setLocalSelecionado} />
+          <LocalSelector
+            localSelecionado={localSelecionado}
+            setLocalSelecionado={setLocalSelecionado}
+          />
 
           {/* 2. HORA DO DIA */}
-          <TimeSelector timeOfDaySelected={timeOfDaySelected} setTimeOfDaySelected={setTimeOfDaySelected} />
+          <TimeSelector
+            timeOfDaySelected={timeOfDaySelected}
+            setTimeOfDaySelected={setTimeOfDaySelected}
+          />
 
           {/* 3. ILUMINAÇÃO */}
-          <LightingSelector lightingSelected={lightingSelected} setLightingSelected={setLightingSelected} />
+          <LightingSelector
+            lightingSelected={lightingSelected}
+            setLightingSelected={setLightingSelected}
+          />
 
           {/* 4. ATMOSFERA */}
-          <AtmosphereSelector atmosphereSelected={atmosphereSelected} setAtmosphereSelected={setAtmosphereSelected} />
+          <AtmosphereSelector
+            atmosphereSelected={atmosphereSelected}
+            setAtmosphereSelected={setAtmosphereSelected}
+          />
         </div>
 
         {/* BARRA DE RESUMO */}
@@ -99,7 +154,9 @@ export default function ScenarioScreen() {
         <div className="flex items-center justify-between border-t border-white/10 pt-6">
           <Button
             variant="ghost"
-            onClick={() => navigate(`/create-from-scratch?${searchParams.toString()}`)}
+            onClick={() =>
+              navigate(`/create-from-scratch?${searchParams.toString()}`)
+            }
             className="text-text-2 hover:text-white"
           >
             Voltar
@@ -112,13 +169,16 @@ export default function ScenarioScreen() {
               const params = new URLSearchParams();
               if (search.productId) params.set("productId", search.productId);
               if (search.avatarId) params.set("avatarId", search.avatarId);
-              if (search.applicationMode) params.set("applicationMode", search.applicationMode);
+              if (search.applicationMode)
+                params.set("applicationMode", search.applicationMode);
               if (localSelecionado) params.set("local", localSelecionado);
               if (timeOfDaySelected) params.set("timeOfDay", timeOfDaySelected);
               if (lightingSelected) params.set("lighting", lightingSelected);
-              if (atmosphereSelected) params.set("atmosphere", atmosphereSelected);
+              if (atmosphereSelected)
+                params.set("atmosphere", atmosphereSelected);
               if (search.pose) params.set("pose", search.pose);
-              if (search.manualPose) params.set("manualPose", search.manualPose);
+              if (search.manualPose)
+                params.set("manualPose", search.manualPose);
               navigate(`/create-from-scratch/pose?${params.toString()}`);
             }}
           >
