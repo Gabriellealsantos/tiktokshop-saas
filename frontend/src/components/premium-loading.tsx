@@ -82,14 +82,14 @@ export function PremiumLoading({
         </p>
       </div>
 
-      <div className="w-full py-16 px-6 flex items-center justify-center relative overflow-hidden min-h-[75vh] rounded-[32px] bg-[#1A1825]/60 border border-white/10 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <div className="w-full py-16 px-6 flex items-center justify-center relative overflow-hidden min-h-[75vh] rounded-[32px] bg-[#1A1825]/50 border border-white/10 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_0_60px_rgba(109,91,245,0.4),0_0_20px_rgba(109,91,245,0.2)]">
         {/* Subtle dot pattern grid */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8Y2lyY2xlIGN4PSIyIiBjeT0iMiIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSI+PC9jaXJjbGU+Cjwvc3ZnPg==')] opacity-40 pointer-events-none" />
 
         {/* Glows de fundo no container grande */}
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/15 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
-        <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/8 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+        <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
 
         {/* Componente Centralizado (Inner Panel) */}
         <div className="w-full max-w-md flex flex-col items-center relative z-10 mx-auto">

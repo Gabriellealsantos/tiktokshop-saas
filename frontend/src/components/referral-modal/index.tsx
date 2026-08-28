@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Crown, MessageSquare, Gift, Tag, CheckCircle2, ChevronLeft } from "lucide-react";
+import { Crown, MessageSquare, Gift, Tag, CheckCircle2, ChevronLeft, Sparkles, Percent, Unlock, ImagePlus, User } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/dialog";
 import { Button } from "@/components/button";
 import { Slider } from "@/components/slider";
+import { useAuth } from "@/context/auth";
 
 export function ReferralModal({
   open,
@@ -22,6 +23,7 @@ export function ReferralModal({
   const [step, setStep] = useState<1 | 2>(1);
   const [usages, setUsages] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
+  const { user } = useAuth();
 
   // When modal is closed, reset state
   const handleOpenChange = (isOpen: boolean) => {
@@ -59,30 +61,66 @@ export function ReferralModal({
                 transition={{ duration: 0.3 }}
                 className="flex flex-col gap-6"
               >
-                <div className="text-center">
-                  <h2 className="text-3xl font-extrabold text-white tracking-tight">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Acesso</span> Creator
+                {/* Creator badge + Title + Subtitle inside a bordered card */}
+                <div className="rounded-2xl border border-brand-500/20 bg-brand-500/[0.04] p-5 sm:p-6">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 px-3 py-1 text-[10px] font-bold text-brand-400 uppercase tracking-widest mb-4">
+                    <Sparkles className="size-3" />
+                    Acesso Creator
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600">Sua</span> condição especial
                   </h2>
-                  <p className="text-zinc-400 mt-2 font-medium">Presenteie um amigo!</p>
+                  <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">
+                    Seu reconhecimento como Creator permite liberar uma condição exclusiva para sua audiência.
+                  </p>
+
+                  {/* User profile card */}
+                  <div className="mt-5 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                    <div className="size-10 shrink-0 rounded-full overflow-hidden bg-brand-500/15 border border-brand-500/30 flex items-center justify-center">
+                      {user?.photoUrl ? (
+                        <img src={user.photoUrl} alt="Foto de perfil" className="size-full object-cover" />
+                      ) : (
+                        <User className="size-5 text-brand-400" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white truncate">
+                        @{user?.name?.toLowerCase().replace(/\s+/g, '') ?? 'usuario'}
+                      </p>
+                      <p className="text-[11px] text-zinc-500">Creator reconhecido</p>
+                    </div>
+                    <div className="shrink-0 rounded-md border border-brand-500/30 bg-brand-500/10 px-2.5 py-1 text-[10px] font-bold text-brand-400 uppercase tracking-wider">
+                      Reconhecido
+                    </div>
+                  </div>
                 </div>
 
+                {/* O que o convidado recebe */}
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-4">Como funciona</p>
-                  <div className="space-y-3">
-                    <div className="flex gap-4 items-start">
-                      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500/15 border border-brand-500/30 text-brand-400">
-                        <Crown className="size-5" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">O que o convidado recebe</p>
+                  <div className="space-y-2">
+                    <div className="flex gap-3 items-center rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 transition-colors hover:bg-white/[0.04]">
+                      <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/15 border border-brand-500/30 text-brand-400">
+                        <Percent className="size-4" />
                       </div>
-                      <p className="text-sm text-zinc-300 font-medium leading-relaxed pt-0.5">
-                        Seu amigo desbloqueia todas as funcionalidades da ferramenta + <strong className="text-white">50% de desconto na compra</strong>.
+                      <p className="text-sm text-zinc-300 font-medium">
+                        <strong className="text-white">50% de desconto</strong> ao comprar.
                       </p>
                     </div>
-                    <div className="flex gap-4 items-start">
-                      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-500/15 border border-brand-500/30 text-brand-400">
-                        <MessageSquare className="size-5" />
+                    <div className="flex gap-3 items-center rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 transition-colors hover:bg-white/[0.04]">
+                      <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/15 border border-brand-500/30 text-brand-400">
+                        <Unlock className="size-4" />
                       </div>
-                      <p className="text-sm text-zinc-300 font-medium leading-relaxed pt-0.5">
-                        Ao indicar, você abre mão de qualquer recompensa — <strong className="text-white">todos os benefícios vão para o novo usuário</strong>.
+                      <p className="text-sm text-zinc-300 font-medium">
+                        <strong className="text-white">Todas as funcionalidades</strong> da ferramenta desbloqueadas
+                      </p>
+                    </div>
+                    <div className="flex gap-3 items-center rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 transition-colors hover:bg-white/[0.04]">
+                      <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/15 border border-brand-500/30 text-brand-400">
+                        <ImagePlus className="size-4" />
+                      </div>
+                      <p className="text-sm text-zinc-300 font-medium">
+                        <strong className="text-white">Gerações de imagens</strong> ilimitadas
                       </p>
                     </div>
                   </div>

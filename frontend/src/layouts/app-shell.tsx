@@ -6,7 +6,6 @@ import {
   ChartNoAxesCombined,
   Home,
   Gift,
-  Menu,
   Settings,
   ShieldCheck,
   User,
@@ -114,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.15 }}
-                  className="flex size-9 items-center justify-center overflow-hidden rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
+                  className="hidden lg:flex size-9 items-center justify-center overflow-hidden rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
                 >
                   {user?.photoUrl ? (
                     <img src={user.photoUrl} alt="Foto de perfil" className="size-full object-cover" />
@@ -165,15 +164,36 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <Sheet>
               <SheetTrigger asChild>
-                <button className="grid size-9 place-items-center rounded-full btn-3d-icon-neutral text-zinc-300 lg:hidden hover:text-white">
-                  <Menu className="size-5" />
-                </button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex lg:hidden size-9 items-center justify-center overflow-hidden rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
+                >
+                  {user?.photoUrl ? (
+                    <img src={user.photoUrl} alt="Foto de perfil" className="size-full object-cover" />
+                  ) : (
+                    (user?.name?.charAt(0) ?? "U").toUpperCase()
+                  )}
+                </motion.button>
               </SheetTrigger>
               <SheetContent side="right" className="w-64 border-white/10 bg-zinc-950/95 backdrop-blur-xl p-0">
                 <SheetHeader className="sr-only">
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-1 px-4 pt-14">
+                  <Link
+                    to="/profile"
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                      path.startsWith("/profile")
+                        ? "bg-white/10 text-white"
+                        : "text-zinc-400 hover:bg-white/5 hover:text-white",
+                    )}
+                  >
+                    <User className="size-4" />
+                    Perfil
+                  </Link>
                   {toolbar.map(([to, Icon, label]) => {
                     const active = to === "/" ? path === "/" : path.startsWith(to);
                     return (
