@@ -6,7 +6,6 @@ import {
   ChartNoAxesCombined,
   Home,
   Gift,
-  Menu,
   Settings,
   ShieldCheck,
   User,
@@ -16,7 +15,7 @@ import {
 import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
-import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, ReferralModal } from "@/components";
+import { BrandMark, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, ReferralModal, TiktokIcon } from "@/components";
 import { SignatureBackground } from "@/layouts/signature-background";
 import { NotificationsBell } from "@/layouts/notifications/notification-bell";
 import { useNotifications } from "@/layouts/notifications/store";
@@ -101,8 +100,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               transition={{ duration: 0.15 }}
             >
               <div className="flex h-9 items-center gap-1.5 rounded-full btn-3d-neutral px-3 text-xs font-medium text-white">
-                <Gift className="size-3.5 text-brand-400" />
-                Convide um amigo
+                <TiktokIcon className="size-3.5 text-brand-400" />
+                Acesso Creator
               </div>
             </motion.button>
 
@@ -114,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.15 }}
-                  className="flex size-9 items-center justify-center overflow-hidden rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
+                  className="hidden lg:flex size-9 items-center justify-center overflow-hidden rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
                 >
                   {user?.photoUrl ? (
                     <img src={user.photoUrl} alt="Foto de perfil" className="size-full object-cover" />
@@ -165,15 +164,36 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <Sheet>
               <SheetTrigger asChild>
-                <button className="grid size-9 place-items-center rounded-full btn-3d-icon-neutral text-zinc-300 lg:hidden hover:text-white">
-                  <Menu className="size-5" />
-                </button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex lg:hidden size-9 items-center justify-center overflow-hidden rounded-full btn-brand text-sm font-bold text-white shadow-md transition-colors"
+                >
+                  {user?.photoUrl ? (
+                    <img src={user.photoUrl} alt="Foto de perfil" className="size-full object-cover" />
+                  ) : (
+                    (user?.name?.charAt(0) ?? "U").toUpperCase()
+                  )}
+                </motion.button>
               </SheetTrigger>
               <SheetContent side="right" className="w-64 border-white/10 bg-zinc-950/95 backdrop-blur-xl p-0">
                 <SheetHeader className="sr-only">
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-1 px-4 pt-14">
+                  <Link
+                    to="/profile"
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                      path.startsWith("/profile")
+                        ? "bg-white/10 text-white"
+                        : "text-zinc-400 hover:bg-white/5 hover:text-white",
+                    )}
+                  >
+                    <User className="size-4" />
+                    Perfil
+                  </Link>
                   {toolbar.map(([to, Icon, label]) => {
                     const active = to === "/" ? path === "/" : path.startsWith(to);
                     return (
@@ -214,8 +234,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     onClick={() => setIsReferralOpen(true)}
                     className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors text-left"
                   >
-                    <Gift className="size-4 text-brand-400" />
-                    Convide um amigo
+                    <TiktokIcon className="size-4 text-brand-400" />
+                    Acesso Creator
                   </button>
                   <Link
                     to="/settings"
@@ -279,7 +299,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <TooltipTrigger asChild>
               <button
                 onClick={() => setIsReferralOpen(true)}
-                aria-label="Convide um amigo"
+                aria-label="Acesso Creator"
                 className="relative grid size-11 place-items-center rounded-full transition-colors hover:bg-white/5"
               >
                 {isReferralOpen && (
@@ -289,7 +309,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                   />
                 )}
-                <Gift
+                <TiktokIcon
                   className={cn(
                     "relative z-10 size-5 transition-colors duration-300",
                     isReferralOpen ? "text-white" : "text-zinc-400",
@@ -302,7 +322,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               sideOffset={12}
               className="border border-white/10 bg-zinc-900 text-xs text-white"
             >
-              <p>Convide um amigo</p>
+              <p>Acesso Creator</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
