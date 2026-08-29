@@ -108,6 +108,12 @@ export function SharedVideoCard({ modelo, productId, userProductId }: { modelo: 
         </div>
       )}
 
+      {modelo.duration && (
+        <div className="absolute bottom-3 left-3 z-10 pointer-events-none rounded-full bg-brand-500/80 backdrop-blur-md border border-brand-400/30 px-3 py-1 text-[10px] font-bold tracking-widest text-white shadow-[0_0_12px_-2px_rgba(139,92,246,0.5)] transition-opacity duration-300 group-hover:opacity-0">
+          {modelo.duration}s
+        </div>
+      )}
+
       {/* Efeito Roxo Estilizado no Hover sem ícone central */}
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(75,68,232,0.15)_0%,rgba(75,68,232,0.25)_50%,rgba(75,68,232,0.55)_100%)] opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none z-20" />
     </div>

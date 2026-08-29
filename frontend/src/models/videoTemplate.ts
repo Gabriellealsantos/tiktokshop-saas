@@ -16,6 +16,7 @@ export interface VideoTemplateSummary {
   thumbnailUrl: string | null;
   videoUrl: string;
   owned: boolean;
+  duration: string | null;
 }
 
 /** Modo de troca de roupa (casa com o backend ClothSwapMode). */
