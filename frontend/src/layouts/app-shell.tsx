@@ -75,32 +75,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               <BrandMark className="size-8 drop-shadow-[0_0_12px_rgba(168,85,247,0.5)]" />
             </Link>
 
-            <nav className="hidden items-center gap-1 lg:flex">
-              <Link
-                to="/admin"
-                className={cn(
-                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                  (!isAdmin && !isAfiliado) ? "hidden" : "",
-                  path.startsWith("/admin")
-                    ? "bg-white/10 text-white"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-white",
-                )}
-              >
-                {isAdmin ? "Admin" : "Afiliado"}
-              </Link>
-            </nav>
+
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
             <motion.button
-              onClick={() => setIsReferralOpen(true)}
-              className="hidden sm:block"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              onClick={() => { if (isAdmin || isAfiliado) setIsReferralOpen(true); }}
+              className={cn("hidden sm:block", !(isAdmin || isAfiliado) && "opacity-50 cursor-not-allowed")}
+              whileHover={(isAdmin || isAfiliado) ? { scale: 1.03 } : {}}
+              whileTap={(isAdmin || isAfiliado) ? { scale: 0.97 } : {}}
               transition={{ duration: 0.15 }}
             >
-              <div className="flex h-9 items-center gap-1.5 rounded-full btn-3d-neutral px-3 text-xs font-medium text-white">
-                <TiktokIcon className="size-3.5 text-brand-400" />
+              <div className="flex h-9 items-center rounded-full btn-3d-neutral px-3 text-xs font-medium text-white">
                 Acesso Creator
               </div>
             </motion.button>
@@ -231,8 +217,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
                 <div className="mt-auto border-t border-white/10 px-4 py-4 flex flex-col gap-1">
                   <button
-                    onClick={() => setIsReferralOpen(true)}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-400 hover:bg-white/5 hover:text-white transition-colors text-left"
+                    onClick={() => { if (isAdmin || isAfiliado) setIsReferralOpen(true); }}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-left",
+                      (isAdmin || isAfiliado)
+                        ? "text-zinc-400 hover:bg-white/5 hover:text-white"
+                        : "text-zinc-600 cursor-not-allowed",
+                    )}
                   >
                     <TiktokIcon className="size-4 text-brand-400" />
                     Acesso Creator
@@ -298,9 +289,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Tooltip>
             <TooltipTrigger asChild>
               <button
-                onClick={() => setIsReferralOpen(true)}
+                onClick={() => { if (isAdmin || isAfiliado) setIsReferralOpen(true); }}
                 aria-label="Acesso Creator"
-                className="relative grid size-11 place-items-center rounded-full transition-colors hover:bg-white/5"
+                className={cn(
+                  "relative grid size-11 place-items-center rounded-full transition-colors",
+                  (isAdmin || isAfiliado) ? "hover:bg-white/5" : "opacity-50 cursor-not-allowed",
+                )}
               >
                 {isReferralOpen && (
                   <motion.div

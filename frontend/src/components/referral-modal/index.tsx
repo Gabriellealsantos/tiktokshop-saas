@@ -132,28 +132,8 @@ export function ReferralModal({
                     <h3 className="text-white font-bold">Link presente</h3>
                   </div>
                   <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
-                    Cada link dá ao seu amigo acesso à ferramenta completa + 50% de desconto. Escolha de 1 a 10 usos e gere o link abaixo.
+                    Cada link dá ao seu amigo acesso à ferramenta completa + 50% de desconto. Gere o link abaixo.
                   </p>
-
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                      <span>Quantos usos?</span>
-                      <span className="text-brand-400 bg-brand-500/20 px-2 py-0.5 rounded-md">{usages} {usages === 1 ? 'uso' : 'usos'}</span>
-                    </div>
-                    <div className="px-1">
-                      <Slider
-                        min={1}
-                        max={10}
-                        step={1}
-                        value={[usages]}
-                        onValueChange={(val) => setUsages(val[0])}
-                      />
-                      <div className="flex justify-between mt-2 text-[10px] font-bold text-zinc-500">
-                        <span>1</span>
-                        <span>10</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 <Button
