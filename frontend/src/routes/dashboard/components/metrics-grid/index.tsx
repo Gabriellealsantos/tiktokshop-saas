@@ -12,7 +12,9 @@ import {
 import { MetricCard } from "@/components";
 import type { DashboardSummary } from "@/models/dashboard";
 
-const brl = (n: number, digits = 0) =>
+// 2 casas por padrão: os centavos são digitados no painel admin e aparecem no bloco de
+// Vendas ao Vivo, então truncar aqui fazia o mesmo valor ser exibido de dois jeitos.
+const brl = (n: number, digits = 2) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n ?? 0);
 const int = (n: number) => new Intl.NumberFormat("pt-BR").format(n ?? 0);
 const compact = (n: number) =>
@@ -44,7 +46,7 @@ export function MetricsGrid({ summary }: MetricsGridProps) {
       />
       <MetricCard
         label="Ticket médio"
-        value={summary ? brl(summary.avgTicket, 2) : "—"}
+        value={summary ? brl(summary.avgTicket) : "—"}
         hint="Faturamento / pedidos"
         tone="neutral"
         icon={ReceiptText}

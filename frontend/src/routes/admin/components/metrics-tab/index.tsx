@@ -7,7 +7,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
   AlertDialogTrigger, Button, Checkbox, Input, Label,
 } from "@/components";
-import { METRIC_PERIODS, type DashboardMetric } from "@/models/dashboard";
+import { METRIC_PERIODS, type DashboardMetric, type DashboardResetResult } from "@/models/dashboard";
 import {
   listMetrics,
   resetMetrics as resetMetricsApi,
@@ -15,33 +15,61 @@ import {
 } from "@/services/dashboardAdminService";
 import { cn } from "@/utils/utils";
 
-// Campos efetivamente lidos pelo getSummary. avgTicket fica de fora: o back o recalcula.
+// Campos lidos pelo getSummary. `int` marca os que o back guarda como Integer/Long — sem
+// type="number" o browser não barra mais os centavos, então a validação passou para cá.
 const FIELDS = [
-  { key: "revenue", label: "GMV (R$)", step: "0.01" },
-  { key: "orders", label: "Pedidos", step: "1" },
-  { key: "commission", label: "Comissão estimada (R$)", step: "0.01" },
-  { key: "itemsSold", label: "Itens vendidos", step: "1" },
-  { key: "commissionBase", label: "Base de comissão (R$)", step: "0.01" },
-  { key: "productViews", label: "Visualizações", step: "1" },
-  { key: "productClicks", label: "Cliques", step: "1" },
+  { key: "revenue", label: "GMV (R$)", int: false },
+  { key: "orders", label: "Pedidos", int: true },
+  { key: "commission", label: "Comissão estimada (R$)", int: false },
+  { key: "avgTicket", label: "Ticket médio (R$)", int: false },
+  { key: "itemsSold", label: "Itens vendidos", int: true },
+  { key: "commissionBase", label: "Base de comissão (R$)", int: false },
+  { key: "productViews", label: "Visualizações", int: true },
+  { key: "productClicks", label: "Cliques", int: true },
 ] as const;
 
 type FieldKey = (typeof FIELDS)[number]["key"];
 type SlotForm = Record<FieldKey, string>;
 
 const EMPTY_SLOT: SlotForm = {
-  revenue: "", orders: "", commission: "", itemsSold: "", commissionBase: "", productViews: "", productClicks: "",
+  revenue: "", orders: "", commission: "", avgTicket: "",
+  itemsSold: "", commissionBase: "", productViews: "", productClicks: "",
 };
 
-const toStr = (v: number | null | undefined) => (v === null || v === undefined ? "" : String(v));
-const toNum = (v: string): number | null => (v.trim() === "" ? null : Number(v));
+/**
+ * Lê número em formato pt-BR. Com type="number" o browser devolvia "" ao ver a vírgula e o
+ * dígito sumia sem erro; e Number("1.230,20") é NaN. Aqui o separador decimal é a ÚLTIMA
+ * vírgula/ponto seguida de 1 ou 2 dígitos — o resto é separador de milhar e cai fora.
+ * Assim "1.230,20", "1230,20" e "1230.20" viram 1230.2, e "1.230" vira 1230.
+ */
+const parseBRNumber = (raw: string): number => {
+  const s = raw.trim().replace(/[^\d.,-]/g, "");
+  if (s === "") return NaN;
 
-// Vazio é válido (vira null). Só reprova texto não-numérico ou valor negativo.
-const fieldError = (v: string): string | null => {
+  const sep = Math.max(s.lastIndexOf(","), s.lastIndexOf("."));
+  const decimals = sep === -1 ? 0 : s.length - sep - 1;
+  const isDecimalSep = sep > -1 && decimals >= 1 && decimals <= 2;
+
+  const intPart = (isDecimalSep ? s.slice(0, sep) : s).replace(/[.,]/g, "");
+  const fracPart = isDecimalSep ? s.slice(sep + 1) : "";
+  return Number(fracPart ? `${intPart}.${fracPart}` : intPart);
+};
+
+const brFormatter = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 });
+
+/** Reexibe o valor em pt-BR. Só no load e no blur: formatar a cada tecla faz o cursor pular. */
+const toStr = (v: number | null | undefined) =>
+  v === null || v === undefined ? "" : brFormatter.format(v);
+
+const toNum = (v: string): number | null => (v.trim() === "" ? null : parseBRNumber(v));
+
+// Vazio é válido (vira null). Reprova texto não-numérico, negativo e centavos em campo inteiro.
+const fieldError = (v: string, isInt: boolean): string | null => {
   if (v.trim() === "") return null;
-  const n = Number(v);
+  const n = parseBRNumber(v);
   if (Number.isNaN(n)) return "Valor inválido";
   if (n < 0) return "Não pode ser negativo";
+  if (isInt && !Number.isInteger(n)) return "Não aceita centavos";
   return null;
 };
 
@@ -58,7 +86,9 @@ export function MetricsTab() {
   const [clearLiveSales, setClearLiveSales] = useState(false);
   const [resetting, setResetting] = useState(false);
 
-  const allSelected = resetSelection.size === METRIC_PERIODS.length;
+  // Inclui o "apagar todo o histórico": ele está dentro do mesmo modal, então "Selecionar
+  // tudo" que deixasse ele de fora prometeria mais do que entrega.
+  const allSelected = resetSelection.size === METRIC_PERIODS.length && clearLiveSales;
 
   const toggleResetPeriod = (ref: string) => {
     setResetSelection((prev) => {
@@ -71,8 +101,10 @@ export function MetricsTab() {
   const toggleSelectAll = () => {
     if (allSelected) {
       setResetSelection(new Set());
+      setClearLiveSales(false);
     } else {
       setResetSelection(new Set(METRIC_PERIODS.map((p) => p.periodRef)));
+      setClearLiveSales(true);
     }
   };
 
@@ -81,11 +113,16 @@ export function MetricsTab() {
     setResetting(true);
     try {
       const res = await resetMetricsApi(Array.from(resetSelection), clearLiveSales);
-      const deleted: number = res.data?.deleted ?? 0;
-      const msg = clearLiveSales
-        ? `${deleted} métrica(s) + vendas ao vivo removidas.`
-        : `${deleted} métrica(s) removida(s).`;
-      toast.success(msg);
+      const { deleted = 0, liveSalesDeleted = 0, liveSalesPaused = false }: Partial<DashboardResetResult> =
+        res.data ?? {};
+
+      const partes = [`${deleted} métrica(s)`, `${liveSalesDeleted} venda(s) ao vivo`];
+      if (liveSalesPaused) partes.push("geração automática pausada");
+      const msg = `${partes.join(" · ")}.`;
+
+      // Zero em tudo não é sucesso: sinaliza para uma falha silenciosa não passar batido.
+      if (deleted === 0 && liveSalesDeleted === 0) toast.warning(`Nada a remover — ${msg}`);
+      else toast.success(`Painel zerado — ${msg}`);
       setResetOpen(false);
       setResetSelection(new Set());
       setClearLiveSales(false);
@@ -110,7 +147,8 @@ export function MetricsTab() {
         next[period.periodRef] = m
           ? {
             revenue: toStr(m.revenue), orders: toStr(m.orders), commission: toStr(m.commission),
-            itemsSold: toStr(m.itemsSold), commissionBase: toStr(m.commissionBase),
+            avgTicket: toStr(m.avgTicket), itemsSold: toStr(m.itemsSold),
+            commissionBase: toStr(m.commissionBase),
             productViews: toStr(m.productViews), productClicks: toStr(m.productClicks),
           }
           : { ...EMPTY_SLOT };
@@ -131,11 +169,19 @@ export function MetricsTab() {
     setForms((prev) => ({ ...prev, [periodRef]: { ...prev[periodRef], [key]: value } }));
   };
 
+  /** No blur o valor válido volta formatado em pt-BR, para o admin conferir os centavos. */
+  const handleFieldBlur = (periodRef: string, key: FieldKey, value: string) => {
+    if (value.trim() === "") return;
+    const n = parseBRNumber(value);
+    if (Number.isNaN(n)) return;
+    handleField(periodRef, key, brFormatter.format(n));
+  };
+
   const handleSave = async (period: (typeof METRIC_PERIODS)[number]) => {
     const f = forms[period.periodRef] ?? EMPTY_SLOT;
 
     // Bloqueia o save se algum campo do card estiver inválido e revela os erros.
-    const hasError = FIELDS.some((field) => fieldError(f[field.key]) !== null);
+    const hasError = FIELDS.some((field) => fieldError(f[field.key], field.int) !== null);
     if (hasError) {
       setAttempted((prev) => ({ ...prev, [period.periodRef]: true }));
       return;
@@ -147,7 +193,7 @@ export function MetricsTab() {
       revenue: toNum(f.revenue),
       orders: toNum(f.orders),
       commission: toNum(f.commission),
-      avgTicket: null,
+      avgTicket: toNum(f.avgTicket),
       itemsSold: toNum(f.itemsSold),
       commissionBase: toNum(f.commissionBase),
       productViews: toNum(f.productViews),
@@ -177,7 +223,8 @@ export function MetricsTab() {
       <div className="flex items-start justify-between gap-4">
         <p className="text-sm text-zinc-400 max-w-2xl">
           Valores-base por período. O dashboard soma estes números às vendas ao vivo em tempo real.
-          O ticket médio é calculado automaticamente (faturamento ÷ pedidos).
+          O ticket médio informado é o valor inicial: o painel mostra o maior entre ele e o
+          calculado (faturamento ÷ pedidos), então ele sobe com as vendas e nunca desce.
         </p>
         <div className="flex items-center gap-2 shrink-0">
           {/* ── Botão Resetar (abre modal) ──────────────────────────────── */}
@@ -195,7 +242,10 @@ export function MetricsTab() {
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-white">Resetar métricas</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Selecione os períodos que deseja zerar. Os valores serão apagados permanentemente.
+                  Selecione os períodos que deseja zerar. Serão apagados os valores-base
+                  <strong className="text-zinc-300"> e as vendas ao vivo dentro do período</strong> —
+                  sem isso as janelas longas continuariam somando o histórico. A geração automática
+                  de vendas é pausada; religue depois na aba "Vendas ao Vivo".
                 </AlertDialogDescription>
               </AlertDialogHeader>
 
@@ -234,8 +284,10 @@ export function MetricsTab() {
                     onCheckedChange={(v) => setClearLiveSales(!!v)}
                   />
                   <label htmlFor="reset-live-sales" className="text-sm font-medium text-amber-400 cursor-pointer">
-                    Vendas ao vivo
-                    <span className="ml-1 text-[10px] font-normal text-zinc-500">(limpa eventos + contadores)</span>
+                    Apagar TODO o histórico de vendas ao vivo
+                    <span className="ml-1 text-[10px] font-normal text-zinc-500">
+                      (por padrão, só as vendas dentro dos períodos marcados são apagadas)
+                    </span>
                   </label>
                 </div>
               </div>
@@ -289,7 +341,7 @@ export function MetricsTab() {
 
               <div className="relative z-10 grid grid-cols-2 gap-3">
                 {FIELDS.map((field) => {
-                  const error = attempted[period.periodRef] ? fieldError(f[field.key]) : null;
+                  const error = attempted[period.periodRef] ? fieldError(f[field.key], field.int) : null;
                   return (
                     <div key={field.key} className="space-y-1.5">
                       <Label htmlFor={`${period.periodRef}-${field.key}`} className="text-xs text-zinc-400">
@@ -297,13 +349,14 @@ export function MetricsTab() {
                       </Label>
                       <Input
                         id={`${period.periodRef}-${field.key}`}
-                        type="number"
+                        // type="text" de propósito: com type="number" o browser descartava a
+                        // vírgula e o valor sumia sem erro. O parse pt-BR fica em parseBRNumber.
+                        type="text"
                         inputMode="decimal"
-                        step={field.step}
-                        min="0"
-                        placeholder="0"
+                        placeholder={field.int ? "0" : "0,00"}
                         value={f[field.key]}
                         onChange={(e) => handleField(period.periodRef, field.key, e.target.value)}
+                        onBlur={(e) => handleFieldBlur(period.periodRef, field.key, e.target.value)}
                         aria-invalid={!!error}
                         className={cn(
                           "h-9 bg-black/40 border-white/10 text-sm",
