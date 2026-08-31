@@ -2,6 +2,7 @@ package com.venyx.tiktokshop.controllers;
 
 import com.venyx.tiktokshop.dtos.DashboardMetricDTO;
 import com.venyx.tiktokshop.dtos.DashboardMetricResetRequest;
+import com.venyx.tiktokshop.dtos.DashboardResetResultDTO;
 import com.venyx.tiktokshop.dtos.DashboardSummaryDTO;
 import com.venyx.tiktokshop.entities.RoleConstants;
 import com.venyx.tiktokshop.services.AuthService;
@@ -12,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Métricas compostas do dashboard (faturamento/pedidos/comissão/ticket médio):
@@ -62,10 +62,10 @@ public class DashboardController {
 
     @PreAuthorize("hasAnyAuthority('" + RoleConstants.ROLE_ADMIN + "', '" + RoleConstants.ROLE_AFFILIATE + "')")
     @PostMapping("/api/admin/dashboard/metrics/reset")
-    public ResponseEntity<Map<String, Integer>> resetMetrics(
+    public ResponseEntity<DashboardResetResultDTO> resetMetrics(
             @Valid @RequestBody DashboardMetricResetRequest request) {
-        int deleted = service.resetMetrics(authService.authenticated(), request.periodRefs(), request.clearLiveSales());
-        return ResponseEntity.ok(Map.of("deleted", deleted));
+        return ResponseEntity.ok(
+                service.resetMetrics(authService.authenticated(), request.periodRefs(), request.clearLiveSales()));
     }
 }
 

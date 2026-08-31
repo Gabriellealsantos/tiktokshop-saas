@@ -21,7 +21,9 @@ export function DashboardContent({ renderHeader }: { renderHeader?: React.ReactN
   const canSeeRevenue = isAdmin || isAfiliado;
   const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
 
-  const [selectedPeriod, setSelectedPeriod] = useState("7 dias");
+  // Abre na primeira aba ("Hoje"). Preso a PERIODS de propósito: uma string solta aqui
+  // silenciosamente deixava de bater com a ordem das abas.
+  const [selectedPeriod, setSelectedPeriod] = useState(PERIODS[0]);
 
   const { summary, liveSales, chartData, trendCards, momentRead } = useDashboardData(canSeeRevenue, selectedPeriod);
   return (

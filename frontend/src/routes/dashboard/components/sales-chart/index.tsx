@@ -7,6 +7,17 @@ interface SalesChartProps {
   chartData: { day: string; vendas: number }[];
 }
 
+/**
+ * Notação compacta em vez de dividir por mil na mão: com GMV na casa dos milhões o
+ * formatador antigo imprimia "R$ 120000k". Aqui o Intl escolhe mil/mi/bi pela escala.
+ */
+const compactBRL = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
 export function SalesChart({ chartData }: SalesChartProps) {
   const [chart, setChart] = useState("Área");
 
@@ -41,7 +52,7 @@ export function SalesChart({ chartData }: SalesChartProps) {
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" />
               <XAxis dataKey="day" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `R$ ${value / 1000}k`} />
+              <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => compactBRL.format(value)} />
               <ChartTooltip 
                 cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
                 content={<ChartTooltipContent className="backdrop-blur-xl rounded-xl border border-dash-border bg-dash-surface shadow-xl" />} 
@@ -52,13 +63,17 @@ export function SalesChart({ chartData }: SalesChartProps) {
                 stroke="var(--color-dash-accent)"
                 fill="url(#fillSales)"
                 strokeWidth={2}
+                // "Hoje" gera um ponto só, e uma Area sem dot não desenha nada com 1 elemento —
+                // o gráfico ficava vazio na aba padrão.
+                dot={{ r: 3, fill: "var(--color-dash-accent)", strokeWidth: 0 }}
+                activeDot={{ r: 5 }}
               />
             </AreaChart>
           ) : (
             <BarChart data={chartData}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,.04)" />
               <XAxis dataKey="day" axisLine={false} tickLine={false} />
-              <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `R$ ${value / 1000}k`} />
+              <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => compactBRL.format(value)} />
               <Bar dataKey="vendas" fill="var(--color-dash-accent)" radius={[6, 6, 0, 0]} />
             </BarChart>
           )}

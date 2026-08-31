@@ -1,13 +1,16 @@
 package com.venyx.tiktokshop.services;
 
 import com.venyx.tiktokshop.dtos.DashboardMetricDTO;
+import com.venyx.tiktokshop.dtos.DashboardResetResultDTO;
 import com.venyx.tiktokshop.dtos.DashboardSeriesPointDTO;
 import com.venyx.tiktokshop.dtos.DashboardSummaryDTO;
 import com.venyx.tiktokshop.entities.DashboardMetric;
 import com.venyx.tiktokshop.entities.enums.DashboardPeriodType;
+import com.venyx.tiktokshop.entities.enums.LiveSalesMode;
 import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.repositories.DashboardMetricRepository;
 import com.venyx.tiktokshop.repositories.LiveSaleEventRepository;
+import com.venyx.tiktokshop.repositories.LiveSalesConfigRepository;
 import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,16 +48,24 @@ public class DashboardService {
 
     private static final DateTimeFormatter DAY_LABEL = DateTimeFormatter.ofPattern("dd/MM").withZone(ZoneOffset.UTC);
 
+    /** Rotulo do modo horario. UTC como todo o resto do dashboard — ver resolveWindow. */
+    private static final DateTimeFormatter HOUR_LABEL = DateTimeFormatter.ofPattern("HH'h'").withZone(ZoneOffset.UTC);
+
     private final DashboardMetricRepository metricRepository;
     private final LiveSaleEventRepository liveSaleEventRepository;
     private final LiveMetricsCounter liveMetricsCounter;
+    // Repositorio, e nao LiveSalesService: o reset so precisa desligar o modo automatico,
+    // e injetar o servico acoplaria os dois lados sem necessidade.
+    private final LiveSalesConfigRepository liveSalesConfigRepository;
 
     public DashboardService(DashboardMetricRepository metricRepository,
                             LiveSaleEventRepository liveSaleEventRepository,
-                            LiveMetricsCounter liveMetricsCounter) {
+                            LiveMetricsCounter liveMetricsCounter,
+                            LiveSalesConfigRepository liveSalesConfigRepository) {
         this.metricRepository = metricRepository;
         this.liveSaleEventRepository = liveSaleEventRepository;
         this.liveMetricsCounter = liveMetricsCounter;
+        this.liveSalesConfigRepository = liveSalesConfigRepository;
     }
 
     @Transactional(readOnly = true)
@@ -77,9 +88,14 @@ public class DashboardService {
         BigDecimal revenue = baseRevenue.add(liveRevenue);
         int orders = baseOrders + (int) liveOrders;
         BigDecimal commission = baseCommission.add(liveCommission);
-        BigDecimal avgTicket = orders > 0
+        // O avgTicket cadastrado e um PISO, nao um valor fixo: max() em vez de substituicao.
+        // Sem isso o ticket comeca em zero enquanto nao ha pedidos e, pior, despenca para o
+        // valor de uma unica venda barata assim que a primeira venda ao vivo entra.
+        BigDecimal seedTicket = base != null && base.getAvgTicket() != null ? base.getAvgTicket() : BigDecimal.ZERO;
+        BigDecimal computedTicket = orders > 0
                 ? revenue.divide(BigDecimal.valueOf(orders), 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
+        BigDecimal avgTicket = computedTicket.max(seedTicket);
 
         // KPIs extras: itens/base de comissão crescem com as vendas; views/cliques
         // via contador em tempo real (LiveMetricsCounter, movido a cada venda ao vivo).
@@ -91,7 +107,7 @@ public class DashboardService {
         return new DashboardSummaryDTO(
                 revenue, orders, commission, avgTicket,
                 itemsSold, commissionBase, productViews, productClicks,
-                buildSeries(user.getUuid(), window.start(), window.seriesDays(), baseRevenue, baseOrders));
+                buildSeries(user.getUuid(), window, baseRevenue, baseOrders));
     }
 
     private record ResolvedWindow(Instant start, Instant end, int seriesDays, DashboardPeriodType type, String ref) {}
@@ -154,25 +170,41 @@ public class DashboardService {
         return new ResolvedWindow(start, end, days, DashboardPeriodType.RANGE, "custom:" + fromDate + ":" + toDate);
     }
 
-    private List<DashboardSeriesPointDTO> buildSeries(UUID userId, Instant windowStart, int days,
+    /**
+     * Serie do grafico. Uma janela de 1 dia ("Hoje", e "Esta semana" quando hoje e segunda)
+     * renderiza por HORA: com um ponto so a area nao desenha linha nenhuma e o grafico parece
+     * vazio. Acima disso o ponto continua sendo o dia, como antes.
+     */
+    private List<DashboardSeriesPointDTO> buildSeries(UUID userId, ResolvedWindow window,
                                                       BigDecimal baseRevenue, int baseOrders) {
-        BigDecimal perDayBaseRevenue = days > 0
-                ? baseRevenue.divide(BigDecimal.valueOf(days), 2, RoundingMode.HALF_UP)
-                : BigDecimal.ZERO;
-        int perDayBaseOrders = days > 0 ? baseOrders / days : 0;
+        boolean hourly = window.seriesDays() <= 1;
+        ChronoUnit unit = hourly ? ChronoUnit.HOURS : ChronoUnit.DAYS;
+        long bucketSeconds = hourly ? 3600L : 86400L;
+        DateTimeFormatter label = hourly ? HOUR_LABEL : DAY_LABEL;
 
-        Instant windowEnd = windowStart.plus(days, ChronoUnit.DAYS);
-        Map<Integer, LiveSaleEventRepository.DailyBucket> porDia = liveSaleEventRepository
-                .sumDailyBuckets(userId, windowStart, windowEnd).stream()
+        // No modo horario so plotamos ate a hora corrente — projetar o resto do dia como
+        // zero faria a curva despencar para o rodape do grafico.
+        int buckets = hourly
+                ? (int) Math.max(1, ChronoUnit.HOURS.between(window.start(), window.end()) + 1)
+                : window.seriesDays();
+
+        BigDecimal perBucketBaseRevenue = buckets > 0
+                ? baseRevenue.divide(BigDecimal.valueOf(buckets), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+        int perBucketBaseOrders = buckets > 0 ? baseOrders / buckets : 0;
+
+        Instant seriesEnd = window.start().plus(buckets, unit);
+        Map<Integer, LiveSaleEventRepository.DailyBucket> porBucket = liveSaleEventRepository
+                .sumBuckets(userId, window.start(), seriesEnd, bucketSeconds).stream()
                 .collect(toMap(LiveSaleEventRepository.DailyBucket::getBucket, identity()));
 
         List<DashboardSeriesPointDTO> points = new ArrayList<>();
-        for (int i = 0; i < days; i++) {
-            LiveSaleEventRepository.DailyBucket dia = porDia.get(i);
-            BigDecimal dayRevenue = perDayBaseRevenue.add(dia != null ? dia.getReceita() : BigDecimal.ZERO);
-            long dayOrders = perDayBaseOrders + (dia != null ? dia.getPedidos() : 0L);
+        for (int i = 0; i < buckets; i++) {
+            LiveSaleEventRepository.DailyBucket bucket = porBucket.get(i);
+            BigDecimal bucketRevenue = perBucketBaseRevenue.add(bucket != null ? bucket.getReceita() : BigDecimal.ZERO);
+            long bucketOrders = perBucketBaseOrders + (bucket != null ? bucket.getPedidos() : 0L);
             points.add(new DashboardSeriesPointDTO(
-                    DAY_LABEL.format(windowStart.plus(i, ChronoUnit.DAYS)), dayRevenue, (int) dayOrders));
+                    label.format(window.start().plus(i, unit)), bucketRevenue, (int) bucketOrders));
         }
         return points;
     }
@@ -217,13 +249,62 @@ public class DashboardService {
         metricRepository.deleteById(id);
     }
 
+    /**
+     * Zera de verdade o painel dos periodos escolhidos. Apagar so a base nao muda nada nas
+     * janelas longas (15d/mes/30d), porque o getSummary soma base + vendas ao vivo: os eventos
+     * antigos continuam dentro da janela. Por isso apagamos tambem os LiveSaleEvent do recorte,
+     * e pausamos a geracao automatica — senao o scheduler repoe os numeros em segundos.
+     */
     @Transactional
-    public int resetMetrics(User user, List<String> periodRefs, boolean clearLiveSales) {
+    public DashboardResetResultDTO resetMetrics(User user, List<String> periodRefs, boolean clearLiveSales) {
         int deleted = metricRepository.deleteByUserIdAndPeriodRefIn(user.getUuid(), periodRefs);
+
+        int liveSalesDeleted;
         if (clearLiveSales) {
-            liveSaleEventRepository.deleteByUserId(user.getUuid());
-            liveMetricsCounter.reset(user.getUuid());
+            liveSalesDeleted = liveSaleEventRepository.deleteByUserId(user.getUuid());
+        } else {
+            // Todas as janelas terminam em "agora", entao a uniao dos periodos marcados
+            // e simplesmente [menor inicio, agora].
+            Instant now = Instant.now();
+            Instant earliestStart = null;
+            for (String ref : periodRefs) {
+                Instant start = windowStartOrNull(ref);
+                if (start != null && (earliestStart == null || start.isBefore(earliestStart))) {
+                    earliestStart = start;
+                }
+            }
+            liveSalesDeleted = earliestStart == null
+                    ? 0
+                    : liveSaleEventRepository.deleteByUserIdAndCreatedAtBetween(user.getUuid(), earliestStart, now);
         }
-        return deleted;
+
+        // Views/cliques sao contadores volateis em memoria, sem recorte por periodo:
+        // preserva-los num reset so deixaria o painel "sujo" sem jeito de limpar.
+        liveMetricsCounter.reset(user.getUuid());
+
+        boolean liveSalesPaused = pauseAutomaticLiveSales(user);
+
+        return new DashboardResetResultDTO(deleted, liveSalesDeleted, liveSalesPaused);
+    }
+
+    /** Inicio da janela do periodo, ou null se o ref nao for um dos slots conhecidos. */
+    private Instant windowStartOrNull(String ref) {
+        try {
+            return resolveWindow(ref, null, null).start();
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    /** @return true se havia geracao automatica ligada e ela foi desligada. */
+    private boolean pauseAutomaticLiveSales(User user) {
+        return liveSalesConfigRepository.findTopByUserIdOrderByIdAsc(user.getUuid())
+                .filter(config -> config.getMode() == LiveSalesMode.AUTOMATIC)
+                .map(config -> {
+                    config.setMode(LiveSalesMode.DISABLED);
+                    liveSalesConfigRepository.save(config);
+                    return true;
+                })
+                .orElse(false);
     }
 }

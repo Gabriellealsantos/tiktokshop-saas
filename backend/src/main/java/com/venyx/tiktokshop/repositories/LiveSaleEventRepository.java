@@ -44,16 +44,28 @@ public interface LiveSaleEventRepository extends JpaRepository<LiveSaleEvent, Lo
 
     @Modifying
     @Query("DELETE FROM LiveSaleEvent e WHERE e.user.uuid = :userId")
-    void deleteByUserId(@Param("userId") UUID userId);
+    int deleteByUserId(@Param("userId") UUID userId);
 
     /**
-     * Agrega a serie inteira de uma vez, em janelas de 24h contadas a partir de :from —
-     * o mesmo recorte que o laco em DashboardService fazia com 2 queries por dia.
+     * Apaga so os eventos da janela — o recorte que o reset por periodo precisa. Sem ele,
+     * zerar a base nao muda nada em 15d/mes/30d: essas janelas continuam somando o historico.
+     */
+    @Modifying
+    @Query("DELETE FROM LiveSaleEvent e WHERE e.user.uuid = :userId AND e.createdAt >= :from AND e.createdAt < :to")
+    int deleteByUserIdAndCreatedAtBetween(@Param("userId") UUID userId,
+                                          @Param("from") Instant from,
+                                          @Param("to") Instant to);
+
+    /**
+     * Agrega a serie inteira de uma vez, em janelas de :bucketSeconds contadas a partir de
+     * :from — o mesmo recorte que o laco em DashboardService fazia com 2 queries por ponto.
+     * O tamanho do bucket e parametro porque a janela de 1 dia ("Hoje", e "Esta semana" na
+     * segunda) renderiza por hora: um ponto so nao desenha linha nenhuma.
      * Nativa porque date/interval do Postgres nao tem equivalente em JPQL, e usa o
      * indice (user_id, created_at) da V38.
      */
     @Query(value = """
-            SELECT FLOOR(EXTRACT(EPOCH FROM (e.created_at - CAST(:from AS timestamp))) / 86400)::int AS bucket,
+            SELECT FLOOR(EXTRACT(EPOCH FROM (e.created_at - CAST(:from AS timestamp))) / :bucketSeconds)::int AS bucket,
                    COALESCE(SUM(e.amount), 0) AS receita,
                    COUNT(*) AS pedidos
             FROM live_sale_events e
@@ -62,7 +74,8 @@ public interface LiveSaleEventRepository extends JpaRepository<LiveSaleEvent, Lo
               AND e.created_at < :to
             GROUP BY bucket
             """, nativeQuery = true)
-    List<DailyBucket> sumDailyBuckets(@Param("userId") UUID userId,
-                                      @Param("from") Instant from,
-                                      @Param("to") Instant to);
+    List<DailyBucket> sumBuckets(@Param("userId") UUID userId,
+                                 @Param("from") Instant from,
+                                 @Param("to") Instant to,
+                                 @Param("bucketSeconds") long bucketSeconds);
 }

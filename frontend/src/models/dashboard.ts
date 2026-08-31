@@ -1,7 +1,10 @@
 // ── Métricas base do dashboard (Admin) ────────────────────────────────────────
 export type DashboardPeriodType = "DAY" | "WEEK" | "MONTH" | "RANGE";
 
-/** Espelha DashboardMetricDTO do back. avgTicket é derivado na leitura (revenue/orders), por isso não é editado aqui. */
+/**
+ * Espelha DashboardMetricDTO do back. avgTicket é o valor INICIAL do ticket médio: o back
+ * exibe o maior entre ele e o calculado (revenue/orders), então serve de piso e nunca desce.
+ */
 export type DashboardMetric = {
   id?: number;
   periodType: DashboardPeriodType;
@@ -88,6 +91,13 @@ export type LiveSalesFeedDTO = {
   totalToday: number;
   countToday: number;
   recent: LiveSaleEventDTO[];
+};
+
+/** Espelha DashboardResetResultDTO do back. */
+export type DashboardResetResult = {
+  deleted: number;
+  liveSalesDeleted: number;
+  liveSalesPaused: boolean;
 };
 
 export type DashboardInsightDTO = {
