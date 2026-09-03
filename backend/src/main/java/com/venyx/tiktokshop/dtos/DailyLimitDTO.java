@@ -2,11 +2,13 @@ package com.venyx.tiktokshop.dtos;
 
 import com.venyx.tiktokshop.entities.DailyLimit;
 import com.venyx.tiktokshop.entities.enums.FlowType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
+import java.util.List;
 
 public record DailyLimitDTO(
         FlowType flowType,
@@ -22,15 +24,28 @@ public record DailyLimitDTO(
         Integer maxRegenerations,
 
         Instant updatedAt,
-        String updatedBy
+        String updatedBy,
+
+        /**
+         * Papéis liberados desse fluxo. O GET devolve a linha de todos os papéis
+         * existentes; o PUT recebe a lista de volta e substitui o conjunto.
+         * Null no PUT = não mexer nos papéis (só salvar os números).
+         */
+        @Valid
+        List<RoleLimitOverrideDTO> roleOverrides
 ) {
-    public DailyLimitDTO(DailyLimit entity) {
+    public DailyLimitDTO(DailyLimit entity, List<RoleLimitOverrideDTO> roleOverrides) {
         this(
                 entity.getFlowType(),
                 entity.getMaxPerDay(),
                 entity.getMaxRegenerations(),
                 entity.getUpdatedAt(),
-                entity.getUpdatedBy() != null ? entity.getUpdatedBy().getName() : null
+                entity.getUpdatedBy() != null ? entity.getUpdatedBy().getName() : null,
+                roleOverrides
         );
+    }
+
+    public DailyLimitDTO(DailyLimit entity) {
+        this(entity, List.of());
     }
 }
