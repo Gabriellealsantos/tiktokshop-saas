@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, RefreshCw, Save, Zap } from "lucide-react";
+import { Infinity as InfinityIcon, Loader2, RefreshCw, Save, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button, Input, Label, Switch } from "@/components";
@@ -8,12 +8,19 @@ import { listDailyLimits, updateDailyLimit } from "@/services/dailyLimitService"
 import {
   LIMIT_BOUNDS,
   flowTypeLabels,
+  roleLabel,
   type DailyLimit,
   type FlowType,
 } from "@/models/dailyLimit";
+import { cn } from "@/utils/utils";
 
 // Draft guarda string pra permitir campo vazio enquanto edita; converte no save.
-type Draft = { maxPerDay: string; maxRegenerations: string };
+// `roles` mapeia roleId -> ilimitado, espelhando os toggles por papel do card.
+type Draft = {
+  maxPerDay: string;
+  maxRegenerations: string;
+  roles: Record<number, boolean>;
+};
 
 const labelFor = (flow: FlowType) => flowTypeLabels[flow] ?? flow;
 
@@ -24,6 +31,12 @@ const maskInt = (raw: string, max: number) => {
   if (digits === "") return "";
   return String(Math.min(Number(digits), max));
 };
+
+const draftFrom = (item: DailyLimit): Draft => ({
+  maxPerDay: String(item.maxPerDay),
+  maxRegenerations: String(item.maxRegenerations),
+  roles: Object.fromEntries((item.roleOverrides ?? []).map((r) => [r.roleId, r.unlimited])),
+});
 
 export function LimitsTab() {
   const [items, setItems] = useState<DailyLimit[]>([]);
@@ -39,11 +52,7 @@ export function LimitsTab() {
       // Sort alphabetically so cards don't shuffle when updated (PostgreSQL might return in different order)
       list.sort((a, b) => a.flowType.localeCompare(b.flowType));
       setItems(list);
-      setDrafts(
-        Object.fromEntries(
-          list.map((i) => [i.flowType, { maxPerDay: String(i.maxPerDay), maxRegenerations: String(i.maxRegenerations) }]),
-        ),
-      );
+      setDrafts(Object.fromEntries(list.map((i) => [i.flowType, draftFrom(i)])));
     } catch {
       toast.error("Falha ao carregar os limites.");
     } finally {
@@ -55,7 +64,7 @@ export function LimitsTab() {
 
   const handleChange = (
     flow: string,
-    field: keyof Draft,
+    field: "maxPerDay" | "maxRegenerations",
     e: React.ChangeEvent<HTMLInputElement>,
     max: number,
   ) => {
@@ -64,17 +73,26 @@ export function LimitsTab() {
     setDrafts((prev) => ({ ...prev, [flow]: { ...prev[flow], [field]: masked } }));
   };
 
-  const toggleUnlimited = (flow: string, field: keyof Draft) => {
+  const toggleUnlimited = (flow: string, field: "maxPerDay" | "maxRegenerations") => {
     setDrafts((prev) => {
       const current = prev[flow][field];
       return { ...prev, [flow]: { ...prev[flow], [field]: current === "-1" ? "0" : "-1" } };
     });
   };
 
+  const toggleRole = (flow: string, roleId: number) => {
+    setDrafts((prev) => ({
+      ...prev,
+      [flow]: { ...prev[flow], roles: { ...prev[flow].roles, [roleId]: !prev[flow].roles[roleId] } },
+    }));
+  };
+
   const isDirty = (item: DailyLimit) => {
     const d = drafts[item.flowType];
     if (!d || d.maxPerDay === "" || d.maxRegenerations === "") return false;
-    return Number(d.maxPerDay) !== item.maxPerDay || Number(d.maxRegenerations) !== item.maxRegenerations;
+    if (Number(d.maxPerDay) !== item.maxPerDay) return true;
+    if (Number(d.maxRegenerations) !== item.maxRegenerations) return true;
+    return (item.roleOverrides ?? []).some((r) => d.roles[r.roleId] !== r.unlimited);
   };
 
   const handleSave = async (item: DailyLimit) => {
@@ -85,6 +103,10 @@ export function LimitsTab() {
       await updateDailyLimit(item.flowType, {
         maxPerDay: Number(d.maxPerDay),
         maxRegenerations: Number(d.maxRegenerations),
+        roleOverrides: (item.roleOverrides ?? []).map((r) => ({
+          ...r,
+          unlimited: Boolean(d.roles[r.roleId]),
+        })),
       });
       toast.success(`Limite de ${labelFor(item.flowType)} atualizado.`);
       await load();
@@ -101,7 +123,9 @@ export function LimitsTab() {
         <p className="text-sm text-zinc-400 max-w-2xl">
           Quantas gerações cada usuário pode fazer por dia, por fluxo. O limite reseta à meia-noite
           (fuso de São Paulo) e cada fluxo conta separado. "Correções/dia" é quantas vezes o usuário
-          pode regerar a mesma geração.
+          pode regerar a mesma geração. Os números valem para todo mundo — marque um papel em
+          "Ilimitado para" para liberar aquele grupo, ou libere um usuário específico pelo botão
+          "Limites" no card dele, na aba Usuários.
         </p>
         <Button variant="secondary" onClick={load} className="size-9 p-0 rounded-full shrink-0" aria-label="Recarregar">
           <RefreshCw className="size-4" />
@@ -117,7 +141,7 @@ export function LimitsTab() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
           {items.map((item) => {
-            const d = drafts[item.flowType] ?? { maxPerDay: String(item.maxPerDay), maxRegenerations: String(item.maxRegenerations) };
+            const d = drafts[item.flowType] ?? draftFrom(item);
             const saving = savingType === item.flowType;
             return (
               <div key={item.flowType} className="glass-premium-purple relative overflow-hidden flex flex-col gap-4 rounded-2xl border border-white/10 p-4 transition-all duration-200 hover:border-white/20 shadow-lg">
@@ -169,6 +193,39 @@ export function LimitsTab() {
                     />
                   </div>
                 </div>
+
+                {/* Liberação por papel: quem estiver marcado ignora os números acima. */}
+                {(item.roleOverrides ?? []).length > 0 && (
+                  <div className="relative z-10 space-y-2 rounded-xl border border-white/5 bg-black/20 p-3">
+                    <div className="flex items-center gap-1.5">
+                      <InfinityIcon className="size-3.5 text-brand-400" />
+                      <Label className="text-[10px] uppercase font-bold tracking-wider text-zinc-400">
+                        Ilimitado para
+                      </Label>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {item.roleOverrides.map((role) => {
+                        const on = Boolean(d.roles[role.roleId]);
+                        return (
+                          <button
+                            key={role.roleId}
+                            type="button"
+                            onClick={() => toggleRole(item.flowType, role.roleId)}
+                            aria-pressed={on}
+                            className={cn(
+                              "px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border transition-all duration-150",
+                              on
+                                ? "bg-brand-500/20 text-brand-300 border-brand-500/40"
+                                : "bg-white/5 text-zinc-500 border-white/10 hover:text-zinc-300 hover:border-white/20",
+                            )}
+                          >
+                            {roleLabel(role.authority)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="relative z-10 flex items-center justify-between gap-3">
                   <span className="text-[11px] text-zinc-500 truncate">

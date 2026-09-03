@@ -1,4 +1,5 @@
-import { Ban, Check, CircleUser, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Ban, Check, CircleUser, Infinity as InfinityIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -6,6 +7,7 @@ import {
   Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components";
 import type { User, UserRole, UserPlan, UserStatus } from "@/models/user";
+import { UserLimitsDialog } from "../user-limits-dialog";
 import { cn } from "@/utils/utils";
 
 const statusColors: Record<UserStatus, string> = {
@@ -40,6 +42,7 @@ export function UserCard({
   onPlanChange, onRoleChange, onAtualizar, onToggleBlock,
 }: UserCardProps) {
   const isBlocked = user.status === "bloqueado";
+  const [limitsOpen, setLimitsOpen] = useState(false);
 
   return (
     <div
@@ -97,6 +100,16 @@ export function UserCard({
           <Button
             size="sm"
             variant="ghost"
+            className="h-9 px-3 text-brand-400 hover:text-brand-300 hover:bg-brand-500/10 border border-brand-500/20"
+            onClick={() => setLimitsOpen(true)}
+            title="Liberar este usuário da cota diária em fluxos específicos"
+          >
+            <InfinityIcon className="size-3.5 mr-1.5" />
+            Limites
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
             className="h-9 px-3 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/20 disabled:opacity-30 disabled:border-transparent"
             onClick={() => onAtualizar(user)}
             disabled={busy || !hasChanges || isBlocked}
@@ -121,6 +134,13 @@ export function UserCard({
           </Button>
         </div>
       </div>
+
+      <UserLimitsDialog
+        open={limitsOpen}
+        onOpenChange={setLimitsOpen}
+        userId={user.id}
+        userEmail={user.email}
+      />
     </div>
   );
 }
