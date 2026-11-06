@@ -65,8 +65,10 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
       const content: UserResponse[] = res.data.content ?? [];
       const mapped = content.map(mapUserResponse);
       setUsers(mapped);
-      setTotalPages(res.data.totalPages ?? 1);
-      setTotalElements(res.data.totalElements ?? mapped.length);
+      // Backend serializa Page via DTO (PageSerializationMode.VIA_DTO): totais ficam em `page`.
+      const pageInfo = res.data.page;
+      setTotalPages(Math.max(1, pageInfo?.totalPages ?? 1));
+      setTotalElements(pageInfo?.totalElements ?? mapped.length);
     } catch {
       toast.error("Falha ao carregar usuários.");
     } finally {
