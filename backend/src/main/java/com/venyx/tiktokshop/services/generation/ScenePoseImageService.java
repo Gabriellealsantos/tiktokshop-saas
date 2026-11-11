@@ -48,6 +48,7 @@ public class ScenePoseImageService {
     private final TextProvider textProvider;
     private final StudioGenerationProcessor processor;
     private final StudioVideoPromptTx videoPromptTx;
+    private final StudioProductResolver productResolver;
 
     public ScenePoseImageService(ObjectMapper objectMapper,
                                  ProductRepository productRepository,
@@ -63,7 +64,8 @@ public class ScenePoseImageService {
                                  StudioVideoPromptComposer videoComposer,
                                  TextProvider textProvider,
                                  StudioGenerationProcessor processor,
-                                 StudioVideoPromptTx videoPromptTx) {
+                                 StudioVideoPromptTx videoPromptTx,
+                                 StudioProductResolver productResolver) {
         this.objectMapper = objectMapper;
         this.productRepository = productRepository;
         this.avatarRepository = avatarRepository;
@@ -79,6 +81,7 @@ public class ScenePoseImageService {
         this.textProvider = textProvider;
         this.processor = processor;
         this.videoPromptTx = videoPromptTx;
+        this.productResolver = productResolver;
     }
 
     @Transactional
@@ -87,7 +90,7 @@ public class ScenePoseImageService {
         limitService.assertCanGenerate(user.getUuid(), FlowType.STUDIO);
 
         Product catalogProduct = resolveCatalogProduct(req);
-        ProductRef product = resolveProduct(req, catalogProduct);
+        ProductRef product = resolveProduct(req, catalogProduct, user.getUuid());
         String avatarImageUrl = resolveAvatarImageUrl(req, user.getUuid());
 
         String prompt = promptBuilder.build(product, req);
@@ -155,11 +158,20 @@ public class ScenePoseImageService {
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + req.productId()));
     }
 
-    private ProductRef resolveProduct(StudioImageRequestDTO req, Product catalogProduct) {
+    /**
+     * Precedência: produto próprio do usuário → vitrine → produto avulso (nome + imagem
+     * enviada na hora). O produto próprio já nasce com imagem obrigatória e é resolvido
+     * pelo dono, então não passa pela validação de upload do produto avulso.
+     */
+    private ProductRef resolveProduct(StudioImageRequestDTO req, Product catalogProduct, UUID userId) {
+        if (req.userProductId() != null) {
+            UserProduct owned = productResolver.findOwned(req.userProductId(), userId);
+            assertHasImage(owned.getImageUrl());
+            return new ProductRef(owned.getName(), owned.getDescription(), owned.getImageUrl());
+        }
+
         if (catalogProduct != null) {
-            if (catalogProduct.getImageUrl() == null || catalogProduct.getImageUrl().isBlank()) {
-                throw new BusinessException("O produto selecionado não possui imagem cadastrada.");
-            }
+            assertHasImage(catalogProduct.getImageUrl());
             return new ProductRef(catalogProduct.getName(), catalogProduct.getDescription(),
                     catalogProduct.getImageUrl());
         }
@@ -184,6 +196,12 @@ public class ScenePoseImageService {
                     .getImageUrl();
         }
         throw new BusinessException("Informe um avatar seu ou um avatar da galeria.");
+    }
+
+    private void assertHasImage(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            throw new BusinessException("O produto selecionado não possui imagem cadastrada.");
+        }
     }
 
     private void assertUploadedIn(String imageUrl, String folder, String label) {

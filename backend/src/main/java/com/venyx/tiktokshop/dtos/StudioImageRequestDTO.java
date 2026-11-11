@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record StudioImageRequestDTO(
         Long productId,
+        Long userProductId,
 
         @Size(max = 255, message = "Nome do produto: máximo 255 caracteres")
         String customProductName,

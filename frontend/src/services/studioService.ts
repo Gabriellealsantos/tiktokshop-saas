@@ -27,6 +27,7 @@ export const getStudioUsage = () =>
 
 export const getPoseSuggestions = (data: {
     productId?: number;
+    userProductId?: number;
     customProductName?: string;
     customProductDescription?: string;
 }) =>
@@ -39,6 +40,7 @@ export const getPoseSuggestions = (data: {
 
 export const generateStudioScript = (data: {
     productId?: number;
+    userProductId?: number;
     customProductName?: string;
     customProductDescription?: string;
     location?: string;

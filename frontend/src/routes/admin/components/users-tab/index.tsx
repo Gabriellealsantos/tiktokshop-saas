@@ -17,6 +17,7 @@ interface UsersTabProps {
 }
 
 const PAGE_SIZE = 20;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export function UsersTab({ onPendingCountChange }: UsersTabProps) {
   const [users, setUsers] = useState<User[]>([]);
@@ -26,6 +27,9 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
   const [pendingRole, setPendingRole] = useState<Record<string, UserRole>>({});
 
   const [search, setSearch] = useState("");
+  // Busca é server-side (a paginação é do backend): o termo digitado só vai pra
+  // API após o debounce, e sempre reiniciando na primeira página.
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<User["status"] | "todos">("todos");
   const [roleFilter, setRoleFilter] = useState<UserRole | "todas">("todas");
   const [planFilter, setPlanFilter] = useState<UserPlan | "todos">("todos");
@@ -58,10 +62,10 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
     }
   }, [onPendingCountChange]);
 
-  const loadUsers = useCallback(async (pageToLoad: number) => {
+  const loadUsers = useCallback(async (pageToLoad: number, searchTerm: string) => {
     setLoading(true);
     try {
-      const res = await findAllUsers({ page: pageToLoad, size: PAGE_SIZE });
+      const res = await findAllUsers({ page: pageToLoad, size: PAGE_SIZE, search: searchTerm });
       const content: UserResponse[] = res.data.content ?? [];
       const mapped = content.map(mapUserResponse);
       setUsers(mapped);
@@ -81,20 +85,25 @@ export function UsersTab({ onPendingCountChange }: UsersTabProps) {
   }, [loadGlobalCounts]);
 
   useEffect(() => {
-    loadUsers(page);
-  }, [page, loadUsers]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(0);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    loadUsers(page, debouncedSearch);
+  }, [page, debouncedSearch, loadUsers]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
-      const matchSearch =
-        u.name.toLowerCase().includes(search.toLowerCase()) ||
-        u.email.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === "todos" || u.status === statusFilter;
       const matchRole = roleFilter === "todas" || u.role === roleFilter;
       const matchPlan = planFilter === "todos" || u.plan === planFilter;
-      return matchSearch && matchStatus && matchRole && matchPlan;
+      return matchStatus && matchRole && matchPlan;
     });
-  }, [users, search, statusFilter, roleFilter, planFilter]);
+  }, [users, statusFilter, roleFilter, planFilter]);
 
   const handlePlanChange = (id: string, plan: UserPlan) => {
     setPendingPlan((prev) => ({ ...prev, [id]: plan }));

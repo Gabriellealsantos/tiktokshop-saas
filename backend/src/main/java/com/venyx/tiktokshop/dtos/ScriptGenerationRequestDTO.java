@@ -2,6 +2,7 @@ package com.venyx.tiktokshop.dtos;
 
 public record ScriptGenerationRequestDTO(
         Long productId,
+        Long userProductId,
         String customProductName,
         String customProductDescription,
         String location,
@@ -9,4 +10,4 @@ public record ScriptGenerationRequestDTO(
         String lighting,
         String atmosphere,
         String pose
-) {}
+) implements StudioProductSource {}

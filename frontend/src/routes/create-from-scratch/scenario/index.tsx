@@ -14,6 +14,7 @@ import { SummaryBar } from "./components/summary-bar";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getPoseSuggestions } from "@/services/studioService";
+import { poseSuggestionsKey } from "../pose/pose-suggestions-key";
 
 const steps = [
   "Produto",
@@ -29,6 +30,7 @@ export default function ScenarioScreen() {
   const [searchParams] = useSearchParams();
   const search = {
     productId: searchParams.get("productId") ?? undefined,
+    userProductId: searchParams.get("userProductId") ?? undefined,
     avatarId: searchParams.get("avatarId") ?? undefined,
     applicationMode: searchParams.get("applicationMode") ?? undefined,
     local: searchParams.get("local") ?? undefined,
@@ -63,19 +65,22 @@ export default function ScenarioScreen() {
 
   // As sugestoes dependem so do produto, que ja esta na URL. Buscar aqui usa o tempo em que o
   // usuario escolhe cenario — quando ele chega na tela de pose, o cache ja esta quente.
+  // A chave precisa bater com a da tela de pose, senao o prefetch e desperdicado.
+  const { productId, userProductId } = search;
   useEffect(() => {
-    if (!search.productId) return;
+    if (!productId && !userProductId) return;
     queryClient.prefetchQuery({
-      queryKey: ["pose-suggestions", search.productId],
+      queryKey: ["pose-suggestions", poseSuggestionsKey(productId, userProductId)],
       queryFn: async () => {
         const response = await getPoseSuggestions({
-          productId: Number(search.productId),
+          productId: productId ? Number(productId) : undefined,
+          userProductId: userProductId ? Number(userProductId) : undefined,
         });
         return response.data.poses as string[];
       },
       staleTime: Infinity,
     });
-  }, [search.productId, queryClient]);
+  }, [productId, userProductId, queryClient]);
 
   return (
     <AppShell>
@@ -168,6 +173,8 @@ export default function ScenarioScreen() {
               toast("Em breve: Etapa Pose + Imagem");
               const params = new URLSearchParams();
               if (search.productId) params.set("productId", search.productId);
+              if (search.userProductId)
+                params.set("userProductId", search.userProductId);
               if (search.avatarId) params.set("avatarId", search.avatarId);
               if (search.applicationMode)
                 params.set("applicationMode", search.applicationMode);

@@ -1,5 +1,7 @@
 export type StudioImageRequest = {
     productId?: number;
+    /** Produto próprio do usuário — espaço de id independente de `productId`. */
+    userProductId?: number;
     customProductName?: string;
     customProductImageUrl?: string;
     avatarId?: number;

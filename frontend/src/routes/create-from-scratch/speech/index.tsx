@@ -60,6 +60,7 @@ export default function SpeechScreen() {
 
   const sessionId = searchParams.get("sessionId");
   const rawProductId = searchParams.get("productId");
+  const rawUserProductId = searchParams.get("userProductId");
   const customProductName =
     searchParams.get("customProductName") ?? undefined;
   const customProductDescription =
@@ -69,6 +70,7 @@ export default function SpeechScreen() {
     mutationFn: async () => {
       const response = await generateStudioScript({
         productId: rawProductId ? Number(rawProductId) : undefined,
+        userProductId: rawUserProductId ? Number(rawUserProductId) : undefined,
         customProductName,
         customProductDescription,
         location: LOCATION_LABEL[SCENE_LOCATION[search.local ?? ""]],
@@ -170,7 +172,9 @@ export default function SpeechScreen() {
                   setSpeechText={setSpeechText}
                   onGenerate={() => generateScript.mutate()}
                   isGenerating={generateScript.isPending}
-                  canGenerate={!!rawProductId || !!customProductName}
+                  canGenerate={
+                    !!rawProductId || !!rawUserProductId || !!customProductName
+                  }
                 />
                 <VoiceSelector voiceId={voiceId} setVoiceId={setVoiceId} />
               </div>
