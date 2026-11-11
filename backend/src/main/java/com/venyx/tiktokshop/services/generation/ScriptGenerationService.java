@@ -1,49 +1,30 @@
 package com.venyx.tiktokshop.services.generation;
 
 import com.venyx.tiktokshop.dtos.ScriptGenerationRequestDTO;
-import com.venyx.tiktokshop.entities.Product;
-import com.venyx.tiktokshop.repositories.ProductRepository;
+import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.services.AuthService;
-import com.venyx.tiktokshop.services.exceptions.BusinessException;
-import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ScriptGenerationService {
 
-    private final ProductRepository productRepository;
+    private final StudioProductResolver productResolver;
     private final TextProvider textProvider;
     private final AuthService authService;
 
-    public ScriptGenerationService(ProductRepository productRepository,
+    public ScriptGenerationService(StudioProductResolver productResolver,
                                    TextProvider textProvider,
                                    AuthService authService) {
-        this.productRepository = productRepository;
+        this.productResolver = productResolver;
         this.textProvider = textProvider;
         this.authService = authService;
     }
 
     public String generate(ScriptGenerationRequestDTO req) {
-        authService.authenticated();
+        User user = authService.authenticated();
+        StudioProduct product = productResolver.resolve(req, user.getUuid());
 
-        String name;
-        String description;
-
-        if (req.productId() != null) {
-            Product product = productRepository.findById(req.productId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Produto não encontrado: " + req.productId()));
-            name = product.getName();
-            description = product.getDescription();
-        } else if (req.customProductName() != null && !req.customProductName().isBlank()) {
-            name = req.customProductName().trim();
-            description = req.customProductDescription();
-        } else {
-            throw new BusinessException("Informe o produto para gerar o roteiro.");
-        }
-
-        String prompt = buildPrompt(name, description, req);
+        String prompt = buildPrompt(product.name(), product.description(), req);
         String raw = textProvider.generate(new TextProviderRequest(prompt, false)).text();
 
         return raw.trim()

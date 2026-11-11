@@ -1,11 +1,8 @@
 package com.venyx.tiktokshop.services.generation;
 
 import com.venyx.tiktokshop.dtos.PoseSuggestionRequestDTO;
-import com.venyx.tiktokshop.entities.Product;
-import com.venyx.tiktokshop.repositories.ProductRepository;
+import com.venyx.tiktokshop.entities.User;
 import com.venyx.tiktokshop.services.AuthService;
-import com.venyx.tiktokshop.services.exceptions.BusinessException;
-import com.venyx.tiktokshop.services.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,46 +10,33 @@ import java.util.List;
 @Service
 public class PoseSuggestionService {
 
-    private final ProductRepository productRepository;
+    private static final int MAX_POSES = 3;
+
+    private final StudioProductResolver productResolver;
     private final TextProvider textProvider;
     private final AuthService authService;
 
-    public PoseSuggestionService(ProductRepository productRepository,
+    public PoseSuggestionService(StudioProductResolver productResolver,
                                  TextProvider textProvider,
                                  AuthService authService) {
-        this.productRepository = productRepository;
+        this.productResolver = productResolver;
         this.textProvider = textProvider;
         this.authService = authService;
     }
 
 
     public List<String> generate(PoseSuggestionRequestDTO req) {
-        authService.authenticated();
+        User user = authService.authenticated();
+        StudioProduct product = productResolver.resolve(req, user.getUuid());
 
-        String name;
-        String description;
-
-        if (req.productId() != null) {
-            Product product = productRepository.findById(req.productId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Produto não encontrado: " + req.productId()));
-            name = product.getName();
-            description = product.getDescription();
-        } else if (req.customProductName() != null && !req.customProductName().isBlank()) {
-            name = req.customProductName().trim();
-            description = req.customProductDescription();
-        } else {
-            throw new BusinessException("Informe o produto para gerar as sugestões.");
-        }
-
-        String prompt = buildPrompt(name, description);
+        String prompt = buildPrompt(product.name(), product.description());
         String raw = textProvider.generate(new TextProviderRequest(prompt, false)).text();
 
         return raw.lines()
                 .map(String::trim)
                 .filter(line -> !line.isBlank())
                 .map(line -> line.replaceFirst("^[\\d\\-.)\\s]+", "")) // tira "1.", "- ", etc.
-                .limit(3)
+                .limit(MAX_POSES)
                 .toList();
     }
 

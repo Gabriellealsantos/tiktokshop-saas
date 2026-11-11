@@ -18,6 +18,9 @@ import {
 import { PONTOS_DE_VISTA } from "./pov-data";
 import { useQuery } from "@tanstack/react-query";
 import { getProductById } from "@/services/productService";
+import { getUserProductById } from "@/services/userProductService";
+import type { UserProduct } from "@/models/user-product";
+import { poseSuggestionsKey } from "./pose-suggestions-key";
 import {
   useMyAvatars,
   useGalleryAvatars,
@@ -39,6 +42,7 @@ export default function PoseScreen() {
   const [searchParams] = useSearchParams();
   const search = {
     productId: searchParams.get("productId") ?? undefined,
+    userProductId: searchParams.get("userProductId") ?? undefined,
     avatarId: searchParams.get("avatarId") ?? undefined,
     applicationMode: searchParams.get("applicationMode") ?? undefined,
     local: searchParams.get("local") ?? undefined,
@@ -69,25 +73,32 @@ export default function PoseScreen() {
   const avatarNumericId = Number(rawAvatar.slice(1));
 
   const rawProductId = searchParams.get("productId");
+  const rawUserProductId = searchParams.get("userProductId");
   const customName = searchParams.get("customProductName") ?? undefined;
   const customImage = searchParams.get("customProductImageUrl") ?? undefined;
 
-  const productKey = rawProductId ?? customName ?? "none";
+  const productId = rawProductId ? Number(rawProductId) : undefined;
+  const userProductId = rawUserProductId ? Number(rawUserProductId) : undefined;
+  const hasProduct = !!productId || !!userProductId || !!customName;
 
   const {
     data: sugestoes = [],
     isFetching: loadingSugestoes,
     refetch: refetchSugestoes,
   } = useQuery({
-    queryKey: ["pose-suggestions", productKey],
+    queryKey: [
+      "pose-suggestions",
+      poseSuggestionsKey(rawProductId, rawUserProductId, customName),
+    ],
     queryFn: async () => {
       const response = await getPoseSuggestions({
-        productId: rawProductId ? Number(rawProductId) : undefined,
+        productId,
+        userProductId,
         customProductName: customName,
       });
       return response.data.poses as string[];
     },
-    enabled: !!rawProductId || !!customName,
+    enabled: hasProduct,
     staleTime: Infinity,
     gcTime: 30 * 60 * 1000,
   });
@@ -98,7 +109,16 @@ export default function PoseScreen() {
       const response = await getProductById(Number(rawProductId));
       return response.data as { name: string; imageUrl: string };
     },
-    enabled: !!rawProductId,
+    enabled: !!productId,
+  });
+
+  const { data: userProductData } = useQuery({
+    queryKey: ["user-product", rawUserProductId],
+    queryFn: async () => {
+      const response = await getUserProductById(Number(rawUserProductId));
+      return response.data as UserProduct;
+    },
+    enabled: !!userProductId,
   });
 
   const { data: myAvatars } = useMyAvatars();
@@ -108,11 +128,13 @@ export default function PoseScreen() {
     ? (gallery ?? []).find((a) => a.id === avatarNumericId)
     : (myAvatars?.items ?? []).find((a) => a.id === avatarNumericId);
 
-  const produto = customName
-    ? { name: customName, image: customImage }
-    : productData
-      ? { name: productData.name, image: productData.imageUrl }
-      : undefined;
+  const produto = userProductData
+    ? { name: userProductData.name, image: userProductData.imageUrl ?? undefined }
+    : customName
+      ? { name: customName, image: customImage }
+      : productData
+        ? { name: productData.name, image: productData.imageUrl }
+        : undefined;
 
   const avatar = avatarReal
     ? { name: avatarReal.name, image: avatarReal.imageUrl }
@@ -148,6 +170,8 @@ export default function PoseScreen() {
             onClick={() => {
               const params = new URLSearchParams();
               if (search.productId) params.set("productId", search.productId);
+              if (search.userProductId)
+                params.set("userProductId", search.userProductId);
               if (search.avatarId) params.set("avatarId", search.avatarId);
               if (search.applicationMode)
                 params.set("applicationMode", search.applicationMode);
@@ -247,7 +271,8 @@ export default function PoseScreen() {
           isPoseValid={isPoseValid}
           onGenerate={() =>
             generate.generate({
-              productId: rawProductId ? Number(rawProductId) : undefined,
+              productId,
+              userProductId,
               customProductName: customName,
               customProductImageUrl: customImage,
               avatarId: isGallery ? undefined : avatarNumericId,
@@ -283,6 +308,8 @@ export default function PoseScreen() {
             onClick={() => {
               const params = new URLSearchParams();
               if (search.productId) params.set("productId", search.productId);
+              if (search.userProductId)
+                params.set("userProductId", search.userProductId);
               if (search.avatarId) params.set("avatarId", search.avatarId);
               if (search.applicationMode)
                 params.set("applicationMode", search.applicationMode);
@@ -297,6 +324,8 @@ export default function PoseScreen() {
             onClick={() => {
               const params = new URLSearchParams();
               if (search.productId) params.set("productId", search.productId);
+              if (search.userProductId)
+                params.set("userProductId", search.userProductId);
               if (search.avatarId) params.set("avatarId", search.avatarId);
               if (search.applicationMode)
                 params.set("applicationMode", search.applicationMode);

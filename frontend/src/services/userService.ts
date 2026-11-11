@@ -27,7 +27,7 @@ export const removeProfilePhoto = () =>
   requestBackend({ method: "DELETE", url: "/users/me/photo", withCredentials: true });
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
-export const findAllUsers = (params?: { page?: number; size?: number }) =>
+export const findAllUsers = (params?: { page?: number; size?: number; search?: string }) =>
   requestBackend({
     method: "GET",
     url: "/users",
